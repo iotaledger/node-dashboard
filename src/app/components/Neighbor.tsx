@@ -106,11 +106,11 @@ export class Neighbor extends React.Component<Props, any> {
                                                 <Badge variant="warning">Waiting</Badge>
                                             </When>
                                             <When
-                                                condition={last.heartbeat.solid_milestone_index < this.props.nodeStore.status.lmi}>
+                                                condition={last.heartbeat.solid_milestone_index < this.props.nodeStore.syncStatus.lmi}>
                                                 <Badge variant="warning">Unsynced</Badge>
                                             </When>
                                             <When
-                                                condition={last.heartbeat.pruned_milestone_index > this.props.nodeStore.status.lsmi}>
+                                                condition={last.heartbeat.pruned_milestone_index > this.props.nodeStore.syncStatus.lsmi}>
                                                 <Badge variant="danger">Milestones Pruned</Badge>
                                             </When>
                                             <Otherwise>

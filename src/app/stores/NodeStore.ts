@@ -23,9 +23,12 @@ class ReqQMetric {
     ts: string;
 }
 
-class Status {
+class SyncStatus {
     lsmi: number;
     lmi: number;
+}
+
+class Status {
     snapshot_index: number;
     pruning_index: number;
     is_healthy: boolean;
@@ -321,6 +324,7 @@ const statusWebSocketPath = "/ws";
 const maxMetricsDataPoints = 900;
 
 export class NodeStore {
+    @observable syncStatus: SyncStatus = new SyncStatus();
     @observable status: Status = new Status();
     @observable websocket: WebSocket;
     @observable websocketConnected: boolean = false;
@@ -349,6 +353,7 @@ export class NodeStore {
 
     registerHandlers = () => {
         // main
+        registerHandler(WSMsgType.SyncStatus, this.updateSyncStatus);
         registerHandler(WSMsgType.Status, this.updateStatus);
         registerHandler(WSMsgType.TPSMetrics, this.updateLastTPSMetric);
         registerHandler(WSMsgType.ConfirmedMsMetrics, this.updateConfirmedMilestoneMetrics);
@@ -380,6 +385,7 @@ export class NodeStore {
 
     registerMainTopics = () => {
         // main
+        this.registerWebsocketTopic(WSMsgType.SyncStatus);
         this.registerWebsocketTopic(WSMsgType.Status);
         this.registerWebsocketTopic(WSMsgType.TPSMetrics);
         this.registerWebsocketTopic(WSMsgType.ConfirmedMsMetrics);
@@ -393,6 +399,7 @@ export class NodeStore {
 
     unregisterMainTopics = () => {
         // main
+        this.unregisterWebsocketTopic(WSMsgType.SyncStatus);
         this.unregisterWebsocketTopic(WSMsgType.Status);
         this.unregisterWebsocketTopic(WSMsgType.TPSMetrics);
         this.unregisterWebsocketTopic(WSMsgType.ConfirmedMsMetrics);
@@ -508,8 +515,8 @@ export class NodeStore {
         if (this.status.node_alias !== "") {
             title = `${title} (${this.status.node_alias})`;
         }
-        if (this.status.lmi > 0) {
-            title = `${title} ${this.status.lsmi} / ${this.status.lmi}`;
+        if (this.syncStatus.lmi > 0) {
+            title = `${title} ${this.syncStatus.lsmi} / ${this.syncStatus.lmi}`;
         }
 
         return title;
@@ -522,7 +529,7 @@ export class NodeStore {
 
     @computed
     get msDelta(): number {
-        return this.status.lmi - this.status.lsmi;
+        return this.syncStatus.lmi - this.syncStatus.lsmi;
     }
 
     @computed
@@ -533,14 +540,14 @@ export class NodeStore {
 
     @computed
     get percentageSynced(): number {
-        if (!this.status.lmi) return 0;
-        return Math.floor((this.status.lsmi / this.status.lmi) * 100);
+        if (!this.syncStatus.lmi) return 0;
+        return Math.floor((this.syncStatus.lsmi / this.syncStatus.lmi) * 100);
     };
 
     @computed
     get solidifierSolidReachedPercentage(): number {
-        if (!this.status.lmi) return 0;
-        return Math.floor((1 - (this.status.current_requested_ms / this.status.lmi)) * 100);
+        if (!this.syncStatus.lmi) return 0;
+        return Math.floor((1 - (this.status.current_requested_ms / this.syncStatus.lmi)) * 100);
     }
 
     @computed
@@ -563,6 +570,11 @@ export class NodeStore {
         }
         return 0
     }
+
+    @action
+    updateSyncStatus = (syncStatus: SyncStatus) => {
+        this.syncStatus = syncStatus;
+    };
 
     @action
     updateStatus = (status: Status) => {

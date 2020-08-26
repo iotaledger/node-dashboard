@@ -25,8 +25,8 @@ export default class LatestMilestone extends React.Component<Props, any> {
                     }
                 >
                     <span>
-                        {this.props.nodeStore.status.lsmi} {' / '}
-                        {this.props.nodeStore.status.lmi}
+                        {this.props.nodeStore.syncStatus.lsmi} {' / '}
+                        {this.props.nodeStore.syncStatus.lmi}
                     </span>
                 </OverlayTrigger>
             </React.Fragment>

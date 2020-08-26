@@ -4,6 +4,7 @@ enum WSCommand {
 }
 
 export enum WSMsgType {
+    SyncStatus,
     Status,
     TPSMetrics,
     TipSelMetric,
