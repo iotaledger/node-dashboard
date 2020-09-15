@@ -87,32 +87,6 @@ export class ExplorerAddressQueryResult extends React.Component<Props, State> {
                 <h3>Address</h3>
                 <p>
                     <span className={style.monospace}> {hash} {' '} </span>
-                    {
-                        addr &&
-                        <React.Fragment>
-                            <br/>
-                            {
-                                addr.spent_enabled ?
-                                    addr.spent ?
-                                        addr.balance > 0 ?
-                                            <Badge variant="danger">
-                                                Spent - funds are at risk
-                                            </Badge>
-                                            :
-                                            <Badge variant="warning">
-                                                Spent
-                                            </Badge>
-                                        :
-                                        <Badge variant="secondary">
-                                            Unspent
-                                        </Badge>
-                                    :
-                                    <Badge variant="warning">
-                                        Spent status unknown! - Disabled on this node
-                                    </Badge>
-                            }
-                        </React.Fragment>
-                    }
                 </p>
                 {
                     addr !== null ?

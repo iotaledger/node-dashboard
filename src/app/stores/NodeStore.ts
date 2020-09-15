@@ -94,7 +94,6 @@ class ServerMetrics {
     dropped_sent_packets: number;
     sent_spam_txs: number;
     validated_bundles: number;
-    spent_addr: number;
     ts: number;
 }
 
@@ -286,7 +285,6 @@ const chartSeriesOpts = {
 class DbSizeMetric {
     tangle: number;
     snapshot: number;
-    spent: number;
     ts: number;
 }
 
@@ -1003,9 +1001,6 @@ export class NodeStore {
         let snapshot = Object.assign({}, chartSeriesOpts,
             series("Snapshot", 'rgba(53, 109, 230,1)', 'rgba(53, 109, 230,0.4)')
         );
-        let spent = Object.assign({}, chartSeriesOpts,
-            series("Spent Addresses", 'rgba(159, 53, 230,1)', 'rgba(159, 53, 230,0.4)')
-        );
         let total = Object.assign({}, chartSeriesOpts,
             series("Total", 'rgba(219, 144, 53,1)', 'rgba(219, 144, 53,0.4)')
         );
@@ -1016,13 +1011,12 @@ export class NodeStore {
             labels.push(dateformat(new Date(metric.ts * 1000), "HH:MM:ss"));
             tangle.data.push(metric.tangle);
             snapshot.data.push(metric.snapshot);
-            spent.data.push(metric.spent);
-            total.data.push(metric.tangle + metric.snapshot + metric.spent);
+            total.data.push(metric.tangle + metric.snapshot);
         }
 
         return {
             labels: labels,
-            datasets: [tangle, snapshot, spent, total]
+            datasets: [tangle, snapshot, total]
         };
     }
 

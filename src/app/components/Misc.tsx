@@ -185,8 +185,8 @@ export class Misc extends React.Component<Props, any> {
     }
 
     getDatabaseSize = () => {
-        const { tangle, snapshot, spent } = this.props.nodeStore.last_dbsize_metric;
-        const totalSize = tangle + snapshot + spent;
+        const { tangle, snapshot } = this.props.nodeStore.last_dbsize_metric;
+        const totalSize = tangle + snapshot;
 
         if (this.useGB(totalSize)) {
             return `${(totalSize / GB_TO_BYTES).toFixed(3)} GB`;
@@ -195,8 +195,8 @@ export class Misc extends React.Component<Props, any> {
     }
 
     render() {
-        const { tangle, snapshot, spent } = this.props.nodeStore.last_dbsize_metric;
-        const dbSize = tangle + snapshot + spent;
+        const { tangle, snapshot } = this.props.nodeStore.last_dbsize_metric;
+        const dbSize = tangle + snapshot;
 
         return (
             <Container fluid>
