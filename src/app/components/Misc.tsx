@@ -185,18 +185,16 @@ export class Misc extends React.Component<Props, any> {
     }
 
     getDatabaseSize = () => {
-        const { tangle, snapshot } = this.props.nodeStore.last_dbsize_metric;
-        const totalSize = tangle + snapshot;
+        const { total } = this.props.nodeStore.last_dbsize_metric;
 
-        if (this.useGB(totalSize)) {
-            return `${(totalSize / GB_TO_BYTES).toFixed(3)} GB`;
+        if (this.useGB(total)) {
+            return `${(total / GB_TO_BYTES).toFixed(3)} GB`;
         }
-        return `${(totalSize / MB_TO_BYTES).toFixed(3)} MB`;
+        return `${(total / MB_TO_BYTES).toFixed(3)} MB`;
     }
 
     render() {
-        const { tangle, snapshot } = this.props.nodeStore.last_dbsize_metric;
-        const dbSize = tangle + snapshot;
+        const { total } = this.props.nodeStore.last_dbsize_metric;
 
         return (
             <Container fluid>
@@ -306,7 +304,7 @@ export class Misc extends React.Component<Props, any> {
                         <Card>
                             <Card.Body>
                                 <Card.Title>Database</Card.Title>
-                                <If condition={!!this.props.nodeStore.last_dbsize_metric.tangle}>
+                                <If condition={!!this.props.nodeStore.last_dbsize_metric.total}>
                                     <Container className={"d-flex justify-content-between align-items-center"}>
                                         <small>
                                             Size: {this.getDatabaseSize()}
@@ -323,7 +321,7 @@ export class Misc extends React.Component<Props, any> {
                                 </If>
                                 <div className={style.hornetChart}>
                                     <Line data={this.props.nodeStore.dbSizeSeries}
-                                        options={this.useGB(dbSize) ? dbSizeLineChartOptsGB : dbSizeLineChartOptsMB}/>
+                                        options={this.useGB(total) ? dbSizeLineChartOptsGB : dbSizeLineChartOptsMB}/>
                                 </div>
                             </Card.Body>
                         </Card>

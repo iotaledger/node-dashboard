@@ -283,8 +283,7 @@ const chartSeriesOpts = {
 };
 
 class DbSizeMetric {
-    tangle: number;
-    snapshot: number;
+    total: number;
     ts: number;
 }
 
@@ -995,12 +994,6 @@ export class NodeStore {
 
     @computed
     get dbSizeSeries() {
-        let tangle = Object.assign({}, chartSeriesOpts,
-            series("Tangle", 'rgba(53, 180, 219,1)', 'rgba(53, 180, 219,0.4)')
-        );
-        let snapshot = Object.assign({}, chartSeriesOpts,
-            series("Snapshot", 'rgba(53, 109, 230,1)', 'rgba(53, 109, 230,0.4)')
-        );
         let total = Object.assign({}, chartSeriesOpts,
             series("Total", 'rgba(219, 144, 53,1)', 'rgba(219, 144, 53,0.4)')
         );
@@ -1009,14 +1002,12 @@ export class NodeStore {
         for (let i = 0; i < this.collected_dbsize_metrics.length; i++) {
             let metric: DbSizeMetric = this.collected_dbsize_metrics[i];
             labels.push(dateformat(new Date(metric.ts * 1000), "HH:MM:ss"));
-            tangle.data.push(metric.tangle);
-            snapshot.data.push(metric.snapshot);
-            total.data.push(metric.tangle + metric.snapshot);
+            total.data.push(metric.total);
         }
 
         return {
             labels: labels,
-            datasets: [tangle, snapshot, total]
+            datasets: [total]
         };
     }
 
