@@ -186,7 +186,6 @@ export class Neighbor extends React.Component<Props, any> {
                                         <tr>
                                             <td>{last.info.numberOfAllTransactions}</td>
                                             <td>{last.info.numberOfNewTransactions}</td>
-                                            <td><small>{last.info.numberOfStaleTransactions}</small></td>
                                             <td><small>{last.info.numberOfSentTransactions}</small></td>
                                             <td><small>{last.info.numberOfDroppedSentPackets}</small></td>
                                         </tr>
