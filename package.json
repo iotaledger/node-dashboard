@@ -55,7 +55,7 @@
     "@iota/transaction-converter": "^1.0.0-beta.23",
     "@types/glob": "^7.1.1",
     "bootstrap": "^4.3.1",
-    "chart.js": "^2.9.3",
+    "chart.js": "^2.9.4",
     "chartjs-plugin-streaming": "^1.8.0",
     "classnames": "^2.2.6",
     "dateformat": "^3.0.3",
