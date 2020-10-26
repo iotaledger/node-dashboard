@@ -77,6 +77,7 @@
   "resolutions": {
     "bl": ">=4.0.3",
     "lodash": ">=4.17.20",
-    "mkdirp": "^0.5.5"
+    "mkdirp": "^0.5.5",
+    "node-forge": ">=0.10.0"
   }
 }
