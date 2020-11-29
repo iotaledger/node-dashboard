@@ -10,7 +10,7 @@ import { Explorer } from "app/components/Explorer";
 import { NavExplorerSearchbar } from "app/components/NavExplorerSearchbar";
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
-import { ExplorerTransactionQueryResult } from "app/components/ExplorerTransactionQueryResult";
+import { ExplorerMessageQueryResult } from "app/components/ExplorerMessageQueryResult";
 import { ExplorerBundleQueryResult } from "app/components/ExplorerBundleQueryResult";
 import { ExplorerAddressQueryResult } from "app/components/ExplorerAddressResult";
 import { ExplorerTagQueryResult } from "app/components/ExplorerTagResult";
@@ -52,7 +52,7 @@ export class Root extends React.Component<Props, any> {
                             src="/assets/favicon.svg"
                             width="40"
                             className="d-inline-block"
-                            alt="Hornet"
+                            alt="HORNET"
                         />
                     </Navbar.Brand>
                     <Navbar.Toggle aria-controls="main-navbar-nav" />
@@ -100,8 +100,7 @@ export class Root extends React.Component<Props, any> {
                 <Switch>
                     <Route exact path="/dashboard" component={Dashboard} />
                     <Route exact path="/debug" component={Misc} />
-                    <Route exact path="/neighbors" component={Neighbors} />
-                    <Route exact path="/explorer/tx/:hash" component={ExplorerTransactionQueryResult} />
+                    <Route exact path="/explorer/msgs/:hash" component={ExplorerMessageQueryResult} />
                     <Route exact path="/explorer/bundle/:hash" component={ExplorerBundleQueryResult} />
                     <Route exact path="/explorer/addr/:hash" component={ExplorerAddressQueryResult} />
                     <Route exact path="/explorer/tag/:hash" component={ExplorerTagQueryResult} />

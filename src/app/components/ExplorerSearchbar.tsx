@@ -7,7 +7,7 @@ import ExplorerStore from "app/stores/ExplorerStore";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import InputGroup from "react-bootstrap/InputGroup";
-import {toInputUppercase} from "app/misc/Utils";
+import {toInputLowercase} from "app/misc/Utils";
 
 interface Props {
     nodeStore?: NodeStore;
@@ -37,10 +37,10 @@ export class ExplorerSearchbar extends React.Component<Props, any> {
                     <Col>
                         <InputGroup className="mb-3">
                             <FormControl
-                                placeholder="Bundle-, address-, transaction hash or milestone index"
-                                aria-label="Bundle-, address-, transaction hash or milestone index"
+                                placeholder="Address, message ID or milestone index"
+                                aria-label="Address, message ID or milestone index"
                                 aria-describedby="basic-addon1"
-                                value={search} onChange={this.updateSearch} onInput={toInputUppercase}
+                                value={search} onChange={this.updateSearch} onInput={toInputLowercase}
                                 onKeyUp={this.executeSearch}
                                 disabled={searching}
                             />

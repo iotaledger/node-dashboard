@@ -48,19 +48,19 @@ const lineChartOptions = Object.assign({
 
 @inject("nodeStore")
 @observer
-export default class TPSChart extends React.Component<Props, any> {
+export default class MPSChart extends React.Component<Props, any> {
     render() {
         return (
             <Card className={style.hornetCardEqual}>
                 <Card.Body>
-                    <Card.Title>Transactions Per Second</Card.Title>
+                    <Card.Title>Messages per second</Card.Title>
                     <small>
-                        Incoming: {this.props.nodeStore.last_tps_metric.incoming}.
-                        New: {this.props.nodeStore.last_tps_metric.new}.
-                        Outgoing: {this.props.nodeStore.last_tps_metric.outgoing}.
+                        Incoming: {this.props.nodeStore.last_mps_metric.incoming}.
+                        New: {this.props.nodeStore.last_mps_metric.new}.
+                        Outgoing: {this.props.nodeStore.last_mps_metric.outgoing}.
                     </small>
                     <div className={style.hornetChart}>
-                        <Line data={this.props.nodeStore.tpsSeries} options={lineChartOptions}/>
+                        <Line data={this.props.nodeStore.mpsSeries} options={lineChartOptions}/>
                     </div>
                 </Card.Body>
             </Card>

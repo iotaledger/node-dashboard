@@ -422,7 +422,7 @@ export class VisualizerStore {
         }).mouseLeave((node) => {
             this.clearSelected();
         }).dblClick((node) => {
-            this.openTransaction(node.data);
+            this.openMessage(node.data);
         });
         this.graphics = graphics;
         this.renderer.run();
@@ -493,10 +493,10 @@ export class VisualizerStore {
     }
 
     @action
-    openTransaction = (vert: Vertex) => {
+    openMessage = (vert: Vertex) => {
         if (!vert) return;
 
-        var win = window.open(`/explorer/tx/${vert.id}`, '_blank', 'noopener');
+        var win = window.open(`/explorer/msgs/${vert.id}`, '_blank', 'noopener');
         win.focus();
     }
 

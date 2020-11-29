@@ -31,31 +31,31 @@ interface Props {
     }
 }
 
-const tooltip_hash = (
-    <Tooltip id="tooltip_hash">
-        Copy TX hash
+const tooltip_id = (
+    <Tooltip id="tooltip_id">
+        Copy message ID
     </Tooltip>
 );
 
-const tooltip_trytes = (
-    <Tooltip id="tooltip_trytes">
-        Copy TX raw trytes
+const tooltip_bytes = (
+    <Tooltip id="tooltip_bytes">
+        Copy message raw bytes
     </Tooltip>
 );
 
 @inject("nodeStore")
 @inject("explorerStore")
 @observer
-export class ExplorerTransactionQueryResult extends React.Component<Props, any> {
+export class ExplorerMessageQueryResult extends React.Component<Props, any> {
 
     componentDidMount() {
         this.props.explorerStore.resetSearch();
-        this.props.explorerStore.searchTx(this.props.match.params.hash);
+        this.props.explorerStore.searchMsg(this.props.match.params.hash);
     }
 
     getSnapshotBeforeUpdate(prevProps: Props, prevState) {
         if (prevProps.match.params.hash !== this.props.match.params.hash) {
-            this.props.explorerStore.searchTx(this.props.match.params.hash);
+            this.props.explorerStore.searchMsg(this.props.match.params.hash);
         }
         return null;
     }
@@ -67,50 +67,53 @@ export class ExplorerTransactionQueryResult extends React.Component<Props, any> 
 
     render() {
         let {hash} = this.props.match.params;
-        let {tx, query_loading, query_err} = this.props.explorerStore;
-        let approversEle = [];
-        if (tx) {
-            if (tx.approvers) {
-                for (let i = 0; i < tx.approvers.length; i++) {
-                    let approversHash = tx.approvers[i];
-                    approversEle.push(
+        let {msgMeta, query_loading, query_err} = this.props.explorerStore;
+        let childrenEle = [];
+        if (msgMeta) {
+            // ToDo: add children
+            /*
+            if (msgMeta.children) {
+                for (let i = 0; i < msgMeta.children.length; i++) {
+                    let childrenHash = msgMeta.children[i];
+                    childrenEle.push(
                         <ListGroup.Item>
                             <small>
-                                <Link to={`/explorer/tx/${approversHash}`}>{approversHash}</Link>
+                                <Link to={`/explorer/msgs/${childrenHash}`}>{childrenHash}</Link>
                             </small>
                         </ListGroup.Item>
                     );
                 }
             }
+            */
         }
         return (
             <Container fluid>
                 <If condition={query_err !== null}>
                     <Alert variant={"warning"}>
-                        Requested transaction unknown on this node!
+                        Requested message unknown on this node!
                     </Alert>
                 </If>
                 <If condition={query_err === null}>
                     <h3>
                         {
-                            tx ?
+                            msgMeta ?
                                 <span>
                                 {
-                                    tx.is_milestone ?
-                                        <span>Milestone {tx.milestone_index}</span> :
-                                        'Transaction'
+                                    msgMeta.is_milestone ?
+                                        <span>Milestone {msgMeta.milestone_index}</span> :
+                                        'Message'
                                 }
                             </span>
                                 :
-                                <span>Transaction</span>
+                                <span>Message</span>
                         }
                     </h3>
                     <p className={`text-break`}>
                         <span className={style.monospace}> {hash} {' '} </span>
                         {
-                            tx &&
+                            msgMeta &&
                             <React.Fragment>
-                                <OverlayTrigger placement="bottom" overlay={tooltip_hash}>
+                                <OverlayTrigger placement="bottom" overlay={tooltip_id}>
                                     <CopyToClipboard text={hash} onCopy={() => {
                                         this.setState({copied_hash: true});
                                         const timer_hash = setTimeout(() => {
@@ -124,8 +127,8 @@ export class ExplorerTransactionQueryResult extends React.Component<Props, any> 
                                     </CopyToClipboard>
                                 </OverlayTrigger>
                                 {' '}
-                                <OverlayTrigger placement="bottom" overlay={tooltip_trytes}>
-                                    <CopyToClipboard text={tx.raw_trytes} onCopy={() => {
+                                <OverlayTrigger placement="bottom" overlay={tooltip_bytes}>
+                                    <CopyToClipboard text={msgMeta.raw_trytes} onCopy={() => {
                                         this.setState({copied_raw: true});
                                         const timer_raw = setTimeout(() => {
                                             this.setState({copied_raw: false});
@@ -139,43 +142,33 @@ export class ExplorerTransactionQueryResult extends React.Component<Props, any> 
                                 </OverlayTrigger>
                                 <br/>
                                 <span>
-                                <Badge variant="light">
-                                   Time: {dateformat(new Date(tx.timestamp * 1000), "dd.mm.yyyy HH:MM:ss")}
                                     {
-                                        tx.attachment_timestamp !== 0 &&
-                                        <span>
-                                            {', '}Attachment Timestamp: {dateformat(new Date(tx.attachment_timestamp), "dd.mm.yyyy HH:MM:ss")}
-                                        </span>
-                                    }
-                                </Badge>
-                                    {' '}
-                                    {
-                                        tx.solid ?
+                                        msgMeta.isSolid ?
                                             <Badge variant="primary">Solid</Badge>
                                             :
                                             <Badge variant="light">Unsolid</Badge>
                                     }
                                     {' '}
                                     {
-                                        tx.is_milestone ?
-                                            tx.confirmed.state ?
+                                        msgMeta.is_milestone ?
+                                            msgMeta.referenced.state ?
                                                 <Badge variant="success">
-                                                    Confirmed
+                                                    Referenced
                                                 </Badge>
                                                 :
                                                 <Badge variant="primary">Valid</Badge>
                                             :
-                                            tx.confirmed.state ?
-                                                tx.confirmed.conflicting ?
+                                            msgMeta.referenced.state ?
+                                                msgMeta.referenced.conflicting ?
                                                     <Badge variant="danger">
-                                                        Conflicting at Milestone {tx.confirmed.milestone_index}
+                                                        Conflicting at Milestone {msgMeta.referenced.milestone_index}
                                                     </Badge>
                                                     :
                                                     <Badge variant="success">
-                                                        Confirmed by Milestone {tx.confirmed.milestone_index}
+                                                        Referenced by Milestone {msgMeta.referenced.milestone_index}
                                                     </Badge>
                                                 :
-                                                <Badge variant="light">Unconfirmed</Badge>
+                                                <Badge variant="light">Unreferenced</Badge>
                                     }
                             </span>
                             </React.Fragment>
@@ -189,105 +182,50 @@ export class ExplorerTransactionQueryResult extends React.Component<Props, any> 
                         </Col>
                     </Row>
                     {
-                        tx &&
+                        msgMeta &&
                         <React.Fragment>
                             <Row className={"mb-3"}>
                                 <Col>
                                     <ListGroup>
-                                        <ListGroup.Item>Value: <IOTAValue>{tx.value}</IOTAValue></ListGroup.Item>
-                                        <ListGroup.Item>
-                                            Tag: {' '}
-                                            <Link to={`/explorer/tag/${tx.tag}`} className={style.monospace}>
-                                                {tx.tag}
+                                        <ListGroup.Item className="text-break">
+                                            Parent 1: {' '}
+                                            <Link to={`/explorer/msgs/${msgMeta.parent1MessageId}`} className={style.monospace}>
+                                                {msgMeta.parent1MessageId}
                                             </Link>
-                                        </ListGroup.Item>
-                                        <ListGroup.Item className={style.monospace}>
-                                            Obsolete Tag: {tx.obsolete_tag}
                                         </ListGroup.Item>
                                     </ListGroup>
                                 </Col>
                                 <Col>
                                     <ListGroup>
-                                        <ListGroup.Item>
-                                            Index: {' '}
-                                            {
-                                                tx.current_index !== 0 &&
-                                                tx.previous !== ''
-                                                    ?
-                                                    <Link className={style.prevNextButton}
-                                                          to={`/explorer/tx/${tx.previous}`}>
-                                                        {'< '}
-                                                    </Link>
-                                                    :
-                                                    <Link
-                                                        className={[style.prevNextButton, style.hidden].join(" ")}
-                                                        to={`/explorer/tx/${tx.previous}`}
-                                                    >
-                                                        {'< '}
-                                                    </Link>
-                                            }
-                                            {tx.current_index}
-                                            /
-                                            {tx.last_index}
-                                            {
-                                                tx.current_index !== tx.last_index &&
-                                                tx.next !== ''
-                                                &&
-                                                <Link className={style.prevNextButton} to={`/explorer/tx/${tx.next}`}>
-                                                    {'> '}
-                                                </Link>
-                                            }
-                                            {
-                                                tx.current_index === 0 &&
-                                                <React.Fragment>
-                                                    {' '}
-                                                    <Badge variant="light">Tail Transaction</Badge>
-                                                </React.Fragment>
-                                            }
+                                        <ListGroup.Item className="text-break">
+                                            Parent 2: {' '}
+                                            <Link to={`/explorer/msgs/${msgMeta.parent2MessageId}`} className={style.monospace}>
+                                                {msgMeta.parent2MessageId}
+                                            </Link>
                                         </ListGroup.Item>
-                                        <ListGroup.Item>MWM: {tx.mwm}</ListGroup.Item>
                                     </ListGroup>
                                 </Col>
                             </Row>
                             <Row className={"mb-3"}>
                                 <Col>
                                     <ListGroup>
-                                        <ListGroup.Item className="text-break">
-                                            Trunk: {' '}
-                                            <Link to={`/explorer/tx/${tx.trunk}`} className={style.monospace}>
-                                                {tx.trunk}
-                                            </Link>
-                                        </ListGroup.Item>
-                                    </ListGroup>
-                                </Col>
-                                <Col>
-                                    <ListGroup>
-                                        <ListGroup.Item className="text-break">
-                                            Branch: {' '}
-                                            <Link to={`/explorer/tx/${tx.branch}`} className={style.monospace}>
-                                                {tx.branch}
-                                            </Link>
-                                        </ListGroup.Item>
+                                        // todo MWM
+                                        <ListGroup.Item>MWM: 0</ListGroup.Item>
                                     </ListGroup>
                                 </Col>
                             </Row>
+
                             <Row className={"mb-3"}>
                                 <Col>
                                     <ListGroup>
                                         <ListGroup.Item className="text-break">
                                             Address: {' '}
-                                            <Link to={`/explorer/addr/${tx.address}`} className={style.monospace}>
-                                                {tx.address}
-                                            </Link>
-                                        </ListGroup.Item>
-                                        <ListGroup.Item className="text-break">
-                                            Bundle: {' '}
-                                            <Link to={`/explorer/bundle/${tx.bundle}`} className={style.monospace}>
-                                                {tx.bundle}
+                                            <Link to={`/explorer/addr/${msgMeta.address}`} className={style.monospace}>
+                                                {msgMeta.address}
                                             </Link>
                                         </ListGroup.Item>
                                         <ListGroup.Item className={style.monospace}>
-                                            Nonce: {tx.nonce}
+                                            Nonce: {msgMeta.nonce}
                                         </ListGroup.Item>
                                         <ListGroup.Item className="text-break">
                                             Message:<br/>
@@ -301,7 +239,7 @@ export class ExplorerTransactionQueryResult extends React.Component<Props, any> 
                                                             <Nav.Item>
                                                                 <Nav.Link eventKey="text">Text</Nav.Link>
                                                             </Nav.Item>
-                                                            <If condition={tx.json_obj !== undefined}>
+                                                            <If condition={msgMeta.json_obj !== undefined}>
                                                                 <Nav.Item>
                                                                     <Nav.Link eventKey="json">JSON</Nav.Link>
                                                                 </Nav.Item>
@@ -312,17 +250,17 @@ export class ExplorerTransactionQueryResult extends React.Component<Props, any> 
                                                         <Tab.Content className={style.monospace}>
                                                             <Tab.Pane eventKey="trytes">
                                                                 <small>
-                                                                    {tx.signature_message_fragment}
+                                                                    {msgMeta.signature_message_fragment}
                                                                 </small>
                                                             </Tab.Pane>
                                                             <Tab.Pane eventKey="text">
-                                                                <If condition={tx.ascii_message !== undefined}>
-                                                                    {tx.ascii_message}
+                                                                <If condition={msgMeta.ascii_message !== undefined}>
+                                                                    {msgMeta.ascii_message}
                                                                 </If>
                                                             </Tab.Pane>
-                                                            <If condition={tx.json_obj !== undefined}>
+                                                            <If condition={msgMeta.json_obj !== undefined}>
                                                                 <Tab.Pane eventKey="json">
-                                                                    <ReactJson src={tx.json_obj} name={false}
+                                                                    <ReactJson src={msgMeta.json_obj} name={false}
                                                                                theme="eighties"/>
                                                                 </Tab.Pane>
                                                             </If>
@@ -332,14 +270,14 @@ export class ExplorerTransactionQueryResult extends React.Component<Props, any> 
                                             </Tab.Container>
                                         </ListGroup.Item>
                                         <ListGroup.Item className="text-break">
-                                            Approvers: {' '}
-                                            <If condition={approversEle.length > 0}>
+                                            Children: {' '}
+                                            <If condition={childrenEle.length > 0}>
                                                 <ListGroup variant="flush" className={style.monospace}>
-                                                    {approversEle}
+                                                    {childrenEle}
                                                 </ListGroup>
                                             </If>
-                                            <If condition={approversEle.length === 0}>
-                                                No approvers yet
+                                            <If condition={childrenEle.length === 0}>
+                                                No children yet
                                             </If>
                                         </ListGroup.Item>
                                     </ListGroup>

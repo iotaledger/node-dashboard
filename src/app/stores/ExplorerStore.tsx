@@ -4,48 +4,15 @@ import * as React from "react";
 import {Link} from 'react-router-dom';
 import {RouterStore} from "mobx-react-router";
 import NodeStore from "app/stores/NodeStore";
-import {trytesToAscii} from '@iota/converter';
-import {asTransactionTrytes} from '@iota/transaction-converter';
-import {IOTAValue} from "app/components/IOTAValue";
-
-export class Transaction {
-    hash: string;
-    signature_message_fragment: string;
-    ascii_message;
-    json_obj: object;
-    address: string;
-    value: number;
-    obsolete_tag: string;
-    timestamp: number;
-    current_index: number;
-    last_index: number;
-    bundle: string;
-    trunk: string;
-    branch: string;
-    tag: string;
-    nonce: string;
-    attachment_timestamp: number;
-    attachment_timestamp_lower_bound: number;
-    attachment_timestamp_upper_bound: number;
-    confirmed: ConfirmedState;
-    approvers: Array<string>;
-    solid: boolean;
-    mwm: number;
-    next: string;
-    previous: string;
-    bundle_complete: boolean;
-    is_milestone: boolean;
-    milestone_index: number;
-    raw_trytes: string;
-}
+import { IMessage, IMessageMetadata, IMilestone } from "@iota/iota2.js";
 
 class AddressResult {
     balance: number;
-    txs: Array<Transaction>;
+    msgs: Array<IMessageMetadata>;
 }
 
-class TagResult {
-    txs: Array<Transaction>;
+class IndexationResult {
+    msgs: Array<IMessageMetadata>;
 }
 
 class ConfirmedState {
@@ -146,24 +113,20 @@ export class ExplorerStore {
         this.searching = false;
         let search = this.search;
         this.search = '';
-        if (this.search_result.tx) {
-            this.routerStore.push(`/explorer/tx/${search}`);
+        if (this.search_result.msg) {
+            this.routerStore.push(`/explorer/msgs/${search}`);
             return;
         }
         if (this.search_result.milestone) {
-            this.routerStore.push(`/explorer/tx/${this.search_result.milestone.hash}`);
+            this.routerStore.push(`/explorer/msgs/${this.search_result.milestone.milestoneIndex}`);
             return;
         }
         if (this.search_result.address) {
-            this.routerStore.push(`/explorer/addr/${search}`);
+            this.routerStore.push(`/explorer/addresses/${search}`);
             return;
         }
-        if (this.search_result.tag) {
-            this.routerStore.push(`/explorer/tag/${search}`);
-            return;
-        }
-        if (this.search_result.bundles) {
-            this.routerStore.push(`/explorer/bundle/${search}`);
+        if (this.search_result.indexation) {
+            this.routerStore.push(`/explorer/indexations/${search}`);
             return;
         }
         this.routerStore.push(`/explorer/404/${search}`);
@@ -177,49 +140,21 @@ export class ExplorerStore {
     @action
     updateSearching = (searching: boolean) => this.searching = searching;
 
-    searchTx = async (hash: string) => {
+    searchMsg = async (hash: string) => {
         this.updateQueryLoading(true);
         try {
-            let res = await fetch(`/api/tx/${hash}`);
+            let res = await fetch(`/api/msgs/${hash}`);
             if (res.status === 404) {
                 this.updateQueryError(QueryError.NotFound);
                 return;
             }
-            let tx: Transaction = await res.json();
-
+            let msg: IMessageMetadata = await res.json();
+            /*
             try {
-                const transactionObject = {
-                    hash: tx.hash,
-                    signatureMessageFragment: tx.signature_message_fragment,
-                    address: tx.address,
-                    value: tx.value,
-                    obsoleteTag: tx.obsolete_tag,
-                    timestamp: tx.timestamp,
-                    currentIndex: tx.current_index,
-                    lastIndex: tx.last_index,
-                    bundle: tx.bundle,
-                    trunkTransaction: tx.trunk,
-                    branchTransaction: tx.branch,
-                    tag: tx.tag,
-                    attachmentTimestamp: tx.attachment_timestamp,
-                    attachmentTimestampLowerBound: tx.attachment_timestamp_lower_bound,
-                    attachmentTimestampUpperBound: tx.attachment_timestamp_upper_bound,
-                    nonce: tx.nonce
-                };
-                tx.raw_trytes = asTransactionTrytes(transactionObject);
-            } catch (error) {
-                console.log(error);
-            }
-
-            try {
-                if (tx.signature_message_fragment.replace(/9+$/, "").length % 2 === 0) {
-                    tx.ascii_message = trytesToAscii(tx.signature_message_fragment.replace(/9+$/, ""));
-                } else {
-                    tx.ascii_message = trytesToAscii(tx.signature_message_fragment.replace(/9+$/, "") + '9');
-                }
+                // ToDo:
                 try {
-                    if (tx.ascii_message.includes('{') && tx.ascii_message.includes('}')) {
-                        tx.json_obj = JSON.parse(tx.ascii_message)
+                    if (msg.ascii_message.includes('{') && msg.ascii_message.includes('}')) {
+                        msg.json_obj = JSON.parse(msg.ascii_message)
                     }
                 } catch (error) {
 
@@ -227,7 +162,8 @@ export class ExplorerStore {
             } catch (error) {
                 console.log(error);
             }
-            this.updateTx(tx);
+            */
+            this.updateMsg(msg);
         } catch (err) {
             this.updateQueryError(err);
         }
@@ -280,8 +216,7 @@ export class ExplorerStore {
 
     @action
     reset = () => {
-        this.tx = null;
-        this.bundles = null;
+        this.msg = null;
         this.query_err = null;
     };
 

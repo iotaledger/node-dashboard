@@ -2,7 +2,7 @@ import {action, computed, observable, ObservableMap} from 'mobx';
 import * as dateformat from 'dateformat';
 import {connectWebSocket, registerHandler, registerTopic, unregisterTopic, WSMsgType} from "app/misc/WS";
 
-class TPSMetric {
+class MPSMetric {
     incoming: number;
     new: number;
     outgoing: number;
@@ -51,10 +51,9 @@ class Status {
 class CacheMetrics {
     approvers: CacheMetric;
     request_queue: CacheMetric;
-    bundles: CacheMetric;
     milestones: CacheMetric;
-    transactions: CacheMetric;
-    incoming_transaction_work_units: CacheMetric;
+    messages: CacheMetric;
+    incoming_message_work_units: CacheMetric;
     ts: string;
 }
 
@@ -78,29 +77,27 @@ class MemoryMetrics {
 }
 
 class ServerMetrics {
-    all_txs: number;
-    new_txs: number;
-    known_txs: number;
-    invalid_txs: number;
+    all_msgs: number;
+    new_msgs: number;
+    known_msgs: number;
+    invalid_msgs: number;
     invalid_req: number;
-    stale_txs: number;
-    rec_tx_req: number;
+    rec_msg_req: number;
     rec_ms_req: number;
     rec_heartbeat: number;
-    sent_txs: number;
-    sent_tx_req: number;
+    sent_msgs: number;
+    sent_msg_req: number;
     sent_ms_req: number;
     sent_heartbeat: number;
     dropped_sent_packets: number;
-    sent_spam_txs: number;
-    validated_bundles: number;
+    sent_spam_msgs: number;
     ts: number;
 }
 
 class ConfirmedMilestoneMetric {
     ms_index: number;
-    tps: number;
-    ctps: number;
+    mps: number;
+    cmps: number;
     conf_rate: number;
     time_since_last_ms: number;
 }
@@ -178,17 +175,17 @@ class NeighborMetrics {
 
     @computed
     get protocolSeries() {
-        let newTx = Object.assign({}, chartSeriesOpts,
-            series("New Txs", 'rgba(219, 53, 219,1)', 'rgba(219, 53, 219,0.4)')
+        let newMsgs = Object.assign({}, chartSeriesOpts,
+            series("New msgs", 'rgba(219, 53, 219,1)', 'rgba(219, 53, 219,0.4)')
         );
-        let knownTx = Object.assign({}, chartSeriesOpts,
-            series("Known Txs", 'rgba(53, 219, 175,1)', 'rgba(53, 219, 175,0.4)')
+        let knownMsgs = Object.assign({}, chartSeriesOpts,
+            series("Known msgs", 'rgba(53, 219, 175,1)', 'rgba(53, 219, 175,0.4)')
         );
-        let sent = Object.assign({}, chartSeriesOpts,
-            series("Sent Txs", 'rgba(114, 53, 219,1)', 'rgba(114, 53, 219,0.4)')
+        let sentMsgs = Object.assign({}, chartSeriesOpts,
+            series("Sent msgs", 'rgba(114, 53, 219,1)', 'rgba(114, 53, 219,0.4)')
         );
-        let droppedSent = Object.assign({}, chartSeriesOpts,
-            series("Dropped Packets", 'rgba(219, 144, 53,1)', 'rgba(219, 144, 53,0.4)')
+        let droppedSentPackages = Object.assign({}, chartSeriesOpts,
+            series("Dropped packets", 'rgba(219, 144, 53,1)', 'rgba(219, 144, 53,0.4)')
         );
 
         let labels = [];
@@ -196,16 +193,16 @@ class NeighborMetrics {
             let metric: NeighborMetric = this.collected[i];
             let prevMetric: NeighborMetric = this.collected[i - 1];
             labels.push(metric.ts);
-            newTx.data.push(metric.info.numberOfNewTransactions - prevMetric.info.numberOfNewTransactions);
-            knownTx.data.push(metric.info.numberOfKnownTransactions - prevMetric.info.numberOfKnownTransactions);
-            sent.data.push(metric.info.numberOfSentTransactions - prevMetric.info.numberOfSentTransactions);
-            droppedSent.data.push(metric.info.numberOfDroppedSentPackets - prevMetric.info.numberOfDroppedSentPackets);
+            newMsgs.data.push(metric.info.numberOfNewMessages - prevMetric.info.numberOfNewMessages);
+            knownMsgs.data.push(metric.info.numberOfKnownMessages - prevMetric.info.numberOfKnownMessages);
+            sentMsgs.data.push(metric.info.numberOfSentMessages - prevMetric.info.numberOfSentMessages);
+            droppedSentPackages.data.push(metric.info.numberOfDroppedSentPackets - prevMetric.info.numberOfDroppedSentPackets);
         }
 
         return {
             labels: labels,
             datasets: [
-                newTx, knownTx, sent, droppedSent
+                newMsgs, knownMsgs, sentMsgs, droppedSentPackages
             ],
         };
     }
@@ -237,15 +234,15 @@ class NeighborInfo {
     address: string;
     port: number;
     domain: string;
-    numberOfAllTransactions: number;
-    numberOfNewTransactions: number;
-    numberOfKnownTransactions: number;
-    numberOfReceivedTransactionReq: number;
-    numberOfReceivedMilestoneReq: number;
+    numberOfAllMessages: number;
+    numberOfNewMessages: number;
+    numberOfKnownMessages: number;
+    numberOfReceivedMessageReqs: number;
+    numberOfReceivedMilestoneReqs: number;
     numberOfReceivedHeartbeats: number;
-    numberOfSentTransactions: number;
-    numberOfSentTransactionsReq: number;
-    numberOfSentMilestoneReq: number;
+    numberOfSentMessages: number;
+    numberOfSentMessageReqs: number;
+    numberOfSentMilestoneReqs: number;
     numberOfSentHeartbeats: number;
     numberOfDroppedSentPackets: number;
     connectionType: string;
@@ -319,9 +316,9 @@ export class NodeStore {
     @observable status: Status = new Status();
     @observable websocket: WebSocket;
     @observable websocketConnected: boolean = false;
-    @observable last_tps_metric: TPSMetric = new TPSMetric();
+    @observable last_mps_metric: MPSMetric = new MPSMetric();
     @observable last_tip_sel_metric: TipSelMetric = new TipSelMetric();
-    @observable collected_tps_metrics: Array<TPSMetric> = [];
+    @observable collected_mps_metrics: Array<MPSMetric> = [];
     @observable collected_tip_sel_metrics: Array<TipSelMetric> = [];
     @observable collected_req_q_metrics: Array<ReqQMetric> = [];
     @observable collected_server_metrics: Array<ServerMetrics> = [];
@@ -346,7 +343,7 @@ export class NodeStore {
         // main
         registerHandler(WSMsgType.SyncStatus, this.updateSyncStatus);
         registerHandler(WSMsgType.Status, this.updateStatus);
-        registerHandler(WSMsgType.TPSMetrics, this.updateLastTPSMetric);
+        registerHandler(WSMsgType.MPSMetrics, this.updateLastMPSMetric);
         registerHandler(WSMsgType.ConfirmedMsMetrics, this.updateConfirmedMilestoneMetrics);
 
         // neighbors
@@ -378,7 +375,7 @@ export class NodeStore {
         // main
         this.registerWebsocketTopic(WSMsgType.SyncStatus);
         this.registerWebsocketTopic(WSMsgType.Status);
-        this.registerWebsocketTopic(WSMsgType.TPSMetrics);
+        this.registerWebsocketTopic(WSMsgType.MPSMetrics);
         this.registerWebsocketTopic(WSMsgType.ConfirmedMsMetrics);
 
         // explorer
@@ -392,7 +389,7 @@ export class NodeStore {
         // main
         this.unregisterWebsocketTopic(WSMsgType.SyncStatus);
         this.unregisterWebsocketTopic(WSMsgType.Status);
-        this.unregisterWebsocketTopic(WSMsgType.TPSMetrics);
+        this.unregisterWebsocketTopic(WSMsgType.MPSMetrics);
         this.unregisterWebsocketTopic(WSMsgType.ConfirmedMsMetrics);
 
         // explorer
@@ -408,20 +405,6 @@ export class NodeStore {
 
     unregisterNeighborTopics = () => {
         this.unregisterWebsocketTopic(WSMsgType.PeerMetric);
-    }
-
-    registerExplorerTopics = (valueOnly: boolean) => {
-        this.registerWebsocketTopic(WSMsgType.TxValue);
-        if (valueOnly) {
-            this.unregisterWebsocketTopic(WSMsgType.TxZeroValue);
-        } else {
-            this.registerWebsocketTopic(WSMsgType.TxZeroValue);
-        }
-    }
-
-    unregisterExplorerTopics = () => {
-        this.unregisterWebsocketTopic(WSMsgType.TxValue);
-        this.unregisterWebsocketTopic(WSMsgType.TxZeroValue);
     }
 
     registerVisualizerTopics = () => {
@@ -456,9 +439,9 @@ export class NodeStore {
 
     @action
     reset() {
-        this.last_tps_metric = new TPSMetric();
+        this.last_mps_metric = new MPSMetric();
         this.last_tip_sel_metric = new TipSelMetric();
-        this.collected_tps_metrics = [];
+        this.collected_mps_metrics = [];
         this.collected_tip_sel_metrics = [];
         this.collected_req_q_metrics = [];
         this.collected_server_metrics = [];
@@ -626,13 +609,13 @@ export class NodeStore {
     };
 
     @action
-    updateLastTPSMetric = (tpsMetric: TPSMetric) => {
-        tpsMetric.ts = dateformat(Date.now(), "HH:MM:ss");
-        this.last_tps_metric = tpsMetric;
-        if (this.collected_tps_metrics.length > maxMetricsDataPoints) {
-            this.collected_tps_metrics.shift();
+    updateLastMPSMetric = (mpsMetric: MPSMetric) => {
+        mpsMetric.ts = dateformat(Date.now(), "HH:MM:ss");
+        this.last_mps_metric = mpsMetric;
+        if (this.collected_mps_metrics.length > maxMetricsDataPoints) {
+            this.collected_mps_metrics.shift();
         }
-        this.collected_tps_metrics.push(tpsMetric);
+        this.collected_mps_metrics.push(mpsMetric);
     };
 
     @action
@@ -744,74 +727,74 @@ export class NodeStore {
 
     @computed
     get avgSpamMetricsSeries() {
-        let newSpam = Object.assign({}, chartSeriesOpts,
-            series("New TX", 'rgba(230, 14, 147,1)', 'rgba(230, 14, 147,0.4)')
+        let newSpamMsgs = Object.assign({}, chartSeriesOpts,
+            series("New spam messages", 'rgba(230, 14, 147,1)', 'rgba(230, 14, 147,0.4)')
         );
-        let avgSpam = Object.assign({}, chartSeriesOpts,
-            series("Avg. TPS", 'rgba(230, 165, 14,1)', 'rgba(230, 165, 14,0.4)')
+        let avgSpamMPS = Object.assign({}, chartSeriesOpts,
+            series("Avg. spam messages per second", 'rgba(230, 165, 14,1)', 'rgba(230, 165, 14,0.4)')
         );
 
         let labels = [];
         for (let i = 0; i < this.collected_avg_spam_metrics.length; i++) {
             let metric = this.collected_avg_spam_metrics[i];
             labels.push(metric.ts);
-            newSpam.data.push(metric.new);
-            avgSpam.data.push(metric.avg);
+            newSpamMsgs.data.push(metric.new);
+            avgSpamMPS.data.push(metric.avg);
         }
 
         return {
             labels: labels,
-            datasets: [newSpam, avgSpam],
+            datasets: [newSpamMsgs, avgSpamMPS],
         };
     }
 
     @computed
-    get tpsSeries() {
-        let incoming = Object.assign({}, chartSeriesOpts,
+    get mpsSeries() {
+        let incomingMsgs = Object.assign({}, chartSeriesOpts,
             series("Incoming", 'rgba(159, 53, 230,1)', 'rgba(159, 53, 230,0.4)')
         );
-        let outgoing = Object.assign({}, chartSeriesOpts,
+        let outgoingMsgs = Object.assign({}, chartSeriesOpts,
             series("Outgoing", 'rgba(53, 109, 230,1)', 'rgba(53, 109, 230,0.4)')
         );
-        let ne = Object.assign({}, chartSeriesOpts,
+        let newMsgs = Object.assign({}, chartSeriesOpts,
             series("New", 'rgba(230, 201, 14,1)', 'rgba(230, 201, 14,0.4)')
         );
 
         let labels = [];
-        for (let i = 0; i < this.collected_tps_metrics.length; i++) {
-            let metric: TPSMetric = this.collected_tps_metrics[i];
+        for (let i = 0; i < this.collected_mps_metrics.length; i++) {
+            let metric: MPSMetric = this.collected_mps_metrics[i];
             labels.push(metric.ts);
-            incoming.data.push(metric.incoming);
-            outgoing.data.push(-metric.outgoing);
-            ne.data.push(metric.new);
+            incomingMsgs.data.push(metric.incoming);
+            outgoingMsgs.data.push(-metric.outgoing);
+            newMsgs.data.push(metric.new);
         }
 
         return {
             labels: labels,
-            datasets: [incoming, ne, outgoing],
+            datasets: [incomingMsgs, newMsgs, outgoingMsgs],
         };
     }
 
     @computed
     get confirmedMilestonesSeries() {
-        let tps = Object.assign({}, chartSeriesOpts,
-            series("TPS", 'rgba(159, 53, 230,1)', 'rgba(159, 53, 230,0.4)')
+        let mps = Object.assign({}, chartSeriesOpts,
+            series("MPS", 'rgba(159, 53, 230,1)', 'rgba(159, 53, 230,0.4)')
         );
-        let ctps = Object.assign({}, chartSeriesOpts,
-            series("CTPS", 'rgba(53, 109, 230,1)', 'rgba(53, 109, 230,0.4)')
+        let cmps = Object.assign({}, chartSeriesOpts,
+            series("CMPS", 'rgba(53, 109, 230,1)', 'rgba(53, 109, 230,0.4)')
         );
 
         let labels = [];
         for (let i = 0; i < this.collected_confirmed_ms_metrics.length; i++) {
             let metric: ConfirmedMilestoneMetric = this.collected_confirmed_ms_metrics[i];
             labels.push(metric.ms_index);
-            tps.data.push(metric.tps);
-            ctps.data.push(metric.ctps);
+            mps.data.push(metric.mps);
+            cmps.data.push(metric.cmps);
         }
 
         return {
             labels: labels,
-            datasets: [tps, ctps]
+            datasets: [mps, cmps]
         };
     }
 
@@ -867,11 +850,11 @@ export class NodeStore {
         let milestones = Object.assign({}, chartSeriesOpts,
             series("Milestones", 'rgba(230, 201, 14,1)', 'rgba(230, 201, 14,0.4)')
         );
-        let txs = Object.assign({}, chartSeriesOpts,
-            series("Transactions", 'rgba(114, 53, 219,1)', 'rgba(114, 53, 219,0.4)')
+        let msgs = Object.assign({}, chartSeriesOpts,
+            series("Messages", 'rgba(114, 53, 219,1)', 'rgba(114, 53, 219,0.4)')
         );
-        let incomingTxsWorkUnits = Object.assign({}, chartSeriesOpts,
-            series("Incoming Txs WorkUnits", 'rgba(219, 53, 219,1)', 'rgba(219, 53, 219,0.4)')
+        let incomingMessageWorkUnits = Object.assign({}, chartSeriesOpts,
+            series("Incoming msg work units", 'rgba(219, 53, 219,1)', 'rgba(219, 53, 219,0.4)')
         );
 
         let labels = [];
@@ -882,14 +865,14 @@ export class NodeStore {
             approvers.data.push(metric.approvers.size);
             bundles.data.push(metric.bundles.size);
             milestones.data.push(metric.milestones.size);
-            txs.data.push(metric.transactions.size);
-            incomingTxsWorkUnits.data.push(metric.incoming_transaction_work_units.size);
+            msgs.data.push(metric.messages.size);
+            incomingMessageWorkUnits.data.push(metric.incoming_message_work_units.size);
         }
 
         return {
             labels: labels,
             datasets: [
-                reqQ, approvers, bundles, milestones, txs, incomingTxsWorkUnits
+                reqQ, approvers, bundles, milestones, msgs, incomingMessageWorkUnits
             ],
         };
     }
@@ -897,88 +880,84 @@ export class NodeStore {
     @computed
     get serverMetricsSeries() {
         let all = Object.assign({}, chartSeriesOpts,
-            series("All Txs", 'rgba(14, 230, 183,1)', 'rgba(14, 230, 183,0.4)')
+            series("All msgs", 'rgba(14, 230, 183,1)', 'rgba(14, 230, 183,0.4)')
         );
         let newTx = Object.assign({}, chartSeriesOpts,
-            series("New Txs", 'rgba(230, 201, 14,1)', 'rgba(230, 201, 14,0.4)')
+            series("New msgs", 'rgba(230, 201, 14,1)', 'rgba(230, 201, 14,0.4)')
         );
         let knownTx = Object.assign({}, chartSeriesOpts,
-            series("Known Txs", 'rgba(219, 53, 219,1)', 'rgba(219, 53, 219,0.4)')
+            series("Known msgs", 'rgba(219, 53, 219,1)', 'rgba(219, 53, 219,0.4)')
         );
         let invalid = Object.assign({}, chartSeriesOpts,
-            series("Invalid Txs", 'rgba(219, 53, 53,1)', 'rgba(219, 53, 53,0.4)')
-        );
-        let stale = Object.assign({}, chartSeriesOpts,
-            series("Stale Txs", 'rgba(114, 53, 219,1)', 'rgba(114, 53, 219,0.4)')
+            series("Invalid msgs", 'rgba(219, 53, 53,1)', 'rgba(219, 53, 53,0.4)')
         );
         let sent = Object.assign({}, chartSeriesOpts,
-            series("Sent Txs", 'rgba(14, 230, 100,1)', 'rgba(14, 230, 100,0.4)')
+            series("Sent msgs", 'rgba(14, 230, 100,1)', 'rgba(14, 230, 100,0.4)')
         );
         let droppedSent = Object.assign({}, chartSeriesOpts,
-            series("Dropped Packets", 'rgba(219, 144, 53,1)', 'rgba(219, 144, 53,0.4)')
+            series("Dropped packets", 'rgba(219, 144, 53,1)', 'rgba(219, 144, 53,0.4)')
         );
         let sentSpamTxs = Object.assign({}, chartSeriesOpts,
-            series("Sent spam Txs", 'rgba(53, 109, 230,1)', 'rgba(53, 109, 230,0.4)')
+            series("Sent spam msgs", 'rgba(53, 109, 230,1)', 'rgba(53, 109, 230,0.4)')
         );
 
         let labels = [];
         for (let i = 0; i < this.collected_server_metrics.length; i++) {
             let metric: ServerMetrics = this.collected_server_metrics[i];
             labels.push(metric.ts);
-            all.data.push(metric.all_txs);
-            newTx.data.push(metric.new_txs);
-            knownTx.data.push(metric.known_txs);
-            invalid.data.push(metric.invalid_txs);
-            stale.data.push(metric.stale_txs);
-            sent.data.push(metric.sent_txs);
+            all.data.push(metric.all_msgs);
+            newTx.data.push(metric.new_msgs);
+            knownTx.data.push(metric.known_msgs);
+            invalid.data.push(metric.invalid_msgs);
+            sent.data.push(metric.sent_msgs);
             droppedSent.data.push(metric.dropped_sent_packets);
-            sentSpamTxs.data.push(metric.sent_spam_txs);
+            sentSpamTxs.data.push(metric.sent_spam_msgs);
         }
 
         return {
             labels: labels,
             datasets: [
-                all, newTx, knownTx, invalid, stale, sent, droppedSent, sentSpamTxs
+                all, newTx, knownTx, invalid, sent, droppedSent, sentSpamTxs
             ],
         };
     }
 
     @computed
     get stingReqs() {
-        let sentTxReq = Object.assign({}, chartSeriesOpts,
-            series("Sent Tx Requests", 'rgba(53, 180, 219,1)', 'rgba(53, 180, 219,0.4)')
+        let sentMsgReqs = Object.assign({}, chartSeriesOpts,
+            series("Sent msg requests", 'rgba(53, 180, 219,1)', 'rgba(53, 180, 219,0.4)')
         );
-        let recTxReq = Object.assign({}, chartSeriesOpts,
-            series("Received Tx Requests", 'rgba(219, 111, 53,1)', 'rgba(219, 111, 53,0.4)')
+        let recMsgReqs = Object.assign({}, chartSeriesOpts,
+            series("Received msg requests", 'rgba(219, 111, 53,1)', 'rgba(219, 111, 53,0.4)')
         );
-        let sentMsReq = Object.assign({}, chartSeriesOpts,
-            series("Sent Ms Requests", 'rgba(53, 109, 230,1)', 'rgba(53, 109, 230,0.4)')
+        let sentMsReqs = Object.assign({}, chartSeriesOpts,
+            series("Sent MS requests", 'rgba(53, 109, 230,1)', 'rgba(53, 109, 230,0.4)')
         );
-        let recMsReq = Object.assign({}, chartSeriesOpts,
-            series("Received Ms Requests", 'rgba(159, 53, 230,1)', 'rgba(159, 53, 230,0.4)')
+        let recMsReqs = Object.assign({}, chartSeriesOpts,
+            series("Received MS requests", 'rgba(159, 53, 230,1)', 'rgba(159, 53, 230,0.4)')
         );
         let sentHeatbeats = Object.assign({}, chartSeriesOpts,
-            series("Sent Heartbeats", 'rgba(14, 230, 183,1)', 'rgba(14, 230, 183,0.4)')
+            series("Sent heartbeats", 'rgba(14, 230, 183,1)', 'rgba(14, 230, 183,0.4)')
         );
         let recHeartbeats = Object.assign({}, chartSeriesOpts,
-            series("Received Heartbeats", 'rgba(14, 230, 100,1)', 'rgba(14, 230, 100,0.4)')
+            series("Received heartbeats", 'rgba(14, 230, 100,1)', 'rgba(14, 230, 100,0.4)')
         );
 
         let labels = [];
         for (let i = 0; i < this.collected_server_metrics.length; i++) {
             let metric: ServerMetrics = this.collected_server_metrics[i];
             labels.push(metric.ts);
-            sentTxReq.data.push(metric.sent_tx_req);
-            recTxReq.data.push(-metric.rec_tx_req);
-            sentMsReq.data.push(metric.sent_ms_req);
-            recMsReq.data.push(-metric.rec_ms_req);
-            sentHeatbeats.data.push(metric.sent_heartbeat);
-            recHeartbeats.data.push(-metric.rec_heartbeat);
+            sentMsgReqs.data.push(metric.sent_msg_reqs);
+            recMsgReqs.data.push(-metric.rec_msg_reqs);
+            sentMsReqs.data.push(metric.sent_ms_reqs);
+            recMsReqs.data.push(-metric.rec_ms_req);
+            sentHeatbeats.data.push(metric.sent_heartbeats);
+            recHeartbeats.data.push(-metric.rec_heartbeats);
         }
 
         return {
             labels: labels,
-            datasets: [sentTxReq, recTxReq, sentMsReq, recMsReq, sentHeatbeats, recHeartbeats],
+            datasets: [sentMsgReqs, recMsgReqs, sentMsReqs, recMsReqs, sentHeatbeats, recHeartbeats],
         };
     }
 
@@ -1063,7 +1042,7 @@ export class NodeStore {
             series("Total", 'rgba(222, 49, 87,1)', 'rgba(222, 49, 87,0.4)')
         );
         let latency = Object.assign({}, chartSeriesOpts,
-            series("Request Latency", 'rgba(219, 111, 53,1)', 'rgba(219, 111, 53,0.4)')
+            series("Request latency", 'rgba(219, 111, 53,1)', 'rgba(219, 111, 53,0.4)')
         );
 
         let labels = [];
@@ -1086,22 +1065,22 @@ export class NodeStore {
     @computed
     get memSeries() {
         let stackAlloc = Object.assign({}, chartSeriesOpts,
-            series("Stack Alloc", 'rgba(53, 109, 230,1)', 'rgba(53, 109, 230,0.4)')
+            series("Stack alloc", 'rgba(53, 109, 230,1)', 'rgba(53, 109, 230,0.4)')
         );
         let heapReleased = Object.assign({}, chartSeriesOpts,
-            series("Heap Released", 'rgba(14, 230, 100,1)', 'rgba(14, 230, 100,0.4)')
+            series("Heap released", 'rgba(14, 230, 100,1)', 'rgba(14, 230, 100,0.4)')
         );
         let heapInuse = Object.assign({}, chartSeriesOpts,
-            series("Heap In-Use", 'rgba(219, 53, 53,1)', 'rgba(219, 53, 53,0.4)')
+            series("Heap in-use", 'rgba(219, 53, 53,1)', 'rgba(219, 53, 53,0.4)')
         );
         let heapIdle = Object.assign({}, chartSeriesOpts,
-            series("Heap Idle", 'rgba(230, 201, 14,1)', 'rgba(230, 201, 14,0.4)')
+            series("Heap idle", 'rgba(230, 201, 14,1)', 'rgba(230, 201, 14,0.4)')
         );
         let heapSys = Object.assign({}, chartSeriesOpts,
-            series("Heap Sys", 'rgba(168, 50, 76,1)', 'rgba(168, 50, 76,0.4)')
+            series("Heap sys", 'rgba(168, 50, 76,1)', 'rgba(168, 50, 76,0.4)')
         );
         let sys = Object.assign({}, chartSeriesOpts,
-            series("Total Alloc", 'rgba(160, 50, 168,1)', 'rgba(160, 50, 168,0.4)')
+            series("Total alloc", 'rgba(160, 50, 168,1)', 'rgba(160, 50, 168,0.4)')
         );
 
         let labels = [];

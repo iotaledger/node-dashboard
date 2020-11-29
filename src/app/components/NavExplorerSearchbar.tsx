@@ -5,7 +5,7 @@ import {inject, observer} from "mobx-react";
 import FormControl from "react-bootstrap/FormControl";
 import Form from "react-bootstrap/Form";
 import ExplorerStore from "app/stores/ExplorerStore";
-import {toInputUppercase} from "app/misc/Utils";
+import {toInputLowercase} from "app/misc/Utils";
 
 interface Props {
     nodeStore?: NodeStore;
@@ -31,7 +31,7 @@ export class NavExplorerSearchbar extends React.Component<Props, any> {
         return (
             <Form inline as={"div"}>
                 <FormControl
-                    type="text" onChange={this.updateSearch} onInput={toInputUppercase}
+                    type="text" onChange={this.updateSearch} onInput={toInputLowercase}
                     placeholder="Search the Tangle..." value={search}
                     className=" mr-sm-2" disabled={searching}
                     onKeyUp={this.executeSearch}

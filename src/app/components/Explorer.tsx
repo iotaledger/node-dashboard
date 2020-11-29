@@ -21,8 +21,7 @@ export class Explorer extends React.Component<Props, any> {
                 <Row className={"mb-3"}>
                     <Col>
                         <p>
-                            Search for bundles, addresses or transactions by supplying
-                            their corresponding hashes.
+                            Search for messages IDs, address hashes or milestone indexes.
                         </p>
 
                     </Col>

@@ -10,7 +10,7 @@ import LatestMilestone from "app/components/LatestMilestone";
 import PruningIndex from "app/components/PruningIndex";
 import SnapshotIndex from "app/components/SnapshotIndex";
 import RequestQueue from "app/components/RequestQueue";
-import TPSChart from "app/components/TPSChart";
+import MPSChart from "app/components/MPSChart";
 import ConfirmedMilestoneChart from "app/components/ConfirmedMilestoneChart";
 import NodeStore from "app/stores/NodeStore";
 import {inject, observer} from "mobx-react";
@@ -79,7 +79,7 @@ export class Dashboard extends React.Component<Props, any> {
                 </Row>
                 <Row className={"mb-3"}>
                     <Col>
-                        <TPSChart/>
+                        <MPSChart/>
                     </Col>
                 </Row>
                 <Row className={"mb-3"}>

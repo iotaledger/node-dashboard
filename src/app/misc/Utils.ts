@@ -1,5 +1,5 @@
 
-// replaces all characters with their uppercase representation during input
-export const toInputUppercase = e => {
-    e.target.value = ("" + e.target.value).toUpperCase();
+// replaces all characters with their lowercase representation during input
+export const toInputLowercase = e => {
+    e.target.value = ("" + e.target.value).toLowerCase();
 };

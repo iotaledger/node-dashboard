@@ -30,7 +30,7 @@ export class Visualizer extends React.Component<Props, any> {
     constructor(props: Readonly<Props>) {
         super(props);
         this.state = {
-            tps_new: 0,
+            mps_new: 0,
             vertices_count: 0,
             selected_approvers_count: 0,
             selected_approvees_count: 0,
@@ -75,10 +75,10 @@ export class Visualizer extends React.Component<Props, any> {
             tips_count, solid_count, confirmed_count, conflicting_count
         } = this.props.visualizerStore;
 
-        let {last_tps_metric} = this.props.nodeStore;
+        let {last_mps_metric: last_mps_metric} = this.props.nodeStore;
 
         this.setState(state => ({
-            tps_new: last_tps_metric.new,
+            mps_new: last_mps_metric.new,
             vertices_count: vertices.size,
             selected_approvers_count: selected_approvers_count,
             selected_approvees_count: selected_approvees_count,
@@ -159,11 +159,11 @@ export class Visualizer extends React.Component<Props, any> {
                                 Highlighted
                             </Badge>
                             <br/>
-                            Transactions: {this.state.vertices_count}, TPS: {this.state.tps_new}, Tips: {this.state.tips_count}<br/>
+                            Messages: {this.state.vertices_count}, MPS: {this.state.mps_new}, Tips: {this.state.tips_count}<br/>
                             Confirmed: {this.state.confirmed_percentage.toFixed(2)}%, Conflicting: {this.state.conflicting_percentage.toFixed(2)}%, Solid: {this.state.solid_percentage.toFixed(2)}%<br/>
                             <If condition={!!selected}>
                                 Selected: {selected ?
-                                <Link to={`/explorer/tx/${selected.id}`} target="_blank" rel='noopener noreferrer'>
+                                <Link to={`/explorer/msgs/${selected.id}`} target="_blank" rel='noopener noreferrer'>
                                     {selected.id.substr(0, 10)}
                                 </Link>
                                 : "-"}
@@ -177,7 +177,7 @@ export class Visualizer extends React.Component<Props, any> {
                     <Col xs={{span: 3, offset: 4}}>
                         <InputGroup className="mr-1" size="sm">
                             <InputGroup.Prepend>
-                                <InputGroup.Text id="vertices-limit">Transaction Limit</InputGroup.Text>
+                                <InputGroup.Text id="vertices-limit">Message Limit</InputGroup.Text>
                             </InputGroup.Prepend>
                             <FormControl
                                 placeholder="limit"

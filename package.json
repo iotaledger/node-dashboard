@@ -52,6 +52,7 @@
     "@fortawesome/free-solid-svg-icons": "^5.13.0",
     "@fortawesome/react-fontawesome": "^0.1.9",
     "@iota/converter": "^1.0.0-beta.23",
+    "@iota/iota2.js": "git+https://github.com/obany/iota2.js.git",
     "@iota/transaction-converter": "^1.0.0-beta.23",
     "@types/glob": "^7.1.1",
     "bootstrap": "^4.3.1",

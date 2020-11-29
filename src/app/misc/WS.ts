@@ -6,10 +6,8 @@ enum WSCommand {
 export enum WSMsgType {
     SyncStatus,
     Status,
-    TPSMetrics,
+    MPSMetrics,
     TipSelMetric,
-    TxZeroValue,
-    TxValue,
     Ms,
     PeerMetric,
     ConfirmedMsMetrics,

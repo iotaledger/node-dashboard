@@ -126,13 +126,13 @@ const timeChartOptions = Object.assign({
 @observer
 export default class ConfirmedMilestoneChart extends React.Component<Props, any> {
     render() {
-        let avgTPS = "";
-        let avgCTPS = "";
+        let avgMPS = "";
+        let avgCMPS = "";
         let avgRate = "";
 
         if (this.props.nodeStore.collected_confirmed_ms_metrics.length > 0) {
-            avgTPS = (this.props.nodeStore.collected_confirmed_ms_metrics.map((v) => v.tps).reduce((a, b) => a + b) / this.props.nodeStore.collected_confirmed_ms_metrics.length).toFixed(2);
-            avgCTPS = (this.props.nodeStore.collected_confirmed_ms_metrics.map((v) => v.ctps).reduce((a, b) => a + b) / this.props.nodeStore.collected_confirmed_ms_metrics.length).toFixed(2);
+            avgMPS = (this.props.nodeStore.collected_confirmed_ms_metrics.map((v) => v.mps).reduce((a, b) => a + b) / this.props.nodeStore.collected_confirmed_ms_metrics.length).toFixed(2);
+            avgCMPS = (this.props.nodeStore.collected_confirmed_ms_metrics.map((v) => v.cmps).reduce((a, b) => a + b) / this.props.nodeStore.collected_confirmed_ms_metrics.length).toFixed(2);
             avgRate = (this.props.nodeStore.collected_confirmed_ms_metrics.map((v) => v.conf_rate).reduce((a, b) => a + b) / this.props.nodeStore.collected_confirmed_ms_metrics.length).toFixed(2);
         }
 
@@ -140,16 +140,16 @@ export default class ConfirmedMilestoneChart extends React.Component<Props, any>
             <Card>
                 <Card.Body>
                     <Card.Title>Confirmed Milestones</Card.Title>
-                    <If condition={!!this.props.nodeStore.last_confirmed_ms_metric.ctps}>
+                    <If condition={!!this.props.nodeStore.last_confirmed_ms_metric.cmps}>
                         <Col>
                             <Row>
                                 <small>
-                                    TPS: {(this.props.nodeStore.last_confirmed_ms_metric.tps).toFixed(2)} (Avg. {avgTPS})
+                                    MPS: {(this.props.nodeStore.last_confirmed_ms_metric.mps).toFixed(2)} (Avg. {avgMPS})
                                 </small>
                             </Row>
                             <Row>
                                 <small>
-                                    CTPS: {(this.props.nodeStore.last_confirmed_ms_metric.ctps).toFixed(2)} (Avg. {avgCTPS})
+                                    CMPS: {(this.props.nodeStore.last_confirmed_ms_metric.cmps).toFixed(2)} (Avg. {avgCMPS})
                                 </small>
                             </Row>
                             <Row>

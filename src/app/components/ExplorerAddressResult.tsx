@@ -8,7 +8,6 @@ import ExplorerStore from "app/stores/ExplorerStore";
 import Spinner from "react-bootstrap/Spinner";
 import ListGroup from "react-bootstrap/ListGroup";
 import {Link} from 'react-router-dom';
-import * as dateformat from 'dateformat';
 import Alert from "react-bootstrap/Alert";
 import Badge, {BadgeProps} from "react-bootstrap/Badge";
 import {IOTAValue} from "app/components/IOTAValue";
@@ -60,24 +59,26 @@ export class ExplorerAddressQueryResult extends React.Component<Props, State> {
         let {addr, query_loading} = this.props.explorerStore;
         let txsEle = [];
         if (addr) {
-            for (let i = 0; i < addr.txs.length; i++) {
-                let tx = addr.txs[i];
+            for (let i = 0; i < addr.msgsMeta.length; i++) {
+                let msg = addr.msgsMeta[i];
 
                 let badgeVariant: BadgeProps["variant"] = "secondary";
-                if (tx.value < 0) {
+                /*
+                if (msg.value < 0) {
                     badgeVariant = "danger";
-                } else if (tx.value > 0) {
+                } else if (msg.value > 0) {
                     badgeVariant = "success";
                 }
+                */
 
-                txsEle.push(
-                    <ListGroup.Item key={tx.hash}
-                                    className="d-flex justify-content-between align-items-center">
+               // ToDo: add value
+               txsEle.push(
+                   <ListGroup.Item key={msg.messageId}
+                   className="d-flex justify-content-between align-items-center">
                         <small>
-                            {dateformat(new Date(tx.timestamp * 1000), "dd.mm.yyyy HH:MM:ss")} {' '}
-                            <Link className={style.monospace} to={`/explorer/tx/${tx.hash}`}>{tx.hash}</Link>
+                            <Link className={style.monospace} to={`/explorer/msgs/${msg.messageId}`}>{msg.messageId}</Link>
                         </small>
-                        <Badge variant={badgeVariant}><IOTAValue>{tx.value}</IOTAValue></Badge>
+                    <Badge variant={badgeVariant}><IOTAValue>0</IOTAValue></Badge>
                     </ListGroup.Item>
                 );
             }
@@ -95,9 +96,9 @@ export class ExplorerAddressQueryResult extends React.Component<Props, State> {
                                 Balance: <IOTAValue>{addr.balance}</IOTAValue>
                             </p>
                             {
-                                addr.txs !== null && addr.txs.length === 100 &&
+                                addr.msgsMeta !== null && addr.msgsMeta.length === 100 &&
                                 <Alert variant={"warning"}>
-                                    Max. {addr.txs.length} transactions are shown.
+                                    Max. {addr.msgsMeta.length} messages are shown.
                                 </Alert>
                             }
                             <Row className={"mb-3"}>
@@ -107,11 +108,11 @@ export class ExplorerAddressQueryResult extends React.Component<Props, State> {
                                                         variant={"secondary"}
                                                         className="d-flex justify-content-between align-items-center">
                                             <div
-                                                className="d-flex align-items-center font-weight-bold">Transactions &nbsp;
+                                                className="d-flex align-items-center font-weight-bold">Messages &nbsp;
                                                 <Badge
                                                     pill
                                                     variant={"secondary"}
-                                                    className={"align-middle"}>{addr.txs.length}</Badge>
+                                                    className={"align-middle"}>{addr.msgsMeta.length}</Badge>
                                             </div>
                                             <FormCheck id={"check-value-only"}
                                                        label={"Only show value Tx"}
