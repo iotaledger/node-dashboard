@@ -6,8 +6,8 @@ import {default as Viva} from 'vivagraphjs';
 export class Vertex {
     id: string;
     tag: string;
-    trunk_id: string;
-    branch_id: string;
+    parent1_id: string;
+    parent2_id: string;
     is_solid: boolean;
     is_confirmed: boolean;
     is_conflicting: boolean;
@@ -47,8 +47,8 @@ export const colorUnknown = "#b58900";
 export const colorHighlighted = "#d33682";
 export const colorSelected = "#fdf6e3";
 export const colorLink = "#586e75";
-export const colorLinkApprovers = "#ff5aaa";
-export const colorLinkApprovees = "#ffc306";
+export const colorLinkChildren = "#ff5aaa";
+export const colorLinkParents = "#ffc306";
 
 export class VisualizerStore {
     vertices = new ObservableMap<string, Vertex>();
@@ -63,8 +63,8 @@ export class VisualizerStore {
 
     // the currently selected vertex via hover
     @observable selected: Vertex;
-    selected_approvers_count = 0;
-    selected_approvees_count = 0;
+    selected_children_count = 0;
+    selected_parents_count = 0;
     selected_via_click: boolean = false;
 
     // search
@@ -143,11 +143,11 @@ export class VisualizerStore {
                 this.conflicting_count++;
             }
             // update all infos since we might be dealing
-            // with a vertex obj only created from missing trunk/branch
+            // with a vertex obj only created from missing parent1/parent2
             existing.id = vert.id;
             existing.tag = vert.tag;
-            existing.trunk_id = vert.trunk_id;
-            existing.branch_id = vert.branch_id;
+            existing.parent1_id = vert.parent1_id;
+            existing.parent2_id = vert.parent2_id;
             existing.is_solid = vert.is_solid;
             existing.is_confirmed = vert.is_confirmed;
             existing.is_conflicting = vert.is_conflicting;
@@ -201,21 +201,21 @@ export class VisualizerStore {
             this.graph,
             node,
             node => {
-                let approvee = this.vertices.get(node.id);
-                if (!approvee) return true;
+                let parent = this.vertices.get(node.id);
+                if (!parent) return true;
 
-                if (!approvee.is_confirmed && !approvee.is_conflicting) {
-                    // check if transaction is excluded
-                    if (confInfo.excluded_ids?.indexOf(approvee.id.substring(0,idLength)) > -1) {
+                if (!parent.is_confirmed && !parent.is_conflicting) {
+                    // check if message is excluded
+                    if (confInfo.excluded_ids?.indexOf(parent.id.substring(0,idLength)) > -1) {
                         this.conflicting_count++;
-                        approvee.is_conflicting = true;
-                        this.updateNodeUI(approvee);
+                        parent.is_conflicting = true;
+                        this.updateNodeUI(parent);
                         return false;
                     }
 
                     this.confirmed_count++;
-                    approvee.is_confirmed = true;
-                    this.updateNodeUI(approvee);
+                    parent.is_confirmed = true;
+                    this.updateNodeUI(parent);
                     return false
                 }
 
@@ -277,36 +277,36 @@ export class VisualizerStore {
             if (vert.is_tip) {
                 this.tips_count--;
             }
-            this.deleteApproveeLink(vert.trunk_id);
-            this.deleteApproveeLink(vert.branch_id);
+            this.deleteParentLink(vert.parent1_id);
+            this.deleteParentLink(vert.parent2_id);
         }
     }
 
     @action
-    deleteApproveeLink = (approveeId: string) => {
-        if (!approveeId) {
+    deleteParentLink = (parentId: string) => {
+        if (!parentId) {
             return;
         }
-        let approvee = this.vertices.get(approveeId);
-        if (approvee) {
-            if (this.selected && approveeId === this.selected.id.substring(0,idLength)) {
+        let parent = this.vertices.get(parentId);
+        if (parent) {
+            if (this.selected && parentId === this.selected.id.substring(0,idLength)) {
                 this.clearSelected();
             }
-            if (approvee.is_solid) {
+            if (parent.is_solid) {
                 this.solid_count--;
             }
-            if (approvee.is_confirmed) {
-                this.confirmed_count--;
+            if (parent.is_referenced) {
+                this.referenced_count--;
             }
-            if (approvee.is_conflicting) {
+            if (parent.is_conflicting) {
                 this.conflicting_count--;
             }
-            if (approvee.is_tip) {
+            if (parent.is_tip) {
                 this.tips_count--;
             }
-            this.vertices.delete(approveeId);
+            this.vertices.delete(parentId);
         }
-        this.graph.removeNode(approveeId);
+        this.graph.removeNode(parentId);
     }
 
     drawVertex = (vert: Vertex) => {
@@ -319,14 +319,14 @@ export class VisualizerStore {
         } else {
             node = this.graph.addNode(vert.id.substring(0,idLength), vert);
         }
-        if (vert.trunk_id && (!node.links || !node.links.some(link => link.toId === vert.trunk_id))) {
-            this.graph.addLink(vert.id.substring(0,idLength), vert.trunk_id);
+        if (vert.parent1_id && (!node.links || !node.links.some(link => link.toId === vert.parent1_id))) {
+            this.graph.addLink(vert.id.substring(0,idLength), vert.parent1_id);
         }
-        if (vert.trunk_id === vert.branch_id) {
+        if (vert.parent1_id === vert.parent2_id) {
             return;
         }
-        if (vert.branch_id && (!node.links || !node.links.some(link => link.toId === vert.branch_id))) {
-            this.graph.addLink(vert.id.substring(0,idLength), vert.branch_id);
+        if (vert.parent2_id && (!node.links || !node.links.some(link => link.toId === vert.parent2_id))) {
+            this.graph.addLink(vert.id.substring(0,idLength), vert.parent2_id);
         }
     }
 
@@ -335,7 +335,7 @@ export class VisualizerStore {
     }
 
     colorForVertexState = (vert: Vertex) => {
-        if (!vert || (!vert.trunk_id && !vert.branch_id)) {
+        if (!vert || (!vert.parent1_id && !vert.parent2_id)) {
             return colorUnknown;
         }
         if (vert.is_selected) {
@@ -363,7 +363,7 @@ export class VisualizerStore {
     }
 
     sizeForVertexState = (vert: Vertex) => {
-        if (!vert || (!vert.trunk_id && !vert.branch_id)) {
+        if (!vert || (!vert.parent1_id && !vert.parent2_id)) {
             return vertexSizeSmall;
         }
         if (vert.is_selected) {
@@ -455,8 +455,8 @@ export class VisualizerStore {
         this.updateNodeUI(vert);
 
         // set -1 because starting node is also counted
-        this.selected_approvers_count = -1;
-        this.selected_approvees_count = -1;
+        this.selected_children_count = -1;
+        this.selected_parents_count = -1;
 
         const seenForward = [];
         const seenBackwards = [];
@@ -464,13 +464,13 @@ export class VisualizerStore {
             this.graph,
             node,
             node => {
-                this.selected_approvers_count++;
+                this.selected_children_count++;
             },
             true,
             link => {
                 const linkUI = this.graphics.getLinkUI(link.id);
                 if (linkUI) {
-                    linkUI.color = parseColor(colorLinkApprovers);
+                    linkUI.color = parseColor(colorLinkChildren);
                 }
             },
             seenForward
@@ -479,13 +479,13 @@ export class VisualizerStore {
             this.graph,
             node,
             node => {
-                this.selected_approvees_count++;
+                this.selected_parents_count++;
             },
             false,
             link => {
                 const linkUI = this.graphics.getLinkUI(link.id);
                 if (linkUI) {
-                    linkUI.color = parseColor(colorLinkApprovees);
+                    linkUI.color = parseColor(colorLinkParents);
                 }
             },
             seenBackwards
@@ -511,8 +511,8 @@ export class VisualizerStore {
 
     @action
     clearSelected = () => {
-        this.selected_approvers_count = 0;
-        this.selected_approvees_count = 0;
+        this.selected_children_count = 0;
+        this.selected_parents_count = 0;
         if (this.selected_via_click || !this.selected) {
             return;
         }

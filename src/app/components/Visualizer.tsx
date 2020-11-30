@@ -32,8 +32,8 @@ export class Visualizer extends React.Component<Props, any> {
         this.state = {
             mps_new: 0,
             vertices_count: 0,
-            selected_approvers_count: 0,
-            selected_approvees_count: 0,
+            selected_children_count: 0,
+            selected_parents_count: 0,
             tips_count: 0,
             solid_percentage: 0.0,
             confirmed_percentage: 0.0,
@@ -71,7 +71,7 @@ export class Visualizer extends React.Component<Props, any> {
         }
 
         let {
-            vertices, selected_approvers_count, selected_approvees_count,
+            vertices, selected_children_count, selected_parents_count,
             tips_count, solid_count, confirmed_count, conflicting_count
         } = this.props.visualizerStore;
 
@@ -80,8 +80,8 @@ export class Visualizer extends React.Component<Props, any> {
         this.setState(state => ({
             mps_new: last_mps_metric.new,
             vertices_count: vertices.size,
-            selected_approvers_count: selected_approvers_count,
-            selected_approvees_count: selected_approvees_count,
+            selected_children_count: selected_children_count,
+            selected_parents_count: selected_parents_count,
             tips_count: tips_count,
             updateTicks: state.updateTicks + 1
         }));
@@ -168,8 +168,8 @@ export class Visualizer extends React.Component<Props, any> {
                                 </Link>
                                 : "-"}
                                 <br/>
-                                Approvers/Approvees: {selected ?
-                                <span>{this.state.selected_approvers_count}/{this.state.selected_approvees_count}</span>
+                                Children/Parents: {selected ?
+                                <span>{this.state.selected_children_count}/{this.state.selected_parents_count}</span>
                                 : '-/-'}
                             </If>
                         </p>

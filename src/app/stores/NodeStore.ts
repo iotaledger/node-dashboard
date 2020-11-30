@@ -49,7 +49,7 @@ class Status {
 }
 
 class CacheMetrics {
-    approvers: CacheMetric;
+    children: CacheMetric;
     request_queue: CacheMetric;
     milestones: CacheMetric;
     messages: CacheMetric;
@@ -81,14 +81,14 @@ class ServerMetrics {
     new_msgs: number;
     known_msgs: number;
     invalid_msgs: number;
-    invalid_req: number;
-    rec_msg_req: number;
+    invalid_reqs: number;
+    rec_msg_reqs: number;
     rec_ms_req: number;
-    rec_heartbeat: number;
+    rec_heartbeats: number;
     sent_msgs: number;
-    sent_msg_req: number;
-    sent_ms_req: number;
-    sent_heartbeat: number;
+    sent_msg_reqs: number;
+    sent_ms_reqs: number;
+    sent_heartbeats: number;
     dropped_sent_packets: number;
     sent_spam_msgs: number;
     ts: number;
@@ -839,8 +839,8 @@ export class NodeStore {
         let reqQ = Object.assign({}, chartSeriesOpts,
             series("Request Queue", 'rgba(14, 230, 183,1)', 'rgba(14, 230, 183,0.4)')
         );
-        let approvers = Object.assign({}, chartSeriesOpts,
-            series("Approvers", 'rgba(219, 53, 53,1)', 'rgba(219, 53, 53,0.4)')
+        let children = Object.assign({}, chartSeriesOpts,
+            series("Children", 'rgba(219, 53, 53,1)', 'rgba(219, 53, 53,0.4)')
         );
         let bundles = Object.assign({}, chartSeriesOpts,
             series("Bundles", 'rgba(53, 109, 230,1)', 'rgba(53, 109, 230,0.4)')
@@ -860,7 +860,7 @@ export class NodeStore {
             let metric: CacheMetrics = this.collected_cache_metrics[i];
             labels.push(metric.ts);
             reqQ.data.push(metric.request_queue.size);
-            approvers.data.push(metric.approvers.size);
+            children.data.push(metric.children.size);
             bundles.data.push(metric.bundles.size);
             milestones.data.push(metric.milestones.size);
             msgs.data.push(metric.messages.size);
@@ -870,7 +870,7 @@ export class NodeStore {
         return {
             labels: labels,
             datasets: [
-                reqQ, approvers, bundles, milestones, msgs, incomingMessageWorkUnits
+                reqQ, children, bundles, milestones, msgs, incomingMessageWorkUnits
             ],
         };
     }
