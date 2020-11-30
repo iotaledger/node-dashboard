@@ -8,7 +8,6 @@ import ExplorerStore from "app/stores/ExplorerStore";
 import Spinner from "react-bootstrap/Spinner";
 import ListGroup from "react-bootstrap/ListGroup";
 import {Link} from 'react-router-dom';
-import * as dateformat from 'dateformat';
 import Alert from "react-bootstrap/Alert";
 import * as style from '../../assets/main.css';
 
@@ -25,31 +24,30 @@ interface Props {
 @inject("nodeStore")
 @inject("explorerStore")
 @observer
-export class ExplorerTagQueryResult extends React.Component<Props, any> {
+export class ExplorerIndexationQueryResult extends React.Component<Props, any> {
 
     componentDidMount() {
         this.props.explorerStore.resetSearch();
-        this.props.explorerStore.searchTag(this.props.match.params.hash);
+        this.props.explorerStore.searchIndexation(this.props.match.params.hash);
     }
 
     getSnapshotBeforeUpdate(prevProps: Props, prevState) {
         if (prevProps.match.params.hash !== this.props.match.params.hash) {
-            this.props.explorerStore.searchTag(this.props.match.params.hash);
+            this.props.explorerStore.searchIndexation(this.props.match.params.hash);
         }
         return null;
     }
 
     render() {
-        let {tag, query_loading} = this.props.explorerStore;
+        let {indexation, query_loading} = this.props.explorerStore;
         let txsEle = [];
-        if (tag) {
-            for (let i = 0; i < tag.txs.length; i++) {
-                let tx = tag.txs[i];
+        if (indexation) {
+            for (let i = 0; i < indexation.msgsMeta.length; i++) {
+                let msg = indexation.msgsMeta[i];
                 txsEle.push(
-                    <ListGroup.Item key={tx.hash}>
+                    <ListGroup.Item key={msg.messageId}>
                         <small>
-                            {dateformat(new Date(tx.timestamp * 1000), "dd.mm.yyyy HH:MM:ss")} {' '}
-                            <Link className={style.monospace} to={`/explorer/tx/${tx.hash}`}>{tx.hash}</Link>
+                            <Link className={style.monospace} to={`/explorer/msgs/${msg.messageId}`}>{msg.messageId}</Link>
                         </small>
                     </ListGroup.Item>
                 );
@@ -57,14 +55,14 @@ export class ExplorerTagQueryResult extends React.Component<Props, any> {
         }
         return (
             <Container fluid className={`text-break`}>
-                <h3>Tag {tag !== null && <span>({tag.txs.length} Transactions)</span>}</h3>
+                <h3>Tag {indexation !== null && <span>({indexation.msgsMeta.length} Messages)</span>}</h3>
                 {
-                    tag !== null ?
+                    indexation !== null ?
                         <React.Fragment>
                             {
-                                tag.txs !== null && tag.txs.length === 100 &&
+                                indexation.msgsMeta !== null && indexation.msgsMeta.length === 100 &&
                                 <Alert variant={"warning"}>
-                                    Max. 100 transactions are shown.
+                                    Max. 100 messages are shown.
                                 </Alert>
                             }
                             <Row className={"mb-3"}>

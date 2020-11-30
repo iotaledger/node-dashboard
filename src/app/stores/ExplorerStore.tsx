@@ -24,7 +24,7 @@ class ConfirmedState {
 class SearchResult {
     msgMeta: IMessageMetadata;
     address: AddressResult;
-    tag: TagResult;
+    indexation: IndexationResult;
     milestone: IMilestone;
 }
 
@@ -45,7 +45,7 @@ export class ExplorerStore {
     // queries
     @observable msgMeta: IMessageMetadata = null;
     @observable addr: AddressResult = null;
-    @observable tag: TagResult = null;
+    @observable indexation: IndexationResult = null;
 
     // loading
     @observable query_loading: boolean = false;
@@ -173,16 +173,16 @@ export class ExplorerStore {
         }
     };
 
-    searchTag = async (hash: string) => {
+    searchIndexation = async (hash: string) => {
         this.updateQueryLoading(true);
         try {
-            let res = await fetch(`/api/tag/${hash}`);
+            let res = await fetch(`/api/indexation/${hash}`);
             if (res.status === 404) {
                 this.updateQueryError(QueryError.NotFound);
                 return;
             }
-            let tag: TagResult = await res.json();
-            this.updateTag(tag);
+            let indexRes: IndexationResult = await res.json();
+            this.updateIndexation(indexRes);
         } catch (error) {
             this.updateQueryError(error);
         }
@@ -215,11 +215,11 @@ export class ExplorerStore {
     };
 
     @action
-    updateTag = (tag: TagResult) => {
-        tag.txs = tag.txs.sort((a, b) => {
+    updateIndexation = (indexRes: IndexationResult) => {
+        indexRes.msgsMeta = indexRes.msgsMeta.sort((a, b) => {
             return a.timestamp < b.timestamp ? 1 : -1;
         });
-        this.tag = tag;
+        this.indexation = indexRes;
         this.query_err = null;
         this.query_loading = false;
     };

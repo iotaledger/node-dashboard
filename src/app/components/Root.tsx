@@ -12,7 +12,7 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
 import { ExplorerMessageQueryResult } from "app/components/ExplorerMessageQueryResult";
 import { ExplorerAddressQueryResult } from "app/components/ExplorerAddressResult";
-import { ExplorerTagQueryResult } from "app/components/ExplorerTagResult";
+import { ExplorerIndexationQueryResult } from "app/components/ExplorerIndexationResult";
 import { Explorer404 } from "app/components/Explorer404";
 import { Misc } from "app/components/Misc";
 import { Peers } from "app/components/Peers";
@@ -102,7 +102,7 @@ export class Root extends React.Component<Props, any> {
                     <Route exact path="/peers" component={Peers} />
                     <Route exact path="/explorer/msgs/:hash" component={ExplorerMessageQueryResult} />
                     <Route exact path="/explorer/addr/:hash" component={ExplorerAddressQueryResult} />
-                    <Route exact path="/explorer/tag/:hash" component={ExplorerTagQueryResult} />
+                    <Route exact path="/explorer/indexation/:hash" component={ExplorerIndexationQueryResult} />
                     <Route exact path="/explorer/404/:search" component={Explorer404} />
                     <Route exact path="/explorer/420" component={Explorer420} />
                     <Route exact path="/explorer" component={Explorer} />
