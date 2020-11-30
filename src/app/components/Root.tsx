@@ -11,7 +11,6 @@ import { NavExplorerSearchbar } from "app/components/NavExplorerSearchbar";
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
 import { ExplorerMessageQueryResult } from "app/components/ExplorerMessageQueryResult";
-import { ExplorerBundleQueryResult } from "app/components/ExplorerBundleQueryResult";
 import { ExplorerAddressQueryResult } from "app/components/ExplorerAddressResult";
 import { ExplorerTagQueryResult } from "app/components/ExplorerTagResult";
 import { Explorer404 } from "app/components/Explorer404";
@@ -102,7 +101,6 @@ export class Root extends React.Component<Props, any> {
                     <Route exact path="/debug" component={Misc} />
                     <Route exact path="/peers" component={Peers} />
                     <Route exact path="/explorer/msgs/:hash" component={ExplorerMessageQueryResult} />
-                    <Route exact path="/explorer/bundle/:hash" component={ExplorerBundleQueryResult} />
                     <Route exact path="/explorer/addr/:hash" component={ExplorerAddressQueryResult} />
                     <Route exact path="/explorer/tag/:hash" component={ExplorerTagQueryResult} />
                     <Route exact path="/explorer/404/:search" component={Explorer404} />

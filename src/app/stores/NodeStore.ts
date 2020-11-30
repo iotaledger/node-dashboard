@@ -511,18 +511,6 @@ export class NodeStore {
     }
 
     @computed
-    get percentageSynced(): number {
-        if (!this.syncStatus.lmi) return 0;
-        return Math.floor((this.syncStatus.lsmi / this.syncStatus.lmi) * 100);
-    };
-
-    @computed
-    get solidifierSolidReachedPercentage(): number {
-        if (!this.syncStatus.lmi) return 0;
-        return Math.floor((1 - (this.status.current_requested_ms / this.syncStatus.lmi)) * 100);
-    }
-
-    @computed
     get isRunningDatabaseCleanup(): boolean {
         return (this.last_dbcleanup_event.start != 0 && this.last_dbcleanup_event.end == 0)
     }
@@ -837,13 +825,10 @@ export class NodeStore {
     @computed
     get cacheMetricsSeries() {
         let reqQ = Object.assign({}, chartSeriesOpts,
-            series("Request Queue", 'rgba(14, 230, 183,1)', 'rgba(14, 230, 183,0.4)')
+            series("Request queue", 'rgba(14, 230, 183,1)', 'rgba(14, 230, 183,0.4)')
         );
         let children = Object.assign({}, chartSeriesOpts,
             series("Children", 'rgba(219, 53, 53,1)', 'rgba(219, 53, 53,0.4)')
-        );
-        let bundles = Object.assign({}, chartSeriesOpts,
-            series("Bundles", 'rgba(53, 109, 230,1)', 'rgba(53, 109, 230,0.4)')
         );
         let milestones = Object.assign({}, chartSeriesOpts,
             series("Milestones", 'rgba(230, 201, 14,1)', 'rgba(230, 201, 14,0.4)')
@@ -861,7 +846,6 @@ export class NodeStore {
             labels.push(metric.ts);
             reqQ.data.push(metric.request_queue.size);
             children.data.push(metric.children.size);
-            bundles.data.push(metric.bundles.size);
             milestones.data.push(metric.milestones.size);
             msgs.data.push(metric.messages.size);
             incomingMessageWorkUnits.data.push(metric.incoming_message_work_units.size);
@@ -870,7 +854,7 @@ export class NodeStore {
         return {
             labels: labels,
             datasets: [
-                reqQ, children, bundles, milestones, msgs, incomingMessageWorkUnits
+                reqQ, children, milestones, msgs, incomingMessageWorkUnits
             ],
         };
     }

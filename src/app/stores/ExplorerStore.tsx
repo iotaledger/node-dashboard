@@ -25,8 +25,7 @@ class SearchResult {
     msgMeta: IMessageMetadata;
     address: AddressResult;
     tag: TagResult;
-    milestone: Transaction;
-    bundles: Array<Array<Transaction>>;
+    milestone: IMilestone;
 }
 
 class Ms {
@@ -45,7 +44,6 @@ export class ExplorerStore {
 
     // queries
     @observable msgMeta: IMessageMetadata = null;
-    @observable bundles: Array<Array<Transaction>> = null;
     @observable addr: AddressResult = null;
     @observable tag: TagResult = null;
 
@@ -160,21 +158,6 @@ export class ExplorerStore {
         }
     };
 
-    searchBundle = async (hash: string) => {
-        this.updateQueryLoading(true);
-        try {
-            let res = await fetch(`/api/bundle/${hash}`);
-            if (res.status === 404) {
-                this.updateQueryError(QueryError.NotFound);
-                return;
-            }
-            let bundles: Array<Array<Transaction>> = await res.json();
-            this.updateBundles(bundles);
-        } catch (err) {
-            this.updateQueryError(err);
-        }
-    };
-
     searchAddress = async (hash: string) => {
         this.updateQueryLoading(true);
         try {
@@ -244,21 +227,6 @@ export class ExplorerStore {
     @action
     updateMsg = (msgMeta: IMessageMetadata) => {
         this.msgMeta = msgMeta;
-        this.query_err = null;
-        this.query_loading = false;
-    };
-
-    @action
-    updateBundles = (bundles: Array<Array<Transaction>>) => {
-        bundles.sort((a, b) => {
-            return a[0].attachment_timestamp > b[0].attachment_timestamp ? -1 : 1;
-        });
-        for (let i = 0; i < bundles.length; i++) {
-            bundles[i].sort((a, b) => {
-                return a.current_index < b.current_index ? -1 : 1;
-            });
-        }
-        this.bundles = bundles;
         this.query_err = null;
         this.query_loading = false;
     };
