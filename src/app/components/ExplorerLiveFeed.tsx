@@ -6,7 +6,6 @@ import {inject, observer} from "mobx-react";
 import Card from "react-bootstrap/Card";
 import ExplorerStore from "app/stores/ExplorerStore";
 import Table from "react-bootstrap/Table";
-import FormCheck from "react-bootstrap/FormCheck";
 import * as style from '../../assets/main.css';
 
 interface Props {
@@ -29,18 +28,15 @@ export class ExplorerLiveFeed extends React.Component<Props, any> {
 
     componentDidMount(): void {
         this.updateInterval = setInterval(() => this.updateTick(), 500);
-        this.props.nodeStore.registerExplorerTopics(this.props.explorerStore.valueOnly);
     }
 
     componentWillUnmount(): void {
         clearInterval(this.updateInterval);
         this.setState({topicsRegistered: false})
-        this.props.nodeStore.unregisterExplorerTopics();
     }
 
     updateTick = () => {
         if (this.props.nodeStore.websocketConnected && !this.state.topicsRegistered) {
-            this.props.nodeStore.registerExplorerTopics(this.props.explorerStore.valueOnly);
             this.setState({topicsRegistered: true})
         }
 
@@ -50,7 +46,7 @@ export class ExplorerLiveFeed extends React.Component<Props, any> {
     }
 
     render() {
-        let {mssLiveFeed, txsLiveFeed} = this.props.explorerStore;
+        let {mssLiveFeed} = this.props.explorerStore;
         return (
             <Row className={"mb-3"}>
                 <Col>
@@ -69,31 +65,6 @@ export class ExplorerLiveFeed extends React.Component<Props, any> {
                                         </thead>
                                         <tbody className={style.monospace}>
                                         {mssLiveFeed}
-                                        </tbody>
-                                    </Table>
-                                </Col>
-                                <Col md={6} xs={12} className='mt-3 mt-md-0'>
-                                    <h6>
-                                        <div className="d-flex justify-content-between align-items-center">
-                                            Transactions
-                                            <FormCheck inline
-                                                       id={"check-value-only"}
-                                                       label={"Only show value Tx"}
-                                                       type={"switch"}
-                                                       checked={this.props.explorerStore.valueOnly}
-                                                       onChange={this.props.explorerStore.toggleValueOnly}
-                                            />
-                                        </div>
-                                    </h6>
-                                    <Table responsive>
-                                        <thead>
-                                        <tr>
-                                            <td>Hash</td>
-                                            <td>Value</td>
-                                        </tr>
-                                        </thead>
-                                        <tbody className={style.monospace}>
-                                        {txsLiveFeed}
                                         </tbody>
                                     </Table>
                                 </Col>

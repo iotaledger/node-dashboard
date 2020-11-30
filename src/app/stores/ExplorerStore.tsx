@@ -4,15 +4,15 @@ import * as React from "react";
 import {Link} from 'react-router-dom';
 import {RouterStore} from "mobx-react-router";
 import NodeStore from "app/stores/NodeStore";
-import { IMessage, IMessageMetadata, IMilestone } from "@iota/iota2.js";
+import { IMessageMetadata, IMilestone } from "@iota/iota2.js";
 
 class AddressResult {
     balance: number;
-    msgs: Array<IMessageMetadata>;
+    msgsMeta: Array<IMessageMetadata>;
 }
 
 class IndexationResult {
-    msgs: Array<IMessageMetadata>;
+    msgsMeta: Array<IMessageMetadata>;
 }
 
 class ConfirmedState {
@@ -22,20 +22,14 @@ class ConfirmedState {
 }
 
 class SearchResult {
-    tx: Transaction;
+    msgMeta: IMessageMetadata;
     address: AddressResult;
     tag: TagResult;
     milestone: Transaction;
     bundles: Array<Array<Transaction>>;
 }
 
-class Tx {
-    hash: string;
-    value: number;
-}
-
 class Ms {
-    hash: string;
     index: number;
 }
 
@@ -47,11 +41,10 @@ enum QueryError {
 
 export class ExplorerStore {
     // live feed
-    @observable latest_txs: Array<Tx> = [];
     @observable latest_mss: Array<Ms> = [];
 
     // queries
-    @observable tx: Transaction = null;
+    @observable msgMeta: IMessageMetadata = null;
     @observable bundles: Array<Array<Transaction>> = null;
     @observable addr: AddressResult = null;
     @observable tag: TagResult = null;
@@ -81,8 +74,6 @@ export class ExplorerStore {
     }
 
     registerHandlers = () => {
-        registerHandler(WSMsgType.TxValue, this.addLiveFeedTx);
-        registerHandler(WSMsgType.TxZeroValue, this.addLiveFeedTx);
         registerHandler(WSMsgType.Ms, this.addLiveFeedMs);
     }
 
@@ -113,12 +104,12 @@ export class ExplorerStore {
         this.searching = false;
         let search = this.search;
         this.search = '';
-        if (this.search_result.msg) {
+        if (this.search_result.msgMeta) {
             this.routerStore.push(`/explorer/msgs/${search}`);
             return;
         }
         if (this.search_result.milestone) {
-            this.routerStore.push(`/explorer/msgs/${this.search_result.milestone.milestoneIndex}`);
+            this.routerStore.push(`/explorer/milestones/${this.search_result.milestone.milestoneIndex}`);
             return;
         }
         if (this.search_result.address) {
@@ -148,7 +139,7 @@ export class ExplorerStore {
                 this.updateQueryError(QueryError.NotFound);
                 return;
             }
-            let msg: IMessageMetadata = await res.json();
+            let msgMeta: IMessageMetadata = await res.json();
             /*
             try {
                 // ToDo:
@@ -163,7 +154,7 @@ export class ExplorerStore {
                 console.log(error);
             }
             */
-            this.updateMsg(msg);
+            this.updateMsg(msgMeta);
         } catch (err) {
             this.updateQueryError(err);
         }
@@ -216,14 +207,13 @@ export class ExplorerStore {
 
     @action
     reset = () => {
-        this.msg = null;
+        this.msgMeta = null;
         this.query_err = null;
     };
 
     @action
     toggleValueOnly = () => {
         this.valueOnly = !this.valueOnly;
-        this.nodeStore.registerExplorerTopics(this.valueOnly);
     };
 
     @action
@@ -233,7 +223,7 @@ export class ExplorerStore {
 
     @action
     updateAddress = (addr: AddressResult) => {
-        addr.txs = addr.txs.sort((a, b) => {
+        addr.msgsMeta = addr.msgsMeta.sort((a, b) => {
             return a.timestamp < b.timestamp ? 1 : -1;
         });
         this.addr = addr;
@@ -252,8 +242,8 @@ export class ExplorerStore {
     };
 
     @action
-    updateTx = (tx: Transaction) => {
-        this.tx = tx;
+    updateMsg = (msgMeta: IMessageMetadata) => {
+        this.msgMeta = msgMeta;
         this.query_err = null;
         this.query_loading = false;
     };
@@ -284,22 +274,6 @@ export class ExplorerStore {
     };
 
     @action
-    addLiveFeedTx = (tx: Tx) => {
-
-        if (this.valueOnly && tx.value == 0) {
-            return
-        }
-
-        // prevent duplicates (should be fast with only size 10)
-        if (this.latest_txs.findIndex((t) => t.hash == tx.hash) === -1) {
-            if (this.latest_txs.length >= liveFeedSize) {
-                this.latest_txs.shift();
-            }
-            this.latest_txs.push(tx);
-        }
-    };
-
-    @action
     addLiveFeedMs = (ms: Ms) => {
         if (this.latest_mss.length >= liveFeedSize) {
             this.latest_mss.pop();
@@ -308,41 +282,15 @@ export class ExplorerStore {
     };
 
     @computed
-    get txsLiveFeed() {
-        let feed = [];
-        for (let i = this.latest_txs.length - 1; i >= 0; i--) {
-            let tx = this.latest_txs[i];
-            feed.push(
-                <tr key={tx.hash}>
-                    <td>
-                        <Link to={`/explorer/tx/${tx.hash}`}>
-                            {tx.hash.substr(0, 25)}...
-                        </Link>
-                    </td>
-                    <td>
-                        <IOTAValue>{tx.value}</IOTAValue>
-                    </td>
-                </tr>
-            );
-        }
-        return feed;
-    }
-
-    @computed
     get mssLiveFeed() {
         let feed = [];
         for (let i = 0; i < this.latest_mss.length; i++) {
             let ms = this.latest_mss[i];
             feed.push(
-                <tr key={ms.hash}>
+                <tr key={ms.index}>
                     <td>
-                        <Link to={`/explorer/tx/${ms.hash}`}>
+                        <Link to={`/explorer/milestones/${ms.index}`}>
                             {ms.index}
-                        </Link>
-                    </td>
-                    <td>
-                        <Link to={`/explorer/tx/${ms.hash}`}>
-                            {ms.hash.substr(0, 25)}...
                         </Link>
                     </td>
                 </tr>
