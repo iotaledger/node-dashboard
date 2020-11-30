@@ -5,7 +5,6 @@ import {default as Viva} from 'vivagraphjs';
 
 export class Vertex {
     id: string;
-    tag: string;
     parent1_id: string;
     parent2_id: string;
     is_solid: boolean;
@@ -14,7 +13,6 @@ export class Vertex {
     is_milestone: boolean;
     is_tip: boolean;
     is_selected: boolean;
-    is_highlighted: boolean;
 }
 
 export class MetaInfo {
@@ -44,7 +42,6 @@ export const colorConflicting = "#d17300";
 export const colorMilestone = "#dc322f";
 export const colorTip = "#00d1a4";
 export const colorUnknown = "#b58900";
-export const colorHighlighted = "#d33682";
 export const colorSelected = "#fdf6e3";
 export const colorLink = "#586e75";
 export const colorLinkChildren = "#ff5aaa";
@@ -67,10 +64,6 @@ export class VisualizerStore {
     selected_parents_count = 0;
     selected_via_click: boolean = false;
 
-    // search
-    @observable search: string = "";
-    searchFilter: string = "";
-
     // viva graph objs
     graph;
     graphics;
@@ -89,21 +82,6 @@ export class VisualizerStore {
         registerHandler(WSMsgType.ConfirmedInfo, this.addConfirmedInfo);
         registerHandler(WSMsgType.MilestoneInfo, this.addMilestoneInfo);
         registerHandler(WSMsgType.TipInfo, this.addTipInfo);
-    }
-
-    @action
-    updateSearch = (search: string) => {
-        this.search = search.trim();
-    }
-
-    @action
-    searchAndHighlight = () => {
-        this.searchFilter = this.search;
-        let iter: IterableIterator<Vertex> = this.vertices.values();
-        for (const vert of iter) {
-            vert.is_highlighted = this.isHighlighted(vert);
-            this.updateNodeUI(vert);
-        }
     }
 
     @action
@@ -127,7 +105,6 @@ export class VisualizerStore {
         if (!this.collect) return;
 
         vert.is_selected = false;
-        vert.is_highlighted = this.isHighlighted(vert);
 
         let existing = this.vertices.get(vert.id.substring(0,idLength));
         if (existing) {
@@ -145,7 +122,6 @@ export class VisualizerStore {
             // update all infos since we might be dealing
             // with a vertex obj only created from missing parent1/parent2
             existing.id = vert.id;
-            existing.tag = vert.tag;
             existing.parent1_id = vert.parent1_id;
             existing.parent2_id = vert.parent2_id;
             existing.is_solid = vert.is_solid;
@@ -154,7 +130,6 @@ export class VisualizerStore {
             existing.is_milestone = vert.is_milestone;
             existing.is_tip = vert.is_tip;
             existing.is_selected = vert.is_selected;
-            existing.is_highlighted = vert.is_highlighted;
             vert = existing
         } else {
             if (vert.is_solid) {
@@ -330,19 +305,12 @@ export class VisualizerStore {
         }
     }
 
-    isHighlighted = (vert: Vertex) => {
-        return ((this.searchFilter) && ((vert.id?.indexOf(this.searchFilter) >= 0) || (vert.tag?.indexOf(this.searchFilter) >= 0)))
-    }
-
     colorForVertexState = (vert: Vertex) => {
         if (!vert || (!vert.parent1_id && !vert.parent2_id)) {
             return colorUnknown;
         }
         if (vert.is_selected) {
             return colorSelected;
-        }
-        if (vert.is_highlighted) {
-            return colorHighlighted;
         }
         if (vert.is_milestone) {
             return colorMilestone;
@@ -353,8 +321,8 @@ export class VisualizerStore {
         if (vert.is_conflicting) {
             return colorConflicting;
         }
-        if (vert.is_confirmed) {
-            return colorConfirmed;
+        if (vert.is_referenced) {
+            return colorReferenced;
         }
         if (vert.is_solid) {
             return colorSolid;
@@ -367,9 +335,6 @@ export class VisualizerStore {
             return vertexSizeSmall;
         }
         if (vert.is_selected) {
-            return vertexSizeBig;
-        }
-        if (vert.is_highlighted) {
             return vertexSizeBig;
         }
         if (vert.is_milestone) {

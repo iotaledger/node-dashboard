@@ -1,5 +1,4 @@
 import * as React from 'react';
-import {KeyboardEvent} from 'react';
 import Container from "react-bootstrap/Container";
 import {inject, observer} from "mobx-react";
 import {Link} from 'react-router-dom';
@@ -13,7 +12,6 @@ import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import Popover from "react-bootstrap/Popover";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import {toInputUppercase} from "app/misc/Utils";
 import { If } from 'tsx-control-statements/components';
 
 interface Props {
@@ -109,17 +107,8 @@ export class Visualizer extends React.Component<Props, any> {
         this.props.visualizerStore.pauseResume();
     }
 
-    updateSearch = (e) => {
-        this.props.visualizerStore.updateSearch(e.target.value);
-    }
-
-    searchAndHighlight = (e: KeyboardEvent) => {
-        if (e.key !== 'Enter') return;
-        this.props.visualizerStore.searchAndHighlight();
-    }
-
     render() {
-        let {selected, verticesLimit, paused, search} = this.props.visualizerStore;
+        let {selected, verticesLimit, paused} = this.props.visualizerStore;
 
         return (
             <Container fluid>
@@ -154,10 +143,6 @@ export class Visualizer extends React.Component<Props, any> {
                             <Badge pill style={{background: VisuStore.colorUnknown, color: "white"}}>
                                 Unknown
                             </Badge>
-                            {' '}
-                            <Badge pill style={{background: VisuStore.colorHighlighted, color: "white"}}>
-                                Highlighted
-                            </Badge>
                             <br/>
                             Messages: {this.state.vertices_count}, MPS: {this.state.mps_new}, Tips: {this.state.tips_count}<br/>
                             Confirmed: {this.state.confirmed_percentage.toFixed(2)}%, Conflicting: {this.state.conflicting_percentage.toFixed(2)}%, Solid: {this.state.solid_percentage.toFixed(2)}%<br/>
@@ -184,19 +169,6 @@ export class Visualizer extends React.Component<Props, any> {
                                 type="number" value={verticesLimit.toString()} onChange={this.updateVerticesLimit}
                                 aria-label="vertices-limit"
                                 aria-describedby="vertices-limit"
-                            />
-                        </InputGroup>
-                        <InputGroup className="mr-1" size="sm">
-                            <InputGroup.Prepend>
-                                <InputGroup.Text id="vertices-limit">
-                                    Search TxHash/Tag
-                                </InputGroup.Text>
-                            </InputGroup.Prepend>
-                            <FormControl
-                                placeholder="search"
-                                type="text" value={search} onChange={this.updateSearch} onInput={toInputUppercase}
-                                aria-label="vertices-search" onKeyUp={this.searchAndHighlight}
-                                aria-describedby="vertices-search"
                             />
                         </InputGroup>
                         <InputGroup className="mr-1" size="sm">
