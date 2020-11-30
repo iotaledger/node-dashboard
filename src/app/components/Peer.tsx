@@ -56,10 +56,10 @@ const lineChartOptions = Object.assign({
 
 @inject("nodeStore")
 @observer
-export class Neighbor extends React.Component<Props, any> {
+export class Peer extends React.Component<Props, any> {
     render() {
-        let neighborMetrics = this.props.nodeStore.neighbor_metrics.get(this.props.identity);
-        let last = neighborMetrics.current;
+        let peerMetrics = this.props.nodeStore.peer_metrics.get(this.props.identity);
+        let last = peerMetrics.current;
         if (!last.connected) {
             return <Row className={"mb-3"}>
                 <Col>
@@ -154,12 +154,12 @@ export class Neighbor extends React.Component<Props, any> {
                                         </ListGroup.Item>
                                         <If condition={!!last.heartbeat}>
                                             <ListGroup.Item>
-                                                Neighbors: {' '}
-                                                {last.heartbeat.connected_neighbors}
+                                                Peers: {' '}
+                                                {last.heartbeat.connected_peers}
                                             </ListGroup.Item>
                                             <ListGroup.Item>
-                                                Synced Neighbors: {' '}
-                                                {last.heartbeat.synced_neighbors}
+                                                Synced Peers: {' '}
+                                                {last.heartbeat.synced_peers}
                                             </ListGroup.Item>
                                         </If>
                                     </ListGroup>
@@ -184,9 +184,9 @@ export class Neighbor extends React.Component<Props, any> {
                                         </thead>
                                         <tbody>
                                         <tr>
-                                            <td>{last.info.numberOfAllTransactions}</td>
-                                            <td>{last.info.numberOfNewTransactions}</td>
-                                            <td><small>{last.info.numberOfSentTransactions}</small></td>
+                                            <td>{last.info.numberOfAllMessages}</td>
+                                            <td>{last.info.numberOfNewMessages}</td>
+                                            <td><small>{last.info.numberOfSentMessages}</small></td>
                                             <td><small>{last.info.numberOfDroppedSentPackets}</small></td>
                                         </tr>
                                         </tbody>
@@ -205,12 +205,12 @@ export class Neighbor extends React.Component<Props, any> {
                                     {' '}
                                     <Badge pill variant="light">
                                         {'Current: '}
-                                        {prettysize(neighborMetrics.currentNetIO && neighborMetrics.currentNetIO.tx)}
+                                        {prettysize(peerMetrics.currentNetIO && peerMetrics.currentNetIO.tx)}
                                         {' / '}
-                                        {prettysize(neighborMetrics.currentNetIO && neighborMetrics.currentNetIO.rx)}
+                                        {prettysize(peerMetrics.currentNetIO && peerMetrics.currentNetIO.rx)}
                                     </Badge>
                                     <div className={style.hornetChart}>
-                                        <Line data={neighborMetrics.netIOSeries} options={lineChartOptions}/>
+                                        <Line data={peerMetrics.netIOSeries} options={lineChartOptions}/>
                                     </div>
                                 </Col>
                             </Row>

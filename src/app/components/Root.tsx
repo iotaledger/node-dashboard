@@ -16,7 +16,7 @@ import { ExplorerAddressQueryResult } from "app/components/ExplorerAddressResult
 import { ExplorerTagQueryResult } from "app/components/ExplorerTagResult";
 import { Explorer404 } from "app/components/Explorer404";
 import { Misc } from "app/components/Misc";
-import { Neighbors } from "app/components/Neighbors";
+import { Peers } from "app/components/Peers";
 import { Visualizer } from "app/components/Visualizer";
 import { Explorer420 } from "app/components/Explorer420";
 import { Helmet } from 'react-helmet'
@@ -61,8 +61,8 @@ export class Root extends React.Component<Props, any> {
                             <LinkContainer to="/dashboard" >
                                 <Nav.Link>Dashboard</Nav.Link>
                             </LinkContainer>
-                            <LinkContainer to="/neighbors">
-                                <Nav.Link>Neighbors</Nav.Link>
+                            <LinkContainer to="/peers">
+                                <Nav.Link>Peers</Nav.Link>
                             </LinkContainer>
                             <LinkContainer to="/explorer">
                                 <Nav.Link>Tangle Explorer</Nav.Link>
@@ -100,6 +100,7 @@ export class Root extends React.Component<Props, any> {
                 <Switch>
                     <Route exact path="/dashboard" component={Dashboard} />
                     <Route exact path="/debug" component={Misc} />
+                    <Route exact path="/peers" component={Peers} />
                     <Route exact path="/explorer/msgs/:hash" component={ExplorerMessageQueryResult} />
                     <Route exact path="/explorer/bundle/:hash" component={ExplorerBundleQueryResult} />
                     <Route exact path="/explorer/addr/:hash" component={ExplorerAddressQueryResult} />

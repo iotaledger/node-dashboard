@@ -4,7 +4,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Uptime from "app/components/Uptime";
 import Autopeering from "app/components/Autopeering";
-import NeighborsCount from "app/components/NeighborsCount"
+import PeersCount from "app/components/PeersCount"
 import Version from "app/components/Version";
 import LatestMilestone from "app/components/LatestMilestone";
 import PruningIndex from "app/components/PruningIndex";
@@ -65,7 +65,7 @@ export class Dashboard extends React.Component<Props, any> {
                                         <ListGroup variant={"flush"}>
                                             <ListGroup.Item><Version/></ListGroup.Item>
                                             <ListGroup.Item><RequestQueue/></ListGroup.Item>
-                                            <ListGroup.Item><NeighborsCount/></ListGroup.Item>
+                                            <ListGroup.Item><PeersCount/></ListGroup.Item>
                                             <ListGroup.Item><Autopeering/></ListGroup.Item>
                                         </ListGroup>
                                     </Col>

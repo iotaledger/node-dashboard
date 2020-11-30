@@ -108,11 +108,11 @@ class NetworkIO {
     ts: string;
 }
 
-class NeighborMetrics {
-    @observable collected: Array<NeighborMetric> = [];
+class PeerMetrics {
+    @observable collected: Array<PeerMetric> = [];
     @observable network_io: Array<NetworkIO> = [];
 
-    addMetric(metric: NeighborMetric) {
+    addMetric(metric: PeerMetric) {
         metric.ts = dateformat(Date.now(), "HH:MM:ss");
         this.collected.push(metric);
         if (this.collected.length > maxMetricsDataPoints) {
@@ -190,8 +190,8 @@ class NeighborMetrics {
 
         let labels = [];
         for (let i = 1; i < this.collected.length; i++) {
-            let metric: NeighborMetric = this.collected[i];
-            let prevMetric: NeighborMetric = this.collected[i - 1];
+            let metric: PeerMetric = this.collected[i];
+            let prevMetric: PeerMetric = this.collected[i - 1];
             labels.push(metric.ts);
             newMsgs.data.push(metric.info.numberOfNewMessages - prevMetric.info.numberOfNewMessages);
             knownMsgs.data.push(metric.info.numberOfKnownMessages - prevMetric.info.numberOfKnownMessages);
@@ -208,7 +208,7 @@ class NeighborMetrics {
     }
 }
 
-class NeighborMetric {
+class PeerMetric {
     identity: string;
     alias: string;
     origin_addr: string;
@@ -217,7 +217,7 @@ class NeighborMetric {
     bytes_read: number;
     bytes_written: number;
     heartbeat: Heartbeat;
-    info: NeighborInfo;
+    info: PeerInfo;
     connected: boolean;
     ts: number;
 }
@@ -226,14 +226,12 @@ class Heartbeat {
     solid_milestone_index: number;
     pruned_milestone_index: number;
     latest_milestone_index: number;
-    connected_neighbors: number;
-    synced_neighbors: number;
+    connected_peers: number;
+    synced_peers: number;
 }
 
-class NeighborInfo {
-    address: string;
-    port: number;
-    domain: string;
+class PeerInfo {
+    multiAddress: string;
     numberOfAllMessages: number;
     numberOfNewMessages: number;
     numberOfKnownMessages: number;
@@ -326,7 +324,7 @@ export class NodeStore {
     @observable collected_cache_metrics: Array<CacheMetrics> = [];
     @observable collected_spam_metrics: Array<SpamMetric> = [];
     @observable collected_avg_spam_metrics: Array<AvgSpamMetric> = [];
-    @observable neighbor_metrics = new ObservableMap<string, NeighborMetrics>();
+    @observable peer_metrics = new ObservableMap<string, PeerMetrics>();
     @observable last_confirmed_ms_metric: ConfirmedMilestoneMetric = new ConfirmedMilestoneMetric();
     @observable collected_confirmed_ms_metrics: Array<ConfirmedMilestoneMetric> = [];
     @observable last_dbsize_metric: DbSizeMetric = new DbSizeMetric();
@@ -346,8 +344,8 @@ export class NodeStore {
         registerHandler(WSMsgType.MPSMetrics, this.updateLastMPSMetric);
         registerHandler(WSMsgType.ConfirmedMsMetrics, this.updateConfirmedMilestoneMetrics);
 
-        // neighbors
-        registerHandler(WSMsgType.PeerMetric, this.updateNeighborMetrics);
+        // peers
+        registerHandler(WSMsgType.PeerMetric, this.updatePeerMetrics);
 
         // misc
         registerHandler(WSMsgType.TipSelMetric, this.updateLastTipSelMetric);
@@ -399,11 +397,11 @@ export class NodeStore {
         this.unregisterWebsocketTopic(WSMsgType.DBSizeMetric);
     }
 
-    registerNeighborTopics = () => {
+    registerPeerTopics = () => {
         this.registerWebsocketTopic(WSMsgType.PeerMetric);
     }
 
-    unregisterNeighborTopics = () => {
+    unregisterPeerTopics = () => {
         this.unregisterWebsocketTopic(WSMsgType.PeerMetric);
     }
 
@@ -449,7 +447,7 @@ export class NodeStore {
         this.collected_cache_metrics = [];
         this.collected_spam_metrics = [];
         this.collected_avg_spam_metrics = [];
-        this.neighbor_metrics = new ObservableMap<string, NeighborMetrics>();
+        this.peer_metrics = new ObservableMap<string, PeerMetrics>();
         this.last_confirmed_ms_metric = new ConfirmedMilestoneMetric();
         this.collected_confirmed_ms_metrics = [];
         this.last_dbsize_metric = new DbSizeMetric();
@@ -586,23 +584,23 @@ export class NodeStore {
     };
 
     @action
-    updateNeighborMetrics = (neighborMetrics: Array<NeighborMetric>) => {
+    updatePeerMetrics = (peerMetrics: Array<PeerMetric>) => {
         let updated = [];
-        if (neighborMetrics != null) {
-            for (let i = 0; i < neighborMetrics.length; i++) {
-                let metric = neighborMetrics[i];
-                let neighbMetrics: NeighborMetrics = this.neighbor_metrics.get(metric.identity);
-                if (!neighbMetrics) {
-                    neighbMetrics = new NeighborMetrics();
+        if (peerMetrics != null) {
+            for (let i = 0; i < peerMetrics.length; i++) {
+                let metric = peerMetrics[i];
+                let pMetrics: PeerMetrics = this.peer_metrics.get(metric.identity);
+                if (!pMetrics) {
+                    pMetrics = new PeerMetrics();
                 }
-                neighbMetrics.addMetric(metric);
-                this.neighbor_metrics.set(metric.identity, neighbMetrics);
+                pMetrics.addMetric(metric);
+                this.peer_metrics.set(metric.identity, pMetrics);
                 updated.push(metric.identity);
             }
             // remove duplicates
-            for (const k of this.neighbor_metrics.keys()) {
+            for (const k of this.peer_metrics.keys()) {
                 if (!updated.includes(k)) {
-                    this.neighbor_metrics.delete(k);
+                    this.peer_metrics.delete(k);
                 }
             }
         }
@@ -959,11 +957,6 @@ export class NodeStore {
             labels: labels,
             datasets: [sentMsgReqs, recMsgReqs, sentMsReqs, recMsReqs, sentHeatbeats, recHeartbeats],
         };
-    }
-
-    @computed
-    get neighborsSeries() {
-        return {};
     }
 
     @computed

@@ -2,7 +2,7 @@ import * as React from 'react';
 import Container from "react-bootstrap/Container";
 import NodeStore from "app/stores/NodeStore";
 import {inject, observer} from "mobx-react";
-import {Neighbor} from "app/components/Neighbor";
+import {Peer} from "app/components/Peer";
 
 interface Props {
     nodeStore?: NodeStore;
@@ -10,7 +10,7 @@ interface Props {
 
 @inject("nodeStore")
 @observer
-export class Neighbors extends React.Component<Props, any> {
+export class Peers extends React.Component<Props, any> {
     updateInterval: any;
 
     constructor(props: Readonly<Props>) {
@@ -22,17 +22,17 @@ export class Neighbors extends React.Component<Props, any> {
 
     componentDidMount(): void {
         this.updateInterval = setInterval(() => this.updateTick(), 500);
-        this.props.nodeStore.registerNeighborTopics();
+        this.props.nodeStore.registerPeerTopics();
     }
 
     componentWillUnmount(): void {
         clearInterval(this.updateInterval);
-        this.props.nodeStore.unregisterNeighborTopics();
+        this.props.nodeStore.unregisterPeerTopics();
     }
 
     updateTick = () => {
         if (this.props.nodeStore.websocketConnected && !this.state.topicsRegistered) {
-            this.props.nodeStore.registerNeighborTopics();
+            this.props.nodeStore.registerPeerTopics();
             this.setState({topicsRegistered: true})
         }
 
@@ -42,17 +42,17 @@ export class Neighbors extends React.Component<Props, any> {
     }
 
     render() {
-        let neighborsEle = [];
-        this.props.nodeStore.neighbor_metrics.forEach((v, k) => {
-            neighborsEle.push(<Neighbor key={k} identity={k}/>);
+        let peersEle = [];
+        this.props.nodeStore.peer_metrics.forEach((v, k) => {
+            peersEle.push(<Peer key={k} identity={k}/>);
         });
         return (
             <Container fluid>
-                <h3>Neighbors {neighborsEle.length > 0 && <span>({neighborsEle.length})</span>}</h3>
+                <h3>Peers {peersEle.length > 0 && <span>({peersEle.length})</span>}</h3>
                 <p>
-                    Currently connected and disconnected neighbors known to the node.
+                    Currently connected and disconnected peers known to the node.
                 </p>
-                {neighborsEle}
+                {peersEle}
             </Container>
         );
     }

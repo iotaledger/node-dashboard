@@ -8,11 +8,11 @@ interface Props {
 
 @inject('nodeStore')
 @observer
-export default class NeighborsCount extends React.Component<Props, any> {
+export default class PeersCount extends React.Component<Props, any> {
   render() {
     return (
       <React.Fragment>
-        Connected Neighbors:{' '}
+        Connected Peers:{' '}
         {this.props.nodeStore.status.connected_peers_count}
       </React.Fragment>
     );

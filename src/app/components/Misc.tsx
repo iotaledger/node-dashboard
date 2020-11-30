@@ -230,7 +230,7 @@ export class Misc extends React.Component<Props, any> {
                                     <If condition={this.props.nodeStore.avgSpamMetricsSeries.labels.length > 0}>
                                     <small>
                                         New TX: {this.props.nodeStore.last_avg_spam_metric.new.toFixed(3)},
-                                        Avg. TPS: {this.props.nodeStore.last_avg_spam_metric.avg.toFixed(3)}
+                                        Avg. MPS: {this.props.nodeStore.last_avg_spam_metric.avg.toFixed(3)}
                                     </small>
                                     <div className={style.hornetChart}>
                                         <Line data={this.props.nodeStore.avgSpamMetricsSeries}
