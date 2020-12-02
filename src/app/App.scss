@@ -1,0 +1,10 @@
+.app {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  align-items: stretch;
+
+  .scroll-content {
+    overflow: auto;
+  }
+}

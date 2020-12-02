@@ -1,0 +1,58 @@
+@import '../../../scss/fonts';
+@import '../../../scss/variables';
+
+.message-button {
+  position: relative;
+
+  .message-button-btn {
+    border: 0;
+    outline: none;
+    background: none;
+    cursor: pointer;
+
+    svg {
+      color: $text-color-secondary;
+    }
+
+    &:hover {
+      svg {
+        color: $text-color-primary;
+      }
+    }
+  }
+
+  .message-button--message {
+    @include font-size(10px);
+
+    position: absolute;
+    min-width: 200px;
+    color: $highlight;
+    font-family: $font-sans;
+    font-weight: bold;
+    text-transform: uppercase;
+    opacity: 1;
+    animation: fade 2s linear;
+    animation-fill-mode: forwards;
+
+    &.message-button--message--right {
+      top: 3px;
+      margin-left: 10px;
+    }
+
+    &.message-button--message--top {
+      top: -18px;
+      left: -10px;
+    }
+  }
+
+  @keyframes fade {
+    0%,
+    100% {
+      opacity: 0;
+    }
+
+    50% {
+      opacity: 1;
+    }
+  }
+}

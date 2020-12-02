@@ -1,0 +1,52 @@
+@import '../../scss/card';
+@import '../../scss/fonts';
+
+.peers {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  padding: 60px;
+
+  .content {
+    flex: 1;
+    max-width: $content-width-desktop;
+
+    .peers-panel {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: space-between;
+
+      .peers-panel--item {
+        width: $content-width-desktop / 2 - $spacing-small / 2;
+        margin-top: $spacing-small;
+        overflow: hidden;
+
+        .card {
+          padding: $spacing-large;
+
+          img {
+            width: 16px;
+            height: 16px;
+            margin-right: $spacing-small;
+          }
+
+          .peer-id {
+            @include font-size(14px);
+
+            color: $text-color-primary;
+            font-family: $font-sans;
+            font-weight: 500;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+          }
+
+          .graph {
+            margin-top: 24px;
+          }
+        }
+      }
+    }
+  }
+}

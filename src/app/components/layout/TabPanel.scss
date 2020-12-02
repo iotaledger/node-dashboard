@@ -1,0 +1,46 @@
+@import '../../../scss/fonts';
+@import '../../../scss/variables';
+
+.tab-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+
+  .tab-panel--buttons {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 24px;
+
+    .tab-panel--button {
+      @include font-size(18px);
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-right: 60px;
+      border: 0;
+      outline: 0;
+      background: none;
+      color: $text-color-secondary;
+      font-family: $font-sans;
+      font-weight: bold;
+      text-decoration: none;
+      cursor: pointer;
+
+      .underline {
+        width: 60%;
+        height: 2px;
+        margin-top: 4px;
+        background-color: transparent;
+      }
+
+      &.tab-panel--button__selected {
+        color: $text-color-primary;
+
+        .underline {
+          background-color: $highlight;
+        }
+      }
+    }
+  }
+}

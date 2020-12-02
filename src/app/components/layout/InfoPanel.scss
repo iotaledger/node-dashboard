@@ -1,0 +1,50 @@
+@import '../../../scss/fonts';
+@import '../../../scss/variables';
+
+.info-panel {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  width: 350px;
+  height: 100px;
+
+  .value {
+    @include font-size(24px);
+
+    margin-top: $spacing-tiny;
+    color: $text-color-primary;
+    font-family: $font-sans;
+    font-weight: bold;
+    white-space: nowrap;
+
+    .value--small {
+      @include font-size(14px);
+    }
+  }
+
+  .icon-background {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    margin-right: 20px;
+    border-radius: $spacing-small;
+
+    &.icon-background--green {
+      background-color: #ecfdfc;
+    }
+
+    &.icon-background--orange {
+      background-color: #fff6f2;
+    }
+
+    &.icon-background--blue {
+      background-color: #f1f8ff;
+    }
+
+    &.icon-background--purple {
+      background-color: #f3f3fe;
+    }
+  }
+}

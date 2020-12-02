@@ -1,0 +1,37 @@
+@import '../../../scss/fonts';
+@import '../../../scss/variables';
+
+.search-input {
+  display: flex;
+  flex: 1;
+  align-items: center;
+
+  img {
+    width: 19px;
+    height: 19px;
+  }
+
+  input {
+    flex: 1;
+    @include font-size(16px);
+    margin-left: 10px;
+    padding: 6px 12px;
+    border: 0;
+    border-radius: $spacing-small;
+    outline: 0;
+    color: $text-color-secondary;
+    font-family: $font-sans;
+    font-weight: 500;
+
+    &::placeholder {
+      color: $text-color-secondary;
+      opacity: 1;
+    }
+  }
+
+  &.search-input--compact {
+    input {
+      @include font-size(14px);
+    }
+  }
+}

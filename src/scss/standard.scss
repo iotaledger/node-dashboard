@@ -1,0 +1,64 @@
+@import './fonts';
+@import './variables';
+
+h1 {
+  @include font-size(24px);
+
+  color: $text-color-primary;
+  font-family: $font-sans;
+  font-weight: bold;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+h2 {
+  @include font-size(18px);
+
+  color: $text-color-primary;
+  font-family: $font-sans;
+  font-weight: bold;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+h3 {
+  @include font-size(14px);
+
+  color: $text-color-primary;
+  font-family: $font-sans;
+  font-weight: bold;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+h4 {
+  @include font-size(10px);
+
+  color: $text-color-secondary;
+  font-family: $font-sans;
+  font-weight: 500;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+p {
+  @include font-size(12px);
+
+  color: $text-color-primary;
+  font-family: $font-sans;
+}
+
+a {
+  text-decoration: none;
+}
+
+.secondary {
+  color: $text-color-secondary;
+}
+
+.icon-button {
+  border: 0;
+  outline: 0;
+  background: none;
+  cursor: pointer;
+}

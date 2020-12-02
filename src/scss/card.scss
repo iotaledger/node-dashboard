@@ -1,0 +1,99 @@
+@import './fonts';
+@import './variables';
+
+.card {
+  padding: 10px;
+  border: 1px solid $card-border;
+  border-radius: 16px;
+  background-color: $card-background;
+  overflow: hidden;
+
+  .card--header-count {
+    @include font-size(12px);
+
+    display: flex;
+    align-items: center;
+    height: 24px;
+    margin-left: 20px;
+    padding: 0px 8px;
+    border-radius: 6px;
+    background-color: $background;
+    color: $highlight;
+    font-family: $font-sans;
+    font-weight: bold;
+    white-space: nowrap;
+  }
+
+  .card--label {
+    @include font-size(10px);
+    margin-top: $spacing-small;
+    margin-bottom: $spacing-tiny / 2;
+
+    color: $text-color-secondary;
+    font-family: $font-sans;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+
+  .card--value {
+    @include font-size(14px);
+
+    color: $text-color-primary;
+    font-family: $font-sans;
+    word-break: break-all;
+
+    a {
+      color: $highlight;
+      text-decoration: none;
+    }
+
+    button {
+      border: 0;
+      outline: 0;
+      background: none;
+      color: $highlight;
+      cursor: pointer;
+    }
+
+    &.card--value-textarea {
+      min-height: 150px;
+      max-height: 150px;
+      padding: 10px;
+      background: $panel-border;
+      overflow: auto;
+
+      &.card--value-textarea__ascii {
+        max-height: 350px;
+        white-space: pre-wrap;
+      }
+
+      &.card--value-textarea__hex {
+        max-height: 350px;
+        font-family: 'Courier New', Courier, monospace;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      &.card--value-textarea__json {
+        max-height: 350px;
+        font-family: 'Courier New', Courier, monospace;
+        white-space: pre-wrap;
+      }
+    }
+  }
+
+  .card--action {
+    @include font-size(14px);
+    border: 0;
+    outline: 0;
+    background: none;
+
+    color: $highlight;
+    font-family: $font-sans;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.5;
+    }
+  }
+}

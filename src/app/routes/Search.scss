@@ -1,0 +1,35 @@
+@import '../../scss/card';
+@import '../../scss/fonts';
+
+.search {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  padding: 40px 60px;
+
+  .content {
+    flex: 1;
+    max-width: $content-width-desktop;
+
+    ul {
+      @include font-size(14px);
+
+      margin-left: 40px;
+      font-family: $font-sans;
+      list-style: none;
+
+      li {
+        margin-bottom: 10px;
+
+        > span {
+          &:first-child {
+            display: inline-block;
+            width: 120px;
+            margin-right: 10px;
+            color: $highlight;
+          }
+        }
+      }
+    }
+  }
+}

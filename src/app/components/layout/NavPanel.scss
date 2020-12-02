@@ -1,0 +1,38 @@
+@import '../../../scss/fonts';
+@import '../../../scss/variables';
+
+.nav-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 120px;
+  padding-top: 22px;
+  border-right: 1px solid $panel-border;
+  background-color: $panel-background;
+  overflow: hidden;
+
+  .logo {
+    margin-bottom: 120px;
+  }
+
+  .nav-panel--button {
+    @include font-size(12px);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 50px;
+    margin-bottom: 30px;
+    border: 0;
+    outline: 0;
+    background: none;
+    color: $text-color-secondary;
+    font-family: $font-sans;
+    font-weight: bold;
+    text-decoration: none;
+
+    &.nav-panel--button__selected {
+      color: $highlight;
+    }
+  }
+}

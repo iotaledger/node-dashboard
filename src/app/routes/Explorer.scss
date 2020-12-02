@@ -1,0 +1,48 @@
+@import '../../scss/card';
+@import '../../scss/fonts';
+
+.explorer {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  padding: 60px;
+
+  .content {
+    flex: 1;
+    max-width: $content-width-desktop;
+
+    .search-panel {
+      margin-top: $spacing-large;
+      padding: $spacing-small $spacing-large;
+    }
+
+    .milestones-panel {
+      padding: $spacing-large;
+
+      .milestones-panel--milestone {
+        display: flex;
+        flex-direction: row;
+        margin-bottom: $spacing-small;
+
+        .index {
+          @include font-size(14px);
+
+          min-width: 100px;
+          color: $highlight;
+          font-family: $font-sans;
+          font-weight: bold;
+        }
+
+        a {
+          @include font-size(14px);
+
+          min-width: 100px;
+          color: $text-color-primary;
+          font-family: $font-sans;
+          font-weight: bold;
+          text-decoration: none;
+        }
+      }
+    }
+  }
+}

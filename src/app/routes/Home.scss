@@ -1,0 +1,45 @@
+@import '../../scss/card';
+@import '../../scss/fonts';
+
+.home {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  padding: 60px;
+
+  .content {
+    flex: 1;
+    max-width: $content-width-desktop;
+
+    .banner {
+      flex: 1;
+      height: 140px;
+
+      .node-info {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: $spacing-small;
+      }
+
+      .banner-image {
+        display: flex;
+        flex: 1;
+        align-items: center;
+        justify-content: center;
+        background-color: $banner-background;
+      }
+    }
+
+    .messages-graph-panel {
+      .graph {
+        padding: 24px;
+      }
+    }
+
+    .peers-summary-panel {
+      width: 350px;
+    }
+  }
+}

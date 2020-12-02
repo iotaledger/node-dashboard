@@ -1,0 +1,14 @@
+@import '../../../scss/fonts';
+@import '../../../scss/variables';
+
+.message {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  padding: 40px 60px;
+
+  .content {
+    flex: 1;
+    max-width: $content-width-desktop;
+  }
+}

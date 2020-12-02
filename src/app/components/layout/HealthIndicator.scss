@@ -1,0 +1,16 @@
+@import '../../../scss/fonts';
+@import '../../../scss/variables';
+
+.health-indicator {
+  display: flex;
+  align-items: center;
+
+  .label {
+    @include font-size(10px);
+    margin-left: $spacing-small;
+    color: $text-color-secondary;
+    font-family: $font-sans;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+}

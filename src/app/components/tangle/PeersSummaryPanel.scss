@@ -1,0 +1,33 @@
+@import '../../../scss/fonts';
+@import '../../../scss/variables';
+
+.peers-summary {
+  padding: $spacing-small;
+
+  .peers-summary--item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: $spacing-small;
+    padding: $spacing-small;
+    border-radius: $spacing-small;
+    background-color: $background;
+
+    img {
+      width: 16px;
+      height: 16px;
+      margin-right: $spacing-small;
+    }
+
+    .peer-id {
+      @include font-size(14px);
+
+      color: $text-color-primary;
+      font-family: $font-sans;
+      font-weight: 500;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+  }
+}

@@ -1,0 +1,27 @@
+@import '../../../scss/variables';
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80px;
+  padding: $spacing-small 60px;
+  background-color: $panel-background;
+
+  .content {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    max-width: $content-width-desktop;
+
+    .child {
+      padding: $spacing-tiny $spacing-medium;
+      border-right: 1px solid $card-border;
+
+      &.child-fill {
+        flex: 1;
+        padding-right: 40px;
+      }
+    }
+  }
+}

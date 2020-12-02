@@ -1,0 +1,80 @@
+@import '../../../scss/fonts';
+@import '../../../scss/variables';
+
+.graph {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+
+  .bar-color-1 {
+    background-color: #309cff;
+    fill: #309cff;
+  }
+
+  .bar-color-2 {
+    background-color: #b7dcff;
+    fill: #b7dcff;
+  }
+
+  .title-row {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: $spacing-large;
+
+    .caption {
+      @include font-size(10px);
+
+      color: $text-color-secondary;
+      font-family: $font-sans;
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+
+    .key {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      margin-left: $spacing-small;
+
+      .key-color {
+        width: $spacing-small;
+        height: $spacing-tiny;
+        border-radius: $spacing-tiny;
+      }
+
+      .key-label {
+        @include font-size(10px);
+        margin-left: $spacing-small;
+
+        color: $text-color-secondary;
+        font-family: $font-sans;
+        font-weight: 500;
+      }
+    }
+  }
+
+  .canvas {
+    flex: 1;
+    color: $highlight;
+
+    svg {
+      width: 100%;
+      height: 200px;
+      overflow: visible;
+
+      .axis-label {
+        @include font-size(10px);
+
+        font-family: $font-sans;
+        font-weight: 500;
+        fill: $text-color-secondary;
+      }
+
+      .axis-color {
+        stroke: #eef4ff;
+      }
+    }
+  }
+}
