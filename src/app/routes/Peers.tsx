@@ -113,8 +113,10 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                         {this.state.peers.map((p, idx) => (
                             <div className="peers-panel--item" key={idx}>
                                 <div className="card col padding-m">
-                                    <div className="row">
-                                        {p.connected ? <HealthGoodIcon /> : <HealthBadIcon />}
+                                    <div className="row middle">
+                                        <span className="peer-health">
+                                            {p.connected ? <HealthGoodIcon /> : <HealthBadIcon />}
+                                        </span>
                                         <div className="peer-id">{p.name}<br />{p.address}</div>
                                     </div>
                                     <Graph
