@@ -24,6 +24,7 @@
     },
     "scripts": {
         "start": "cross-env PORT=9090 WDS_SOCKET_PORT=9090 REACT_APP_SOCKET=8081 REACT_APP_BRAND_ID=hornet craco start",
+        "start-bee": "cross-env PORT=9090 WDS_SOCKET_PORT=9090 REACT_APP_SOCKET=8081 REACT_APP_BRAND_ID=bee craco start",
         "lint": "eslint src --ext .tsx,.ts",
         "build-internal": "craco build",
         "build": "cross-env REACT_APP_BRAND_ID=hornet run-s lint build-internal",
