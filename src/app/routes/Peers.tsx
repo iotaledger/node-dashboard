@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
-import HealthBadIcon from "../../assets/health-bad.svg";
-import HealthGoodIcon from "../../assets/health-good.svg";
+import { ReactComponent as HealthBadIcon } from "../../assets/health-bad.svg";
+import { ReactComponent as HealthGoodIcon } from "../../assets/health-good.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
 import { IPeerMetric } from "../../models/websocket/IPeerMetric";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
@@ -114,7 +114,7 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                             <div className="peers-panel--item" key={idx}>
                                 <div className="card col padding-m">
                                     <div className="row">
-                                        <img src={p.connected ? HealthGoodIcon : HealthBadIcon} />
+                                        {p.connected ? <HealthGoodIcon /> : <HealthBadIcon />}
                                         <div className="peer-id">{p.name}<br />{p.address}</div>
                                     </div>
                                     <Graph

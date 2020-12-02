@@ -1,6 +1,6 @@
 import React, { Component, ReactNode } from "react";
-import HealthBadIcon from "../../../assets/health-bad.svg";
-import HealthGoodIcon from "../../../assets/health-good.svg";
+import { ReactComponent as HealthBadIcon } from "../../../assets/health-bad.svg";
+import { ReactComponent as HealthGoodIcon } from "../../../assets/health-good.svg";
 import { ServiceFactory } from "../../../factories/serviceFactory";
 import { IPeerMetric } from "../../../models/websocket/IPeerMetric";
 import { WebSocketTopic } from "../../../models/websocket/webSocketTopic";
@@ -70,7 +70,7 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
                 )}
                 {this.state.peers?.map((p, idx) => (
                     <div key={idx} className="peers-summary--item">
-                        <img src={p.connected ? HealthGoodIcon : HealthBadIcon} />
+                        {p.connected ? <HealthGoodIcon /> : <HealthBadIcon />}
                         <span className="peer-id">
                             {p.name}
                             {p.address && (

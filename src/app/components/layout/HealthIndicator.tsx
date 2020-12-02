@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
-import HealthBadIcon from "../../../assets/health-bad.svg";
-import HealthGoodIcon from "../../../assets/health-good.svg";
+import { ReactComponent as HealthBadIcon } from "../../../assets/health-bad.svg";
+import { ReactComponent as HealthGoodIcon } from "../../../assets/health-good.svg";
 import "./HealthIndicator.scss";
 import { HealthIndicatorProps } from "./HealthIndicatorProps";
 
@@ -16,7 +16,7 @@ class HealthIndicator extends Component<HealthIndicatorProps> {
     public render(): ReactNode {
         return (
             <div className={classNames("health-indicator", this.props.className)}>
-                <img src={this.props.healthy ? HealthGoodIcon : HealthBadIcon} />
+                {this.props.healthy ? <HealthGoodIcon /> : <HealthBadIcon />}
                 <span className="label">{this.props.label}</span>
             </div>
         );
