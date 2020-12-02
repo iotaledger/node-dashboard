@@ -25,7 +25,7 @@ export class FormatHelper {
      * @returns The formatted string.
      */
     public static size(bytes: number, decimalPlaces: number = 2): string {
-        if (bytes === 0) {
+        if ((bytes === 0) || (typeof bytes === "undefined")) {
             return "0 Bytes";
         }
 
