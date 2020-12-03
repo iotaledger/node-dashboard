@@ -237,7 +237,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                 </div>
                             </div>
                         </div>
-                        <div className="card peers-summary-panel">
+                        <div className="card fill">
                             <PeersSummaryPanel />
                         </div>
                     </div>
