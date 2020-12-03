@@ -104,7 +104,7 @@ class Header extends Component<RouteComponentProps, HeaderState> {
 
                 const mpsFormatted = mpsValues[mpsValues.length - 1].toString();
 
-                if (mpsFormatted !== this.state.databaseSizeFormatted) {
+                if (mpsFormatted !== this.state.mps) {
                     this.setState({ mps: mpsFormatted });
                 }
                 this.setState({ mpsValues });

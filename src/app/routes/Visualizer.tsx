@@ -3,6 +3,9 @@ import Viva from "vivagraphjs";
 import { ServiceFactory } from "../../factories/serviceFactory";
 import { IVisualizerCounts } from "../../models/visualizer/IVisualizerCounts";
 import { IVisualizerVertex } from "../../models/visualizer/IVisualizerVertex";
+import { ITpsMetrics } from "../../models/websocket/ITpsMetrics";
+import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
+import { MetricsService } from "../../services/metricsService";
 import { VisualizerService } from "../../services/visualizerService";
 import AsyncComponent from "../components/layout/AsyncComponent";
 import "./Visualizer.scss";
@@ -66,6 +69,21 @@ class Visualizer extends AsyncComponent<unknown, VisualizerState> {
     private readonly _vizualizerService: VisualizerService;
 
     /**
+     * The metrics service.
+     */
+    private readonly _metricsService: MetricsService;
+
+    /**
+     * The mps metrics subscription id.
+     */
+    private _mpsMetricsSubscription?: string;
+
+    /**
+     * The resize method
+     */
+    private readonly _resize: () => void;
+
+    /**
      * Create a new instance of Visualizer.
      * @param props The props.
      */
@@ -73,10 +91,17 @@ class Visualizer extends AsyncComponent<unknown, VisualizerState> {
         super(props);
 
         this._graphElement = null;
+        this._resize = () => this.resize();
         this._vizualizerService = ServiceFactory.get<VisualizerService>("visualizer");
+        this._metricsService = ServiceFactory.get<MetricsService>("metrics");
 
         this.state = {
-            dummy: true
+            mps: "-",
+            total: "-",
+            tips: "-",
+            referenced: "-",
+            conflicting: "-",
+            solid: "-"
         };
     }
 
@@ -85,6 +110,8 @@ class Visualizer extends AsyncComponent<unknown, VisualizerState> {
      */
     public componentDidMount(): void {
         super.componentDidMount();
+
+        window.addEventListener("resize", this._resize);
 
         this._vizualizerService.subscribe(
             (vertex, op) => {
@@ -95,10 +122,21 @@ class Visualizer extends AsyncComponent<unknown, VisualizerState> {
                 }
             },
             counts => {
-                // console.log(counts);
+                this.setState({
+                    total: counts.total.toString(),
+                    tips: counts.tips.toString(),
+                    referenced: counts.total > 0 ? `${(counts.referenced / counts.total * 100).toFixed(2)}%` : "-",
+                    conflicting: counts.total > 0 ? `${(counts.conflicting / counts.total * 100).toFixed(2)}%` : "-",
+                    solid: counts.total > 0 ? `${(counts.solid / counts.total * 100).toFixed(2)}%` : "-"
+                });
             },
             (referencedId, excludedIds, counts) => this.referenceVertex(referencedId, excludedIds, counts)
         );
+
+        this._mpsMetricsSubscription = this._metricsService.subscribe<ITpsMetrics>(
+            WebSocketTopic.TPSMetrics, data => {
+                this.setState({ mps: data.new.toString() });
+            });
     }
 
     /**
@@ -106,10 +144,17 @@ class Visualizer extends AsyncComponent<unknown, VisualizerState> {
      */
     public componentWillUnmount(): void {
         super.componentWillUnmount();
+
+        if (this._mpsMetricsSubscription) {
+            this._metricsService.unsubscribe(this._mpsMetricsSubscription);
+            this._mpsMetricsSubscription = undefined;
+        }
+
         this._graph = undefined;
         this._graphics = undefined;
         this._renderer = undefined;
         this._graphElement = null;
+        window.removeEventListener("resize", this._resize);
     }
 
     /**
@@ -120,9 +165,50 @@ class Visualizer extends AsyncComponent<unknown, VisualizerState> {
         return (
             <div className="visualizer">
                 <div
-                    className="graph"
+                    className="canvas"
                     ref={r => this.setupGraph(r)}
-                >
+                />
+                <div className="stats-panel-container">
+                    <div className="card stats-panel">
+                        <div className="card--label">
+                            Messages
+                        </div>
+                        <div className="card--value">
+                            {this.state.total}
+                        </div>
+                        <div className="card--label">
+                            MPS
+                        </div>
+                        <div className="card--value">
+                            {this.state.mps}
+                        </div>
+                        <div className="card--label">
+                            Tips
+                        </div>
+                        <div className="card--value">
+                            {this.state.tips}
+                        </div>
+                        <div className="card--label">
+                            Referenced
+                        </div>
+                        <div className="card--value">
+                            {this.state.referenced}
+                        </div>
+                        <div className="card--label">
+                            Conflicting
+                        </div>
+                        <div className="card--value">
+                            {this.state.conflicting}
+                        </div>
+                        <div className="card--label">
+                            Solid
+                        </div>
+                        <div className="card--value">
+                            {this.state.solid}
+                        </div>
+                    </div>
+                </div>
+                <div className="key-panel-container">
                     <div className="card key-panel">
                         <div className="key-panel-item">
                             <div className="key-marker key-marker--solid" />
@@ -385,6 +471,19 @@ class Visualizer extends AsyncComponent<unknown, VisualizerState> {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * The window was resized.
+     */
+    private resize(): void {
+        if (this._graphics && this._graphElement) {
+            this._graphics.updateSize();
+            this._graphics.scale(1, {
+                x: this._graphElement.clientWidth / 2,
+                y: this._graphElement.clientHeight / 2
+            });
         }
     }
 }

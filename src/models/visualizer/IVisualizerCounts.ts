@@ -1,5 +1,9 @@
 export interface IVisualizerCounts {
     /**
+     * How many vertices are there.
+     */
+    total: number;
+    /**
      * How many solid vertices.
      */
     solid: number;

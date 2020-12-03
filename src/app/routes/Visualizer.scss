@@ -3,17 +3,45 @@
 
 .visualizer {
   display: flex;
+  position: relative;
   flex: 1;
   height: 100%;
 
-  .graph {
+  .canvas {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+
+  .stats-panel-container {
     display: flex;
+    position: absolute;
+    top: 0px;
+    right: 30px;
+    bottom: 0px;
     align-items: center;
+    justify-content: center;
+
+    .stats-panel {
+      .card--value,
+      .card--label {
+        text-align: right;
+      }
+    }
+  }
+
+  .key-panel-container {
+    display: flex;
+    position: absolute;
+    right: 30px;
+    bottom: 30px;
+    left: 0px;
+    justify-content: center;
 
     .key-panel {
       display: flex;
-      position: absolute;
-      bottom: 30px;
       flex-direction: row;
       padding: $spacing-small;
 
