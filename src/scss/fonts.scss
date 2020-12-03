@@ -1,8 +1,9 @@
 @import './fonts/dm-sans';
 @import './fonts/fira-mono';
+@import url('https://fonts.googleapis.com/css2?family=PT+Mono&display=swap');
 
 $font-sans: 'DM Sans', sans-serif;
-$font-mono: 'Fira Mono', monospace;
+$font-mono: 'PT Mono', monospace;
 
 $rem-base-font: 16px !default;
 

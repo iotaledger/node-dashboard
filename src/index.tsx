@@ -8,6 +8,7 @@ import "./index.scss";
 import { IBrandConfiguration } from "./models/IBrandConfiguration";
 import { MetricsService } from "./services/metricsService";
 import { TangleService } from "./services/tangleService";
+import { VisualizerService } from "./services/visualizerService";
 import { WebSocketService } from "./services/webSocketService";
 import { BrandHelper } from "./utils/brandHelper";
 
@@ -72,6 +73,11 @@ async function initServices(): Promise<IBrandConfiguration | undefined> {
 
     const metricsService = new MetricsService();
     ServiceFactory.register("metrics", () => metricsService);
-    metricsService.init();
-    return BrandHelper.init();
+    metricsService.initialize();
+
+    const visualizerService = new VisualizerService();
+    visualizerService.initialize();
+    ServiceFactory.register("visualizer", () => visualizerService);
+
+    return BrandHelper.initialize();
 }

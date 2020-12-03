@@ -51,7 +51,7 @@ export class MetricsService {
     /**
      * Initialise the service.
      */
-    public init(): void {
+    public initialize(): void {
         const topics = [
             WebSocketTopic.TPSMetrics,
             WebSocketTopic.Status,
@@ -59,7 +59,12 @@ export class MetricsService {
             WebSocketTopic.DBSizeMetric,
             WebSocketTopic.PeerMetric,
             WebSocketTopic.ConfirmedMsMetrics,
-            WebSocketTopic.Ms
+            WebSocketTopic.Ms,
+            WebSocketTopic.TipInfo,
+            WebSocketTopic.MilestoneInfo,
+            WebSocketTopic.ConfirmedInfo,
+            WebSocketTopic.SolidInfo,
+            WebSocketTopic.Vertex
         ];
 
         for (const topic of topics) {

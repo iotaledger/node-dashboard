@@ -1,0 +1,71 @@
+@import '../../scss/card';
+@import '../../scss/fonts';
+
+.visualizer {
+  display: flex;
+  flex: 1;
+  height: 100%;
+
+  .graph {
+    display: flex;
+    align-items: center;
+
+    .key-panel {
+      display: flex;
+      position: absolute;
+      bottom: 30px;
+      flex-direction: row;
+      padding: $spacing-small;
+
+      .key-panel-item {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin: 0 $spacing-small;
+
+        .key-marker {
+          width: 12px;
+          height: 12px;
+          margin-right: $spacing-tiny;
+          border-radius: 3px;
+
+          &.key-marker--solid {
+            background-color: #4caaff;
+          }
+
+          &.key-marker--unsolid {
+            background-color: #8fe6fa;
+          }
+
+          &.key-marker--referenced {
+            background-color: #61e884;
+          }
+
+          &.key-marker--conflicting {
+            background-color: #ff8b5c;
+          }
+
+          &.key-marker--milestone {
+            background-color: #666af6;
+          }
+
+          &.key-marker--unknown {
+            background-color: #9aadce;
+          }
+
+          &.key-marker--tip {
+            background-color: #ffca62;
+          }
+        }
+
+        .key-label {
+          @include font-size(14px);
+
+          color: $text-color-secondary;
+          font-family: $font-sans;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+}

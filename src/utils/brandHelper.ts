@@ -17,7 +17,7 @@ export class BrandHelper {
      * Initialize the branding.
      * @returns The brand configuration.
      */
-    public static init(): IBrandConfiguration | undefined {
+    public static initialize(): IBrandConfiguration | undefined {
         if (BrandHelper._brandId) {
             BrandHelper._brandConfiguration = require(`../assets/${BrandHelper._brandId}/brand.json`);
             document.title = `${BrandHelper._brandConfiguration.name} Dashboard`;
