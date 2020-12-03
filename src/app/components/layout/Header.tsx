@@ -141,7 +141,7 @@ class Header extends Component<RouteComponentProps, HeaderState> {
                 <div className="content">
                     <SearchInput
                         compact={true}
-                        onSearch={query => this.props.history.push(`/search/${query}`)}
+                        onSearch={query => this.props.history.push(`/explorer/search/${query}`)}
                         className="child child-fill"
                     />
                     <HealthIndicator

@@ -151,7 +151,7 @@ class Milestone extends AsyncComponent<RouteComponentProps<MilestoneRouteProps>,
                     `/explorer/milestone/${index}`);
             }
         } else {
-            this.props.history.replace(`/search/${index}`);
+            this.props.history.replace(`/explorer/search/${index}`);
         }
     }
 

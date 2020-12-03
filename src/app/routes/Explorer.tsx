@@ -110,7 +110,7 @@ class Peers extends AsyncComponent<RouteComponentProps, ExplorerState> {
                     <div className="card search-panel">
                         <SearchInput
                             compact={false}
-                            onSearch={query => this.props.history.push(`/search/${query}`)}
+                            onSearch={query => this.props.history.push(`/explorer/search/${query}`)}
                         />
                     </div>
                     <div className="row info margin-t-s">

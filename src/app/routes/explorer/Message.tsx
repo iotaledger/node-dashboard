@@ -84,7 +84,7 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                                     milestoneIndex={this.state.metadata?.referencedByMilestoneIndex}
                                     onClick={this.state.metadata?.referencedByMilestoneIndex
                                         ? () => this.props.history.push(
-                                            `/search/${this.state.metadata?.referencedByMilestoneIndex}`)
+                                            `/explorer/search/${this.state.metadata?.referencedByMilestoneIndex}`)
                                         : undefined}
                                 />
                             )}

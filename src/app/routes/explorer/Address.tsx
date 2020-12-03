@@ -74,7 +74,7 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                 });
             });
         } else {
-            this.props.history.replace(`/search/${this.props.match.params.address}`);
+            this.props.history.replace(`/explorer/search/${this.props.match.params.address}`);
         }
     }
 

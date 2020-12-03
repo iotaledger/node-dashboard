@@ -93,7 +93,7 @@ class App extends Component<RouteComponentProps> {
                                 component={() => (<Explorer />)}
                             />
                             <Route
-                                path="/search/:query?"
+                                path="/explorer/search/:query?"
                                 component={(props: RouteComponentProps<SearchRouteProps>) => (<Search {...props} />)}
                             />
                             <Route
