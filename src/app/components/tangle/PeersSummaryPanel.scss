@@ -13,15 +13,14 @@
     border-radius: $spacing-small;
     background-color: $background;
 
-    svg {
-      width: 32px;
-      height: 32px;
-      margin-right: $spacing-small;
+    .peer-health-icon {
+      width: 16px;
     }
 
     .peer-id {
       @include font-size(14px);
 
+      margin-left: $spacing-small;
       color: $text-color-primary;
       font-family: $font-sans;
       font-weight: 500;

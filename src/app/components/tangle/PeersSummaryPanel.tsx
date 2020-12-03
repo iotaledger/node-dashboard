@@ -70,7 +70,9 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
                 )}
                 {this.state.peers?.map((p, idx) => (
                     <div key={idx} className="peers-summary--item">
-                        {p.connected ? <HealthGoodIcon /> : <HealthBadIcon />}
+                        <span className="peer-health-icon">
+                            {p.connected ? <HealthGoodIcon /> : <HealthBadIcon />}
+                        </span>
                         <span className="peer-id">
                             {p.name}
                             {p.address && (
