@@ -68,8 +68,15 @@ class IndexationPayload extends Component<IndexationPayloadProps, IndexationPayl
                 </div>
                 {!this.state.json && (
                     <React.Fragment>
-                        <div className="card--label">
+                        <div className="card--label row bottom spread">
                             Data ASCII
+                            <MessageButton
+                                onClick={() => ClipboardHelper.copy(
+                                    this.state.ascii
+                                )}
+                                buttonType="copy"
+                                labelPosition="top"
+                            />
                         </div>
                         <div className="card--value card--value-textarea card--value-textarea__ascii">
                             {this.state.ascii}
@@ -78,16 +85,30 @@ class IndexationPayload extends Component<IndexationPayloadProps, IndexationPayl
                 )}
                 {this.state.json && (
                     <React.Fragment>
-                        <div className="card--label">
+                        <div className="card--label row bottom spread">
                             Data JSON
+                            <MessageButton
+                                onClick={() => ClipboardHelper.copy(
+                                    this.state.json
+                                )}
+                                buttonType="copy"
+                                labelPosition="top"
+                            />
                         </div>
                         <div className="card--value card--value-textarea card--value-textarea__json">
                             {this.state.json}
                         </div>
                     </React.Fragment>
                 )}
-                <div className="card--label">
+                <div className="card--label row bottom spread">
                     Data Hex
+                    <MessageButton
+                        onClick={() => ClipboardHelper.copy(
+                            this.state.hex
+                        )}
+                        buttonType="copy"
+                        labelPosition="top"
+                    />
                 </div>
                 <div className="card--value card--value-textarea card--value-textarea__hex">
                     {this.state.hex}

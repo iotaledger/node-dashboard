@@ -55,11 +55,17 @@
       cursor: pointer;
     }
 
+    &.card--value__mono {
+      font-family: $font-mono;
+    }
+
     &.card--value-textarea {
+      @include font-size(12px);
       min-height: 150px;
       max-height: 150px;
       padding: 10px;
       background: $panel-border;
+      font-family: $font-mono;
       overflow: auto;
 
       &.card--value-textarea__ascii {
@@ -69,14 +75,12 @@
 
       &.card--value-textarea__hex {
         max-height: 350px;
-        font-family: 'Courier New', Courier, monospace;
         white-space: pre-wrap;
         word-break: break-word;
       }
 
       &.card--value-textarea__json {
         max-height: 350px;
-        font-family: 'Courier New', Courier, monospace;
         white-space: pre-wrap;
       }
     }
@@ -84,6 +88,9 @@
 
   .card--action {
     @include font-size(14px);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     border: 0;
     outline: 0;
     background: none;
@@ -94,6 +101,7 @@
 
     &:disabled {
       opacity: 0.5;
+      pointer-events: none;
     }
   }
 }

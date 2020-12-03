@@ -72,7 +72,7 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
                             <div className="card--label">
                                 Transaction Id
                             </div>
-                            <div className="card--value">
+                            <div className="card--value card--value__mono">
                                 {input.transactionId === "0".repeat(64) && (
                                     <span>Genesis</span>
                                 )}
@@ -105,7 +105,7 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
                             <div className="card--label">
                                 Amount
                             </div>
-                            <div className="card--value">
+                            <div className="card--value card--value__mono">
                                 <button
                                     type="button"
                                     onClick={() => this.setState(
@@ -136,13 +136,13 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
                                     <div className="card--label">
                                         Public Key
                                     </div>
-                                    <div className="card--value">
+                                    <div className="card--value card--value__mono">
                                         {unlockBlock.signature.publicKey}
                                     </div>
                                     <div className="card--label">
                                         Signature
                                     </div>
-                                    <div className="card--value">
+                                    <div className="card--value card--value__mono">
                                         {unlockBlock.signature.signature}
                                     </div>
                                 </React.Fragment>

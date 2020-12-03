@@ -92,7 +92,7 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                         <div className="card--label">
                             Id
                         </div>
-                        <div className="card--value row">
+                        <div className="card--value card--value__mono row">
                             <span className="margin-r-t">{this.props.match.params.messageId}</span>
                             <MessageButton
                                 onClick={() => ClipboardHelper.copy(
@@ -107,7 +107,7 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                                 <div className="card--label">
                                     Parent Message 1
                                 </div>
-                                <div className="card--value row">
+                                <div className="card--value card--value__mono row">
                                     {this.state.message?.parent1MessageId !== "0".repeat(64) && (
                                         <React.Fragment>
                                             <Link
@@ -134,7 +134,7 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                                 <div className="card--label">
                                     Parent Message 2
                                 </div>
-                                <div className="card--value row">
+                                <div className="card--value card--value__mono row">
                                     {this.state.message?.parent2MessageId !== "0".repeat(64) && (
                                         <React.Fragment>
                                             <Link
@@ -244,7 +244,7 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                         </div>
                         {this.state.childrenBusy && (<Spinner />)}
                         {this.state.childrenIds?.map(childId => (
-                            <div className="card--value margin-b-s" key={childId}>
+                            <div className="card--value card--value__mono margin-b-s" key={childId}>
                                 <Link
                                     to={
                                         `/explorer/message/${childId}`

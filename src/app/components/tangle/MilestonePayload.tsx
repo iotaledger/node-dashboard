@@ -32,7 +32,7 @@ class MilestonePayload extends Component<MilestonePayloadProps> {
                 <div className="card--label">
                     Inclusion Merkle Proof
                 </div>
-                <div className="card--value">
+                <div className="card--value card--value__mono">
                     {this.props.payload.inclusionMerkleProof}
                 </div>
                 {this.props.payload.publicKeys && (
@@ -40,7 +40,7 @@ class MilestonePayload extends Component<MilestonePayloadProps> {
                         <div className="card--label">
                             Public Keys
                         </div>
-                        <div className="card--value">
+                        <div className="card--value card--value__mono">
                             {this.props.payload.publicKeys?.map(pubKey => (
                                 <div key={pubKey} className="margin-b-s">
                                     {pubKey}
@@ -52,7 +52,7 @@ class MilestonePayload extends Component<MilestonePayloadProps> {
                 <div className="card--label">
                     Signatures
                 </div>
-                <div className="card--value">
+                <div className="card--value card--value__mono">
                     {this.props.payload.signatures.map(sig => (
                         <div key={sig} className="margin-b-s">
                             {sig}

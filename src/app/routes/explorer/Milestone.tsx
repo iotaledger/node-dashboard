@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
 import { ReactComponent as ChevronLeftIcon } from "../../../assets/chevron-left.svg";
+import { ReactComponent as ChevronRightIcon } from "../../../assets/chevron-right.svg";
 import { ServiceFactory } from "../../../factories/serviceFactory";
 import { TangleService } from "../../../services/tangleService";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
@@ -72,7 +73,7 @@ class Milestone extends AsyncComponent<RouteComponentProps<MilestoneRouteProps>,
                         <div className="card--label">
                             Message Id
                         </div>
-                        <div className="card--value row">
+                        <div className="card--value card--value__mono row">
                             <span className="margin-r-t">
                                 <Link
                                     to={`/explorer/message/${this.state.milestone?.messageId}`}
@@ -111,6 +112,7 @@ class Milestone extends AsyncComponent<RouteComponentProps<MilestoneRouteProps>,
                                             this.loadIndex(this.state.previousIndex.toString(), true)}
                                         className="card--action margin-r-t"
                                     >
+                                        <ChevronLeftIcon className="margin-r-t" />
                                         Previous Milestone
                                     </button>
                                     <button
@@ -121,6 +123,7 @@ class Milestone extends AsyncComponent<RouteComponentProps<MilestoneRouteProps>,
                                         className="card--action margin-r-t"
                                     >
                                         Next Milestone
+                                        <ChevronRightIcon className="margin-l-t" />
                                     </button>
                                 </div>
                             </React.Fragment>

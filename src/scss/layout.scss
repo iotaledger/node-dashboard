@@ -7,6 +7,14 @@
   &.middle {
     align-items: center;
   }
+
+  &.bottom {
+    align-items: flex-end;
+  }
+
+  &.spread {
+    justify-content: space-between;
+  }
 }
 
 .col {

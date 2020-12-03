@@ -20,7 +20,7 @@ class Bech32Address extends Component<Bech32AddressProps> {
                         <div className="card--label">
                             Address
                         </div>
-                        <div className="card--value row">
+                        <div className="card--value card--value__mono row">
                             {this.props.activeLinks && (
                                 <Link
                                     className="margin-r-t"
@@ -45,7 +45,7 @@ class Bech32Address extends Component<Bech32AddressProps> {
                         <div className="card--label">
                             {this.props.addressDetails.typeLabel} Address
                         </div>
-                        <div className="card--value row">
+                        <div className="card--value card--value__mono row">
                             {this.props.activeLinks && (
                                 <Link
                                     className="margin-r-t"

@@ -1,6 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans&display=swap');
+@import './fonts/dm-mono';
+@import './fonts/dm-sans';
 
 $font-sans: 'DM Sans', sans-serif;
+$font-mono: 'DM Mono', monospace;
 
 $rem-base-font: 16px !default;
 
