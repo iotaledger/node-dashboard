@@ -12,7 +12,7 @@ declare module "vivagraphjs" {
         export interface INode<T, U> {
             id: string;
             links: ILink<U>[];
-            data: T;
+            data?: T;
         }
         export interface IGraph<T, U> {
             getLink: (nodeA: string, nodeB: string) => ILink<U> | undefined;

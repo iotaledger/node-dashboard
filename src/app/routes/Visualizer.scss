@@ -85,8 +85,9 @@
   .info-panel-container {
     display: flex;
     position: absolute;
-    width: 360px;
-    height: 250px;
+    top: 30px;
+    left: 30px;
+    width: 320px;
     z-index: 2;
 
     .info-panel--key {

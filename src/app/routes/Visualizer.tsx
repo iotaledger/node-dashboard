@@ -43,7 +43,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
 
     private static readonly COLOR_LINK_CHILDREN = 0xFF5AAAFF;
 
-    private static readonly COLOR_LINK_PARENTS = 0xFFC306FF;
+    private static readonly COLOR_LINK_PARENTS = 0x0000FFFF;
 
     /**
      * The graph element.
@@ -96,14 +96,9 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
     private _lastClick: number;
 
     /**
-     * Track the last mouse position for info panel.
+     * Entered vertex.
      */
-    private _lastMouse: { x: number; y: number };
-
-    /**
-     * The position for info panel.
-     */
-    private _panelMouse: { x: number; y: number };
+    private _enteredVertexId?: string;
 
     /**
      * Create a new instance of Visualizer.
@@ -118,8 +113,6 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
         this._tangleService = ServiceFactory.get<TangleService>("tangle");
         this._lastClick = 0;
-        this._lastMouse = { x: 0, y: 0 };
-        this._panelMouse = { x: 0, y: 0 };
 
         this.state = {
             mps: "-",
@@ -202,11 +195,6 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                 <div
                     className="canvas"
                     ref={r => this.setupGraph(r)}
-                    onClick={() => {
-                        if (Date.now() - this._lastClick > 300) {
-                            this.selectNode();
-                        }
-                    }}
                 />
                 <div className="action-panel-container">
                     <div className="card">
@@ -294,12 +282,6 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                 {this.state.selected && this._graphElement && (
                     <div
                         className="info-panel-container"
-                        style={
-                            {
-                                left: Math.min(this._panelMouse.x + 20, this._graphElement.clientWidth - 360),
-                                top: Math.max(this._panelMouse.y - 230, 0)
-                            }
-                        }
                     >
                         <div className="card fill padding-m">
                             <div className="row middle spread">
@@ -322,18 +304,22 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                                 </button>
                             </div>
                             <div className="col">
-                                <div className="card--label">
-                                    Message Id
-                                </div>
-                                <div className="card--value">
-                                    <a
-                                        href={this.calcualteMessageLink(this.state.selected.vertex.fullId)}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        {this.state.selected.vertex.fullId}
-                                    </a>
-                                </div>
+                                {this.state.selected.vertex.fullId && (
+                                    <React.Fragment>
+                                        <div className="card--label">
+                                            Message Id
+                                        </div>
+                                        <div className="card--value">
+                                            <a
+                                                href={this.calculateMessageLink(this.state.selected.vertex)}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                {this.state.selected.vertex.fullId}
+                                            </a>
+                                        </div>
+                                    </React.Fragment>
+                                )}
                                 {this.state.selected.payload && this.state.selected.payload.type === 0 && (
                                     <React.Fragment>
                                         <div className="card--label">
@@ -370,16 +356,6 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                                         </div>
                                         <div className="card--value">
                                             {this.state.selected.payload.index}
-                                        </div>
-                                    </React.Fragment>
-                                )}
-                                {!this.state.selected.payload && (
-                                    <React.Fragment>
-                                        <div className="card--label">
-                                            Payload
-                                        </div>
-                                        <div className="card--value">
-                                            This message has no payload.
                                         </div>
                                     </React.Fragment>
                                 )}
@@ -431,16 +407,31 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
 
             events.click(node => this.selectNode(node));
             events.dblClick(node => {
-                if (node?.data.fullId) {
-                    window.open(
-                        this.calcualteMessageLink(node.data.fullId),
-                        "_blank"
-                    );
+                this.selectNode();
+                window.open(
+                    this.calculateMessageLink(node.data),
+                    "_blank"
+                );
+            });
+
+            events.mouseEnter(node => {
+                if (!this.state.selected) {
+                    if (this._enteredVertexId) {
+                        this.connectedLinkStyle(this._enteredVertexId, false);
+                        this._enteredVertexId = undefined;
+                    }
+                    if (node) {
+                        this._enteredVertexId = node.data?.shortId || node.id.slice(0, 7);
+                        this.connectedLinkStyle(this._enteredVertexId, true);
+                    }
                 }
             });
 
-            graphElement.addEventListener("mousemove", e => {
-                this._lastMouse = { x: e.offsetX, y: e.offsetY };
+            events.mouseLeave(node => {
+                if (this._enteredVertexId) {
+                    this.connectedLinkStyle(this._enteredVertexId, false);
+                    this._enteredVertexId = undefined;
+                }
             });
 
             this._renderer.run();
@@ -459,10 +450,8 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      */
     private updateVertex(vertex: IVisualizerVertex): void {
         if (this._graph) {
-            let node = this._graph.getNode(vertex.shortId);
-            if (node) {
-                this.updateNodeUI(vertex);
-            } else {
+            let node = this.updateNodeUI(vertex.shortId);
+            if (!node) {
                 node = this._graph.addNode(vertex.shortId, vertex);
             }
             if (vertex.parent1Id &&
@@ -479,15 +468,22 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
 
     /**
      * Update node style.
-     * @param vertex The nertex
+     * @param id The node id.
+     * @returns The updated node.
      */
-    private updateNodeUI(vertex: IVisualizerVertex): void {
-        if (this._graphics) {
-            const nodeUI = this._graphics.getNodeUI(vertex.shortId);
-            if (nodeUI) {
-                nodeUI.color = Visualizer.STATE_COLOR_MAP[this.calculateState(vertex)];
-                nodeUI.size = this.calculateSize(vertex);
+    private updateNodeUI(id: string): Viva.Graph.INode<IVisualizerVertex, unknown> | undefined {
+        if (this._graphics && this._graph) {
+            const node = this._graph?.getNode(id);
+
+            if (node) {
+                const nodeUI = this._graphics.getNodeUI(id);
+                if (nodeUI) {
+                    nodeUI.color = Visualizer.STATE_COLOR_MAP[this.calculateState(node.data)];
+                    nodeUI.size = this.calculateSize(node.data);
+                }
             }
+
+            return node;
         }
     }
 
@@ -496,7 +492,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      * @param vertex The vertex to calculate the state for.
      * @returns The state.
      */
-    private calculateState(vertex: IVisualizerVertex): string {
+    private calculateState(vertex?: IVisualizerVertex): string {
         if (!vertex || (!vertex.parent1Id && !vertex.parent2Id)) {
             return "Unknown";
         }
@@ -523,7 +519,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      * @param vertex The vertex to calculate the size for.
      * @returns The size.
      */
-    private calculateSize(vertex: IVisualizerVertex): number {
+    private calculateSize(vertex?: IVisualizerVertex): number {
         if (!vertex || (!vertex.parent1Id && !vertex.parent2Id)) {
             return 10;
         }
@@ -542,8 +538,15 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
             this._graph.removeNode(vertex.shortId);
 
             if (this.state.selected &&
-                this.state.selected.vertex.fullId === vertex.fullId) {
+                this.state.selected.vertex.shortId === vertex.shortId) {
                 this.setState({ selected: undefined });
+                this.connectedLinkStyle(this.state.selected.vertex.shortId, false);
+            }
+
+            if (this._enteredVertexId &&
+                this._enteredVertexId === vertex.shortId) {
+                this.connectedLinkStyle(this._enteredVertexId, false);
+                this._enteredVertexId = undefined;
             }
         }
     }
@@ -562,9 +565,9 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                 const seenBackwards: Viva.Graph.INode<IVisualizerVertex, unknown>[] = [];
                 this.dfsIterator(
                     startNode,
-                    shortNodeId => {
+                    nodeId => {
                         if (this._graph) {
-                            const parent = this._graph.getNode(shortNodeId);
+                            const parent = this._graph.getNode(nodeId);
                             if (!parent || !parent.data) {
                                 return true;
                             }
@@ -586,6 +589,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
 
                         return true;
                     },
+                    undefined,
                     false,
                     seenBackwards
                 );
@@ -596,13 +600,15 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
     /**
      * Walk the graph.
      * @param startNode The node to start with.
-     * @param iterator The iterator method to call on each node.
+     * @param nodeCallback The iterator method to call on each node.
+     * @param linkCallback The iterator method to call on each link.
      * @param up Are we walking up or down.
      * @param seenNodes The nodes we have already seen.
      */
     private dfsIterator(
         startNode: Viva.Graph.INode<IVisualizerVertex, unknown>,
-        iterator: (nodeId: string) => boolean,
+        nodeCallback: ((nodeId: string) => boolean) | undefined,
+        linkCallback: ((linkId: string) => void) | undefined,
         up: boolean,
         seenNodes: Viva.Graph.INode<IVisualizerVertex, unknown>[]): void {
         if (this._graph) {
@@ -611,20 +617,27 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
 
             while (seenNodes.length > pointer) {
                 const node = seenNodes[pointer++];
+                const nodeId = node.data?.shortId || node.id.slice(0, 7);
 
-                if (iterator(node.data?.shortId || node.id.slice(0, 7))) {
+                if (nodeCallback?.(nodeId)) {
                     continue;
                 }
 
                 for (const link of node.links) {
-                    if (!up && link.fromId === node.data.shortId) {
+                    if (!up && link.fromId === nodeId) {
+                        if (linkCallback) {
+                            linkCallback(link.id);
+                        }
                         const linkNode = this._graph.getNode(link.toId);
                         if (linkNode && !seenNodes.includes(linkNode)) {
                             seenNodes.push(linkNode);
                         }
                     }
 
-                    if (up && link.toId === node.data.shortId) {
+                    if (up && link.toId === nodeId) {
+                        if (linkCallback) {
+                            linkCallback(link.id);
+                        }
                         const linkNode = this._graph.getNode(link.fromId);
                         if (linkNode && !seenNodes.includes(linkNode)) {
                             seenNodes.push(linkNode);
@@ -660,7 +673,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
             }
         }
 
-        this.setState({ isActive: !this.state.isActive, selected: undefined });
+        this.setState({ isActive: !this.state.isActive });
     }
 
     /**
@@ -671,13 +684,24 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
         this._lastClick = Date.now();
         if (this.state.selected) {
             this.state.selected.vertex.isSelected = false;
-            this.updateNodeUI(this.state.selected.vertex);
+            this.updateNodeUI(this.state.selected.vertex.shortId);
+            this.connectedLinkStyle(this.state.selected.vertex.shortId, false);
         }
-        this._panelMouse = this._lastMouse;
 
-        if (node?.data) {
+        if (node) {
+            if (!node.data) {
+                node.data = {
+                    shortId: node.id
+                };
+            }
             node.data.isSelected = true;
-            this.updateNodeUI(node.data);
+            this.updateNodeUI(node.id);
+
+            if (this._enteredVertexId) {
+                this.connectedLinkStyle(this._enteredVertexId, false);
+                this._enteredVertexId = undefined;
+            }
+            this.connectedLinkStyle(node.data.shortId, true);
 
             this.setState({
                 selected: {
@@ -686,7 +710,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                 }
             },
                 async () => {
-                    if (node.data.fullId) {
+                    if (node.data?.fullId) {
                         const payload = await this._tangleService.payload(node.data.fullId);
                         let payloadTitle = "";
 
@@ -719,13 +743,60 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
 
     /**
      * Calculate the link for the message.
-     * @param messageId The message id.
+     * @param vertex The vertex id.
      * @returns The url for the message.
      */
-    private calcualteMessageLink(messageId: string | undefined): string {
-        return messageId
-            ? `${window.location.protocol}//${window.location.host}/explorer/message/${messageId}`
+    private calculateMessageLink(vertex?: IVisualizerVertex): string {
+        return vertex?.fullId
+            ? `${window.location.protocol}//${window.location.host}/explorer/message/${vertex.fullId}`
             : "";
+    }
+
+    /**
+     * Highlight the forward and backwards cones.
+     * @param vertexId The node to highlight.
+     * @param highlight Highlight or clear the coloring.
+     */
+    private connectedLinkStyle(vertexId: string, highlight: boolean): void {
+        if (this._graph) {
+            const startNode = this._graph.getNode(vertexId);
+
+            if (startNode) {
+                const seenForward: Viva.Graph.INode<IVisualizerVertex, unknown>[] = [];
+                const seenBackwards: Viva.Graph.INode<IVisualizerVertex, unknown>[] = [];
+
+                this.dfsIterator(
+                    startNode,
+                    undefined,
+                    linkId => {
+                        if (this._graphics) {
+                            const linkUI = this._graphics.getLinkUI(linkId);
+                            if (linkUI) {
+                                linkUI.color = highlight
+                                    ? Visualizer.COLOR_LINK_CHILDREN : Visualizer.COLOR_LINK;
+                            }
+                        }
+                    },
+                    true,
+                    seenBackwards
+                );
+                this.dfsIterator(
+                    startNode,
+                    undefined,
+                    linkId => {
+                        if (this._graphics) {
+                            const linkUI = this._graphics.getLinkUI(linkId);
+                            if (linkUI) {
+                                linkUI.color = highlight
+                                    ? Visualizer.COLOR_LINK_PARENTS : Visualizer.COLOR_LINK;
+                            }
+                        }
+                    },
+                    false,
+                    seenForward
+                );
+            }
+        }
     }
 }
 
