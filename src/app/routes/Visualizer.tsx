@@ -1,12 +1,20 @@
+import classNames from "classnames";
 import React, { ReactNode } from "react";
+import { RouteComponentProps } from "react-router-dom";
 import Viva from "vivagraphjs";
+import { ReactComponent as CloseIcon } from "../../assets/close.svg";
+import { ReactComponent as PauseIcon } from "../../assets/pause.svg";
+import { ReactComponent as PlayIcon } from "../../assets/play.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
 import { IVisualizerCounts } from "../../models/visualizer/IVisualizerCounts";
 import { IVisualizerVertex } from "../../models/visualizer/IVisualizerVertex";
 import { ITpsMetrics } from "../../models/websocket/ITpsMetrics";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
 import { MetricsService } from "../../services/metricsService";
+import { TangleService } from "../../services/tangleService";
 import { VisualizerService } from "../../services/visualizerService";
+import { FormatHelper } from "../../utils/formatHelper";
+import { UnitsHelper } from "../../utils/unitsHelper";
 import AsyncComponent from "../components/layout/AsyncComponent";
 import "./Visualizer.scss";
 import { VisualizerState } from "./VisualizerState";
@@ -14,34 +22,28 @@ import { VisualizerState } from "./VisualizerState";
 /**
  * Visualizer panel.
  */
-class Visualizer extends AsyncComponent<unknown, VisualizerState> {
-    private static readonly COLOR_SOLID = 0x4CAAFFFF;
+class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
+    /**
+     * Map the vetex states to colors.
+     */
+    private static readonly STATE_COLOR_MAP: { [id: string]: number } = {
+        Solid: 0x4CAAFFFF,
+        Unsolid: 0x8FE6FAFF,
+        Referenced: 0x61E884FF,
+        Conflicting: 0xFF8B5CFF,
+        Milestone: 0x666AF6FF,
+        Tip: 0xFFCA62FF,
+        Unknown: 0x9AADCEFF
+    };
 
-    private static readonly COLOR_UNSOLID = 0x8FE6FAFF;
-
-    private static readonly COLOR_REFERENCED = 0x61E884FF;
-
-    private static readonly COLOR_CONFLICTING = 0xFF8B5CFF;
-
-    private static readonly COLOR_MILESTONE = 0x666AF6FF;
-
-    private static readonly COLOR_TIP = 0xFFCA62FF;
-
-    private static readonly COLOR_UNKNOWN = 0x9AADCEFF;
-
-    private static readonly COLOR_SELECTED = 0xFDF6E3FF;
-
+    /**
+     * Color for connection between vertices.
+     */
     private static readonly COLOR_LINK = 0xCEDAEEFF;
 
     private static readonly COLOR_LINK_CHILDREN = 0xFF5AAAFF;
 
     private static readonly COLOR_LINK_PARENTS = 0xFFC306FF;
-
-    private static readonly VERTEX_SIZE_SMALL = 10;
-
-    private static readonly VERTEX_SIZE_MEDIUM = 20;
-
-    private static readonly VERTEX_SIZE_LARGE = 30;
 
     /**
      * The graph element.
@@ -74,6 +76,11 @@ class Visualizer extends AsyncComponent<unknown, VisualizerState> {
     private readonly _metricsService: MetricsService;
 
     /**
+     * The tangle service.
+     */
+    private readonly _tangleService: TangleService;
+
+    /**
      * The mps metrics subscription id.
      */
     private _mpsMetricsSubscription?: string;
@@ -84,16 +91,35 @@ class Visualizer extends AsyncComponent<unknown, VisualizerState> {
     private readonly _resize: () => void;
 
     /**
+     * Last time a node was clicked.
+     */
+    private _lastClick: number;
+
+    /**
+     * Track the last mouse position for info panel.
+     */
+    private _lastMouse: { x: number; y: number };
+
+    /**
+     * The position for info panel.
+     */
+    private _panelMouse: { x: number; y: number };
+
+    /**
      * Create a new instance of Visualizer.
      * @param props The props.
      */
-    constructor(props: unknown) {
+    constructor(props: RouteComponentProps) {
         super(props);
 
         this._graphElement = null;
         this._resize = () => this.resize();
         this._vizualizerService = ServiceFactory.get<VisualizerService>("visualizer");
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
+        this._tangleService = ServiceFactory.get<TangleService>("tangle");
+        this._lastClick = 0;
+        this._lastMouse = { x: 0, y: 0 };
+        this._panelMouse = { x: 0, y: 0 };
 
         this.state = {
             mps: "-",
@@ -101,7 +127,8 @@ class Visualizer extends AsyncComponent<unknown, VisualizerState> {
             tips: "-",
             referenced: "-",
             conflicting: "-",
-            solid: "-"
+            solid: "-",
+            isActive: true
         };
     }
 
@@ -122,20 +149,28 @@ class Visualizer extends AsyncComponent<unknown, VisualizerState> {
                 }
             },
             counts => {
-                this.setState({
-                    total: counts.total.toString(),
-                    tips: counts.tips.toString(),
-                    referenced: counts.total > 0 ? `${(counts.referenced / counts.total * 100).toFixed(2)}%` : "-",
-                    conflicting: counts.total > 0 ? `${(counts.conflicting / counts.total * 100).toFixed(2)}%` : "-",
-                    solid: counts.total > 0 ? `${(counts.solid / counts.total * 100).toFixed(2)}%` : "-"
-                });
+                if (this.state.isActive) {
+                    this.setState({
+                        total: counts.total.toString(),
+                        tips: counts.tips.toString(),
+                        referenced: counts.total > 0
+                            ? `${(counts.referenced / counts.total * 100).toFixed(2)}%`
+                            : "-",
+                        conflicting: counts.total > 0
+                            ? `${(counts.conflicting / counts.total * 100).toFixed(2)}%`
+                            : "-",
+                        solid: counts.total > 0 ? `${(counts.solid / counts.total * 100).toFixed(2)}%` : "-"
+                    });
+                }
             },
             (referencedId, excludedIds, counts) => this.referenceVertex(referencedId, excludedIds, counts)
         );
 
         this._mpsMetricsSubscription = this._metricsService.subscribe<ITpsMetrics>(
             WebSocketTopic.TPSMetrics, data => {
-                this.setState({ mps: data.new.toString() });
+                if (this.state.isActive) {
+                    this.setState({ mps: data.new.toString() });
+                }
             });
     }
 
@@ -167,7 +202,23 @@ class Visualizer extends AsyncComponent<unknown, VisualizerState> {
                 <div
                     className="canvas"
                     ref={r => this.setupGraph(r)}
+                    onClick={() => {
+                        if (Date.now() - this._lastClick > 300) {
+                            this.selectNode();
+                        }
+                    }}
                 />
+                <div className="action-panel-container">
+                    <div className="card">
+                        <button
+                            className="card--action--buton icon-button"
+                            type="button"
+                            onClick={() => this.toggleActivity()}
+                        >
+                            {this.state.isActive ? <PauseIcon /> : <PlayIcon />}
+                        </button>
+                    </div>
+                </div>
                 <div className="stats-panel-container">
                     <div className="card stats-panel">
                         <div className="card--label">
@@ -211,47 +262,143 @@ class Visualizer extends AsyncComponent<unknown, VisualizerState> {
                 <div className="key-panel-container">
                     <div className="card key-panel">
                         <div className="key-panel-item">
-                            <div className="key-marker key-marker--solid" />
+                            <div className="key-marker vertex-state--solid" />
                             <div className="key-label">Solid</div>
                         </div>
                         <div className="key-panel-item">
-                            <div className="key-marker key-marker--unsolid" />
+                            <div className="key-marker vertex-state--unsolid" />
                             <div className="key-label">Unsolid</div>
                         </div>
                         <div className="key-panel-item">
-                            <div className="key-marker key-marker--referenced" />
+                            <div className="key-marker vertex-state--referenced" />
                             <div className="key-label">Referenced</div>
                         </div>
                         <div className="key-panel-item">
-                            <div className="key-marker key-marker--conflicting" />
+                            <div className="key-marker vertex-state--conflicting" />
                             <div className="key-label">Conflicting</div>
                         </div>
                         <div className="key-panel-item">
-                            <div className="key-marker key-marker--milestone" />
+                            <div className="key-marker vertex-state--milestone" />
                             <div className="key-label">Milestone</div>
                         </div>
                         <div className="key-panel-item">
-                            <div className="key-marker key-marker--unknown" />
+                            <div className="key-marker vertex-state--unknown" />
                             <div className="key-label">Unknown</div>
                         </div>
                         <div className="key-panel-item">
-                            <div className="key-marker key-marker--tip" />
+                            <div className="key-marker vertex-state--tip" />
                             <div className="key-label">Tip</div>
                         </div>
                     </div>
                 </div>
+                {this.state.selected && this._graphElement && (
+                    <div
+                        className="info-panel-container"
+                        style={
+                            {
+                                left: Math.min(this._panelMouse.x + 20, this._graphElement.clientWidth - 360),
+                                top: Math.max(this._panelMouse.y - 230, 0)
+                            }
+                        }
+                    >
+                        <div className="card fill padding-m">
+                            <div className="row middle spread">
+                                <div className="row middle">
+                                    <div className={
+                                        classNames(
+                                            "info-panel--key",
+                                            `vertex-state--${this.state.selected.state.toLowerCase()}`
+                                        )
+                                    }
+                                    />
+                                    <h3>{this.state.selected.state}{this.state.selected.title}</h3>
+                                </div>
+                                <button
+                                    type="button"
+                                    className="icon-button"
+                                    onClick={() => this.selectNode()}
+                                >
+                                    <CloseIcon />
+                                </button>
+                            </div>
+                            <div className="col">
+                                <div className="card--label">
+                                    Message Id
+                                </div>
+                                <div className="card--value">
+                                    <a
+                                        href={this.calcualteMessageLink(this.state.selected.vertex.fullId)}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        {this.state.selected.vertex.fullId}
+                                    </a>
+                                </div>
+                                {this.state.selected.payload && this.state.selected.payload.type === 0 && (
+                                    <React.Fragment>
+                                        <div className="card--label">
+                                            Total
+                                        </div>
+                                        <div className="card--value">
+                                            {UnitsHelper.formatBest(
+                                                this.state.selected
+                                                    .payload.essence.outputs
+                                                    .reduce((total, output) => total + output.amount, 0))}
+                                        </div>
+                                    </React.Fragment>
+                                )}
+                                {this.state.selected.payload && this.state.selected.payload.type === 1 && (
+                                    <React.Fragment>
+                                        <div className="card--label">
+                                            Index
+                                        </div>
+                                        <div className="card--value">
+                                            {this.state.selected.payload.index}
+                                        </div>
+                                        <div className="card--label">
+                                            Date
+                                        </div>
+                                        <div className="card--value">
+                                            {FormatHelper.date(this.state.selected.payload.timestamp, false)}
+                                        </div>
+                                    </React.Fragment>
+                                )}
+                                {this.state.selected.payload && this.state.selected.payload.type === 2 && (
+                                    <React.Fragment>
+                                        <div className="card--label">
+                                            Index
+                                        </div>
+                                        <div className="card--value">
+                                            {this.state.selected.payload.index}
+                                        </div>
+                                    </React.Fragment>
+                                )}
+                                {!this.state.selected.payload && (
+                                    <React.Fragment>
+                                        <div className="card--label">
+                                            Payload
+                                        </div>
+                                        <div className="card--value">
+                                            This message has no payload.
+                                        </div>
+                                    </React.Fragment>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         );
     }
 
     /**
      * Setup the graph.
-     * @param graphElem The element to use.
+     * @param graphElement The element to use.
      */
-    private setupGraph(graphElem: HTMLElement | null): void {
-        this._graphElement = graphElem;
+    private setupGraph(graphElement: HTMLElement | null): void {
+        this._graphElement = graphElement;
 
-        if (graphElem && !this._graph) {
+        if (graphElement && !this._graph) {
             this._graph = Viva.Graph.graph();
 
             this._graphics = Viva.Graph.View.webglGraphics();
@@ -268,21 +415,37 @@ class Visualizer extends AsyncComponent<unknown, VisualizerState> {
 
             this._graphics.node(node => Viva.Graph.View.webglSquare(
                 this.calculateSize(node.data),
-                `#${this.calculateColor(node.data).toString(16)}`
+                `#${Visualizer.STATE_COLOR_MAP[this.calculateState(node.data)].toString(16)}`
             ));
 
             this._graphics.link(() => Viva.Graph.View.webglLine(`#${Visualizer.COLOR_LINK.toString(16)}`));
 
             this._renderer = Viva.Graph.View.renderer(this._graph, {
-                container: graphElem,
+                container: graphElement,
                 graphics: this._graphics,
                 layout,
                 renderLinks: true
             });
 
+            const events = Viva.Graph.webglInputEvents(this._graphics, this._graph);
+
+            events.click(node => this.selectNode(node));
+            events.dblClick(node => {
+                if (node?.data.fullId) {
+                    window.open(
+                        this.calcualteMessageLink(node.data.fullId),
+                        "_blank"
+                    );
+                }
+            });
+
+            graphElement.addEventListener("mousemove", e => {
+                this._lastMouse = { x: e.offsetX, y: e.offsetY };
+            });
+
             this._renderer.run();
 
-            this._graphics.scale(1, { x: graphElem.clientWidth / 2, y: graphElem.clientHeight / 2 });
+            this._graphics.scale(1, { x: graphElement.clientWidth / 2, y: graphElement.clientHeight / 2 });
 
             for (let i = 0; i < 12; i++) {
                 this._renderer.zoomOut();
@@ -322,40 +485,37 @@ class Visualizer extends AsyncComponent<unknown, VisualizerState> {
         if (this._graphics) {
             const nodeUI = this._graphics.getNodeUI(vertex.shortId);
             if (nodeUI) {
-                nodeUI.color = this.calculateColor(vertex);
+                nodeUI.color = Visualizer.STATE_COLOR_MAP[this.calculateState(vertex)];
                 nodeUI.size = this.calculateSize(vertex);
             }
         }
     }
 
     /**
-     * Calculate the color for the vertex.
-     * @param vertex The vertex to calculate the color for.
-     * @returns The color.
+     * Calculate the state for the vertex.
+     * @param vertex The vertex to calculate the state for.
+     * @returns The state.
      */
-    private calculateColor(vertex: IVisualizerVertex): number {
+    private calculateState(vertex: IVisualizerVertex): string {
         if (!vertex || (!vertex.parent1Id && !vertex.parent2Id)) {
-            return Visualizer.COLOR_UNKNOWN;
-        }
-        if (vertex.isSelected) {
-            return Visualizer.COLOR_SELECTED;
+            return "Unknown";
         }
         if (vertex.isMilestone) {
-            return Visualizer.COLOR_MILESTONE;
+            return "Milestone";
         }
         if (vertex.isTip) {
-            return Visualizer.COLOR_TIP;
+            return "Tip";
         }
         if (vertex.isConflicting) {
-            return Visualizer.COLOR_CONFLICTING;
+            return "Conflicting";
         }
         if (vertex.isReferenced) {
-            return Visualizer.COLOR_REFERENCED;
+            return "Referenced";
         }
         if (vertex.isSolid) {
-            return Visualizer.COLOR_SOLID;
+            return "Solid";
         }
-        return Visualizer.COLOR_UNSOLID;
+        return "Unsolid";
     }
 
     /**
@@ -365,15 +525,12 @@ class Visualizer extends AsyncComponent<unknown, VisualizerState> {
      */
     private calculateSize(vertex: IVisualizerVertex): number {
         if (!vertex || (!vertex.parent1Id && !vertex.parent2Id)) {
-            return Visualizer.VERTEX_SIZE_SMALL;
+            return 10;
         }
-        if (vertex.isSelected) {
-            return Visualizer.VERTEX_SIZE_LARGE;
+        if (vertex.isSelected || vertex.isMilestone) {
+            return 30;
         }
-        if (vertex.isMilestone) {
-            return Visualizer.VERTEX_SIZE_LARGE;
-        }
-        return Visualizer.VERTEX_SIZE_MEDIUM;
+        return 20;
     }
 
     /**
@@ -381,9 +538,13 @@ class Visualizer extends AsyncComponent<unknown, VisualizerState> {
      * @param vertex The vertex to delete.
      */
     private deleteVertex(vertex: IVisualizerVertex): void {
-        // Deselect if it is selected !!!!!!!!!!!!!!!!!!!!!!!!!!
         if (this._graph) {
             this._graph.removeNode(vertex.shortId);
+
+            if (this.state.selected &&
+                this.state.selected.vertex.fullId === vertex.fullId) {
+                this.setState({ selected: undefined });
+            }
         }
     }
 
@@ -485,6 +646,86 @@ class Visualizer extends AsyncComponent<unknown, VisualizerState> {
                 y: this._graphElement.clientHeight / 2
             });
         }
+    }
+
+    /**
+     * Toggle if the visualizer is active.
+     */
+    private toggleActivity(): void {
+        if (this._renderer) {
+            if (this.state.isActive) {
+                this._renderer.pause();
+            } else {
+                this._renderer.resume();
+            }
+        }
+
+        this.setState({ isActive: !this.state.isActive, selected: undefined });
+    }
+
+    /**
+     * Select a node.
+     * @param node The node to select
+     */
+    private selectNode(node?: Viva.Graph.INode<IVisualizerVertex, unknown>): void {
+        this._lastClick = Date.now();
+        if (this.state.selected) {
+            this.state.selected.vertex.isSelected = false;
+            this.updateNodeUI(this.state.selected.vertex);
+        }
+        this._panelMouse = this._lastMouse;
+
+        if (node?.data) {
+            node.data.isSelected = true;
+            this.updateNodeUI(node.data);
+
+            this.setState({
+                selected: {
+                    vertex: node?.data,
+                    state: this.calculateState(node.data)
+                }
+            },
+                async () => {
+                    if (node.data.fullId) {
+                        const payload = await this._tangleService.payload(node.data.fullId);
+                        let payloadTitle = "";
+
+                        if (payload) {
+                            if (payload.type === 0) {
+                                payloadTitle = " - Transaction";
+                            } else if (payload.type === 1) {
+                                payloadTitle = "";
+                            } else if (payload.type === 2) {
+                                payloadTitle = " - Indexation";
+                            }
+                        } else if (node.data.isMilestone) {
+                            payloadTitle = " - Checkpoint";
+                        }
+
+                        this.setState({
+                            selected: {
+                                vertex: node?.data,
+                                state: this.calculateState(node.data),
+                                payload,
+                                title: payloadTitle
+                            }
+                        });
+                    }
+                });
+        } else {
+            this.setState({ selected: undefined });
+        }
+    }
+
+    /**
+     * Calculate the link for the message.
+     * @param messageId The message id.
+     * @returns The url for the message.
+     */
+    private calcualteMessageLink(messageId: string | undefined): string {
+        return messageId
+            ? `${window.location.protocol}//${window.location.host}/explorer/message/${messageId}`
+            : "";
     }
 }
 

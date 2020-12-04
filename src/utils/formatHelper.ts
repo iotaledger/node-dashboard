@@ -49,9 +49,10 @@ export class FormatHelper {
     /**
      * Format the date.
      * @param valueInMs The value to format in milliseconds.
+     * @param human Humanize the date.
      * @returns The formated value.
      */
-    public static date(valueInMs: number): string {
+    public static date(valueInMs: number, human: boolean = true): string {
         const asStringLength = valueInMs.toString().length;
 
         // If there are less than 13 digits this must be in seconds
@@ -61,9 +62,13 @@ export class FormatHelper {
         }
 
         const timeMoment = moment(valueInMs);
+        let formatted = timeMoment.format("LLLL");
 
-        const postDate = valueInMs > Date.now() ? "in the future" : "ago";
+        if (human) {
+            const postDate = valueInMs > Date.now() ? "in the future" : "ago";
 
-        return `${timeMoment.format("LLLL")} - ${moment.duration(moment().diff(timeMoment)).humanize()} ${postDate}`;
+            formatted += ` - ${moment.duration(moment().diff(timeMoment)).humanize()} ${postDate}`;
+        }
+        return formatted;
     }
 }

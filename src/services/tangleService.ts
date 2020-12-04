@@ -1,4 +1,4 @@
-import { Bech32Helper, Converter, IMessageMetadata, MessageHelper, SingleNodeClient } from "@iota/iota2.js";
+import { Bech32Helper, Converter, IIndexationPayload, IMessageMetadata, IMilestonePayload, ITransactionPayload, MessageHelper, SingleNodeClient } from "@iota/iota2.js";
 import { ISearchResponse } from "../models/tangle/ISearchResponse";
 
 /**
@@ -92,6 +92,20 @@ export class TangleService {
         } catch { }
 
         return {};
+    }
+
+    /**
+     * Get the message payload.
+     * @param messageId The message to get.
+     * @returns The response data.
+     */
+    public async payload(
+        messageId: string): Promise<ITransactionPayload | IIndexationPayload | IMilestonePayload | undefined> {
+        try {
+            const message = await this._client.message(messageId);
+
+            return message?.payload;
+        } catch { }
     }
 
     /**

@@ -80,6 +80,8 @@ declare module "vivagraphjs" {
                 rerender: () => void;
                 zoomOut: () => void;
                 reset: () => void;
+                pause: () => void;
+                resume: () => void;
                 getTransform: () => { scale?: number; offset?: { x: number; y: number } };
 
                 on: (event: "scale", callback: (scale: number) => void) => void;

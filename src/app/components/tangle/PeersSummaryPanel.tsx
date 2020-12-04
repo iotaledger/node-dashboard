@@ -93,14 +93,14 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
      * @param data The data to handle.
      */
     private handleData(data: IPeerMetric[]): void {
+        const sortedPeers = data ? DataHelper.sortPeers(data.map(p => ({
+            connected: p.connected,
+            name: DataHelper.formatPeerName(p),
+            address: DataHelper.formatPeerAddress(p)
+        }))) : undefined;
+
         this.setState({
-            peers: data
-                ? DataHelper.sortPeers(data.map(p => ({
-                    connected: p.connected,
-                    name: DataHelper.formatPeerName(p),
-                    address: DataHelper.formatPeerAddress(p)
-                })))
-                : undefined
+            peers: sortedPeers
         });
     }
 }

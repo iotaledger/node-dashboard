@@ -13,6 +13,15 @@
     right: 0;
     bottom: 0;
     left: 0;
+    z-index: 0;
+  }
+
+  .action-panel-container {
+    display: flex;
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    z-index: 2;
   }
 
   .stats-panel-container {
@@ -23,6 +32,8 @@
     bottom: 0px;
     align-items: center;
     justify-content: center;
+    z-index: 1;
+    pointer-events: none;
 
     .stats-panel {
       .card--value,
@@ -39,6 +50,8 @@
     bottom: 30px;
     left: 0px;
     justify-content: center;
+    z-index: 1;
+    pointer-events: none;
 
     .key-panel {
       display: flex;
@@ -56,34 +69,6 @@
           height: 12px;
           margin-right: $spacing-tiny;
           border-radius: 3px;
-
-          &.key-marker--solid {
-            background-color: #4caaff;
-          }
-
-          &.key-marker--unsolid {
-            background-color: #8fe6fa;
-          }
-
-          &.key-marker--referenced {
-            background-color: #61e884;
-          }
-
-          &.key-marker--conflicting {
-            background-color: #ff8b5c;
-          }
-
-          &.key-marker--milestone {
-            background-color: #666af6;
-          }
-
-          &.key-marker--unknown {
-            background-color: #9aadce;
-          }
-
-          &.key-marker--tip {
-            background-color: #ffca62;
-          }
         }
 
         .key-label {
@@ -95,5 +80,48 @@
         }
       }
     }
+  }
+
+  .info-panel-container {
+    display: flex;
+    position: absolute;
+    width: 360px;
+    height: 250px;
+    z-index: 2;
+
+    .info-panel--key {
+      width: 16px;
+      height: 16px;
+      margin-right: $spacing-tiny;
+      border-radius: 3px;
+    }
+  }
+
+  .vertex-state--solid {
+    background-color: #4caaff;
+  }
+
+  .vertex-state--unsolid {
+    background-color: #8fe6fa;
+  }
+
+  .vertex-state--referenced {
+    background-color: #61e884;
+  }
+
+  .vertex-state--conflicting {
+    background-color: #ff8b5c;
+  }
+
+  .vertex-state--milestone {
+    background-color: #666af6;
+  }
+
+  .vertex-state--unknown {
+    background-color: #9aadce;
+  }
+
+  .vertex-state--tip {
+    background-color: #ffca62;
   }
 }

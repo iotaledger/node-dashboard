@@ -118,7 +118,7 @@ class App extends Component<RouteComponentProps> {
                             />
                             <Route
                                 path="/visualizer"
-                                component={() => (<Visualizer />)}
+                                component={(props: RouteComponentProps) => (<Visualizer {...props} />)}
                             />
                             <Route
                                 path="/settings"

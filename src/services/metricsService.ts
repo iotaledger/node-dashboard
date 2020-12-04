@@ -70,7 +70,9 @@ export class MetricsService {
         for (const topic of topics) {
             this._webSocketSubscriptions.push(this._webSocketService.subscribe(
                 topic, data => {
-                    this.triggerCallbacks(topic, data);
+                    if (data) {
+                        this.triggerCallbacks(topic, data);
+                    }
                 }));
         }
     }
@@ -137,6 +139,11 @@ export class MetricsService {
         }
     }
 
+    /**
+     * Trigger the callback handlers for the subscribers.
+     * @param topic The message topic.
+     * @param data The message data.
+     */
     private triggerCallbacks(topic: WebSocketTopic, data: unknown): void {
         if (!this._cached[topic]) {
             this._cached[topic] = [];
