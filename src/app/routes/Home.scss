@@ -23,12 +23,17 @@
         padding: $spacing-small;
       }
 
+      .banner-curve {
+        color: var(--panel-background-highlight);
+      }
+
       .banner-image {
         display: flex;
         flex: 1;
         align-items: center;
         justify-content: center;
-        background-color: $banner-background;
+        background-color: var(--panel-background-highlight);
+        border-radius:  0 16px 16px 0;
       }
     }
 

@@ -11,7 +11,7 @@
     margin-bottom: $spacing-small;
     padding: $spacing-small;
     border-radius: $spacing-small;
-    background-color: $background;
+    background-color: var(--panel-background-highlight);
 
     .peer-health-icon {
       width: 16px;
@@ -21,7 +21,7 @@
       @include font-size(14px);
 
       margin-left: $spacing-small;
-      color: $text-color-primary;
+      color: var(--text-color-primary);
       font-family: $font-sans;
       font-weight: 500;
       text-overflow: ellipsis;

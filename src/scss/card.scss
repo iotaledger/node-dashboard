@@ -3,9 +3,9 @@
 
 .card {
   padding: 10px;
-  border: 1px solid $card-border;
+  border: 1px solid var(--panel-border);
   border-radius: 16px;
-  background-color: $card-background;
+  background-color: var(--panel-background);
   overflow: hidden;
 
   .card--header-count {
@@ -17,8 +17,8 @@
     margin-left: 20px;
     padding: 0px 8px;
     border-radius: 6px;
-    background-color: $background;
-    color: $highlight;
+    background-color: var(--background);
+    color: var(--accent-primary);
     font-family: $font-sans;
     font-weight: bold;
     white-space: nowrap;
@@ -29,7 +29,7 @@
     margin-top: $spacing-small;
     margin-bottom: $spacing-tiny / 2;
 
-    color: $text-color-secondary;
+    color: var(--text-color-secondary);
     font-family: $font-sans;
     font-weight: 500;
     text-transform: uppercase;
@@ -38,12 +38,12 @@
   .card--value {
     @include font-size(14px);
 
-    color: $text-color-primary;
+    color: var(--text-color-primary);
     font-family: $font-sans;
     word-break: break-all;
 
     a {
-      color: $highlight;
+      color: var(--accent-primary);
       text-decoration: none;
     }
 
@@ -51,7 +51,7 @@
       border: 0;
       outline: 0;
       background: none;
-      color: $highlight;
+      color: var(--accent-primary);
       cursor: pointer;
     }
 
@@ -64,7 +64,7 @@
       min-height: 150px;
       max-height: 150px;
       padding: 10px;
-      background: $panel-border;
+      background: var(--panel-border);
       font-family: $font-mono;
       overflow: auto;
 
@@ -95,7 +95,7 @@
     outline: 0;
     background: none;
 
-    color: $highlight;
+    color: var(--accent-primary);
     font-family: $font-sans;
     cursor: pointer;
 

@@ -48,4 +48,9 @@ export interface HomeState {
      * The messages per second outgoing.
      */
     mpsOutgoing: number[];
+
+    /**
+     * The banner logo source.
+     */
+    bannerSrc: string;
 }

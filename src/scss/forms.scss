@@ -1,0 +1,51 @@
+@import './fonts';
+@import './variables';
+
+.select-wrapper {
+  display: inline-block;
+  position: relative;
+
+  svg {
+    position: absolute;
+    top: 16px;
+    right: 18px;
+    color: var(--text-color-primary);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  select {
+    @include font-size(14px);
+
+    height: 40px;
+    margin: 0px;
+    padding: 0px 48px 0px 20px;
+    border: 1px solid var(--panel-border);
+    border-radius: 16px;
+    outline: none;
+    background-color: transparent;
+    color: var(--text-color-primary);
+    font-family: $font-sans;
+    appearance: none;
+
+    &:focus {
+      box-shadow: 0 0 3px 0 var(--accent-primary);
+    }
+
+    // sass-lint:disable no-vendor-prefixes
+    &:-ms-expand {
+      display: none;
+    }
+
+    // sass-lint:disable no-vendor-prefixes
+    &:-moz-focusring {
+      color: transparent;
+      text-shadow: 0 0 0 var(--text-color-primary);
+    }
+
+    option {
+      background-color: var(--panel-background);
+      color: var(--text-color-primary);
+    }
+  }
+}

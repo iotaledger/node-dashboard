@@ -6,8 +6,10 @@ import App from "./app/App";
 import { ServiceFactory } from "./factories/serviceFactory";
 import "./index.scss";
 import { IBrandConfiguration } from "./models/IBrandConfiguration";
+import { LocalStorageService } from "./services/localStorageService";
 import { MetricsService } from "./services/metricsService";
 import { TangleService } from "./services/tangleService";
+import { ThemeService } from "./services/themeService";
 import { VisualizerService } from "./services/visualizerService";
 import { WebSocketService } from "./services/webSocketService";
 import { BrandHelper } from "./utils/brandHelper";
@@ -70,6 +72,7 @@ initServices()
 async function initServices(): Promise<IBrandConfiguration | undefined> {
     ServiceFactory.register("web-socket", () => new WebSocketService());
     ServiceFactory.register("tangle", () => new TangleService());
+    ServiceFactory.register("storage", () => new LocalStorageService());
 
     const metricsService = new MetricsService();
     ServiceFactory.register("metrics", () => metricsService);
@@ -78,6 +81,10 @@ async function initServices(): Promise<IBrandConfiguration | undefined> {
     const visualizerService = new VisualizerService();
     visualizerService.initialize();
     ServiceFactory.register("visualizer", () => visualizerService);
+
+    const themeService = new ThemeService();
+    themeService.initialize();
+    ServiceFactory.register("theme", () => themeService);
 
     return BrandHelper.initialize();
 }

@@ -21,7 +21,7 @@
       border: 0;
       outline: 0;
       background: none;
-      color: $text-color-secondary;
+      color: var(--text-color-secondary);
       font-family: $font-sans;
       font-weight: bold;
       text-decoration: none;
@@ -35,10 +35,10 @@
       }
 
       &.tab-panel--button__selected {
-        color: $text-color-primary;
+        color: var(--text-color-primary);
 
         .underline {
-          background-color: $highlight;
+          background-color: var(--accent-primary);
         }
       }
     }

@@ -9,7 +9,7 @@
 
   .label {
     @include font-size(10px);
-    color: $text-color-secondary;
+    color: var(--text-color-secondary);
     font-family: $font-sans;
     font-weight: 500;
     text-transform: uppercase;
@@ -18,7 +18,7 @@
 
   .value {
     @include font-size(16px);
-    color: $text-color-primary;
+    color: var(--text-color-primary);
     font-family: $font-sans;
     font-weight: bold;
     text-transform: uppercase;
@@ -26,7 +26,7 @@
   }
 
   .canvas {
-    color: $highlight;
+    color: var(--accent-primary);
 
     svg {
       overflow: visible;

@@ -7,8 +7,8 @@
   align-items: center;
   width: 120px;
   padding-top: 22px;
-  border-right: 1px solid $panel-border;
-  background-color: $panel-background;
+  border-right: 1px solid var(--panel-border);
+  background-color: var(--panel-background);
   overflow: hidden;
 
   .logo {
@@ -26,13 +26,13 @@
     border: 0;
     outline: 0;
     background: none;
-    color: $text-color-secondary;
+    color: var(--text-color-secondary);
     font-family: $font-sans;
     font-weight: bold;
     text-decoration: none;
 
     &.nav-panel--button__selected {
-      color: $highlight;
+      color: var(--accent-primary);
     }
   }
 }

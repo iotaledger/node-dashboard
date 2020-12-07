@@ -12,7 +12,7 @@
     @include font-size(24px);
 
     margin-top: $spacing-tiny;
-    color: $text-color-primary;
+    color: var(--text-color-primary);
     font-family: $font-sans;
     font-weight: bold;
     white-space: nowrap;
@@ -22,8 +22,9 @@
     }
   }
 
-  .icon-background {
+  .icon-container {
     display: flex;
+    position: relative;
     align-items: center;
     justify-content: center;
     width: 80px;
@@ -31,20 +32,32 @@
     margin-right: 20px;
     border-radius: $spacing-small;
 
-    &.icon-background--green {
-      background-color: #ecfdfc;
+    .icon-background {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      border-radius: $spacing-small;
+      opacity: 0.1;
+
+      &.icon-background--green {
+        background-color: #16e1d5;
+      }
+
+      &.icon-background--orange {
+        background-color: #ff8b5c;
+      }
+
+      &.icon-background--blue {
+        background-color: #4baaff;
+      }
+
+      &.icon-background--purple {
+        background-color: #666af6;
+      }
     }
 
-    &.icon-background--orange {
-      background-color: #fff6f2;
-    }
-
-    &.icon-background--blue {
-      background-color: #f1f8ff;
-    }
-
-    &.icon-background--purple {
-      background-color: #f3f3fe;
+    svg {
+      z-index: 1;
     }
   }
 }

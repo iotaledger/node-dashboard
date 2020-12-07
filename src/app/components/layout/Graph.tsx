@@ -89,6 +89,10 @@ class Graph extends Component<GraphProps, GraphState> {
         );
     }
 
+    /**
+     * Set the graph element.
+     * @param element The element.
+     */
     private setElement(element: SVGSVGElement | null): void {
         if (!this._graphElement && element) {
             this._graphElement = element;

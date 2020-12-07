@@ -14,7 +14,8 @@ class InfoPanel extends Component<InfoPanelProps> {
     public render(): ReactNode {
         return (
             <div className={classNames("card", "info-panel", this.props.className)}>
-                <div className={`icon-background icon-background--${this.props.backgroundStyle}`}>
+                <div className="icon-container">
+                    <div className={`icon-background icon-background--${this.props.backgroundStyle}`} />
                     {this.props.icon}
                 </div>
                 <div className="col">

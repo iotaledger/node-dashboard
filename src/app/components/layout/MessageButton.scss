@@ -11,12 +11,12 @@
     cursor: pointer;
 
     svg {
-      color: $text-color-secondary;
+      color: var(--text-color-secondary);
     }
 
     &:hover {
       svg {
-        color: $text-color-primary;
+        color: var(--text-color-primary);
       }
     }
   }
@@ -26,7 +26,7 @@
 
     position: absolute;
     min-width: 200px;
-    color: $highlight;
+    color: var(--accent-primary);
     font-family: $font-sans;
     font-weight: bold;
     text-transform: uppercase;

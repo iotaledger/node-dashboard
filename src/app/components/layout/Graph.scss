@@ -7,13 +7,13 @@
   flex-direction: column;
 
   .bar-color-1 {
-    background-color: #309cff;
-    fill: #309cff;
+    background-color: var(--bar-color-1);
+    fill: var(--bar-color-1);
   }
 
   .bar-color-2 {
-    background-color: #b7dcff;
-    fill: #b7dcff;
+    background-color: var(--bar-color-2);
+    fill: var(--bar-color-2);
   }
 
   .title-row {
@@ -26,7 +26,7 @@
     .caption {
       @include font-size(10px);
 
-      color: $text-color-secondary;
+      color: var(--text-color-secondary);
       font-family: $font-sans;
       font-weight: 500;
       text-transform: uppercase;
@@ -48,7 +48,7 @@
         @include font-size(10px);
         margin-left: $spacing-small;
 
-        color: $text-color-secondary;
+        color: var(--text-color-secondary);
         font-family: $font-sans;
         font-weight: 500;
       }
@@ -57,7 +57,7 @@
 
   .canvas {
     flex: 1;
-    color: $highlight;
+    color: var(--accent-primary);
 
     svg {
       width: 100%;
@@ -69,11 +69,12 @@
 
         font-family: $font-sans;
         font-weight: 500;
-        fill: $text-color-secondary;
+        fill: var(--text-color-secondary);
       }
 
       .axis-color {
-        stroke: #eef4ff;
+        opacity: 0.2;
+        stroke: var(--text-color-secondary);
       }
     }
   }

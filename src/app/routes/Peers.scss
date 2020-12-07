@@ -34,7 +34,7 @@
           .peer-id {
             @include font-size(14px);
 
-            color: $text-color-primary;
+            color: var(--text-color-primary);
             font-family: $font-sans;
             font-weight: 500;
             text-overflow: ellipsis;

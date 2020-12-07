@@ -19,12 +19,13 @@
     border: 0;
     border-radius: $spacing-small;
     outline: 0;
-    color: $text-color-secondary;
+    background: transparent;
+    color: var(--text-color-secondary);
     font-family: $font-sans;
     font-weight: 500;
 
     &::placeholder {
-      color: $text-color-secondary;
+      color: var(--text-color-secondary);
       opacity: 1;
     }
   }

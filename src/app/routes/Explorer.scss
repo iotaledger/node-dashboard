@@ -28,7 +28,7 @@
           @include font-size(14px);
 
           min-width: 100px;
-          color: $highlight;
+          color: var(--accent-primary);
           font-family: $font-sans;
           font-weight: bold;
         }
@@ -37,7 +37,7 @@
           @include font-size(14px);
 
           min-width: 100px;
-          color: $text-color-primary;
+          color: var(--text-color-primary);
           font-family: $font-mono;
           text-decoration: none;
         }

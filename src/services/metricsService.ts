@@ -70,9 +70,7 @@ export class MetricsService {
         for (const topic of topics) {
             this._webSocketSubscriptions.push(this._webSocketService.subscribe(
                 topic, data => {
-                    if (data) {
-                        this.triggerCallbacks(topic, data);
-                    }
+                    this.triggerCallbacks(topic, data);
                 }));
         }
     }

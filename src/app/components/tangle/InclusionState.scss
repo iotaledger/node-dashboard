@@ -10,8 +10,8 @@
   border: 0;
   border-radius: 6px;
   outline: none;
-  background-color: $panel-border;
-  color: $text-color-primary;
+  background-color: var(--panel-border);
+  color: var(--text-color-primary);
   font-family: $font-sans;
   font-weight: bold;
   text-transform: uppercase;

@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import curve from "../../assets/curve-light.svg";
+import { ReactComponent as BannerCurve } from "../../assets/banner-curve.svg";
 import { ReactComponent as MemoryIcon } from "../../assets/memory.svg";
 import { ReactComponent as MilestoneIcon } from "../../assets/milestone.svg";
 import { ReactComponent as PruningIcon } from "../../assets/pruning.svg";
@@ -10,6 +10,7 @@ import { ISyncStatus } from "../../models/websocket/ISyncStatus";
 import { ITpsMetrics } from "../../models/websocket/ITpsMetrics";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
 import { MetricsService } from "../../services/metricsService";
+import { ThemeService } from "../../services/themeService";
 import { BrandHelper } from "../../utils/brandHelper";
 import { FormatHelper } from "../../utils/formatHelper";
 import AsyncComponent from "../components/layout/AsyncComponent";
@@ -23,6 +24,16 @@ import { HomeState } from "./HomeState";
  * Home panel.
  */
 class Home extends AsyncComponent<unknown, HomeState> {
+    /**
+     * The theme service.
+     */
+    private readonly _themeService: ThemeService;
+
+    /**
+     * The theme subscription id.
+     */
+    private _themeSubscriptionId?: string;
+
     /**
      * The metrics service.
      */
@@ -51,6 +62,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
         super(props);
 
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
+        this._themeService = ServiceFactory.get<ThemeService>("theme");
 
         this.state = {
             nodeName: "",
@@ -62,7 +74,8 @@ class Home extends AsyncComponent<unknown, HomeState> {
             memory: "-",
             uptime: "-",
             mpsIncoming: [],
-            mpsOutgoing: []
+            mpsOutgoing: [],
+            bannerSrc: BrandHelper.getBanner(this._themeService.get())
         };
     }
 
@@ -71,6 +84,11 @@ class Home extends AsyncComponent<unknown, HomeState> {
      */
     public componentDidMount(): void {
         super.componentDidMount();
+
+        this._themeSubscriptionId = this._themeService.subscribe(() => {
+            this.setState({ bannerSrc: BrandHelper.getBanner(this._themeService.get()) });
+        });
+
         this._statusSubscription = this._metricsService.subscribe<IStatus>(
             WebSocketTopic.Status, data => {
                 const nodeName = data.node_alias ? data.node_alias : BrandHelper.getConfiguration().name;
@@ -143,6 +161,11 @@ class Home extends AsyncComponent<unknown, HomeState> {
     public componentWillUnmount(): void {
         super.componentWillUnmount();
 
+        if (this._themeSubscriptionId) {
+            this._themeService.unsubscribe(this._themeSubscriptionId);
+            this._themeSubscriptionId = undefined;
+        }
+
         if (this._statusSubscription) {
             this._metricsService.unsubscribe(this._statusSubscription);
             this._statusSubscription = undefined;
@@ -176,9 +199,9 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                 </div>
                                 <p className="secondary">v{this.state.version}</p>
                             </div>
-                            <img src={curve} />
+                            <BannerCurve className="banner-curve" />
                             <div className="banner-image">
-                                <img src={BrandHelper.getBanner()} />
+                                <img src={this.state.bannerSrc} />
                             </div>
                         </div>
                     </div>

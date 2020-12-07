@@ -7,7 +7,7 @@
   width: 40px;
   height: 40px;
   border-radius: 100%;
-  background-color: $text-color-secondary;
+  background-color: var(--text-color-secondary);
   animation: pulse 1s ease-in-out infinite;
 
   &.spinner--compact {

@@ -36,17 +36,19 @@ export class BrandHelper {
 
     /**
      * Get the logo for the navigation panel.
+     * @param theme The current theme.
      * @returns The navigation panel logo.
      */
-    public static getLogoNavigation(): string {
-        return require(`../assets/${BrandHelper._brandId}/logo-navigation.svg`);
+    public static getLogoNavigation(theme: string): string {
+        return require(`../assets/${BrandHelper._brandId}/themes/${theme}/logo-navigation.svg`);
     }
 
     /**
      * Get the logo for the home page banner.
+     * @param theme The current theme.
      * @returns The banner panel logo.
      */
-    public static getBanner(): string {
-        return require(`../assets/${BrandHelper._brandId}/banner.svg`);
+    public static getBanner(theme: string): string {
+        return require(`../assets/${BrandHelper._brandId}/themes/${theme}/banner.svg`);
     }
 }
