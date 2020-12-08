@@ -12,6 +12,10 @@
     align-items: flex-end;
   }
 
+  &.inline {
+    display: inline-flex;
+  }
+
   &.spread {
     justify-content: space-between;
   }
@@ -104,4 +108,8 @@
 
 .padding-l {
   padding: $spacing-large;
+}
+
+.padding-0 {
+  padding: 0;
 }

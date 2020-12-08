@@ -20,8 +20,8 @@
     height: 40px;
     margin: 0px;
     padding: 0px 48px 0px 20px;
-    border: 1px solid var(--panel-border);
-    border-radius: 16px;
+    border: 1px solid var(--text-color-secondary);
+    border-radius: $form-input-radius;
     outline: none;
     background-color: transparent;
     color: var(--text-color-primary);
@@ -47,5 +47,24 @@
       background-color: var(--panel-background);
       color: var(--text-color-primary);
     }
+  }
+}
+
+input {
+  @include font-size(14px);
+
+  height: 40px;
+  margin: 0px;
+  padding: 0px 48px 0px 20px;
+  border: 1px solid var(--text-color-secondary);
+  border-radius: $form-input-radius;
+  outline: none;
+  background-color: transparent;
+  color: var(--text-color-primary);
+  font-family: $font-sans;
+  appearance: none;
+
+  &:focus {
+    box-shadow: 0 0 3px 0 var(--accent-primary);
   }
 }

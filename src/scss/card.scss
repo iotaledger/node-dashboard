@@ -47,7 +47,7 @@
       text-decoration: none;
     }
 
-    button {
+    .card--value--button {
       border: 0;
       outline: 0;
       background: none;
@@ -91,13 +91,23 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    border: 0;
+    padding: 6px 12px;
+    border: 1px solid var(--text-color-secondary);
+    border-radius: $form-input-radius;
     outline: 0;
     background: none;
 
-    color: var(--accent-primary);
+    color: var(--text-color-primary);
     font-family: $font-sans;
     cursor: pointer;
+
+    &:hover {
+      color: var(--accent-primary);
+    }
+
+    &:focus {
+      box-shadow: 0 0 3px 0 var(--accent-primary);
+    }
 
     &:disabled {
       opacity: 0.5;
