@@ -107,6 +107,7 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
                             </div>
                             <div className="card--value card--value__mono">
                                 <button
+                                    className="card--value--button"
                                     type="button"
                                     onClick={() => this.setState(
                                         {

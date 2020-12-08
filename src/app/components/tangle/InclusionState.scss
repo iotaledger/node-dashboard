@@ -16,7 +16,6 @@
   font-weight: bold;
   text-transform: uppercase;
   white-space: nowrap;
-  cursor: pointer;
 
   &.inclusion__not-included {
     background-color: $warning;
@@ -24,8 +23,8 @@
   }
 
   &.inclusion__included {
-    background-color: #e5fbea;
-    color: #12bf3f;
+    background-color: #12bf3f;
+    color: #ffffff;
   }
 
   &.inclusion__no-transaction {

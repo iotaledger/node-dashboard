@@ -2,14 +2,15 @@ import React, { ReactNode } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
 import { ReactComponent as ChevronLeftIcon } from "../../../assets/chevron-left.svg";
 import { ServiceFactory } from "../../../factories/serviceFactory";
+import { MessageTangleStatus } from "../../../models/messageTangleStatus";
 import { TangleService } from "../../../services/tangleService";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
 import AsyncComponent from "../../components/layout/AsyncComponent";
 import MessageButton from "../../components/layout/MessageButton";
 import Spinner from "../../components/layout/Spinner";
-import Confirmation from "../../components/tangle/Confirmation";
 import InclusionState from "../../components/tangle/InclusionState";
 import IndexationPayload from "../../components/tangle/IndexationPayload";
+import MessageTangleState from "../../components/tangle/MessageTangleState";
 import MilestonePayload from "../../components/tangle/MilestonePayload";
 import TransactionPayload from "../../components/tangle/TransactionPayload";
 import "./Message.scss";
@@ -78,9 +79,9 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                             <h2>
                                 Message
                             </h2>
-                            {this.state.confirmationState && (
-                                <Confirmation
-                                    state={this.state.confirmationState}
+                            {this.state.messageTangleStatus && (
+                                <MessageTangleState
+                                    status={this.state.messageTangleStatus}
                                     milestoneIndex={this.state.metadata?.referencedByMilestoneIndex}
                                     onClick={this.state.metadata?.referencedByMilestoneIndex
                                         ? () => this.props.history.push(
@@ -271,12 +272,23 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
     private async updateMessageDetails(): Promise<void> {
         const details = await this._tangleService.messageDetails(this.props.match.params.messageId);
 
+        let messageTangleStatus: MessageTangleStatus = "unknown";
+
+        if (details?.metadata) {
+            if (details.metadata.milestoneIndex) {
+                messageTangleStatus = "milestone";
+            } else if (details.metadata.referencedByMilestoneIndex) {
+                messageTangleStatus = "referenced";
+            } else {
+                messageTangleStatus = "pending";
+            }
+        }
+
         this.setState({
             metadata: details?.metadata,
             childrenIds: details?.childrenIds,
             validations: details?.validations,
-            confirmationState: details?.metadata?.referencedByMilestoneIndex !== undefined
-                ? "referenced" : "pending",
+            messageTangleStatus,
             childrenBusy: false
         });
 

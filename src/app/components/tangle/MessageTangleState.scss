@@ -1,7 +1,7 @@
 @import '../../../scss/fonts';
 @import '../../../scss/variables';
 
-.confirmation {
+.message-tangle-state {
   @include font-size(12px);
   display: flex;
   align-items: center;
@@ -15,16 +15,20 @@
   color: var(--text-color-primary);
   font-family: $font-sans;
   font-weight: bold;
-  text-transform: uppercase;
   white-space: nowrap;
   cursor: pointer;
 
-  &.confirmation__referenced {
-    background-color: #e5fbea;
-    color: #12bf3f;
+  &.message-tangle-state__referenced {
+    background-color: #12bf3f;
+    color: #ffffff;
   }
 
-  &.confirmation__pending {
+  &.message-tangle-state__milestone {
+    background-color: #12bf3f;
+    color: #ffffff;
+  }
+
+  &.message-tangle-state__pending {
     background-color: #9aadce;
     color: #ffffff;
   }
