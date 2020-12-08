@@ -142,7 +142,10 @@ class Analytics extends AsyncComponent<RouteComponentProps, AnalyticsState> {
         return (
             <div className="analytics">
                 <div className="content">
-                    <TabPanel labels={["Tangle", "Node", "Log"]}>
+                    <TabPanel
+                        tabs={["Tangle", "Node", "Log"]}
+                        activeTab="Tangle"
+                    >
                         <div className="fill">
                             <div className="card fill margin-r-s">
                                 <Graph

@@ -16,8 +16,18 @@ class TabPanel extends Component<TabPanelProps, TabPanelState> {
         super(props);
 
         this.state = {
-            activeTab: props.labels[0]
+            activeTab: props.activeTab
         };
+    }
+
+    /**
+     * The component updated.
+     * @param prevProps The previous props.
+     */
+    public componentDidUpdate(prevProps: TabPanelProps): void {
+        if (this.props.activeTab !== prevProps.activeTab) {
+            this.setState({ activeTab: this.props.activeTab });
+        }
     }
 
     /**
@@ -28,7 +38,7 @@ class TabPanel extends Component<TabPanelProps, TabPanelState> {
         return (
             <div className="tab-panel">
                 <div className="tab-panel--buttons">
-                    {this.props.labels.map(l => (
+                    {this.props.tabs.map(l => (
                         <button
                             key={l}
                             type="button"
@@ -36,7 +46,13 @@ class TabPanel extends Component<TabPanelProps, TabPanelState> {
                                 "tab-panel--button",
                                 { "tab-panel--button__selected": l === this.state.activeTab }
                             )}
-                            onClick={e => this.setState({ activeTab: l })}
+                            onClick={e => this.setState(
+                                { activeTab: l },
+                                () => {
+                                    if (this.props.onTabChanged) {
+                                        this.props.onTabChanged(this.state.activeTab);
+                                    }
+                                })}
                         >
                             <div>{l}</div>
                             <div className="underline" />
@@ -45,7 +61,7 @@ class TabPanel extends Component<TabPanelProps, TabPanelState> {
                 </div>
                 {this.props.children?.map((c, idx) => (
                     <React.Fragment key={idx}>
-                        {this.props.labels[idx] === this.state.activeTab && c}
+                        {this.props.tabs[idx] === this.state.activeTab && c}
                     </React.Fragment>
                 ))}
             </div>

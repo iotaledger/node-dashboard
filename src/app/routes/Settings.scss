@@ -10,5 +10,22 @@
   .content {
     flex: 1;
     max-width: $content-width-desktop;
+
+    .plugins-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+
+      .plugin {
+        width: 49%;
+        margin-bottom: $spacing-small;
+        padding: $spacing-medium;
+
+        p {
+          margin-top: $spacing-small;
+          margin-left: 48px;
+        }
+      }
+    }
   }
 }

@@ -27,6 +27,12 @@
       text-decoration: none;
       cursor: pointer;
 
+      &:focus {
+        .underline {
+          background-color: var(--accent-primary);
+        }
+      }
+
       .underline {
         width: 60%;
         height: 2px;
