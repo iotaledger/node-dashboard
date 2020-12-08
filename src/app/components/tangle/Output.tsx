@@ -31,7 +31,7 @@ class Output extends Component<OutputProps, OutputState> {
         return (
             <div className="output">
                 <h2>{this.props.output.output.type === 0
-                    ? "Signature Locked " : ""} Output {this.props.output.outputIndex}
+                    ? "Signature Locked " : ""} Output
                 </h2>
                 <div className="card--label">
                     Message Id
@@ -81,6 +81,12 @@ class Output extends Component<OutputProps, OutputState> {
                             />
                         </React.Fragment>
                     )}
+                </div>
+                <div className="card--label">
+                    Index
+                </div>
+                <div className="card--value">
+                    {this.props.output.outputIndex}
                 </div>
                 <div className="card--label">
                     Is Spent
