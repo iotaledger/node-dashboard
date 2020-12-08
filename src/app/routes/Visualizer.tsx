@@ -91,11 +91,6 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
     private readonly _resize: () => void;
 
     /**
-     * Last time a node was clicked.
-     */
-    private _lastClick: number;
-
-    /**
      * Entered vertex.
      */
     private _enteredVertexId?: string;
@@ -112,7 +107,6 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
         this._vizualizerService = ServiceFactory.get<VisualizerService>("visualizer");
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
         this._tangleService = ServiceFactory.get<TangleService>("tangle");
-        this._lastClick = 0;
 
         this.state = {
             mps: "-",
@@ -197,9 +191,9 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                     ref={r => this.setupGraph(r)}
                 />
                 <div className="action-panel-container">
-                    <div className="card">
+                    <div className="card padding-0">
                         <button
-                            className="card--action--buton icon-button"
+                            className="icon-button"
                             type="button"
                             onClick={() => this.toggleActivity()}
                         >
@@ -681,7 +675,6 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      * @param node The node to select
      */
     private selectNode(node?: Viva.Graph.INode<IVisualizerVertex, unknown>): void {
-        this._lastClick = Date.now();
         if (this.state.selected) {
             this.state.selected.vertex.isSelected = false;
             this.updateNodeUI(this.state.selected.vertex.shortId);
