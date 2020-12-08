@@ -57,7 +57,7 @@ class Milestone extends AsyncComponent<RouteComponentProps<MilestoneRouteProps>,
                 <div className="content">
                     <Link
                         to="/explorer"
-                        className="row"
+                        className="row inline"
                     >
                         <ChevronLeftIcon className="secondary" />
                         <h3 className="secondary margin-l-s">Back to Explorer</h3>
@@ -101,10 +101,8 @@ class Milestone extends AsyncComponent<RouteComponentProps<MilestoneRouteProps>,
                         </div>
                         {(this.state.hasPrevious || this.state.hasNext) && (
                             <React.Fragment>
-                                <div className="card--label">
-                                    Actions
-                                </div>
-                                <div className="row">
+                                <hr />
+                                <div className="row margin-t-s">
                                     <button
                                         disabled={!this.state.hasPrevious}
                                         type="button"

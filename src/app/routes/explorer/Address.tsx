@@ -88,7 +88,7 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                 <div className="content">
                     <Link
                         to="/explorer"
-                        className="row"
+                        className="row inline"
                     >
                         <ChevronLeftIcon className="secondary" />
                         <h3 className="secondary margin-l-s">Back to Explorer</h3>
