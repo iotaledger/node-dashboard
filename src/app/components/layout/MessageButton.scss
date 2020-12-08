@@ -19,6 +19,12 @@
         color: var(--text-color-primary);
       }
     }
+
+    &:focus {
+      svg {
+        color: var(--accent-primary);
+      }
+    }
   }
 
   .message-button--message {
