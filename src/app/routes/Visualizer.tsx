@@ -155,8 +155,10 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
 
         this._mpsMetricsSubscription = this._metricsService.subscribe<ITpsMetrics>(
             WebSocketTopic.TPSMetrics, data => {
-                if (this.state.isActive) {
-                    this.setState({ mps: data.new.toString() });
+                if (data) {
+                    if (this.state.isActive) {
+                        this.setState({ mps: data.new.toString() });
+                    }
                 }
             });
     }

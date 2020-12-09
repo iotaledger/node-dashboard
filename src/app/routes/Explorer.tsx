@@ -72,11 +72,13 @@ class Peers extends AsyncComponent<RouteComponentProps, ExplorerState> {
         this._confirmedMsMetricsSubscription = this._metricsService.subscribe<IConfirmedMsMetrics>(
             WebSocketTopic.ConfirmedMsMetrics,
             data => {
-                this.setState({
-                    mps: data.mps.toFixed(1).toString(),
-                    cmps: data.cmps.toFixed(1).toString(),
-                    confirmationRate: `${data.referenced_rate.toFixed(1).toString()}%`
-                });
+                if (data) {
+                    this.setState({
+                        mps: data.mps.toFixed(1).toString(),
+                        cmps: data.cmps.toFixed(1).toString(),
+                        confirmationRate: `${data.referenced_rate.toFixed(1).toString()}%`
+                    });
+                }
             }
         );
     }

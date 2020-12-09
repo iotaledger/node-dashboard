@@ -66,16 +66,18 @@ class Header extends Component<RouteComponentProps, HeaderState> {
         this._statusSubscription = this._metricsService.subscribe<IStatus>(
             WebSocketTopic.Status,
             data => {
-                const memorySizeFormatted = FormatHelper.size(DataHelper.calculateMemoryUsage(data), 1);
+                if (data) {
+                    const memorySizeFormatted = FormatHelper.size(DataHelper.calculateMemoryUsage(data), 1);
 
-                if (memorySizeFormatted !== this.state.memorySizeFormatted) {
-                    this.setState({ memorySizeFormatted });
-                }
-                if (data.is_healthy !== this.state.nodeHealth) {
-                    this.setState({ nodeHealth: data.is_healthy });
-                }
-                if (data.is_synced !== this.state.syncHealth) {
-                    this.setState({ syncHealth: data.is_synced });
+                    if (memorySizeFormatted !== this.state.memorySizeFormatted) {
+                        this.setState({ memorySizeFormatted });
+                    }
+                    if (data.is_healthy !== this.state.nodeHealth) {
+                        this.setState({ nodeHealth: data.is_healthy });
+                    }
+                    if (data.is_synced !== this.state.syncHealth) {
+                        this.setState({ syncHealth: data.is_synced });
+                    }
                 }
             },
             dataAll => {
@@ -85,10 +87,12 @@ class Header extends Component<RouteComponentProps, HeaderState> {
         this._databaseSizeSubscription = this._metricsService.subscribe<IDBSizeMetric>(
             WebSocketTopic.DBSizeMetric,
             data => {
-                const databaseSizeFormatted = FormatHelper.size(data.total);
+                if (data) {
+                    const databaseSizeFormatted = FormatHelper.size(data.total);
 
-                if (databaseSizeFormatted !== this.state.databaseSizeFormatted) {
-                    this.setState({ databaseSizeFormatted });
+                    if (databaseSizeFormatted !== this.state.databaseSizeFormatted) {
+                        this.setState({ databaseSizeFormatted });
+                    }
                 }
             },
             dataAll => {
@@ -98,16 +102,19 @@ class Header extends Component<RouteComponentProps, HeaderState> {
             });
 
         this._mpsMetricsSubscription = this._metricsService.subscribe<ITpsMetrics>(
-            WebSocketTopic.TPSMetrics, data => {
-                const mpsValues = this.state.mpsValues.slice(-40);
-                mpsValues.push(data.new);
+            WebSocketTopic.TPSMetrics,
+            data => {
+                if (data) {
+                    const mpsValues = this.state.mpsValues.slice(-40);
+                    mpsValues.push(data.new);
 
-                const mpsFormatted = mpsValues[mpsValues.length - 1].toString();
+                    const mpsFormatted = mpsValues[mpsValues.length - 1].toString();
 
-                if (mpsFormatted !== this.state.mps) {
-                    this.setState({ mps: mpsFormatted });
+                    if (mpsFormatted !== this.state.mps) {
+                        this.setState({ mps: mpsFormatted });
+                    }
+                    this.setState({ mpsValues });
                 }
-                this.setState({ mpsValues });
             });
     }
 

@@ -130,69 +130,71 @@ export class VisualizerService {
      * Add a new vertex.
      * @param vert The vertex to add.
      */
-    private updateVertices(vert: IVertex): void {
-        const shortVertId = vert.id.slice(0, 7);
+    private updateVertices(vert?: IVertex): void {
+        if (vert) {
+            const shortVertId = vert.id.slice(0, 7);
 
-        let vertex = this._vertices[shortVertId];
+            let vertex = this._vertices[shortVertId];
 
-        let op: VisualizerVertexOperation = "add";
+            let op: VisualizerVertexOperation = "add";
 
-        if (vertex) {
-            op = "update";
-            // can only go from unsolid to solid
-            if (!vertex.isSolid && vert.is_solid) {
-                this._counts.solid++;
+            if (vertex) {
+                op = "update";
+                // can only go from unsolid to solid
+                if (!vertex.isSolid && vert.is_solid) {
+                    this._counts.solid++;
+                }
+                if (!vertex.isReferenced && vert.is_referenced) {
+                    this._counts.referenced++;
+                }
+                if (!vertex.isConflicting && vert.is_conflicting) {
+                    this._counts.conflicting++;
+                }
+                if (!vertex.isTip && vert.is_tip) {
+                    this._counts.tips++;
+                }
+            } else {
+                if (vert.is_solid) {
+                    this._counts.solid++;
+                }
+                if (vert.is_referenced) {
+                    this._counts.referenced++;
+                }
+                if (vert.is_conflicting) {
+                    this._counts.conflicting++;
+                }
+                if (vert.is_tip) {
+                    this._counts.tips++;
+                }
+
+                this._verticesOrder.push(shortVertId);
+                this.checkLimit();
+
+                vertex = {
+                    fullId: vert.id,
+                    shortId: shortVertId
+                };
             }
-            if (!vertex.isReferenced && vert.is_referenced) {
-                this._counts.referenced++;
-            }
-            if (!vertex.isConflicting && vert.is_conflicting) {
-                this._counts.conflicting++;
-            }
-            if (!vertex.isTip && vert.is_tip) {
-                this._counts.tips++;
-            }
-        } else {
-            if (vert.is_solid) {
-                this._counts.solid++;
-            }
-            if (vert.is_referenced) {
-                this._counts.referenced++;
-            }
-            if (vert.is_conflicting) {
-                this._counts.conflicting++;
-            }
-            if (vert.is_tip) {
-                this._counts.tips++;
-            }
 
-            this._verticesOrder.push(shortVertId);
-            this.checkLimit();
+            vertex.parent1Id = vert.parent1_id;
+            vertex.parent2Id = vert.parent2_2;
+            vertex.isSolid = vert.is_solid;
+            vertex.isReferenced = vert.is_referenced;
+            vertex.isConflicting = vert.is_conflicting;
+            vertex.isMilestone = vert.is_milestone;
+            vertex.isTip = vert.is_tip;
+            vertex.isSelected = vert.is_selected;
 
-            vertex = {
-                fullId: vert.id,
-                shortId: shortVertId
-            };
-        }
+            this._vertices[shortVertId] = vertex;
 
-        vertex.parent1Id = vert.parent1_id;
-        vertex.parent2Id = vert.parent2_2;
-        vertex.isSolid = vert.is_solid;
-        vertex.isReferenced = vert.is_referenced;
-        vertex.isConflicting = vert.is_conflicting;
-        vertex.isMilestone = vert.is_milestone;
-        vertex.isTip = vert.is_tip;
-        vertex.isSelected = vert.is_selected;
+            this._counts.total = this._verticesOrder.length;
 
-        this._vertices[shortVertId] = vertex;
-
-        this._counts.total = this._verticesOrder.length;
-
-        if (this._vertexCallback) {
-            this._vertexCallback(vertex, op);
-        }
-        if (this._countsCallback) {
-            this._countsCallback(this._counts);
+            if (this._vertexCallback) {
+                this._vertexCallback(vertex, op);
+            }
+            if (this._countsCallback) {
+                this._countsCallback(this._counts);
+            }
         }
     }
 
@@ -257,16 +259,18 @@ export class VisualizerService {
      * Update the tip information.
      * @param data The tip info data.
      */
-    private updateTipInfo(data: ITipInfo) {
-        const vertex = this._vertices[data.id];
-        if (vertex) {
-            this._counts.tips += data.is_tip ? 1 : (vertex.isTip ? -1 : 0);
-            vertex.isTip = data.is_tip;
-            if (this._vertexCallback) {
-                this._vertexCallback(vertex, "update");
-            }
-            if (this._countsCallback) {
-                this._countsCallback(this._counts);
+    private updateTipInfo(data?: ITipInfo) {
+        if (data) {
+            const vertex = this._vertices[data.id];
+            if (vertex) {
+                this._counts.tips += data.is_tip ? 1 : (vertex.isTip ? -1 : 0);
+                vertex.isTip = data.is_tip;
+                if (this._vertexCallback) {
+                    this._vertexCallback(vertex, "update");
+                }
+                if (this._countsCallback) {
+                    this._countsCallback(this._counts);
+                }
             }
         }
     }
@@ -275,12 +279,14 @@ export class VisualizerService {
      * Update the milestone information.
      * @param data The milestone info data.
      */
-    private updateMilestoneInfo(data: IMilestoneInfo) {
-        const vertex = this._vertices[data.id];
-        if (vertex) {
-            vertex.isMilestone = true;
-            if (this._vertexCallback) {
-                this._vertexCallback(vertex, "update");
+    private updateMilestoneInfo(data?: IMilestoneInfo) {
+        if (data) {
+            const vertex = this._vertices[data.id];
+            if (vertex) {
+                vertex.isMilestone = true;
+                if (this._vertexCallback) {
+                    this._vertexCallback(vertex, "update");
+                }
             }
         }
     }
@@ -289,15 +295,17 @@ export class VisualizerService {
      * Update the confirmed information.
      * @param data The confirmed info data.
      */
-    private updateConfirmedInfo(data: IConfirmedInfo) {
-        const vertex = this._vertices[data.id];
-        if (vertex && !vertex.isReferenced) {
-            if (this._referencedCallback) {
-                this._referencedCallback(data.id, data.excluded_ids ?? [], this._counts);
-            }
+    private updateConfirmedInfo(data?: IConfirmedInfo) {
+        if (data) {
+            const vertex = this._vertices[data.id];
+            if (vertex && !vertex.isReferenced) {
+                if (this._referencedCallback) {
+                    this._referencedCallback(data.id, data.excluded_ids ?? [], this._counts);
+                }
 
-            if (this._countsCallback) {
-                this._countsCallback(this._counts);
+                if (this._countsCallback) {
+                    this._countsCallback(this._counts);
+                }
             }
         }
     }
@@ -306,18 +314,20 @@ export class VisualizerService {
      * Update the solid information.
      * @param data The solid info data.
      */
-    private updateSolidInfo(data: ISolidInfo) {
-        const vertex = this._vertices[data.id];
-        if (vertex && !vertex.isSolid) {
-            vertex.isSolid = true;
-            this._counts.solid++;
+    private updateSolidInfo(data?: ISolidInfo) {
+        if (data) {
+            const vertex = this._vertices[data.id];
+            if (vertex && !vertex.isSolid) {
+                vertex.isSolid = true;
+                this._counts.solid++;
 
-            if (this._vertexCallback) {
-                this._vertexCallback(vertex, "update");
-            }
+                if (this._vertexCallback) {
+                    this._vertexCallback(vertex, "update");
+                }
 
-            if (this._countsCallback) {
-                this._countsCallback(this._counts);
+                if (this._countsCallback) {
+                    this._countsCallback(this._counts);
+                }
             }
         }
     }

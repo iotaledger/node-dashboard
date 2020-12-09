@@ -90,56 +90,61 @@ class Home extends AsyncComponent<unknown, HomeState> {
         });
 
         this._statusSubscription = this._metricsService.subscribe<IStatus>(
-            WebSocketTopic.Status, data => {
-                const nodeName = data.node_alias ? data.node_alias : BrandHelper.getConfiguration().name;
-                const version = data.version;
-                const autoPeeringId = data.autopeering_id || "No autopeering Id";
-                const pruningIndex = data.pruning_index.toString();
-                const uptime = FormatHelper.duration(data.uptime);
-                const memory = FormatHelper.size(
-                    data.mem.heap_inuse +
-                    (data.mem.heap_idle - data.mem.heap_released) +
-                    data.mem.m_span_inuse +
-                    data.mem.m_cache_inuse +
-                    data.mem.stack_sys);
+            WebSocketTopic.Status,
+            data => {
+                if (data) {
+                    const nodeName = data.node_alias ? data.node_alias : BrandHelper.getConfiguration().name;
+                    const version = data.version;
+                    const autoPeeringId = data.autopeering_id || "No autopeering Id";
+                    const pruningIndex = data.pruning_index.toString();
+                    const uptime = FormatHelper.duration(data.uptime);
+                    const memory = FormatHelper.size(
+                        data.mem.heap_inuse +
+                        (data.mem.heap_idle - data.mem.heap_released) +
+                        data.mem.m_span_inuse +
+                        data.mem.m_cache_inuse +
+                        data.mem.stack_sys);
 
-                if (nodeName !== this.state.nodeName) {
-                    this.setState({ nodeName });
-                }
+                    if (nodeName !== this.state.nodeName) {
+                        this.setState({ nodeName });
+                    }
 
-                if (version !== this.state.version) {
-                    this.setState({ version });
-                }
+                    if (version !== this.state.version) {
+                        this.setState({ version });
+                    }
 
-                if (autoPeeringId !== this.state.autoPeeringId) {
-                    this.setState({ autoPeeringId });
-                }
+                    if (autoPeeringId !== this.state.autoPeeringId) {
+                        this.setState({ autoPeeringId });
+                    }
 
-                if (pruningIndex !== this.state.pruningIndex) {
-                    this.setState({ pruningIndex });
-                }
+                    if (pruningIndex !== this.state.pruningIndex) {
+                        this.setState({ pruningIndex });
+                    }
 
-                if (uptime !== this.state.uptime) {
-                    this.setState({ uptime });
-                }
+                    if (uptime !== this.state.uptime) {
+                        this.setState({ uptime });
+                    }
 
-                if (memory !== this.state.memory) {
-                    this.setState({ memory });
+                    if (memory !== this.state.memory) {
+                        this.setState({ memory });
+                    }
                 }
             });
 
         this._syncStatusSubscription = this._metricsService.subscribe<ISyncStatus>(
             WebSocketTopic.SyncStatus,
             data => {
-                const lmi = data.lmi ? data.lmi.toString() : "";
-                const lsmi = data.lsmi ? data.lsmi.toString() : "";
+                if (data) {
+                    const lmi = data.lmi ? data.lmi.toString() : "";
+                    const lsmi = data.lsmi ? data.lsmi.toString() : "";
 
-                if (lmi !== this.state.lmi) {
-                    this.setState({ lmi });
-                }
+                    if (lmi !== this.state.lmi) {
+                        this.setState({ lmi });
+                    }
 
-                if (lsmi !== this.state.lsmi) {
-                    this.setState({ lsmi });
+                    if (lsmi !== this.state.lsmi) {
+                        this.setState({ lsmi });
+                    }
                 }
             });
 
