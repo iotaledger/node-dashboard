@@ -1,10 +1,14 @@
+import { serializeMessage, WriteStream } from "@iota/iota2.js";
 import React, { ReactNode } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
+import { ReactComponent as ChevronDownIcon } from "../../../assets/chevron-down.svg";
 import { ReactComponent as ChevronLeftIcon } from "../../../assets/chevron-left.svg";
+import { ReactComponent as DownloadIcon } from "../../../assets/download.svg";
 import { ServiceFactory } from "../../../factories/serviceFactory";
 import { MessageTangleStatus } from "../../../models/messageTangleStatus";
 import { TangleService } from "../../../services/tangleService";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
+import { DownloadHelper } from "../../../utils/downloadHelper";
 import AsyncComponent from "../../components/layout/AsyncComponent";
 import MessageButton from "../../components/layout/MessageButton";
 import Spinner from "../../components/layout/Spinner";
@@ -36,7 +40,9 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
         this._tangleService = ServiceFactory.get<TangleService>("tangle");
 
         this.state = {
-            childrenBusy: true
+            childrenBusy: true,
+            dataUrls: {},
+            selectedDataUrl: "json"
         };
     }
 
@@ -49,8 +55,20 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
         const result = await this._tangleService.search(this.props.match.params.messageId);
 
         if (result?.message) {
+            const writeStream = new WriteStream();
+            serializeMessage(writeStream, result.message);
+            const finalBytes = writeStream.finalBytes();
+
+            const dataUrls = {
+                json: DownloadHelper.createJsonDataUrl(result.message),
+                bin: DownloadHelper.createBinaryDataUrl(finalBytes),
+                base64: DownloadHelper.createBase64DataUrl(finalBytes),
+                hex: DownloadHelper.createHexDataUrl(finalBytes)
+            };
+
             this.setState({
-                message: result.message
+                message: result.message,
+                dataUrls
             }, async () => {
                 await this.updateMessageDetails();
             });
@@ -234,6 +252,38 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                                 )}
                         </React.Fragment>
                     )}
+                    <div className="card margin-t-s padding-l">
+                        <div className="row margin-b-s">
+                            <h2>Tools</h2>
+                        </div>
+                        <div className="card--label">
+                            Export Message
+                        </div>
+                        <div className="card--value row">
+                            <div className="select-wrapper">
+                                <select
+                                    value={this.state.selectedDataUrl}
+                                    onChange={e => this.setState(
+                                        { selectedDataUrl: e.target.value })}
+                                >
+                                    <option value="json">JSON</option>
+                                    <option value="bin">Binary</option>
+                                    <option value="hex">Hex</option>
+                                    <option value="base64">Base64</option>
+                                </select>
+                                <ChevronDownIcon />
+                            </div>
+                            <a
+                                className="card--action card--action-plain"
+                                href={this.state.dataUrls[this.state.selectedDataUrl]}
+                                download={DownloadHelper.filename(
+                                    this.props.match.params.messageId, this.state.selectedDataUrl)}
+                                role="button"
+                            >
+                                <DownloadIcon />
+                            </a>
+                        </div>
+                    </div>
                     <div className="card margin-t-s padding-l">
                         <div className="row margin-b-s">
                             <h2>Child Messages</h2>

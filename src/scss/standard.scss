@@ -42,7 +42,7 @@ h4 {
 }
 
 p {
-  @include font-size(12px);
+  @include font-size(14px);
 
   color: var(--text-color-primary);
   font-family: $font-sans;

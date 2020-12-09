@@ -45,6 +45,10 @@
     a {
       color: var(--accent-primary);
       text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
     }
 
     .card--value--button {
@@ -112,6 +116,15 @@
     &:disabled {
       opacity: 0.5;
       pointer-events: none;
+    }
+
+    &.card--action-plain {
+      border: 0;
+      color: var(--text-color-secondary);
+
+      &:hover {
+        color: var(--accent-primary);
+      }
     }
   }
 }
