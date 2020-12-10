@@ -1,4 +1,4 @@
-import { IIndexationPayload } from "@iota/iota2.js";
+import { IIndexationPayload } from "@iota/iota.js";
 
 export interface IndexationPayloadProps {
     /**

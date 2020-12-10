@@ -1,4 +1,4 @@
-import { IOutputResponse } from "@iota/iota2.js";
+import { IOutputResponse } from "@iota/iota.js";
 
 export interface OutputProps {
     /**

@@ -9,7 +9,7 @@
     },
     "license": "MIT",
     "dependencies": {
-        "@iota/iota2.js": "github:obany/iota2.js",
+        "@iota/iota.js": "github:iotaledger/iota.js#chrysalis",
         "classnames": "^2.2.6",
         "humanize-duration": "^3.24.0",
         "moment": "^2.29.1",

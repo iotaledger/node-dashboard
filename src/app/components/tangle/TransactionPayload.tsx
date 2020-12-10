@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { Converter, Ed25519Address, IReferenceUnlockBlock, ISignatureUnlockBlock } from "@iota/iota2.js";
+import { Converter, Ed25519Address, IReferenceUnlockBlock, ISignatureUnlockBlock } from "@iota/iota.js";
 import React, { Component, ReactNode } from "react";
 import { IBech32AddressDetails } from "../../../models/IBech32AddressDetails";
 import { Bech32AddressHelper } from "../../../utils/bech32AddressHelper";

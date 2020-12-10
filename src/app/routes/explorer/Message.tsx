@@ -1,4 +1,4 @@
-import { serializeMessage, WriteStream } from "@iota/iota2.js";
+import { serializeMessage, WriteStream } from "@iota/iota.js";
 import React, { ReactNode } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
 import { ReactComponent as ChevronDownIcon } from "../../../assets/chevron-down.svg";

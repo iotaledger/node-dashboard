@@ -1,4 +1,4 @@
-import { Bech32Helper, Converter, IIndexationPayload, IMessageMetadata, IMilestonePayload, ITransactionPayload, MessageHelper, SingleNodeClient } from "@iota/iota2.js";
+import { Bech32Helper, Converter, IIndexationPayload, IMessageMetadata, IMilestonePayload, ITransactionPayload, MessageHelper, SingleNodeClient } from "@iota/iota.js";
 import { ISearchResponse } from "../models/tangle/ISearchResponse";
 
 /**

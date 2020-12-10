@@ -1,4 +1,4 @@
-import { ITransactionPayload } from "@iota/iota2.js";
+import { ITransactionPayload } from "@iota/iota.js";
 
 export interface TransactionPayloadProps {
     /**

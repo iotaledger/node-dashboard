@@ -1,4 +1,4 @@
-import { Converter } from "@iota/iota2.js";
+import { Converter } from "@iota/iota.js";
 import React, { Component, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
