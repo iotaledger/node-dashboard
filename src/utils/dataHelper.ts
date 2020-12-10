@@ -44,23 +44,53 @@ export class DataHelper {
         let address;
 
         if (peer.origin_addr) {
-            address = this.extractIp4(peer.origin_addr);
+            address = this.extractAddress(peer.origin_addr);
         }
 
-        if (!address && peer.info.address.length > 0) {
-            address = this.extractIp4(peer.info.address[0]);
+        if (peer.info.address) {
+            for (let i = 0; i < peer.info.address.length && !address; i++) {
+                address = this.extractAddress(peer.info.address[i]);
+            }
         }
 
         return address;
     }
 
     /**
+     * Extract an an address.
+     * @param address The address to extract.
+     * @returns The formatted address.
+     */
+    public static extractAddress(address: string): string | undefined {
+        let addr = DataHelper.extractIp4(address);
+
+        if (!addr) {
+            addr = DataHelper.extractDns(address);
+        }
+
+        return addr;
+    }
+
+    /**
      * Extract and format an IPv4 address.
+     * @param address The address to extract.
+     * @returns The formatted address.
+     */
+    public static extractIp4(address: string): string | undefined {
+        const parts = /\/ip4\/((?:\d{1,3}.){3}\d{1,3})\/tcp\/(\d*)/.exec(address);
+
+        if (parts && parts.length === 3) {
+            return `${parts[1]}:${parts[2]}`;
+        }
+    }
+
+    /**
+     * Extract and format a dns address.
      * @param addr The address to extract.
      * @returns The formatted address.
      */
-    public static extractIp4(addr: string): string | undefined {
-        const parts = /ip4\/((?:\d{1,3}.){3}\d{1,3})\/tcp\/(\d*)/.exec(addr);
+    public static extractDns(addr: string): string | undefined {
+        const parts = /\/dns\/(.*?)\/tcp\/(\d*)/.exec(addr);
 
         if (parts && parts.length === 3) {
             return `${parts[1]}:${parts[2]}`;
