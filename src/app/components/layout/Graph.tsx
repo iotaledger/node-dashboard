@@ -1,4 +1,4 @@
-import { ArrayHelper } from "@iota/iota2.js";
+import { ArrayHelper } from "@iota/iota.js";
 import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
 import "./Graph.scss";
@@ -97,7 +97,7 @@ class Graph extends Component<GraphProps, GraphState> {
         if (!this._graphElement && element) {
             this._graphElement = element;
 
-            setImmediate(() => this.setState(this.calculateGraph()));
+            setTimeout(() => this.setState(this.calculateGraph()), 50);
         }
     }
 

@@ -10,5 +10,9 @@
   .content {
     flex: 1;
     max-width: $content-width-desktop;
+
+    select {
+      width: 130px;
+    }
   }
 }
