@@ -1,11 +1,10 @@
-import { IOutputResponse } from "@iota/iota.js";
+import { IOutputResponse, UnitsHelper } from "@iota/iota.js";
 import React, { ReactNode } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
 import { ReactComponent as ChevronLeftIcon } from "../../../assets/chevron-left.svg";
 import { ServiceFactory } from "../../../factories/serviceFactory";
 import { TangleService } from "../../../services/tangleService";
 import { Bech32AddressHelper } from "../../../utils/bech32AddressHelper";
-import { UnitsHelper } from "../../../utils/unitsHelper";
 import AsyncComponent from "../../components/layout/AsyncComponent";
 import Spinner from "../../components/layout/Spinner";
 import Bech32Address from "../../components/tangle/Bech32Address";
@@ -104,10 +103,20 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                                 <div className="card--label">
                                     Balance
                                 </div>
-                                <div className="card--value">
-                                    {this.state.formatFull
-                                        ? `${this.state.balance} i`
-                                        : UnitsHelper.formatBest(this.state.balance)}
+                                <div className="card--value card--value__mono">
+                                    <button
+                                        className="card--value--button"
+                                        type="button"
+                                        onClick={() => this.setState(
+                                            {
+                                                formatFull: !this.state.formatFull
+                                            }
+                                        )}
+                                    >
+                                        {this.state.formatFull
+                                            ? `${this.state.balance} i`
+                                            : UnitsHelper.formatBest(this.state.balance)}
+                                    </button>
                                 </div>
                             </div>
                         )}

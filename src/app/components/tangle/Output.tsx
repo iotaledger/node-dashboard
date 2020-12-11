@@ -1,7 +1,7 @@
+import { UnitsHelper } from "@iota/iota.js";
 import React, { Component, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
-import { UnitsHelper } from "../../../utils/unitsHelper";
 import MessageButton from "../layout/MessageButton";
 import { OutputProps } from "./OutputProps";
 import { OutputState } from "./OutputState";
@@ -99,8 +99,9 @@ class Output extends Component<OutputProps, OutputState> {
                         <div className="card--label">
                             Amount
                         </div>
-                        <div className="card--value">
+                        <div className="card--value card--value__mono">
                             <button
+                                className="card--value--button"
                                 type="button"
                                 onClick={() => this.setState(
                                     {

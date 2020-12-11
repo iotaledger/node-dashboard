@@ -1,3 +1,4 @@
+import { UnitsHelper } from "@iota/iota.js";
 import classNames from "classnames";
 import React, { ReactNode } from "react";
 import { RouteComponentProps } from "react-router-dom";
@@ -14,10 +15,10 @@ import { MetricsService } from "../../services/metricsService";
 import { TangleService } from "../../services/tangleService";
 import { VisualizerService } from "../../services/visualizerService";
 import { FormatHelper } from "../../utils/formatHelper";
-import { UnitsHelper } from "../../utils/unitsHelper";
 import AsyncComponent from "../components/layout/AsyncComponent";
 import "./Visualizer.scss";
 import { VisualizerState } from "./VisualizerState";
+
 
 /**
  * Visualizer panel.
