@@ -94,8 +94,8 @@ class Home extends AsyncComponent<unknown, HomeState> {
             data => {
                 if (data) {
                     const nodeName = data.node_alias ? data.node_alias : BrandHelper.getConfiguration().name;
-                    const version = data.version;
-                    const autoPeeringId = data.autopeering_id || "No autopeering Id";
+                    const version = `v${data.version}`;
+                    const autoPeeringId = data.autopeering_id || "No autopeering Id.";
                     const pruningIndex = data.pruning_index.toString();
                     const uptime = FormatHelper.duration(data.uptime);
                     const memory = FormatHelper.size(
@@ -152,8 +152,10 @@ class Home extends AsyncComponent<unknown, HomeState> {
             WebSocketTopic.TPSMetrics,
             undefined,
             allData => {
-                const mpsIncoming = allData.map(m => m.incoming);
-                const mpsOutgoing = allData.map(m => m.outgoing);
+                const nonNull = allData.filter(d => d !== undefined && d !== null);
+
+                const mpsIncoming = nonNull.map(m => m.incoming);
+                const mpsOutgoing = nonNull.map(m => m.outgoing);
 
                 this.setState({ mpsIncoming, mpsOutgoing });
             }
@@ -202,7 +204,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                     <h1>{this.state.nodeName}</h1>
                                     <p className="secondary margin-t-t">{this.state.autoPeeringId}</p>
                                 </div>
-                                <p className="secondary">v{this.state.version}</p>
+                                <p className="secondary">{this.state.version}</p>
                             </div>
                             <BannerCurve className="banner-curve" />
                             <div className="banner-image">

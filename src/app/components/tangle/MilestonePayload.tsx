@@ -35,42 +35,56 @@ class MilestonePayload extends Component<MilestonePayloadProps> {
                 <div className="card--label">
                     Parent Message 1
                 </div>
-                <div className="card--value row">
-                    <Link
-                        className="margin-r-t"
-                        to={
-                            `/explorer/message/${this.props.payload.parent1MessageId}`
-                        }
-                    >
-                        {this.props.payload.parent1MessageId}
-                    </Link>
-                    <MessageButton
-                        onClick={() => ClipboardHelper.copy(
-                            this.props.payload.parent1MessageId
-                        )}
-                        buttonType="copy"
-                        labelPosition="top"
-                    />
+                <div className="card--value card--value__mono row">
+                    {this.props.payload.parent1MessageId !== "0".repeat(64) && (
+                        <React.Fragment>
+                            <Link
+                                className="margin-r-t"
+                                to={
+                                    `/explorer/message/${this.props.payload.parent1MessageId}`
+                                }
+                            >
+                                {this.props.payload.parent1MessageId}
+                            </Link>
+                            <MessageButton
+                                onClick={() => ClipboardHelper.copy(
+                                    this.props.payload.parent1MessageId
+                                )}
+                                buttonType="copy"
+                                labelPosition="top"
+                            />
+                        </React.Fragment>
+                    )}
+                    {this.props.payload.parent1MessageId === "0".repeat(64) && (
+                        <span>Genesis</span>
+                    )}
                 </div>
                 <div className="card--label">
                     Parent Message 2
                 </div>
-                <div className="card--value row">
-                    <Link
-                        className="margin-r-t"
-                        to={
-                            `/explorer/message/${this.props.payload.parent2MessageId}`
-                        }
-                    >
-                        {this.props.payload.parent2MessageId}
-                    </Link>
-                    <MessageButton
-                        onClick={() => ClipboardHelper.copy(
-                            this.props.payload.parent2MessageId
-                        )}
-                        buttonType="copy"
-                        labelPosition="top"
-                    />
+                <div className="card--value card--value__mono row">
+                    {this.props.payload.parent2MessageId !== "0".repeat(64) && (
+                        <React.Fragment>
+                            <Link
+                                className="margin-r-t"
+                                to={
+                                    `/explorer/message/${this.props.payload.parent2MessageId}`
+                                }
+                            >
+                                {this.props.payload.parent2MessageId}
+                            </Link>
+                            <MessageButton
+                                onClick={() => ClipboardHelper.copy(
+                                    this.props.payload.parent2MessageId
+                                )}
+                                buttonType="copy"
+                                labelPosition="top"
+                            />
+                        </React.Fragment>
+                    )}
+                    {this.props.payload.parent2MessageId === "0".repeat(64) && (
+                        <span>Genesis</span>
+                    )}
                 </div>
                 <div className="card--label">
                     Inclusion Merkle Proof

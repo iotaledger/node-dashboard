@@ -60,8 +60,10 @@ class Peers extends AsyncComponent<RouteComponentProps, ExplorerState> {
             WebSocketTopic.Ms,
             undefined,
             allData => {
+                const nonNull = allData.filter(d => d !== undefined && d !== null);
+
                 this.setState({
-                    milestones: allData
+                    milestones: nonNull
                         .map(m => ({ index: m.index, messageId: m.messageID }))
                         .sort((m1, m2) => m2.index - m1.index)
                         .slice(0, 10)
@@ -139,6 +141,10 @@ class Peers extends AsyncComponent<RouteComponentProps, ExplorerState> {
                     </div>
                     <div className="card milestones-panel margin-t-s">
                         <h4 className="margin-b-l">Latest Milestones</h4>
+                        {this.state.milestones.length === 0 && (
+                            <p className="margin-t-s">There are no milestones.</p>
+                        )}
+
                         {this.state.milestones.map((ms, idx) => (
                             <div key={idx} className="milestones-panel--milestone">
                                 <div className="index">{ms.index}</div>

@@ -73,9 +73,10 @@ class Analytics extends AsyncComponent<RouteComponentProps, AnalyticsState> {
             WebSocketTopic.TPSMetrics,
             undefined,
             allData => {
+                const nonNull = allData.filter(d => d !== undefined && d !== null);
                 this.setState({
-                    mpsIncoming: allData.map(m => m.incoming),
-                    mpsOutgoing: allData.map(m => m.outgoing)
+                    mpsIncoming: nonNull.map(m => m.incoming),
+                    mpsOutgoing: nonNull.map(m => m.outgoing)
                 });
             }
         );
@@ -84,10 +85,11 @@ class Analytics extends AsyncComponent<RouteComponentProps, AnalyticsState> {
             WebSocketTopic.ConfirmedMsMetrics,
             undefined,
             allData => {
+                const nonNull = allData.filter(d => d !== undefined && d !== null);
                 this.setState({
-                    milestoneTiming: allData.map(m => m.time_since_last_ms),
-                    mps: allData.map(m => m.mps),
-                    cmps: allData.map(m => m.cmps)
+                    milestoneTiming: nonNull.map(m => m.time_since_last_ms),
+                    mps: nonNull.map(m => m.mps),
+                    cmps: nonNull.map(m => m.cmps)
                 });
             }
         );
@@ -95,15 +97,19 @@ class Analytics extends AsyncComponent<RouteComponentProps, AnalyticsState> {
         this._statusSubscription = this._metricsService.subscribe<IStatus>(
             WebSocketTopic.Status,
             undefined,
-            dataAll => {
-                this.setState({ memorySize: dataAll.map(d => DataHelper.calculateMemoryUsage(d) / 1024 / 1024) });
+            allData => {
+                const nonNull = allData.filter(d => d !== undefined && d !== null);
+
+                this.setState({ memorySize: nonNull.map(d => DataHelper.calculateMemoryUsage(d) / 1024 / 1024) });
             });
 
         this._databaseSizeSubscription = this._metricsService.subscribe<IDBSizeMetric>(
             WebSocketTopic.DBSizeMetric,
             undefined,
-            dataAll => {
-                this.setState({ databaseSize: dataAll.map(d => d.total / 1024 / 1024) });
+            allData => {
+                const nonNull = allData.filter(d => d !== undefined && d !== null);
+
+                this.setState({ databaseSize: nonNull.map(d => d.total / 1024 / 1024) });
             });
     }
 

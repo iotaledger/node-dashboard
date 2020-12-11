@@ -80,8 +80,12 @@ class Header extends Component<RouteComponentProps, HeaderState> {
                     }
                 }
             },
-            dataAll => {
-                this.setState({ memorySize: dataAll.map(d => DataHelper.calculateMemoryUsage(d)) });
+            allData => {
+                const nonNull = allData.filter(d => d !== undefined && d !== null);
+                this.setState({
+                    memorySize: nonNull
+                        .map(d => DataHelper.calculateMemoryUsage(d))
+                });
             });
 
         this._databaseSizeSubscription = this._metricsService.subscribe<IDBSizeMetric>(
@@ -95,8 +99,11 @@ class Header extends Component<RouteComponentProps, HeaderState> {
                     }
                 }
             },
-            dataAll => {
-                const databaseSizeValues = dataAll.map(d => d.total);
+            allData => {
+                const nonNull = allData.filter(d => d !== undefined && d !== null);
+
+                const databaseSizeValues = nonNull
+                    .map(d => d.total);
 
                 this.setState({ databaseSize: databaseSizeValues });
             });

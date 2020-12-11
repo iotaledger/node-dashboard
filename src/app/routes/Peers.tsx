@@ -61,22 +61,24 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                 } = {};
 
                 for (const allDataPeers of allData) {
-                    for (const peer of allDataPeers) {
-                        if (!peers[peer.identity]) {
-                            peers[peer.identity] = {
-                                name: DataHelper.formatPeerName(peer),
-                                address: DataHelper.formatPeerAddress(peer),
-                                connected: peer.connected,
-                                incoming: [],
-                                outgoing: []
-                            };
-                        }
+                    if (allDataPeers) {
+                        for (const peer of allDataPeers) {
+                            if (!peers[peer.identity]) {
+                                peers[peer.identity] = {
+                                    name: DataHelper.formatPeerName(peer),
+                                    address: DataHelper.formatPeerAddress(peer),
+                                    connected: peer.connected,
+                                    incoming: [],
+                                    outgoing: []
+                                };
+                            }
 
-                        if (peer.info.numberOfNewTransactions !== undefined) {
-                            peers[peer.identity].incoming.push(peer.info.numberOfNewTransactions);
-                        }
-                        if (peer.info.numberOfSentTransactions !== undefined) {
-                            peers[peer.identity].outgoing.push(peer.info.numberOfSentTransactions);
+                            if (peer.info.numberOfNewTransactions !== undefined) {
+                                peers[peer.identity].incoming.push(peer.info.numberOfNewTransactions);
+                            }
+                            if (peer.info.numberOfSentTransactions !== undefined) {
+                                peers[peer.identity].outgoing.push(peer.info.numberOfSentTransactions);
+                            }
                         }
                     }
                 }
@@ -110,6 +112,9 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                 <div className="content">
                     <h2>Peers</h2>
                     <div className="peers-panel">
+                        {this.state.peers.length === 0 && (
+                            <p className="margin-t-s">There are no peers.</p>
+                        )}
                         {this.state.peers.map((p, idx) => (
                             <div className="peers-panel--item" key={idx}>
                                 <div className="card col padding-m">
