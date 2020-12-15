@@ -61,4 +61,9 @@ export interface VisualizerState {
          */
         payload?: ITransactionPayload | IIndexationPayload | IMilestonePayload;
     };
+
+    /**
+     * What is the theme.
+     */
+    theme: string;
 }

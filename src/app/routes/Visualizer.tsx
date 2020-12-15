@@ -13,12 +13,12 @@ import { ITpsMetrics } from "../../models/websocket/ITpsMetrics";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
 import { MetricsService } from "../../services/metricsService";
 import { TangleService } from "../../services/tangleService";
+import { ThemeService } from "../../services/themeService";
 import { VisualizerService } from "../../services/visualizerService";
 import { FormatHelper } from "../../utils/formatHelper";
 import AsyncComponent from "../components/layout/AsyncComponent";
 import "./Visualizer.scss";
 import { VisualizerState } from "./VisualizerState";
-
 
 /**
  * Visualizer panel.
@@ -40,7 +40,10 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
     /**
      * Color for connection between vertices.
      */
-    private static readonly COLOR_LINK = 0xCEDAEEFF;
+    private static readonly THEME_COLOR_LINKS: { [theme: string]: number } = {
+        dark: 0xFFFFFF22,
+        light: 0xDDDDDDFF
+    };
 
     private static readonly COLOR_LINK_CHILDREN = 0xFF5AAAFF;
 
@@ -82,9 +85,19 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
     private readonly _tangleService: TangleService;
 
     /**
+     * The theme service.
+     */
+    private readonly _themeService: ThemeService;
+
+    /**
      * The mps metrics subscription id.
      */
     private _mpsMetricsSubscription?: string;
+
+    /**
+     * The theme subscription id.
+     */
+    private _themeSubscriptionId?: string;
 
     /**
      * The resize method
@@ -108,6 +121,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
         this._vizualizerService = ServiceFactory.get<VisualizerService>("visualizer");
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
         this._tangleService = ServiceFactory.get<TangleService>("tangle");
+        this._themeService = ServiceFactory.get<ThemeService>("theme");
 
         this.state = {
             mps: "-",
@@ -116,7 +130,8 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
             referenced: "-",
             conflicting: "-",
             solid: "-",
-            isActive: true
+            isActive: true,
+            theme: this._themeService.get()
         };
     }
 
@@ -162,6 +177,10 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                     }
                 }
             });
+
+        this._themeSubscriptionId = this._themeService.subscribe(() => {
+            this.setState({ theme: this._themeService.get() }, () => this.styleAllLinks());
+        });
     }
 
     /**
@@ -173,6 +192,11 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
         if (this._mpsMetricsSubscription) {
             this._metricsService.unsubscribe(this._mpsMetricsSubscription);
             this._mpsMetricsSubscription = undefined;
+        }
+
+        if (this._themeSubscriptionId) {
+            this._themeService.unsubscribe(this._themeSubscriptionId);
+            this._themeSubscriptionId = undefined;
         }
 
         this._graph = undefined;
@@ -391,7 +415,8 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                 `#${Visualizer.STATE_COLOR_MAP[this.calculateState(node.data)].toString(16)}`
             ));
 
-            this._graphics.link(() => Viva.Graph.View.webglLine(`#${Visualizer.COLOR_LINK.toString(16)}`));
+            this._graphics.link(() => Viva.Graph.View.webglLine(
+                `#${Visualizer.THEME_COLOR_LINKS[this.state.theme].toString(16)}`));
 
             this._renderer = Viva.Graph.View.renderer(this._graph, {
                 container: graphElement,
@@ -769,7 +794,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                             const linkUI = this._graphics.getLinkUI(linkId);
                             if (linkUI) {
                                 linkUI.color = highlight
-                                    ? Visualizer.COLOR_LINK_CHILDREN : Visualizer.COLOR_LINK;
+                                    ? Visualizer.COLOR_LINK_CHILDREN : Visualizer.THEME_COLOR_LINKS[this.state.theme];
                             }
                         }
                     },
@@ -784,7 +809,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                             const linkUI = this._graphics.getLinkUI(linkId);
                             if (linkUI) {
                                 linkUI.color = highlight
-                                    ? Visualizer.COLOR_LINK_PARENTS : Visualizer.COLOR_LINK;
+                                    ? Visualizer.COLOR_LINK_PARENTS : Visualizer.THEME_COLOR_LINKS[this.state.theme];
                             }
                         }
                     },
@@ -792,6 +817,22 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                     seenForward
                 );
             }
+        }
+    }
+
+    /**
+     * Style all the links.
+     */
+    private styleAllLinks(): void {
+        if (this._graph && this._graphics) {
+            this._graph.forEachLink(link => {
+                if (this._graphics) {
+                const linkUI = this._graphics.getLinkUI(link.id);
+                if (linkUI) {
+                    linkUI.color = Visualizer.THEME_COLOR_LINKS[this.state.theme];
+                }
+            }
+            });
         }
     }
 }
