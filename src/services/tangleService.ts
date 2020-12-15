@@ -14,7 +14,8 @@ export class TangleService {
      * Create a new instance of ApiService.
      */
     constructor() {
-        this._client = new SingleNodeClient(`${window.location.protocol}//${window.location.host}`, "/api/v1/");
+        this._client = new SingleNodeClient(
+            `${window.location.protocol}//${window.location.host}`, { basePath: "/api/v1/" });
     }
 
     /**
@@ -114,10 +115,10 @@ export class TangleService {
      * @returns The details response.
      */
     public async messageDetails(messageId: string): Promise<{
-            metadata?: IMessageMetadata;
-            validations?: string[];
-            childrenIds?: string[];
-        } | undefined> {
+        metadata?: IMessageMetadata;
+        validations?: string[];
+        childrenIds?: string[];
+    } | undefined> {
         try {
             const metadata = await this._client.messageMetadata(messageId);
             const children = await this._client.messageChildren(messageId);
