@@ -34,10 +34,8 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
             unlockAddresses.push(
                 Bech32AddressHelper.buildAddress(
                     Converter.bytesToHex(
-                        new Ed25519Address().publicKeyToAddress(
-                            Converter.hexToBytes(
-                                signatureBlocks[i].signature.publicKey)
-                        )
+                        new Ed25519Address(Converter.hexToBytes(signatureBlocks[i].signature.publicKey))
+                        .toAddress()
                     )
                 )
             );
