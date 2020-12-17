@@ -29,6 +29,7 @@
         "lint": "eslint src --ext .tsx,.ts",
         "build-internal": "craco build",
         "build": "cross-env REACT_APP_BRAND_ID=hornet run-s lint build-internal",
+        "build-bee": "cross-env REACT_APP_BRAND_ID=bee run-s lint build-internal",
         "test": "craco test",
         "eject": "react-scripts eject",
         "sass-lint": "sass-lint -v -c ./.sass-lint.yml"
