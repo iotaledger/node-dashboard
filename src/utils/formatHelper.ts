@@ -15,7 +15,7 @@ export class FormatHelper {
             return humanize(milliseconds, { largest: 1, round: true });
         }
 
-        return humanize(milliseconds, { largest: 2, maxDecimalPoints: 1 });
+        return humanize(milliseconds, { largest: 2, round: true });
     }
 
     /**
