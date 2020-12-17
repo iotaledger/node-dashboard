@@ -62,7 +62,11 @@ class NavPanel extends Component<RouteComponentProps & NavPanelProps, NavPanelSt
     public render(): ReactNode {
         return (
             <div className="nav-panel">
-                <img src={this.state.logoSrc} className="logo" />
+                <Link
+                    to="/"
+                >
+                    <img src={this.state.logoSrc} className="logo" />
+                </Link>
 
                 {this.props.buttons.map(b => (
                     <Link

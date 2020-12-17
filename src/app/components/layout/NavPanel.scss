@@ -11,6 +11,13 @@
   background-color: var(--panel-background);
   overflow: hidden;
 
+  a {
+    &:focus {
+      border: 0;
+      outline: none;
+    }
+  }
+
   .logo {
     margin-bottom: 120px;
   }
