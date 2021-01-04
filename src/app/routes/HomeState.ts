@@ -15,6 +15,21 @@ export interface HomeState {
     version?: string;
 
     /**
+     * Latest version.
+     */
+    latestVersion?: string;
+
+    /**
+     * The version.
+     */
+    displayVersion?: string;
+
+    /**
+     * Latest version.
+     */
+    displayLatestVersion?: string;
+
+    /**
      * Latest solid milestone index.
      */
     lsmi?: string;

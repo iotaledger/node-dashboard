@@ -67,7 +67,8 @@ class Home extends AsyncComponent<unknown, HomeState> {
         this.state = {
             nodeName: "",
             autoPeeringId: "No auto peering id",
-            version: "",
+            displayVersion: "",
+            displayLatestVersion: "",
             lmi: "-",
             lsmi: "-",
             pruningIndex: "-",
@@ -94,7 +95,6 @@ class Home extends AsyncComponent<unknown, HomeState> {
             data => {
                 if (data) {
                     const nodeName = data.node_alias ? data.node_alias : BrandHelper.getConfiguration().name;
-                    const version = `v${data.version}`;
                     const autoPeeringId = data.autopeering_id || "No autopeering Id.";
                     const pruningIndex = data.pruning_index.toString();
                     const uptime = FormatHelper.duration(data.uptime);
@@ -107,10 +107,6 @@ class Home extends AsyncComponent<unknown, HomeState> {
 
                     if (nodeName !== this.state.nodeName) {
                         this.setState({ nodeName });
-                    }
-
-                    if (version !== this.state.version) {
-                        this.setState({ version });
                     }
 
                     if (autoPeeringId !== this.state.autoPeeringId) {
@@ -128,6 +124,8 @@ class Home extends AsyncComponent<unknown, HomeState> {
                     if (memory !== this.state.memory) {
                         this.setState({ memory });
                     }
+
+                    this.checkVersion(data.version, data.latest_version);
                 }
             });
 
@@ -204,7 +202,9 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                     <h1>{this.state.nodeName}</h1>
                                     <p className="secondary margin-t-t">{this.state.autoPeeringId}</p>
                                 </div>
-                                <p className="secondary">{this.state.version}</p>
+                                <p className="secondary">
+                                    {this.state.displayVersion}{this.state.displayLatestVersion}
+                                </p>
                             </div>
                             <BannerCurve className="banner-curve" />
                             <div className="banner-image">
@@ -274,6 +274,69 @@ class Home extends AsyncComponent<unknown, HomeState> {
                 </div>
             </div>
         );
+    }
+
+    /**
+     * Check to see if a new version is available.
+     * @param currentVersion The current version.
+     * @param latestVersion The latest resion.
+     */
+    private checkVersion(currentVersion: string, latestVersion: string): void {
+        if (this.state.version !== currentVersion ||
+            this.state.latestVersion !== latestVersion) {
+            const comparison = this.compareVersions(currentVersion, latestVersion);
+
+            this.setState({
+                version: currentVersion,
+                latestVersion,
+                displayVersion: `v${currentVersion}`
+            });
+
+            if (comparison < 0) {
+                this.setState({ displayLatestVersion: ` - a new version v${latestVersion} is available.` });
+            }
+        }
+    }
+
+    /**
+     * Compare two versions.
+     * @param first The first version.
+     * @param second The second versions.
+     * @returns 0 if the same, 1 if a > b or -1 if a < b.
+     */
+    private compareVersions(first: string, second: string): number {
+        const partsFirst = first.split(".");
+        const partsSecond = second.split(".");
+
+        if (partsFirst.length === 3 && partsSecond.length === 3) {
+            for (let i = 0; i < 3; i++) {
+                const na = Number.parseInt(partsFirst[i], 10);
+                const nb = Number.parseInt(partsSecond[i], 10);
+                if (na > nb) {
+                    return 1;
+                }
+                if (nb > na) {
+                    return -1;
+                }
+
+                if (i === 2) {
+                    let firstAlphabet = 96;
+                    let secondAlphabet = 96;
+                    const firstIndex = partsFirst[i].indexOf("-");
+                    if (firstIndex > 0) {
+                        firstAlphabet = partsFirst[i].charCodeAt(firstIndex + 1);
+                    }
+                    const secondIndex = partsSecond[i].indexOf("-");
+                    if (secondIndex > 0) {
+                        secondAlphabet = partsSecond[i].charCodeAt(secondIndex + 1);
+                    }
+
+                    return firstAlphabet - secondAlphabet;
+                }
+            }
+        }
+
+        return 0;
     }
 }
 
