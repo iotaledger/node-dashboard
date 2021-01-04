@@ -476,14 +476,16 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
             if (!node) {
                 node = this._graph.addNode(vertex.shortId, vertex);
             }
-            if (vertex.parent1Id &&
-                (!node.links || !node.links.some(link => link.toId === vertex.parent1Id))) {
-                this._graph.addLink(vertex.shortId, vertex.parent1Id);
-            }
-            if (vertex.parent2Id &&
-                vertex.parent1Id !== vertex.parent2Id &&
-                (!node.links || !node.links.some(link => link.toId === vertex.parent2Id))) {
-                this._graph.addLink(vertex.shortId, vertex.parent2Id);
+            if (vertex.parents) {
+                const added: string[] = [];
+                for (let i = 0; i < vertex.parents.length; i++) {
+                    const parent = vertex.parents[i];
+                    if (!added.includes(parent) &&
+                        (!node.links || !node.links.some(link => link.toId === parent))) {
+                        added.push(parent);
+                        this._graph.addLink(vertex.shortId, parent);
+                    }
+                }
             }
         }
     }
@@ -515,7 +517,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      * @returns The state.
      */
     private calculateState(vertex?: IVisualizerVertex): string {
-        if (!vertex || (!vertex.parent1Id && !vertex.parent2Id)) {
+        if (!vertex || !vertex.parents) {
             return "Unknown";
         }
         if (vertex.isMilestone) {
@@ -542,7 +544,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      * @returns The size.
      */
     private calculateSize(vertex?: IVisualizerVertex): number {
-        if (!vertex || (!vertex.parent1Id && !vertex.parent2Id)) {
+        if (!vertex || !vertex.parents) {
             return 10;
         }
         if (vertex.isSelected || vertex.isMilestone) {
@@ -827,11 +829,11 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
         if (this._graph && this._graphics) {
             this._graph.forEachLink(link => {
                 if (this._graphics) {
-                const linkUI = this._graphics.getLinkUI(link.id);
-                if (linkUI) {
-                    linkUI.color = Visualizer.THEME_COLOR_LINKS[this.state.theme];
+                    const linkUI = this._graphics.getLinkUI(link.id);
+                    if (linkUI) {
+                        linkUI.color = Visualizer.THEME_COLOR_LINKS[this.state.theme];
+                    }
                 }
-            }
             });
         }
     }

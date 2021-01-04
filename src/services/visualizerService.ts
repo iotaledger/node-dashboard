@@ -176,8 +176,7 @@ export class VisualizerService {
                 };
             }
 
-            vertex.parent1Id = vert.parent1_id;
-            vertex.parent2Id = vert.parent2_2;
+            vertex.parents = vert.parents;
             vertex.isSolid = vert.is_solid;
             vertex.isReferenced = vert.is_referenced;
             vertex.isConflicting = vert.is_conflicting;
@@ -208,9 +207,10 @@ export class VisualizerService {
             if (deleteId) {
                 const vertex = this.removeVertex(deleteId);
 
-                if (vertex) {
-                    this.removeVertex(vertex.parent1Id);
-                    this.removeVertex(vertex.parent2Id);
+                if (vertex?.parents) {
+                    for (const parent of vertex.parents) {
+                        this.removeVertex(parent);
+                    }
                 }
             }
         }
