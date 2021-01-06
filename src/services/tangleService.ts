@@ -1,4 +1,4 @@
-import { Bech32Helper, Converter, IIndexationPayload, IMessageMetadata, IMilestonePayload, ITransactionPayload, MessageHelper, SingleNodeClient } from "@iota/iota.js";
+import { Bech32Helper, Converter, IIndexationPayload, IMessageMetadata, IMilestonePayload, ITransactionPayload, SingleNodeClient } from "@iota/iota.js";
 import { ISearchResponse } from "../models/tangle/ISearchResponse";
 
 /**
@@ -116,23 +116,15 @@ export class TangleService {
      */
     public async messageDetails(messageId: string): Promise<{
         metadata?: IMessageMetadata;
-        validations?: string[];
         childrenIds?: string[];
     } | undefined> {
         try {
             const metadata = await this._client.messageMetadata(messageId);
             const children = await this._client.messageChildren(messageId);
-            let validations;
-
-            if (metadata.ledgerInclusionState === "conflicting") {
-                const message = await this._client.message(messageId);
-                validations = await MessageHelper.validateTransaction(this._client, message);
-            }
 
             return {
                 metadata,
-                childrenIds: children ? children.childrenMessageIds : undefined,
-                validations
+                childrenIds: children ? children.childrenMessageIds : undefined
             };
         } catch { }
     }
