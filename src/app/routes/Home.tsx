@@ -5,9 +5,9 @@ import { ReactComponent as MilestoneIcon } from "../../assets/milestone.svg";
 import { ReactComponent as PruningIcon } from "../../assets/pruning.svg";
 import { ReactComponent as UptimeIcon } from "../../assets/uptime.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
+import { IMpsMetrics } from "../../models/websocket/IMpsMetrics";
 import { IStatus } from "../../models/websocket/IStatus";
 import { ISyncStatus } from "../../models/websocket/ISyncStatus";
-import { ITpsMetrics } from "../../models/websocket/ITpsMetrics";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
 import { MetricsService } from "../../services/metricsService";
 import { ThemeService } from "../../services/themeService";
@@ -146,8 +146,8 @@ class Home extends AsyncComponent<unknown, HomeState> {
                 }
             });
 
-        this._mpsMetricsSubscription = this._metricsService.subscribe<ITpsMetrics>(
-            WebSocketTopic.TPSMetrics,
+        this._mpsMetricsSubscription = this._metricsService.subscribe<IMpsMetrics>(
+            WebSocketTopic.MPSMetrics,
             undefined,
             allData => {
                 const nonNull = allData.filter(d => d !== undefined && d !== null);

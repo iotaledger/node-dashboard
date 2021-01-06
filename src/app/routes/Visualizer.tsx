@@ -9,7 +9,7 @@ import { ReactComponent as PlayIcon } from "../../assets/play.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
 import { IVisualizerCounts } from "../../models/visualizer/IVisualizerCounts";
 import { IVisualizerVertex } from "../../models/visualizer/IVisualizerVertex";
-import { ITpsMetrics } from "../../models/websocket/ITpsMetrics";
+import { IMpsMetrics } from "../../models/websocket/IMpsMetrics";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
 import { MetricsService } from "../../services/metricsService";
 import { TangleService } from "../../services/tangleService";
@@ -169,8 +169,8 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
             (referencedId, excludedIds, counts) => this.referenceVertex(referencedId, excludedIds, counts)
         );
 
-        this._mpsMetricsSubscription = this._metricsService.subscribe<ITpsMetrics>(
-            WebSocketTopic.TPSMetrics, data => {
+        this._mpsMetricsSubscription = this._metricsService.subscribe<IMpsMetrics>(
+            WebSocketTopic.MPSMetrics, data => {
                 if (data) {
                     if (this.state.isActive) {
                         this.setState({ mps: data.new.toString() });

@@ -53,7 +53,7 @@ export class MetricsService {
      */
     public initialize(): void {
         const topics = [
-            WebSocketTopic.TPSMetrics,
+            WebSocketTopic.MPSMetrics,
             WebSocketTopic.Status,
             WebSocketTopic.SyncStatus,
             WebSocketTopic.DBSizeMetric,

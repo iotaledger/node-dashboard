@@ -2,8 +2,8 @@ import React, { Component, ReactNode } from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { ServiceFactory } from "../../../factories/serviceFactory";
 import { IDBSizeMetric } from "../../../models/websocket/IDBSizeMetric";
+import { IMpsMetrics } from "../../../models/websocket/IMpsMetrics";
 import { IStatus } from "../../../models/websocket/IStatus";
-import { ITpsMetrics } from "../../../models/websocket/ITpsMetrics";
 import { WebSocketTopic } from "../../../models/websocket/webSocketTopic";
 import { MetricsService } from "../../../services/metricsService";
 import { DataHelper } from "../../../utils/dataHelper";
@@ -108,8 +108,8 @@ class Header extends Component<RouteComponentProps, HeaderState> {
                 this.setState({ databaseSize: databaseSizeValues });
             });
 
-        this._mpsMetricsSubscription = this._metricsService.subscribe<ITpsMetrics>(
-            WebSocketTopic.TPSMetrics,
+        this._mpsMetricsSubscription = this._metricsService.subscribe<IMpsMetrics>(
+            WebSocketTopic.MPSMetrics,
             data => {
                 if (data) {
                     const mpsValues = this.state.mpsValues.slice(-40);

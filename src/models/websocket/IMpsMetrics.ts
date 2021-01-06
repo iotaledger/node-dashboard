@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-export interface ITpsMetrics {
+export interface IMpsMetrics {
     incoming: number;
     new: number;
     outgoing: number;

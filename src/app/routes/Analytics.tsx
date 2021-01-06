@@ -3,8 +3,8 @@ import { RouteComponentProps, withRouter } from "react-router-dom";
 import { ServiceFactory } from "../../factories/serviceFactory";
 import { IConfirmedMsMetrics } from "../../models/websocket/IConfirmedMsMetrics";
 import { IDBSizeMetric } from "../../models/websocket/IDBSizeMetric";
+import { IMpsMetrics } from "../../models/websocket/IMpsMetrics";
 import { IStatus } from "../../models/websocket/IStatus";
-import { ITpsMetrics } from "../../models/websocket/ITpsMetrics";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
 import { MetricsService } from "../../services/metricsService";
 import { DataHelper } from "../../utils/dataHelper";
@@ -69,8 +69,8 @@ class Analytics extends AsyncComponent<RouteComponentProps, AnalyticsState> {
     public componentDidMount(): void {
         super.componentDidMount();
 
-        this._mpsMetricsSubscription = this._metricsService.subscribe<ITpsMetrics>(
-            WebSocketTopic.TPSMetrics,
+        this._mpsMetricsSubscription = this._metricsService.subscribe<IMpsMetrics>(
+            WebSocketTopic.MPSMetrics,
             undefined,
             allData => {
                 const nonNull = allData.filter(d => d !== undefined && d !== null);
