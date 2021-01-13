@@ -5,9 +5,9 @@ export interface HomeState {
     nodeName?: string;
 
     /**
-     * The auto peering id.
+     * The peer id.
      */
-    autoPeeringId?: string;
+    peerId?: string;
 
     /**
      * The version.

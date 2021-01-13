@@ -66,7 +66,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
 
         this.state = {
             nodeName: "",
-            autoPeeringId: "No auto peering id",
+            peerId: "No peer id",
             displayVersion: "",
             displayLatestVersion: "",
             lmi: "-",
@@ -95,7 +95,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
             data => {
                 if (data) {
                     const nodeName = data.node_alias ? data.node_alias : BrandHelper.getConfiguration().name;
-                    const autoPeeringId = data.autopeering_id || "No autopeering Id.";
+                    const peerId = data.autopeering_id || "No peer Id.";
                     const pruningIndex = data.pruning_index.toString();
                     const uptime = FormatHelper.duration(data.uptime);
                     const memory = FormatHelper.size(
@@ -109,8 +109,8 @@ class Home extends AsyncComponent<unknown, HomeState> {
                         this.setState({ nodeName });
                     }
 
-                    if (autoPeeringId !== this.state.autoPeeringId) {
-                        this.setState({ autoPeeringId });
+                    if (peerId !== this.state.peerId) {
+                        this.setState({ peerId });
                     }
 
                     if (pruningIndex !== this.state.pruningIndex) {
@@ -200,7 +200,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
                             <div className="node-info">
                                 <div>
                                     <h1>{this.state.nodeName}</h1>
-                                    <p className="secondary margin-t-t">{this.state.autoPeeringId}</p>
+                                    <p className="secondary margin-t-t">{this.state.peerId}</p>
                                 </div>
                                 <p className="secondary">
                                     {this.state.displayVersion}{this.state.displayLatestVersion}
