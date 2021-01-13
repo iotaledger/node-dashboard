@@ -1,4 +1,4 @@
-import { CONFLICT_REASON_STRINGS, IMessageMetadata, serializeMessage, WriteStream } from "@iota/iota.js";
+import { CONFLICT_REASON_STRINGS, IMessageMetadata, INDEXATION_PAYLOAD_TYPE, MILESTONE_PAYLOAD_TYPE, serializeMessage, TRANSACTION_PAYLOAD_TYPE, WriteStream } from "@iota/iota.js";
 import React, { ReactNode } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
 import { ReactComponent as ChevronDownIcon } from "../../../assets/chevron-down.svg";
@@ -240,21 +240,21 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                     </div>
                     {this.state.message?.payload && (
                         <React.Fragment>
-                            {this.state.message.payload.type === 0 && (
+                            {this.state.message.payload.type === TRANSACTION_PAYLOAD_TYPE && (
                                 <TransactionPayload payload={this.state.message.payload} />
                             )}
-                            {this.state.message.payload.type === 1 && (
+                            {this.state.message.payload.type === MILESTONE_PAYLOAD_TYPE && (
                                 <div className="card margin-t-m padding-l">
                                     <MilestonePayload payload={this.state.message.payload} />
                                 </div>
                             )}
-                            {this.state.message.payload.type === 2 && (
+                            {this.state.message.payload.type === INDEXATION_PAYLOAD_TYPE && (
                                 <div className="card margin-t-m padding-l">
                                     <IndexationPayload payload={this.state.message.payload} />
                                 </div>
                             )}
 
-                            {this.state.message.payload.type === 0 &&
+                            {this.state.message.payload.type === TRANSACTION_PAYLOAD_TYPE &&
                                 this.state.message.payload.essence.payload && (
                                     <div className="card margin-t-m padding-l">
                                         <IndexationPayload
