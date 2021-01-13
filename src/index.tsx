@@ -8,6 +8,7 @@ import "./index.scss";
 import { IBrandConfiguration } from "./models/IBrandConfiguration";
 import { LocalStorageService } from "./services/localStorageService";
 import { MetricsService } from "./services/metricsService";
+import { NodeConfigService } from "./services/nodeConfigService";
 import { TangleService } from "./services/tangleService";
 import { ThemeService } from "./services/themeService";
 import { VisualizerService } from "./services/visualizerService";
@@ -85,6 +86,8 @@ async function initServices(): Promise<IBrandConfiguration | undefined> {
     const themeService = new ThemeService();
     themeService.initialize();
     ServiceFactory.register("theme", () => themeService);
+
+    ServiceFactory.register("node-config", () => new NodeConfigService());
 
     return BrandHelper.initialize();
 }

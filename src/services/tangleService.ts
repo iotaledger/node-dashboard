@@ -11,7 +11,7 @@ export class TangleService {
     private readonly _client: SingleNodeClient;
 
     /**
-     * Create a new instance of ApiService.
+     * Create a new instance of TangleService.
      */
     constructor() {
         this._client = new SingleNodeClient(
