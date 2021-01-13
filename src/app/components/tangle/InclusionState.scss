@@ -5,35 +5,41 @@
   @include font-size(12px);
   display: flex;
   align-items: center;
-  height: 24px;
-  padding: 0px 8px;
-  border: 0;
-  border-radius: 6px;
-  outline: none;
-  background-color: var(--panel-border);
-  color: var(--text-color-primary);
   font-family: $font-sans;
-  font-weight: bold;
-  text-transform: uppercase;
-  white-space: nowrap;
 
-  &.inclusion__not-included {
-    background-color: $warning;
-    color: #ffffff;
-  }
+  .inclusion-state-pill {
+    display: flex;
+    align-items: center;
+    height: 24px;
+    margin-right: 10px;
+    padding: 0px 8px;
+    border: 0;
+    border-radius: 6px;
+    outline: none;
+    background-color: var(--panel-border);
+    color: var(--text-color-primary);
+    font-weight: bold;
+    text-transform: uppercase;
+    white-space: nowrap;
 
-  &.inclusion__included {
-    background-color: #12bf3f;
-    color: #ffffff;
-  }
+    &.inclusion__not-included {
+      background-color: $warning;
+      color: #ffffff;
+    }
 
-  &.inclusion__no-transaction {
-    background-color: #9aadce;
-    color: #ffffff;
-  }
+    &.inclusion__included {
+      background-color: #12bf3f;
+      color: #ffffff;
+    }
 
-  &.inclusion__conflicting {
-    background-color: $danger;
-    color: #ffffff;
+    &.inclusion__no-transaction {
+      background-color: var(--accent-primary);
+      color: #ffffff;
+    }
+
+    &.inclusion__conflicting {
+      background-color: $danger;
+      color: #ffffff;
+    }
   }
 }
