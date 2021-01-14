@@ -88,8 +88,8 @@ class Analytics extends AsyncComponent<RouteComponentProps, AnalyticsState> {
                 const nonNull = allData.filter(d => d !== undefined && d !== null);
                 this.setState({
                     milestoneTiming: nonNull.map(m => m.time_since_last_ms),
-                    mps: nonNull.map(m => m.mps),
-                    cmps: nonNull.map(m => m.cmps)
+                    mps: nonNull.map(m => m.mps * m.time_since_last_ms),
+                    cmps: nonNull.map(m => m.cmps * m.time_since_last_ms)
                 });
             }
         );
