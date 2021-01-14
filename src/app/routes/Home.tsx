@@ -289,11 +289,11 @@ class Home extends AsyncComponent<unknown, HomeState> {
             this.setState({
                 version: currentVersion,
                 latestVersion,
-                displayVersion: `v${currentVersion}`
+                displayVersion: currentVersion
             });
 
             if (comparison < 0) {
-                this.setState({ displayLatestVersion: ` - a new version v${latestVersion} is available.` });
+                this.setState({ displayLatestVersion: ` - a new version ${latestVersion} is available.` });
             }
         }
     }
