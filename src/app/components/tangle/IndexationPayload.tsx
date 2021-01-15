@@ -2,7 +2,6 @@ import { Converter } from "@iota/iota.js";
 import React, { Component, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
-import { TextHelper } from "../../../utils/textHelper";
 import MessageButton from "../../components/layout/MessageButton";
 import { IndexationPayloadProps } from "./IndexationPayloadProps";
 import { IndexationPayloadState } from "./IndexationPayloadState";
@@ -21,20 +20,17 @@ class IndexationPayload extends Component<IndexationPayloadProps, IndexationPayl
         if (props.payload.data) {
             const match = props.payload.data.match(/.{1,2}/g);
 
-            const ascii = Converter.hexToAscii(props.payload.data);
+            const utf8 = Converter.hexToUtf8(props.payload.data);
 
             let json;
 
             try {
-                const nonAscii = TextHelper.decodeNonASCII(ascii);
-                if (nonAscii) {
-                    json = JSON.stringify(JSON.parse(nonAscii), undefined, "\t");
-                }
+                json = JSON.stringify(JSON.parse(utf8), undefined, "\t");
             } catch { }
 
             this.state = {
                 hex: match ? match.join(" ") : props.payload.data,
-                ascii,
+                utf8,
                 json
             };
         } else {
@@ -70,20 +66,20 @@ class IndexationPayload extends Component<IndexationPayloadProps, IndexationPayl
                         labelPosition="top"
                     />
                 </div>
-                {!this.state.json && this.state.ascii && (
+                {!this.state.json && this.state.utf8 && (
                     <React.Fragment>
                         <div className="card--label row bottom spread">
-                            Data ASCII
+                            Data Text
                             <MessageButton
                                 onClick={() => ClipboardHelper.copy(
-                                    this.state.ascii
+                                    this.state.utf8
                                 )}
                                 buttonType="copy"
                                 labelPosition="top"
                             />
                         </div>
-                        <div className="card--value card--value-textarea card--value-textarea__ascii">
-                            {this.state.ascii}
+                        <div className="card--value card--value-textarea card--value-textarea__utf8">
+                            {this.state.utf8}
                         </div>
                     </React.Fragment>
                 )}
