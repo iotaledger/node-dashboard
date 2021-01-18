@@ -10,6 +10,7 @@ import { IStatus } from "../../models/websocket/IStatus";
 import { ISyncStatus } from "../../models/websocket/ISyncStatus";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
 import { MetricsService } from "../../services/metricsService";
+import { NodeConfigService } from "../../services/nodeConfigService";
 import { ThemeService } from "../../services/themeService";
 import { BrandHelper } from "../../utils/brandHelper";
 import { FormatHelper } from "../../utils/formatHelper";
@@ -55,6 +56,11 @@ class Home extends AsyncComponent<unknown, HomeState> {
     private _mpsMetricsSubscription?: string;
 
     /**
+     * The network id.
+     */
+    private readonly _networkId?: string;
+
+    /**
      * Create a new instance of Home.
      * @param props The props.
      */
@@ -63,6 +69,9 @@ class Home extends AsyncComponent<unknown, HomeState> {
 
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
         this._themeService = ServiceFactory.get<ThemeService>("theme");
+
+        const nodeConfigService = ServiceFactory.get<NodeConfigService>("node-config");
+        this._networkId = nodeConfigService.getNetworkId();
 
         this.state = {
             nodeName: "",
@@ -202,6 +211,9 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                     <h1>{this.state.nodeName}</h1>
                                     <p className="secondary margin-t-t">{this.state.peerId}</p>
                                 </div>
+                                <p className="secondary">
+                                    {this._networkId}
+                                </p>
                                 <p className="secondary">
                                     {this.state.displayVersion}{this.state.displayLatestVersion}
                                 </p>

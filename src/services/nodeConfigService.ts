@@ -6,6 +6,11 @@ import { TangleService } from "./tangleService";
  */
 export class NodeConfigService {
     /**
+     * The network id.
+     */
+    private _networkId?: string;
+
+    /**
      * The bech32 hrp.
      */
     private _bech32Hrp?: string;
@@ -14,6 +19,7 @@ export class NodeConfigService {
      * Create a new instance of NodeConfigService.
      */
     constructor() {
+        this._networkId = undefined;
         this._bech32Hrp = undefined;
     }
 
@@ -25,6 +31,7 @@ export class NodeConfigService {
 
         const info = await tangleService.info();
         this._bech32Hrp = info.bech32HRP;
+        this._networkId = info.networkId;
     }
 
     /**
@@ -33,5 +40,13 @@ export class NodeConfigService {
      */
     public getBech32Hrp(): string {
         return this._bech32Hrp ?? "iota";
+    }
+
+    /**
+     * Get the netwoork id.
+     * @returns The network id.
+     */
+    public getNetworkId(): string {
+        return this._networkId ?? "";
     }
 }
