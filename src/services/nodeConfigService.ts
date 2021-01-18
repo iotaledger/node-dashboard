@@ -1,7 +1,5 @@
 import { ServiceFactory } from "../factories/serviceFactory";
-import { IStatus } from "../models/websocket/IStatus";
-import { WebSocketTopic } from "../models/websocket/webSocketTopic";
-import { MetricsService } from "./metricsService";
+import { TangleService } from "./tangleService";
 
 /**
  * Service to handle getting confiuration from the node.
@@ -17,16 +15,16 @@ export class NodeConfigService {
      */
     constructor() {
         this._bech32Hrp = undefined;
-        const metricsService = ServiceFactory.get<MetricsService>("metrics");
+    }
 
-        const subscriptionId = metricsService.subscribe<IStatus>(
-            WebSocketTopic.Status,
-            data => {
-                if (data?.bech32_hrp) {
-                    this._bech32Hrp = data.bech32_hrp;
-                    metricsService.unsubscribe(subscriptionId);
-                }
-            });
+    /**
+     * Initialise NodeConfigService.
+     */
+    public async initialize(): Promise<void> {
+        const tangleService = ServiceFactory.get<TangleService>("tangle");
+
+        const info = await tangleService.info();
+        this._bech32Hrp = info.bech32HRP;
     }
 
     /**

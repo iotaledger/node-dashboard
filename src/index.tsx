@@ -87,7 +87,9 @@ async function initServices(): Promise<IBrandConfiguration | undefined> {
     themeService.initialize();
     ServiceFactory.register("theme", () => themeService);
 
-    ServiceFactory.register("node-config", () => new NodeConfigService());
+    const nodeConfigService = new NodeConfigService();
+    await nodeConfigService.initialize();
+    ServiceFactory.register("node-config", () => nodeConfigService);
 
     return BrandHelper.initialize();
 }
