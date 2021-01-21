@@ -26,7 +26,7 @@ class MessageTangleState extends Component<MessageTangleStateProps> {
                     )
                 }
             >
-                {this.props.status === "unknown" && ("Unknown")}
+                {this.props.status === "unknown" && ("Unknown State")}
                 {this.props.status === "referenced" &&
                     (`Referenced${this.props.milestoneIndex !== undefined && this.props.milestoneIndex > 1
                         ? ` by MS ${this.props.milestoneIndex}` : ""}`)}
