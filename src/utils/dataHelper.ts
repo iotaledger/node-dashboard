@@ -1,4 +1,4 @@
-import { IPeerMetric } from "../models/websocket/IPeerMetric";
+import { IPeer } from "@iota/iota.js";
 import { IStatus } from "../models/websocket/IStatus";
 
 /**
@@ -23,13 +23,13 @@ export class DataHelper {
      * @param peer The peer.
      * @returns The formatted name.
      */
-    public static formatPeerName(peer: IPeerMetric): string {
+    public static formatPeerName(peer: IPeer): string {
         let name = "";
 
         if (peer.alias) {
             name += peer.alias;
-        } else if (peer.identity) {
-            name += peer.identity;
+        } else if (peer.id) {
+            name += peer.id;
         }
 
         return name;
@@ -40,16 +40,12 @@ export class DataHelper {
      * @param peer The peer.
      * @returns The formatted address.
      */
-    public static formatPeerAddress(peer: IPeerMetric): string | undefined {
+    public static formatPeerAddress(peer: IPeer): string | undefined {
         let address;
 
-        if (peer.origin_addr) {
-            address = this.extractAddress(peer.origin_addr);
-        }
-
-        if (peer.info.address) {
-            for (let i = 0; i < peer.info.address.length && !address; i++) {
-                address = this.extractAddress(peer.info.address[i]);
+        if (peer.multiAddresses) {
+            for (let i = 0; i < peer.multiAddresses.length && !address; i++) {
+                address = this.extractAddress(peer.multiAddresses[i]);
             }
         }
 
@@ -102,15 +98,32 @@ export class DataHelper {
      * @param peers The peers to sort.
      * @returns The sorted peers.
      */
-    public static sortPeers<T extends { connected: boolean; name: string }>(peers: T[]): T[] {
+    public static sortPeers<T extends { health: number; name: string }>(peers: T[]): T[] {
         return peers.sort((a, b) => {
-            if (a.connected && !b.connected) {
-                return -1;
-            } else if (!a.connected && b.connected) {
-                return 1;
+            if (a.health !== b.health) {
+                return b.health - a.health;
             }
 
             return a.name.localeCompare(b.name);
         });
+    }
+
+    /**
+     * Calculate the health of the peer.
+     * @param peer The peer to calculate the health of.
+     * @returns The health.
+     */
+    public static calculateHealth(peer: IPeer): number {
+        let health = 0;
+
+        if (peer.connected) {
+            health = 1;
+            if (peer.gossip?.heartbeat &&
+                peer.gossip.heartbeat.solidMilestoneIndex >= (peer.gossip.heartbeat.latestMilestoneIndex - 2)) {
+                health = 2;
+            }
+        }
+
+        return health;
     }
 }

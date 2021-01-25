@@ -1,8 +1,9 @@
+import { IPeer } from "@iota/iota.js";
 import React, { Component, ReactNode } from "react";
 import { ReactComponent as HealthBadIcon } from "../../../assets/health-bad.svg";
 import { ReactComponent as HealthGoodIcon } from "../../../assets/health-good.svg";
+import { ReactComponent as HealthWarningIcon } from "../../../assets/health-warning.svg";
 import { ServiceFactory } from "../../../factories/serviceFactory";
-import { IPeerMetric } from "../../../models/websocket/IPeerMetric";
 import { WebSocketTopic } from "../../../models/websocket/webSocketTopic";
 import { MetricsService } from "../../../services/metricsService";
 import { DataHelper } from "../../../utils/dataHelper";
@@ -40,7 +41,7 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
      * The component mounted.
      */
     public componentDidMount(): void {
-        this._peerSubscription = this._metricsService.subscribe<IPeerMetric[]>(
+        this._peerSubscription = this._metricsService.subscribe<IPeer[]>(
             WebSocketTopic.PeerMetric,
             data => {
                 this.handleData(data);
@@ -71,7 +72,9 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
                 {this.state.peers?.map((p, idx) => (
                     <div key={idx} className="peers-summary--item">
                         <span className="peer-health-icon">
-                            {p.connected ? <HealthGoodIcon /> : <HealthBadIcon />}
+                            {p.health === 0 && <HealthBadIcon />}
+                            {p.health === 1 && <HealthWarningIcon />}
+                            {p.health === 2 && <HealthGoodIcon />}
                         </span>
                         <span className="peer-id">
                             {p.name}
@@ -92,12 +95,16 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
      * Handle the peer data.
      * @param data The data to handle.
      */
-    private handleData(data: IPeerMetric[]): void {
-        const sortedPeers = data ? DataHelper.sortPeers(data.map(p => ({
-            connected: p.connected,
-            name: DataHelper.formatPeerName(p),
-            address: DataHelper.formatPeerAddress(p)
-        }))) : undefined;
+    private handleData(data: IPeer[]): void {
+        let sortedPeers;
+
+        if (data) {
+            sortedPeers = DataHelper.sortPeers(data.map(p => ({
+                health: DataHelper.calculateHealth(p),
+                name: DataHelper.formatPeerName(p),
+                address: DataHelper.formatPeerAddress(p)
+            })));
+        }
 
         this.setState({
             peers: sortedPeers
