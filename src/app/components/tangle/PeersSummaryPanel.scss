@@ -13,6 +13,10 @@
     border-radius: $spacing-small;
     background-color: var(--panel-background-highlight);
 
+    &:focus {
+      border: 0;
+    }
+
     .peer-health-icon {
       width: 16px;
     }

@@ -1,6 +1,7 @@
 import { IPeer } from "@iota/iota.js";
 import React, { ReactNode } from "react";
-import { RouteComponentProps, withRouter } from "react-router-dom";
+import { Link, RouteComponentProps, withRouter } from "react-router-dom";
+import { ReactComponent as ChevronRightIcon } from "../../assets/chevron-right.svg";
 import { ReactComponent as HealthBadIcon } from "../../assets/health-bad.svg";
 import { ReactComponent as HealthGoodIcon } from "../../assets/health-good.svg";
 import { ReactComponent as HealthWarningIcon } from "../../assets/health-warning.svg";
@@ -53,6 +54,7 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
             allData => {
                 const peers: {
                     [id: string]: {
+                        id: string;
                         name: string;
                         address?: string;
                         health: number;
@@ -72,6 +74,7 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
 
                             if (!peers[peer.id]) {
                                 peers[peer.id] = {
+                                    id: peer.id,
                                     name,
                                     address,
                                     health,
@@ -85,6 +88,7 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                 peers[peer.id].address = address;
                                 peers[peer.id].health = health;
                             }
+                            peers[peer.id].id = peer.id;
 
                             if (peer.gossip) {
                                 peers[peer.id].newMessagesTotal.push(peer.gossip.metrics.newMessages);
@@ -95,14 +99,16 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                             for (let i = 1; i < peers[peer.id].newMessagesTotal.length; i++) {
                                 peers[peer.id].newMessagesDiff.push(
                                     Math.max(
-                                        peers[peer.id].newMessagesTotal[i] - peers[peer.id].newMessagesTotal[i - 1], 0)
+                                        peers[peer.id].newMessagesTotal[i] - peers[peer.id].newMessagesTotal[i - 1]
+                                        , 0)
                                 );
                             }
                             peers[peer.id].sentMessagesDiff = [];
                             for (let i = 1; i < peers[peer.id].sentMessagesTotal.length; i++) {
                                 peers[peer.id].sentMessagesDiff.push(
                                     Math.max(
-                                    peers[peer.id].sentMessagesTotal[i] - peers[peer.id].sentMessagesTotal[i - 1]), 0);
+                                        peers[peer.id].sentMessagesTotal[i] - peers[peer.id].sentMessagesTotal[i - 1])
+                                    , 0);
                             }
                         }
                     }
@@ -152,7 +158,7 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                         <div className="peer-id">{p.name}<br />{p.address}</div>
                                     </div>
                                     <Graph
-                                        caption="Messages"
+                                        caption="Messages per Second"
                                         seriesMaxLength={60}
                                         series={[
                                             {
@@ -167,6 +173,15 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                             }
                                         ]}
                                     />
+                                    <div className="row right margin-t-s">
+                                        <Link
+                                            to={`/peers/${p.id}`}
+                                            className="row middle inline"
+                                        >
+                                            <h3 className="secondary margin-r-s">More details</h3>
+                                            <ChevronRightIcon className="secondary" />
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
                         ))}

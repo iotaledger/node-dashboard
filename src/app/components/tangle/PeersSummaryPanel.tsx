@@ -1,5 +1,6 @@
 import { IPeer } from "@iota/iota.js";
 import React, { Component, ReactNode } from "react";
+import { Link } from "react-router-dom";
 import { ReactComponent as HealthBadIcon } from "../../../assets/health-bad.svg";
 import { ReactComponent as HealthGoodIcon } from "../../../assets/health-good.svg";
 import { ReactComponent as HealthWarningIcon } from "../../../assets/health-warning.svg";
@@ -70,7 +71,10 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
                     <p>There are no peers.</p>
                 )}
                 {this.state.peers?.map((p, idx) => (
-                    <div key={idx} className="peers-summary--item">
+                    <Link
+                        to={`/peers/${p.id}`}
+                        key={idx} className="peers-summary--item"
+                    >
                         <span className="peer-health-icon">
                             {p.health === 0 && <HealthBadIcon />}
                             {p.health === 1 && <HealthWarningIcon />}
@@ -85,7 +89,7 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
                                 </React.Fragment>
                             )}
                         </span>
-                    </div>
+                    </Link>
                 ))}
             </div>
         );
@@ -100,6 +104,7 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
 
         if (data) {
             sortedPeers = DataHelper.sortPeers(data.map(p => ({
+                id: p.id,
                 health: DataHelper.calculateHealth(p),
                 name: DataHelper.formatPeerName(p),
                 address: DataHelper.formatPeerAddress(p)

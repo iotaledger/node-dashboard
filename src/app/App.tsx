@@ -20,6 +20,8 @@ import { MessageRouteProps } from "./routes/explorer/MessageRouteProps";
 import Milestone from "./routes/explorer/Milestone";
 import { MilestoneRouteProps } from "./routes/explorer/MilestoneRouteProps";
 import Home from "./routes/Home";
+import Peer from "./routes/Peer";
+import { PeerRouteProps } from "./routes/PeerRouteProps";
 import Peers from "./routes/Peers";
 import Search from "./routes/Search";
 import { SearchRouteProps } from "./routes/SearchRouteProps";
@@ -84,8 +86,13 @@ class App extends Component<RouteComponentProps> {
                                 component={() => (<Analytics />)}
                             />
                             <Route
+                                exact={true}
                                 path="/peers"
                                 component={() => (<Peers />)}
+                            />
+                            <Route
+                                path="/peers/:id"
+                                component={(props: RouteComponentProps<PeerRouteProps>) => (<Peer {...props} />)}
                             />
                             <Route
                                 path="/explorer"

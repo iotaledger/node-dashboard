@@ -117,13 +117,25 @@ export class DataHelper {
         let health = 0;
 
         if (peer.connected) {
-            health = 1;
-            if (peer.gossip?.heartbeat &&
-                peer.gossip.heartbeat.solidMilestoneIndex >= (peer.gossip.heartbeat.latestMilestoneIndex - 2)) {
-                health = 2;
-            }
+            health = DataHelper.calculateIsSynced(peer) ? 2 : 1;
         }
 
         return health;
+    }
+
+    /**
+     * Calculate the sync status of the peer.
+     * @param peer The peer to calculate the sync status of.
+     * @returns The sync status.
+     */
+    public static calculateIsSynced(peer: IPeer): boolean {
+        let isSynced = false;
+
+        if (peer.gossip?.heartbeat &&
+            peer.gossip.heartbeat.solidMilestoneIndex >= (peer.gossip.heartbeat.latestMilestoneIndex - 2)) {
+            isSynced = true;
+        }
+
+        return isSynced;
     }
 }

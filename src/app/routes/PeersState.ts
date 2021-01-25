@@ -4,6 +4,7 @@ export interface PeersState {
      */
     peers: {
         name: string;
+        id: string;
         address?: string;
         health: number;
         newMessagesTotal: number[];
