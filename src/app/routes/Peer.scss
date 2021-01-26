@@ -1,0 +1,61 @@
+@import '../../scss/card';
+@import '../../scss/fonts';
+
+.peer {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  padding: 60px;
+
+  .content {
+    flex: 1;
+    max-width: $content-width-desktop;
+
+    .banner {
+      .node-info {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: $spacing-small;
+        overflow: hidden;
+
+        h2 {
+          text-overflow: ellipsis;
+          overflow: hidden;
+        }
+      }
+
+      .health-indicators {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+
+        .child {
+          padding: 0 $spacing-small;
+          border-left: 1px solid var(--panel-border);
+        }
+      }
+    }
+
+    .messages-graph-panel {
+      .graph {
+        padding: 24px;
+      }
+    }
+
+    .gossip {
+      .col {
+        .gossip-value {
+          @include font-size(24px);
+
+          margin-top: $spacing-tiny;
+          color: var(--text-color-primary);
+          font-family: $font-sans;
+          font-weight: bold;
+          white-space: nowrap;
+        }
+      }
+    }
+  }
+}

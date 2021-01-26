@@ -1,9 +1,11 @@
+import { IPeer } from "@iota/iota.js";
 import React, { ReactNode } from "react";
-import { RouteComponentProps, withRouter } from "react-router-dom";
+import { Link, RouteComponentProps, withRouter } from "react-router-dom";
+import { ReactComponent as ChevronRightIcon } from "../../assets/chevron-right.svg";
 import { ReactComponent as HealthBadIcon } from "../../assets/health-bad.svg";
 import { ReactComponent as HealthGoodIcon } from "../../assets/health-good.svg";
+import { ReactComponent as HealthWarningIcon } from "../../assets/health-warning.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
-import { IPeerMetric } from "../../models/websocket/IPeerMetric";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
 import { MetricsService } from "../../services/metricsService";
 import { DataHelper } from "../../utils/dataHelper";
@@ -46,38 +48,67 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
     public componentDidMount(): void {
         super.componentDidMount();
 
-        this._peersSubscription = this._metricsService.subscribe<IPeerMetric[]>(
+        this._peersSubscription = this._metricsService.subscribe<IPeer[]>(
             WebSocketTopic.PeerMetric,
             undefined,
             allData => {
                 const peers: {
                     [id: string]: {
+                        id: string;
                         name: string;
                         address?: string;
-                        connected: boolean;
-                        incoming: number[];
-                        outgoing: number[];
+                        health: number;
+                        newMessagesTotal: number[];
+                        sentMessagesTotal: number[];
+                        newMessagesDiff: number[];
+                        sentMessagesDiff: number[];
                     };
                 } = {};
 
                 for (const allDataPeers of allData) {
                     if (allDataPeers) {
                         for (const peer of allDataPeers) {
-                            if (!peers[peer.identity]) {
-                                peers[peer.identity] = {
-                                    name: DataHelper.formatPeerName(peer),
-                                    address: DataHelper.formatPeerAddress(peer),
-                                    connected: peer.connected,
-                                    incoming: [],
-                                    outgoing: []
+                            const name = DataHelper.formatPeerName(peer);
+                            const address = DataHelper.formatPeerAddress(peer);
+                            const health = DataHelper.calculateHealth(peer);
+
+                            if (!peers[peer.id]) {
+                                peers[peer.id] = {
+                                    id: peer.id,
+                                    name,
+                                    address,
+                                    health,
+                                    newMessagesTotal: [],
+                                    sentMessagesTotal: [],
+                                    newMessagesDiff: [],
+                                    sentMessagesDiff: []
                                 };
+                            } else {
+                                peers[peer.id].name = name;
+                                peers[peer.id].address = address;
+                                peers[peer.id].health = health;
+                            }
+                            peers[peer.id].id = peer.id;
+
+                            if (peer.gossip) {
+                                peers[peer.id].newMessagesTotal.push(peer.gossip.metrics.newMessages);
+                                peers[peer.id].sentMessagesTotal.push(peer.gossip.metrics.sentMessages);
                             }
 
-                            if (peer.info.numberOfNewTransactions !== undefined) {
-                                peers[peer.identity].incoming.push(peer.info.numberOfNewTransactions);
+                            peers[peer.id].newMessagesDiff = [];
+                            for (let i = 1; i < peers[peer.id].newMessagesTotal.length; i++) {
+                                peers[peer.id].newMessagesDiff.push(
+                                    Math.max(
+                                        peers[peer.id].newMessagesTotal[i] - peers[peer.id].newMessagesTotal[i - 1]
+                                        , 0)
+                                );
                             }
-                            if (peer.info.numberOfSentTransactions !== undefined) {
-                                peers[peer.identity].outgoing.push(peer.info.numberOfSentTransactions);
+                            peers[peer.id].sentMessagesDiff = [];
+                            for (let i = 1; i < peers[peer.id].sentMessagesTotal.length; i++) {
+                                peers[peer.id].sentMessagesDiff.push(
+                                    Math.max(
+                                        peers[peer.id].sentMessagesTotal[i] - peers[peer.id].sentMessagesTotal[i - 1])
+                                    , 0);
                             }
                         }
                     }
@@ -120,26 +151,37 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                 <div className="card col padding-m">
                                     <div className="row middle">
                                         <span className="peer-health">
-                                            {p.connected ? <HealthGoodIcon /> : <HealthBadIcon />}
+                                            {p.health === 0 && <HealthBadIcon />}
+                                            {p.health === 1 && <HealthWarningIcon />}
+                                            {p.health === 2 && <HealthGoodIcon />}
                                         </span>
                                         <div className="peer-id">{p.name}<br />{p.address}</div>
                                     </div>
                                     <Graph
-                                        caption="Messages"
+                                        caption="Messages per Second"
                                         seriesMaxLength={60}
                                         series={[
                                             {
                                                 className: "bar-color-1",
                                                 label: "Incoming",
-                                                values: p.incoming
+                                                values: p.newMessagesDiff
                                             },
                                             {
                                                 className: "bar-color-2",
                                                 label: "Outgoing",
-                                                values: p.outgoing
+                                                values: p.sentMessagesDiff
                                             }
                                         ]}
                                     />
+                                    <div className="row right margin-t-s">
+                                        <Link
+                                            to={`/peers/${p.id}`}
+                                            className="row middle inline"
+                                        >
+                                            <h3 className="secondary margin-r-s">More details</h3>
+                                            <ChevronRightIcon className="secondary" />
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
                         ))}

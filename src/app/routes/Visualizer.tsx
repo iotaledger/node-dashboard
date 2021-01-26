@@ -1,4 +1,4 @@
-import { UnitsHelper } from "@iota/iota.js";
+import { INDEXATION_PAYLOAD_TYPE, MILESTONE_PAYLOAD_TYPE, SIG_LOCKED_SINGLE_OUTPUT_TYPE, TRANSACTION_PAYLOAD_TYPE, UnitsHelper } from "@iota/iota.js";
 import classNames from "classnames";
 import React, { ReactNode } from "react";
 import { RouteComponentProps } from "react-router-dom";
@@ -9,7 +9,7 @@ import { ReactComponent as PlayIcon } from "../../assets/play.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
 import { IVisualizerCounts } from "../../models/visualizer/IVisualizerCounts";
 import { IVisualizerVertex } from "../../models/visualizer/IVisualizerVertex";
-import { ITpsMetrics } from "../../models/websocket/ITpsMetrics";
+import { IMpsMetrics } from "../../models/websocket/IMpsMetrics";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
 import { MetricsService } from "../../services/metricsService";
 import { TangleService } from "../../services/tangleService";
@@ -169,8 +169,8 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
             (referencedId, excludedIds, counts) => this.referenceVertex(referencedId, excludedIds, counts)
         );
 
-        this._mpsMetricsSubscription = this._metricsService.subscribe<ITpsMetrics>(
-            WebSocketTopic.TPSMetrics, data => {
+        this._mpsMetricsSubscription = this._metricsService.subscribe<IMpsMetrics>(
+            WebSocketTopic.MPSMetrics, data => {
                 if (data) {
                     if (this.state.isActive) {
                         this.setState({ mps: data.new.toString() });
@@ -341,45 +341,45 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                                         </div>
                                     </React.Fragment>
                                 )}
-                                {this.state.selected.payload && this.state.selected.payload.type === 0 && (
-                                    <React.Fragment>
-                                        <div className="card--label">
-                                            Total
-                                        </div>
-                                        <div className="card--value">
-                                            {UnitsHelper.formatBest(
-                                                this.state.selected
-                                                    .payload.essence.outputs
-                                                    .reduce((total, output) => total + output.amount, 0))}
-                                        </div>
-                                    </React.Fragment>
-                                )}
-                                {this.state.selected.payload && this.state.selected.payload.type === 1 && (
-                                    <React.Fragment>
-                                        <div className="card--label">
-                                            Index
-                                        </div>
-                                        <div className="card--value">
-                                            {this.state.selected.payload.index}
-                                        </div>
-                                        <div className="card--label">
-                                            Date
-                                        </div>
-                                        <div className="card--value">
-                                            {FormatHelper.date(this.state.selected.payload.timestamp, false)}
-                                        </div>
-                                    </React.Fragment>
-                                )}
-                                {this.state.selected.payload && this.state.selected.payload.type === 2 && (
-                                    <React.Fragment>
-                                        <div className="card--label">
-                                            Index
-                                        </div>
-                                        <div className="card--value">
-                                            {this.state.selected.payload.index}
-                                        </div>
-                                    </React.Fragment>
-                                )}
+                                {this.state.selected.payload &&
+                                    this.state.selected.payload.type === TRANSACTION_PAYLOAD_TYPE && (
+                                        <React.Fragment>
+                                            <div className="card--label">
+                                                Total
+                                            </div>
+                                            <div className="card--value">
+                                                {UnitsHelper.formatBest(this.calculateTotal())}
+                                            </div>
+                                        </React.Fragment>
+                                    )}
+                                {this.state.selected.payload &&
+                                    this.state.selected.payload.type === MILESTONE_PAYLOAD_TYPE && (
+                                        <React.Fragment>
+                                            <div className="card--label">
+                                                Index
+                                            </div>
+                                            <div className="card--value">
+                                                {this.state.selected.payload.index}
+                                            </div>
+                                            <div className="card--label">
+                                                Date
+                                            </div>
+                                            <div className="card--value">
+                                                {FormatHelper.date(this.state.selected.payload.timestamp, false)}
+                                            </div>
+                                        </React.Fragment>
+                                    )}
+                                {this.state.selected.payload &&
+                                    this.state.selected.payload.type === INDEXATION_PAYLOAD_TYPE && (
+                                        <React.Fragment>
+                                            <div className="card--label">
+                                                Index
+                                            </div>
+                                            <div className="card--value">
+                                                {this.state.selected.payload.index}
+                                            </div>
+                                        </React.Fragment>
+                                    )}
                             </div>
                         </div>
                     </div>
@@ -738,11 +738,11 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                         let payloadTitle = "";
 
                         if (payload) {
-                            if (payload.type === 0) {
+                            if (payload.type === TRANSACTION_PAYLOAD_TYPE) {
                                 payloadTitle = " - Transaction";
-                            } else if (payload.type === 1) {
+                            } else if (payload.type === MILESTONE_PAYLOAD_TYPE) {
                                 payloadTitle = "";
-                            } else if (payload.type === 2) {
+                            } else if (payload.type === INDEXATION_PAYLOAD_TYPE) {
                                 payloadTitle = " - Indexation";
                             }
                         } else if (node.data.isMilestone) {
@@ -836,6 +836,24 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                 }
             });
         }
+    }
+
+    /**
+     * Calculate the total of outputs for a transaction payload.
+     * @returns The total.
+     */
+    private calculateTotal(): number {
+        let total = 0;
+
+        if (this.state.selected?.payload?.type === TRANSACTION_PAYLOAD_TYPE) {
+            for (const output of this.state.selected.payload.essence.outputs) {
+                if (output.type === SIG_LOCKED_SINGLE_OUTPUT_TYPE) {
+                    total += output.amount;
+                }
+            }
+        }
+
+        return total;
     }
 }
 

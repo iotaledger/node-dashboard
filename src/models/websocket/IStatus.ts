@@ -9,6 +9,7 @@ export interface IStatus {
     uptime: number;
     autopeering_id: string;
     node_alias: string;
+    bech32_hrp: string;
     connected_peers_count: number;
     current_requested_ms: number;
     request_queue_queued: number;

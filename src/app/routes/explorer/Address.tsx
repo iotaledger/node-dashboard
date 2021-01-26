@@ -3,6 +3,7 @@ import React, { ReactNode } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
 import { ReactComponent as ChevronLeftIcon } from "../../../assets/chevron-left.svg";
 import { ServiceFactory } from "../../../factories/serviceFactory";
+import { NodeConfigService } from "../../../services/nodeConfigService";
 import { TangleService } from "../../../services/tangleService";
 import { Bech32AddressHelper } from "../../../utils/bech32AddressHelper";
 import AsyncComponent from "../../components/layout/AsyncComponent";
@@ -23,6 +24,11 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
     private readonly _tangleService: TangleService;
 
     /**
+     * The bech32 hrp from the node.
+     */
+    private readonly _bech32Hrp: string;
+
+    /**
      * Create a new instance of Address.
      * @param props The props.
      */
@@ -31,8 +37,11 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
 
         this._tangleService = ServiceFactory.get<TangleService>("tangle");
 
+        const nodeConfigService = ServiceFactory.get<NodeConfigService>("node-config");
+        this._bech32Hrp = nodeConfigService.getBech32Hrp();
+
         this.state = {
-            ...Bech32AddressHelper.buildAddress(props.match.params.address),
+            ...Bech32AddressHelper.buildAddress(props.match.params.address, this._bech32Hrp),
             formatFull: false,
             statusBusy: true,
             status: "Loading outputs..."
@@ -50,7 +59,7 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
         if (result?.address) {
             this.setState({
                 address: result.address,
-                bech32AddressDetails: Bech32AddressHelper.buildAddress(result.address.address),
+                bech32AddressDetails: Bech32AddressHelper.buildAddress(result.address.address, this._bech32Hrp),
                 balance: result.address.balance,
                 outputIds: result.addressOutputIds
             }, async () => {
@@ -87,7 +96,7 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                 <div className="content">
                     <Link
                         to="/explorer"
-                        className="row inline"
+                        className="row middle inline"
                     >
                         <ChevronLeftIcon className="secondary" />
                         <h3 className="secondary margin-l-s">Back to Explorer</h3>

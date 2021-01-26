@@ -3,7 +3,8 @@ export interface PeersSummaryState {
      * The list of peers.
      */
     peers?: {
-        connected: boolean;
+        id: string;
+        health: number;
         name: string;
         address?: string;
     }[];

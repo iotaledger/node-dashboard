@@ -1,8 +1,7 @@
 /* eslint-disable unicorn/prefer-add-event-listener */
+import { Converter, RandomHelper } from "@iota/iota.js";
 import { IWebSocketMessage } from "../models/websocket/IWebSocketMessage";
 import { WebSocketTopic } from "../models/websocket/webSocketTopic";
-import { Converter } from "../utils/converter";
-import { RandomHelper } from "../utils/randomHelper";
 
 /**
  * Service to handle the websocket connection.

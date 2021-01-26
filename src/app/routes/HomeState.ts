@@ -5,14 +5,29 @@ export interface HomeState {
     nodeName?: string;
 
     /**
-     * The auto peering id.
+     * The peer id.
      */
-    autoPeeringId?: string;
+    peerId?: string;
 
     /**
      * The version.
      */
     version?: string;
+
+    /**
+     * Latest version.
+     */
+    latestVersion?: string;
+
+    /**
+     * The version.
+     */
+    displayVersion?: string;
+
+    /**
+     * Latest version.
+     */
+    displayLatestVersion?: string;
 
     /**
      * Latest solid milestone index.

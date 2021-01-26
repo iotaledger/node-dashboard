@@ -1,6 +1,5 @@
+import { Converter, RandomHelper } from "@iota/iota.js";
 import { ServiceFactory } from "../factories/serviceFactory";
-import { Converter } from "../utils/converter";
-import { RandomHelper } from "../utils/randomHelper";
 import { LocalStorageService } from "./localStorageService";
 
 /**

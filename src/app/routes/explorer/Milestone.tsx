@@ -57,7 +57,7 @@ class Milestone extends AsyncComponent<RouteComponentProps<MilestoneRouteProps>,
                 <div className="content">
                     <Link
                         to="/explorer"
-                        className="row inline"
+                        className="row middle inline"
                     >
                         <ChevronLeftIcon className="secondary" />
                         <h3 className="secondary margin-l-s">Back to Explorer</h3>
@@ -68,7 +68,7 @@ class Milestone extends AsyncComponent<RouteComponentProps<MilestoneRouteProps>,
                             Index
                         </div>
                         <div className="card--value">
-                            {this.state.milestone?.milestoneIndex}
+                            {this.state.milestone?.index}
                         </div>
                         <div className="card--label">
                             Message Id
@@ -161,8 +161,8 @@ class Milestone extends AsyncComponent<RouteComponentProps<MilestoneRouteProps>,
      */
     private async checkForAdjacentMilestones(): Promise<void> {
         if (this.state.milestone) {
-            const nextIndex = this.state.milestone.milestoneIndex + 1;
-            const previousIndex = this.state.milestone.milestoneIndex - 1;
+            const nextIndex = this.state.milestone.index + 1;
+            const previousIndex = this.state.milestone.index - 1;
             let hasNext = false;
             let hasPrevious = false;
 
