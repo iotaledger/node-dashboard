@@ -168,7 +168,13 @@ class Graph extends Component<GraphProps, GraphState> {
                     const val = this.props.series[j].values[i];
                     paths.push({
                         path: this.calculatePath(
-                            graphHeight, barWidth, axisLabelWidth + marginLeft, i, lastY, (val + lastVal) * yScale, val),
+                            graphHeight,
+                            barWidth,
+                            axisLabelWidth + marginLeft,
+                            i,
+                            lastY,
+                            (val + lastVal) * yScale,
+                            val),
                         className: this.props.series[j].className
                     });
                     lastY -= val * yScale;
