@@ -45,12 +45,12 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
             address: "",
             isConnected: false,
             isSynced: false,
-            hasNeighbors: false,
+            hasPeers: false,
             latestMilestoneIndex: "-",
             latestSolidMilestoneIndex: "-",
             pruningIndex: "-",
-            syncedNeighbors: "-",
-            connectedNeighbors: "-",
+            syncedPeers: "-",
+            connectedPeers: "-",
             newMessagesDiff: [],
             sentMessagesDiff: []
         };
@@ -70,12 +70,12 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                 let address: string = "";
                 let isConnected = false;
                 let isSynced = false;
-                let hasNeighbors = false;
+                let hasPeers = false;
                 let latestMilestoneIndex = "-";
                 let latestSolidMilestoneIndex = "-";
                 let pruningIndex = "-";
-                let syncedNeighbors = "-";
-                let connectedNeighbors = "-";
+                let syncedPeers = "-";
+                let connectedPeers = "-";
                 const newMessagesTotal = [];
                 const sentMessagesTotal = [];
                 const newMessagesDiff = [];
@@ -98,12 +98,12 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                                 sentMessagesTotal.push(peer.gossip.metrics.sentMessages);
 
                                 if (isConnected) {
-                                    hasNeighbors = peer.gossip.heartbeat.connectedNeighbors > 0;
+                                    hasPeers = peer.gossip.heartbeat.connectedNeighbors > 0;
                                     latestMilestoneIndex = peer.gossip.heartbeat.latestMilestoneIndex.toString();
                                     latestSolidMilestoneIndex = peer.gossip.heartbeat.solidMilestoneIndex.toString();
                                     pruningIndex = peer.gossip.heartbeat.prunedMilestoneIndex.toString();
-                                    syncedNeighbors = peer.gossip.heartbeat.syncedNeighbors.toString();
-                                    connectedNeighbors = peer.gossip.heartbeat.connectedNeighbors.toString();
+                                    syncedPeers = peer.gossip.heartbeat.syncedNeighbors.toString();
+                                    connectedPeers = peer.gossip.heartbeat.connectedNeighbors.toString();
                                 }
                             }
                         }
@@ -129,12 +129,12 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                     address,
                     isConnected,
                     isSynced,
-                    hasNeighbors,
+                    hasPeers,
                     latestMilestoneIndex,
                     latestSolidMilestoneIndex,
                     pruningIndex,
-                    syncedNeighbors,
-                    connectedNeighbors,
+                    syncedPeers,
+                    connectedPeers,
                     newMessagesDiff,
                     sentMessagesDiff,
                     gossipMetrics
@@ -189,8 +189,8 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                                     className="child"
                                 />
                                 <HealthIndicator
-                                    label="Neighbors"
-                                    healthy={this.state.hasNeighbors}
+                                    label="Peers"
+                                    healthy={this.state.hasPeers}
                                     className="child"
                                 />
                             </div>
@@ -213,8 +213,8 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                             className="margin-r-s"
                         />
                         <InfoPanel
-                            caption="Synced Neighbors"
-                            value={`${this.state.syncedNeighbors} / ${this.state.connectedNeighbors}`}
+                            caption="Synced Peers"
+                            value={`${this.state.syncedPeers} / ${this.state.connectedPeers}`}
                             icon={<ConfirmationIcon />}
                             backgroundStyle="purple"
                         />

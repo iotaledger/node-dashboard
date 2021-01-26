@@ -5,12 +5,12 @@ export interface PeerState {
     address: string;
     isConnected: boolean;
     isSynced: boolean;
-    hasNeighbors: boolean;
+    hasPeers: boolean;
     latestMilestoneIndex: string;
     latestSolidMilestoneIndex: string;
     pruningIndex: string;
-    syncedNeighbors: string;
-    connectedNeighbors: string;
+    syncedPeers: string;
+    connectedPeers: string;
     newMessagesDiff: number[];
     sentMessagesDiff: number[];
     gossipMetrics?: IGossipMetrics;
