@@ -52,7 +52,8 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
             syncedPeers: "-",
             connectedPeers: "-",
             newMessagesDiff: [],
-            sentMessagesDiff: []
+            sentMessagesDiff: [],
+            relation: "-"
         };
     }
 
@@ -81,6 +82,7 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                 const newMessagesDiff = [];
                 const sentMessagesDiff = [];
                 let gossipMetrics;
+                let relation = "-";
 
                 for (const allDataPeers of allData) {
                     if (allDataPeers) {
@@ -92,6 +94,7 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                             isConnected = peer.connected;
                             isSynced = isConnected && DataHelper.calculateIsSynced(peer);
                             gossipMetrics = peer.gossip?.metrics;
+                            relation = peer.relation;
 
                             if (peer.gossip?.heartbeat) {
                                 newMessagesTotal.push(peer.gossip.metrics.newMessages);
@@ -137,7 +140,8 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                     connectedPeers,
                     newMessagesDiff,
                     sentMessagesDiff,
-                    gossipMetrics
+                    gossipMetrics,
+                    relation
                 });
             }
         );
@@ -176,6 +180,10 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                             <div className="node-info">
                                 <h2>{this.state.name}</h2>
                                 <p className="secondary margin-t-t">{this.state.address}</p>
+                                <p className="secondary margin-t-t">
+                                    Relation:&nbsp;
+                                    {`${this.state.relation.slice(0, 1).toUpperCase()}${this.state.relation.slice(1)}`}
+                                </p>
                             </div>
                             <div className="health-indicators">
                                 <HealthIndicator
