@@ -242,31 +242,31 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                             <div className="col">
                                 <h4>Total Messages</h4>
                                 <div className="gossip-value">{this.state.gossipMetrics?.knownMessages ?? "-"}</div>
-                                <h4 className="margin-t-s">Sent Heartbeats</h4>
-                                <div className="gossip-value">{this.state.gossipMetrics?.sentHeartbeats ?? "-"}</div>
-                            </div>
-                            <div className="col">
-                                <h4>New Messages</h4>
-                                <div className="gossip-value">{this.state.gossipMetrics?.newMessages ?? "-"}</div>
                                 <h4 className="margin-t-s">Received Heartbeats</h4>
                                 <div className="gossip-value">
                                     {this.state.gossipMetrics?.receivedHeartbeats ?? "-"}
                                 </div>
                             </div>
                             <div className="col">
+                                <h4>New Messages</h4>
+                                <div className="gossip-value">{this.state.gossipMetrics?.newMessages ?? "-"}</div>
+                                <h4 className="margin-t-s">Sent Heartbeats</h4>
+                                <div className="gossip-value">{this.state.gossipMetrics?.sentHeartbeats ?? "-"}</div>
+                            </div>
+                            <div className="col">
                                 <h4>Received Messages</h4>
                                 <div className="gossip-value">{this.state.gossipMetrics?.receivedMessages ?? "-"}</div>
-                                <h4 className="margin-t-s">Sent Milestone Requests</h4>
+                                <h4 className="margin-t-s">Received Milestone Requests</h4>
                                 <div className="gossip-value">
-                                    {this.state.gossipMetrics?.sentMilestoneRequests ?? "-"}
+                                    {this.state.gossipMetrics?.receivedMilestoneRequests ?? "-"}
                                 </div>
                             </div>
                             <div className="col">
                                 <h4>Sent Messages</h4>
                                 <div className="gossip-value">{this.state.gossipMetrics?.sentMessages ?? "-"}</div>
-                                <h4 className="margin-t-s">Received Milestone Requests</h4>
+                                <h4 className="margin-t-s">Sent Milestone Requests</h4>
                                 <div className="gossip-value">
-                                    {this.state.gossipMetrics?.receivedMilestoneRequests ?? "-"}
+                                    {this.state.gossipMetrics?.sentMilestoneRequests ?? "-"}
                                 </div>
                             </div>
                             <div className="col">
