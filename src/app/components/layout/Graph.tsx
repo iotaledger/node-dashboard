@@ -207,7 +207,7 @@ class Graph extends Component<GraphProps, GraphState> {
         let pathSegments = [`M ${marginLeft + (index * barWidth) + spacing} ${startY}`];
 
         pathSegments = pathSegments.concat(
-            val === 0 ? [
+            val <= 0 ? [
                 `L ${marginLeft + ((index * barWidth) + spacing)} ${startY - 1}`,
                 `L ${marginLeft + ((index + 1) * barWidth) - spacing} ${startY - 1}`,
                 `L ${marginLeft + ((index + 1) * barWidth) - spacing} ${startY}`
