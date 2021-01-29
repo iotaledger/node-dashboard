@@ -168,7 +168,13 @@ class Graph extends Component<GraphProps, GraphState> {
                     const val = this.props.series[j].values[i];
                     paths.push({
                         path: this.calculatePath(
-                            graphHeight, barWidth, axisLabelWidth + marginLeft, i, lastY, (val + lastVal) * yScale),
+                            graphHeight,
+                            barWidth,
+                            axisLabelWidth + marginLeft,
+                            i,
+                            lastY,
+                            (val + lastVal) * yScale,
+                            val),
                         className: this.props.series[j].className
                     });
                     lastY -= val * yScale;
@@ -191,20 +197,27 @@ class Graph extends Component<GraphProps, GraphState> {
      * @param index The bar index.
      * @param startY The start value.
      * @param endY The end value.
+     * @param val The actual value being plotted.
      * @returns The path.
      */
     private calculatePath(
         graphHeight: number, barWidth: number, marginLeft: number,
-        index: number, startY: number, endY: number): string {
+        index: number, startY: number, endY: number, val: number): string {
         const spacing = 2;
-        const pathSegments = [
-            `M ${marginLeft + (index * barWidth) + spacing} ${startY}`,
-            `L ${marginLeft + (index * barWidth) + spacing} ${graphHeight - endY}`,
-            `C ${marginLeft + (index * barWidth) + spacing} ${graphHeight - endY - 10
-            } ${marginLeft + ((index + 1) * barWidth) - spacing} ${graphHeight - endY - 10
-            } ${marginLeft + ((index + 1) * barWidth) - spacing} ${graphHeight - endY}`,
-            `L ${marginLeft + ((index + 1) * barWidth) - spacing} ${startY}`
-        ];
+        let pathSegments = [`M ${marginLeft + (index * barWidth) + spacing} ${startY}`];
+
+        pathSegments = pathSegments.concat(
+            val <= 0 ? [
+                `L ${marginLeft + ((index * barWidth) + spacing)} ${startY - 1}`,
+                `L ${marginLeft + ((index + 1) * barWidth) - spacing} ${startY - 1}`,
+                `L ${marginLeft + ((index + 1) * barWidth) - spacing} ${startY}`
+            ] : [
+                    `L ${marginLeft + (index * barWidth) + spacing} ${graphHeight - endY}`,
+                    `C ${marginLeft + (index * barWidth) + spacing} ${graphHeight - endY - 10
+                    } ${marginLeft + ((index + 1) * barWidth) - spacing} ${graphHeight - endY - 10
+                    } ${marginLeft + ((index + 1) * barWidth) - spacing} ${graphHeight - endY}`,
+                    `L ${marginLeft + ((index + 1) * barWidth) - spacing} ${startY}`
+                ]);
         return pathSegments.join(" ");
     }
 }

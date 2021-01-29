@@ -1,7 +1,7 @@
 import { IGossipMetrics } from "@iota/iota.js";
 
 export interface PeerState {
-    name: string;
+    alias?: string;
     address: string;
     isConnected: boolean;
     isSynced: boolean;
@@ -14,4 +14,5 @@ export interface PeerState {
     newMessagesDiff: number[];
     sentMessagesDiff: number[];
     gossipMetrics?: IGossipMetrics;
+    relation: string;
 }

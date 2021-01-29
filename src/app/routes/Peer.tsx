@@ -41,7 +41,6 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
 
         this.state = {
-            name: "",
             address: "",
             isConnected: false,
             isSynced: false,
@@ -52,7 +51,8 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
             syncedPeers: "-",
             connectedPeers: "-",
             newMessagesDiff: [],
-            sentMessagesDiff: []
+            sentMessagesDiff: [],
+            relation: "-"
         };
     }
 
@@ -66,7 +66,7 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
             WebSocketTopic.PeerMetric,
             undefined,
             allData => {
-                let name = this.props.match.params.id;
+                let alias;
                 let address: string = "";
                 let isConnected = false;
                 let isSynced = false;
@@ -81,17 +81,19 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                 const newMessagesDiff = [];
                 const sentMessagesDiff = [];
                 let gossipMetrics;
+                let relation = "-";
 
                 for (const allDataPeers of allData) {
                     if (allDataPeers) {
                         const peer = allDataPeers.find(p => p.id === this.props.match.params.id);
 
                         if (peer) {
-                            name = DataHelper.formatPeerName(peer);
+                            alias = peer.alias;
                             address = DataHelper.formatPeerAddress(peer) ?? "";
                             isConnected = peer.connected;
                             isSynced = isConnected && DataHelper.calculateIsSynced(peer);
                             gossipMetrics = peer.gossip?.metrics;
+                            relation = peer.relation;
 
                             if (peer.gossip?.heartbeat) {
                                 newMessagesTotal.push(peer.gossip.metrics.newMessages);
@@ -125,7 +127,7 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                 }
 
                 this.setState({
-                    name,
+                    alias,
                     address,
                     isConnected,
                     isSynced,
@@ -137,7 +139,8 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                     connectedPeers,
                     newMessagesDiff,
                     sentMessagesDiff,
-                    gossipMetrics
+                    gossipMetrics,
+                    relation
                 });
             }
         );
@@ -174,8 +177,20 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                     <div className="card">
                         <div className="banner row spread">
                             <div className="node-info">
-                                <h2>{this.state.name}</h2>
+                                {this.state.alias && (
+                                    <React.Fragment>
+                                        <h2>{this.state.alias}</h2>
+                                        <p className="secondary margin-t-t">{this.props.match.params.id}</p>
+                                    </React.Fragment>
+                                )}
+                                {!this.state.alias && (
+                                    <h2>{this.props.match.params.id}</h2>
+                                )}
                                 <p className="secondary margin-t-t">{this.state.address}</p>
+                                <p className="secondary margin-t-t">
+                                    Relation:&nbsp;
+                                    {`${this.state.relation.slice(0, 1).toUpperCase()}${this.state.relation.slice(1)}`}
+                                </p>
                             </div>
                             <div className="health-indicators">
                                 <HealthIndicator
@@ -242,31 +257,31 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                             <div className="col">
                                 <h4>Total Messages</h4>
                                 <div className="gossip-value">{this.state.gossipMetrics?.knownMessages ?? "-"}</div>
-                                <h4 className="margin-t-s">Sent Heartbeats</h4>
-                                <div className="gossip-value">{this.state.gossipMetrics?.sentHeartbeats ?? "-"}</div>
-                            </div>
-                            <div className="col">
-                                <h4>New Messages</h4>
-                                <div className="gossip-value">{this.state.gossipMetrics?.newMessages ?? "-"}</div>
                                 <h4 className="margin-t-s">Received Heartbeats</h4>
                                 <div className="gossip-value">
                                     {this.state.gossipMetrics?.receivedHeartbeats ?? "-"}
                                 </div>
                             </div>
                             <div className="col">
+                                <h4>New Messages</h4>
+                                <div className="gossip-value">{this.state.gossipMetrics?.newMessages ?? "-"}</div>
+                                <h4 className="margin-t-s">Sent Heartbeats</h4>
+                                <div className="gossip-value">{this.state.gossipMetrics?.sentHeartbeats ?? "-"}</div>
+                            </div>
+                            <div className="col">
                                 <h4>Received Messages</h4>
                                 <div className="gossip-value">{this.state.gossipMetrics?.receivedMessages ?? "-"}</div>
-                                <h4 className="margin-t-s">Sent Milestone Requests</h4>
+                                <h4 className="margin-t-s">Received Milestone Requests</h4>
                                 <div className="gossip-value">
-                                    {this.state.gossipMetrics?.sentMilestoneRequests ?? "-"}
+                                    {this.state.gossipMetrics?.receivedMilestoneRequests ?? "-"}
                                 </div>
                             </div>
                             <div className="col">
                                 <h4>Sent Messages</h4>
                                 <div className="gossip-value">{this.state.gossipMetrics?.sentMessages ?? "-"}</div>
-                                <h4 className="margin-t-s">Received Milestone Requests</h4>
+                                <h4 className="margin-t-s">Sent Milestone Requests</h4>
                                 <div className="gossip-value">
-                                    {this.state.gossipMetrics?.receivedMilestoneRequests ?? "-"}
+                                    {this.state.gossipMetrics?.sentMilestoneRequests ?? "-"}
                                 </div>
                             </div>
                             <div className="col">
