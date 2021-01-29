@@ -41,7 +41,6 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
 
         this.state = {
-            name: "",
             address: "",
             isConnected: false,
             isSynced: false,
@@ -67,7 +66,7 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
             WebSocketTopic.PeerMetric,
             undefined,
             allData => {
-                let name = this.props.match.params.id;
+                let alias;
                 let address: string = "";
                 let isConnected = false;
                 let isSynced = false;
@@ -89,7 +88,7 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                         const peer = allDataPeers.find(p => p.id === this.props.match.params.id);
 
                         if (peer) {
-                            name = DataHelper.formatPeerName(peer);
+                            alias = peer.alias;
                             address = DataHelper.formatPeerAddress(peer) ?? "";
                             isConnected = peer.connected;
                             isSynced = isConnected && DataHelper.calculateIsSynced(peer);
@@ -128,7 +127,7 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                 }
 
                 this.setState({
-                    name,
+                    alias,
                     address,
                     isConnected,
                     isSynced,
@@ -178,7 +177,15 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                     <div className="card">
                         <div className="banner row spread">
                             <div className="node-info">
-                                <h2>{this.state.name}</h2>
+                                {this.state.alias && (
+                                    <React.Fragment>
+                                        <h2>{this.state.alias}</h2>
+                                        <p className="secondary margin-t-t">{this.props.match.params.id}</p>
+                                    </React.Fragment>
+                                )}
+                                {!this.state.alias && (
+                                    <h2>{this.props.match.params.id}</h2>
+                                )}
                                 <p className="secondary margin-t-t">{this.state.address}</p>
                                 <p className="secondary margin-t-t">
                                     Relation:&nbsp;

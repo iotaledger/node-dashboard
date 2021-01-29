@@ -28,12 +28,12 @@
 
       .health-indicators {
         display: flex;
-        flex-direction: row;
-        justify-content: center;
+        flex-direction: column;
+        justify-content: space-around;
+        border-left: 1px solid var(--panel-border);
 
         .child {
-          padding: 0 $spacing-small;
-          border-left: 1px solid var(--panel-border);
+          padding: 0px $spacing-small;
         }
       }
     }
