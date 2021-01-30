@@ -16,6 +16,7 @@ import InclusionState from "../../components/tangle/InclusionState";
 import IndexationPayload from "../../components/tangle/IndexationPayload";
 import MessageTangleState from "../../components/tangle/MessageTangleState";
 import MilestonePayload from "../../components/tangle/MilestonePayload";
+import ReceiptPayload from "../../components/tangle/ReceiptPayload";
 import TransactionPayload from "../../components/tangle/TransactionPayload";
 import "./Message.scss";
 import { MessageRouteProps } from "./MessageRouteProps";
@@ -137,64 +138,37 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                                 labelPosition="top"
                             />
                         </div>
-                        {this.state.message && (
-                            <React.Fragment>
+                        {this.state.message?.parents?.map((parent, idx) => (
+                            <React.Fragment key={idx}>
                                 <div className="card--label">
-                                    Parent Message 1
+                                    Parent Message {idx + 1}
                                 </div>
                                 <div className="card--value card--value__mono row">
-                                    {this.state.message?.parent1MessageId !== "0".repeat(64) && (
+                                    {parent !== "0".repeat(64) && (
                                         <React.Fragment>
                                             <Link
                                                 className="margin-r-t"
                                                 to={
-                                                    `/explorer/message/${this.state.message?.parent1MessageId}`
+                                                    `/explorer/message/${parent}`
                                                 }
                                             >
-                                                {this.state.message?.parent1MessageId}
+                                                {parent}
                                             </Link>
                                             <MessageButton
                                                 onClick={() => ClipboardHelper.copy(
-                                                    this.state.message?.parent1MessageId
+                                                    parent
                                                 )}
                                                 buttonType="copy"
                                                 labelPosition="top"
                                             />
                                         </React.Fragment>
                                     )}
-                                    {this.state.message?.parent1MessageId === "0".repeat(64) && (
-                                        <span>Genesis</span>
-                                    )}
-                                </div>
-                                <div className="card--label">
-                                    Parent Message 2
-                                </div>
-                                <div className="card--value card--value__mono row">
-                                    {this.state.message?.parent2MessageId !== "0".repeat(64) && (
-                                        <React.Fragment>
-                                            <Link
-                                                className="margin-r-t"
-                                                to={
-                                                    `/explorer/message/${this.state.message?.parent2MessageId}`
-                                                }
-                                            >
-                                                {this.state.message?.parent2MessageId}
-                                            </Link>
-                                            <MessageButton
-                                                onClick={() => ClipboardHelper.copy(
-                                                    this.state.message?.parent2MessageId
-                                                )}
-                                                buttonType="copy"
-                                                labelPosition="top"
-                                            />
-                                        </React.Fragment>
-                                    )}
-                                    {this.state.message?.parent2MessageId === "0".repeat(64) && (
+                                    {parent === "0".repeat(64) && (
                                         <span>Genesis</span>
                                     )}
                                 </div>
                             </React.Fragment>
-                        )}
+                        ))}
                         <div className="card--label">
                             Nonce
                         </div>
@@ -241,27 +215,35 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                     {this.state.message?.payload && (
                         <React.Fragment>
                             {this.state.message.payload.type === TRANSACTION_PAYLOAD_TYPE && (
-                                <TransactionPayload payload={this.state.message.payload} />
+                                <React.Fragment>
+                                    <TransactionPayload payload={this.state.message.payload} />
+                                    {this.state.message.payload.essence.payload && (
+                                        <div className="card margin-t-m padding-l">
+                                            <IndexationPayload
+                                                payload={this.state.message.payload.essence.payload}
+                                            />
+                                        </div>
+                                    )}
+                                </React.Fragment>
+
                             )}
                             {this.state.message.payload.type === MILESTONE_PAYLOAD_TYPE && (
-                                <div className="card margin-t-m padding-l">
-                                    <MilestonePayload payload={this.state.message.payload} />
-                                </div>
+                                <React.Fragment>
+                                    <div className="card margin-t-m padding-l">
+                                        <MilestonePayload payload={this.state.message.payload} />
+                                    </div>
+                                    {this.state.message.payload.receipt && (
+                                        <div className="card margin-t-m padding-l">
+                                            <ReceiptPayload payload={this.state.message.payload.receipt} />
+                                        </div>
+                                    )}
+                                </React.Fragment>
                             )}
                             {this.state.message.payload.type === INDEXATION_PAYLOAD_TYPE && (
                                 <div className="card margin-t-m padding-l">
                                     <IndexationPayload payload={this.state.message.payload} />
                                 </div>
                             )}
-
-                            {this.state.message.payload.type === TRANSACTION_PAYLOAD_TYPE &&
-                                this.state.message.payload.essence.payload && (
-                                    <div className="card margin-t-m padding-l">
-                                        <IndexationPayload
-                                            payload={this.state.message.payload.essence.payload}
-                                        />
-                                    </div>
-                                )}
                         </React.Fragment>
                     )}
                     <div className="card margin-t-s padding-l">

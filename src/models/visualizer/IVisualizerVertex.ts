@@ -10,14 +10,9 @@ export interface IVisualizerVertex {
     shortId: string;
 
     /**
-     * Parent 1 Id.
+     * Parent Ids.
      */
-    parent1Id?: string;
-
-    /**
-     * Parent 2 Id.
-     */
-    parent2Id?: string;
+    parents?: string;
 
     /**
      * Is the message solid.

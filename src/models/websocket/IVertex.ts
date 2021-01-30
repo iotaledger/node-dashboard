@@ -1,8 +1,7 @@
 /* eslint-disable camelcase */
 export interface IVertex {
     id: string;
-    parent1_id: string;
-    parent2_2: string;
+    parents: string;
     is_solid: boolean;
     is_referenced: boolean;
     is_conflicting: boolean;
