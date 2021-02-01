@@ -255,7 +255,7 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
 
                         <div className="row spread padding-s gossip">
                             <div className="col">
-                                <h4>Total Messages</h4>
+                                <h4>Known Messages</h4>
                                 <div className="gossip-value">{this.state.gossipMetrics?.knownMessages ?? "-"}</div>
                                 <h4 className="margin-t-s">Received Heartbeats</h4>
                                 <div className="gossip-value">
