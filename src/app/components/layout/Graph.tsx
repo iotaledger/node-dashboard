@@ -78,6 +78,7 @@ class Graph extends Component<GraphProps, GraphState> {
                                 key={idx}
                                 x={t.x}
                                 y={t.y}
+                                textAnchor={t.anchor ?? "start"}
                                 className="axis-label"
                             >
                                 {t.content}
@@ -122,20 +123,27 @@ class Graph extends Component<GraphProps, GraphState> {
         const axis = [];
 
         if (this._graphElement && this.props.series.length > 0) {
+            const axisLabelHeight = 20;
+
             const graphWidth = this._graphElement.width.baseVal.value;
-            const graphHeight = this._graphElement.height.baseVal.value;
+            const graphHeight = this._graphElement.height.baseVal.value - axisLabelHeight;
 
-            let maxY = 4;
-            const maxItems = Math.min(this.props.seriesMaxLength, this.props.series[0].values.length);
+            const actualSeriesValues: number[][] =
+                this.props.series.map(s => s.values.slice(-this.props.seriesMaxLength));
 
-            for (let i = 0; i < maxItems; i++) {
-                let combinedTotal = 0;
-                for (let j = 0; j < this.props.series.length; j++) {
-                    combinedTotal += this.props.series[j].values[i];
+            let maxY = 0;
+            const maxItems = Math.min(this.props.seriesMaxLength, actualSeriesValues[0].length);
+
+            for (let i = 0; i < actualSeriesValues.length; i++) {
+                for (let j = 0; j < actualSeriesValues[i].length; j++) {
+                    if (actualSeriesValues[i][j] > maxY) {
+                        maxY = actualSeriesValues[i][j];
+                    }
                 }
-                if (combinedTotal > maxY) {
-                    maxY = combinedTotal;
-                }
+            }
+
+            if (maxY === 0) {
+                maxY = 4;
             }
 
             const yUsage = 0.9;
@@ -143,9 +151,11 @@ class Graph extends Component<GraphProps, GraphState> {
             const marginLeft = 10;
             const marginRight = 10;
             const axisLineCount = 4;
+            const decimalPlaces = maxY < 2 ? 2 : 0;
 
             const yScale = (graphHeight * yUsage) / maxY;
-            const barWidth = (graphWidth - axisLabelWidth - marginLeft - marginRight) / this.props.seriesMaxLength;
+            const barWidth = (graphWidth - axisLabelWidth - marginLeft - marginRight) /
+                (this.props.seriesMaxLength * this.props.series.length);
             const axisSpacing = graphHeight / (axisLineCount - 1);
 
             for (let i = 0; i < axisLineCount; i++) {
@@ -155,30 +165,44 @@ class Graph extends Component<GraphProps, GraphState> {
                     className: "axis-color"
                 });
                 text.push({
-                    x: 0,
+                    x: axisLabelWidth - 5,
                     y: graphHeight - (i * axisSpacing) + 2,
-                    content: Math.round((i * ((maxY / yUsage) / (axisLineCount - 1)))).toString()
+                    anchor: "end",
+                    content: (i * ((maxY / yUsage) / (axisLineCount - 1))).toFixed(decimalPlaces)
                 });
             }
 
+            if (this.props.timeInterval && this.props.endTime) {
+                const numTimeEntries = this.props.timeMarkers ?? 10;
+                const startTime = this.props.endTime - (maxItems * this.props.timeInterval);
+                const timePerInterval = (this.props.seriesMaxLength * this.props.timeInterval) / numTimeEntries;
+                for (let i = 0; i <= numTimeEntries; i++) {
+                    const dt = new Date(startTime + (i * timePerInterval));
+                    text.push({
+                        x: marginLeft + (axisLabelWidth / 2) +
+                            (((graphWidth - marginLeft - marginRight) / numTimeEntries) * i),
+                        y: graphHeight + axisLabelHeight,
+                        anchor: "middle",
+                        content: `${dt.getHours().toString()
+                            .padStart(2, "0")}:${dt.getMinutes().toString()
+                                .padStart(2, "0")}.${dt.getSeconds().toString()
+                                    .padStart(2, "0")}`
+                    });
+                }
+            }
+
             for (let i = 0; i < maxItems; i++) {
-                let lastY = graphHeight;
-                let lastVal = 0;
-                for (let j = 0; j < this.props.series.length; j++) {
-                    const val = this.props.series[j].values[i];
+                for (let j = 0; j < actualSeriesValues.length; j++) {
+                    const val = actualSeriesValues[j][i];
                     paths.push({
                         path: this.calculatePath(
                             graphHeight,
                             barWidth,
                             axisLabelWidth + marginLeft,
-                            i,
-                            lastY,
-                            (val + lastVal) * yScale,
-                            val),
+                            j + (i * actualSeriesValues.length),
+                            val * yScale),
                         className: this.props.series[j].className
                     });
-                    lastY -= val * yScale;
-                    lastVal += val;
                 }
             }
         }
@@ -195,28 +219,26 @@ class Graph extends Component<GraphProps, GraphState> {
      * @param barWidth The width of bars.
      * @param marginLeft The left margin for axis.
      * @param index The bar index.
-     * @param startY The start value.
-     * @param endY The end value.
-     * @param val The actual value being plotted.
+     * @param scaledVal The end value.
      * @returns The path.
      */
     private calculatePath(
         graphHeight: number, barWidth: number, marginLeft: number,
-        index: number, startY: number, endY: number, val: number): string {
+        index: number, scaledVal: number): string {
         const spacing = 2;
-        let pathSegments = [`M ${marginLeft + (index * barWidth) + spacing} ${startY}`];
+        let pathSegments = [`M ${marginLeft + (index * barWidth) + spacing} ${graphHeight}`];
 
         pathSegments = pathSegments.concat(
-            val <= 0 ? [
-                `L ${marginLeft + ((index * barWidth) + spacing)} ${startY - 1}`,
-                `L ${marginLeft + ((index + 1) * barWidth) - spacing} ${startY - 1}`,
-                `L ${marginLeft + ((index + 1) * barWidth) - spacing} ${startY}`
+            scaledVal <= 0 ? [
+                `L ${marginLeft + ((index * barWidth) + spacing)} ${graphHeight - 1}`,
+                `L ${marginLeft + ((index + 1) * barWidth) - spacing} ${graphHeight - 1}`,
+                `L ${marginLeft + ((index + 1) * barWidth) - spacing} ${graphHeight}`
             ] : [
-                    `L ${marginLeft + (index * barWidth) + spacing} ${graphHeight - endY}`,
-                    `C ${marginLeft + (index * barWidth) + spacing} ${graphHeight - endY - 10
-                    } ${marginLeft + ((index + 1) * barWidth) - spacing} ${graphHeight - endY - 10
-                    } ${marginLeft + ((index + 1) * barWidth) - spacing} ${graphHeight - endY}`,
-                    `L ${marginLeft + ((index + 1) * barWidth) - spacing} ${startY}`
+                    `L ${marginLeft + (index * barWidth) + spacing} ${graphHeight - scaledVal}`,
+                    `C ${marginLeft + (index * barWidth) + spacing} ${graphHeight - scaledVal - 10
+                    } ${marginLeft + ((index + 1) * barWidth) - spacing} ${graphHeight - scaledVal - 10
+                    } ${marginLeft + ((index + 1) * barWidth) - spacing} ${graphHeight - scaledVal}`,
+                    `L ${marginLeft + ((index + 1) * barWidth) - spacing} ${graphHeight}`
                 ]);
         return pathSegments.join(" ");
     }

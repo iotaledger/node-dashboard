@@ -1,3 +1,4 @@
+
 export interface HomeState {
     /**
      * The name or alias of the node.
@@ -53,6 +54,11 @@ export interface HomeState {
      * Memory usage.
      */
     memory?: string;
+
+    /**
+     * Last received mps time.
+     */
+    lastReceivedMpsTime: number;
 
     /**
      * The messages per second incoming.

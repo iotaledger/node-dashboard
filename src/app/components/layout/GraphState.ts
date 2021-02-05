@@ -13,6 +13,7 @@ export interface GraphState {
     text?: {
         x: number;
         y: number;
+        anchor?: string;
         content: string;
     }[];
 }

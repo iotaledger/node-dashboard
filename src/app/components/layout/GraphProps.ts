@@ -14,6 +14,21 @@ export interface GraphProps {
     }[];
 
     /**
+     * The interval between items in the graph.
+     */
+    timeInterval?: number;
+
+    /**
+     * The number of time markers to show.
+     */
+    timeMarkers?: number;
+
+    /**
+     * The end time.
+     */
+    endTime?: number;
+
+    /**
      * The maximum number of items to show.
      */
     seriesMaxLength: number;

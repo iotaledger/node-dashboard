@@ -63,7 +63,9 @@ export class MetricsService {
             WebSocketTopic.MilestoneInfo,
             WebSocketTopic.ConfirmedInfo,
             WebSocketTopic.SolidInfo,
-            WebSocketTopic.Vertex
+            WebSocketTopic.Vertex,
+            WebSocketTopic.SpamMetrics,
+            WebSocketTopic.AvgSpamMetrics
         ];
 
         for (const topic of topics) {

@@ -83,6 +83,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
             pruningIndex: "-",
             memory: "-",
             uptime: "-",
+            lastReceivedMpsTime: 0,
             mpsIncoming: [],
             mpsOutgoing: [],
             bannerSrc: BrandHelper.getBanner(this._themeService.get())
@@ -164,7 +165,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
                 const mpsIncoming = nonNull.map(m => m.incoming);
                 const mpsOutgoing = nonNull.map(m => m.outgoing);
 
-                this.setState({ mpsIncoming, mpsOutgoing });
+                this.setState({ mpsIncoming, mpsOutgoing, lastReceivedMpsTime: Date.now() });
             }
         );
     }
@@ -262,7 +263,9 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                 <div className="card fill messages-graph-panel margin-r-s">
                                     <Graph
                                         caption="Messages Per Second"
-                                        seriesMaxLength={40}
+                                        seriesMaxLength={20}
+                                        timeInterval={1000}
+                                        endTime={this.state.lastReceivedMpsTime}
                                         series={[
                                             {
                                                 className: "bar-color-1",

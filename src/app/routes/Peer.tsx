@@ -52,7 +52,8 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
             connectedPeers: "-",
             newMessagesDiff: [],
             sentMessagesDiff: [],
-            relation: "-"
+            relation: "-",
+            lastUpdateTime: 0
         };
     }
 
@@ -122,8 +123,9 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                 for (let i = 1; i < sentMessagesTotal.length; i++) {
                     sentMessagesDiff.push(
                         Math.max(
-                            sentMessagesTotal[i] - sentMessagesTotal[i - 1])
-                        , 0);
+                            sentMessagesTotal[i] - sentMessagesTotal[i - 1]
+                        , 0)
+                    );
                 }
 
                 this.setState({
@@ -140,7 +142,8 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                     newMessagesDiff,
                     sentMessagesDiff,
                     gossipMetrics,
-                    relation
+                    relation,
+                    lastUpdateTime: Date.now()
                 });
             }
         );
@@ -238,7 +241,9 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                     <div className="card messages-graph-panel margin-t-s">
                         <Graph
                             caption="Messages per Second"
-                            seriesMaxLength={60}
+                            endTime={this.state.lastUpdateTime}
+                            timeInterval={1000}
+                            seriesMaxLength={30}
                             series={[
                                 {
                                     className: "bar-color-1",

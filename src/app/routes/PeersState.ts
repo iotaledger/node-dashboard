@@ -11,5 +11,6 @@ export interface PeersState {
         sentMessagesTotal: number[];
         newMessagesDiff: number[];
         sentMessagesDiff: number[];
+        lastUpdateTime: number;
     }[];
 }

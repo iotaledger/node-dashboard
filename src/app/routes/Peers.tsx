@@ -62,6 +62,7 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                         sentMessagesTotal: number[];
                         newMessagesDiff: number[];
                         sentMessagesDiff: number[];
+                        lastUpdateTime: number;
                     };
                 } = {};
 
@@ -81,7 +82,8 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                     newMessagesTotal: [],
                                     sentMessagesTotal: [],
                                     newMessagesDiff: [],
-                                    sentMessagesDiff: []
+                                    sentMessagesDiff: [],
+                                    lastUpdateTime: 0
                                 };
                             } else {
                                 peers[peer.id].name = name;
@@ -89,6 +91,7 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                 peers[peer.id].health = health;
                             }
                             peers[peer.id].id = peer.id;
+                            peers[peer.id].lastUpdateTime = Date.now();
 
                             if (peer.gossip) {
                                 peers[peer.id].newMessagesTotal.push(peer.gossip.metrics.newMessages);
@@ -107,8 +110,9 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                             for (let i = 1; i < peers[peer.id].sentMessagesTotal.length; i++) {
                                 peers[peer.id].sentMessagesDiff.push(
                                     Math.max(
-                                        peers[peer.id].sentMessagesTotal[i] - peers[peer.id].sentMessagesTotal[i - 1])
-                                    , 0);
+                                        peers[peer.id].sentMessagesTotal[i] - peers[peer.id].sentMessagesTotal[i - 1]
+                                        , 0)
+                                );
                             }
                         }
                     }
@@ -159,7 +163,10 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                     </div>
                                     <Graph
                                         caption="Messages per Second"
-                                        seriesMaxLength={60}
+                                        seriesMaxLength={15}
+                                        timeInterval={1000}
+                                        timeMarkers={5}
+                                        endTime={p.lastUpdateTime}
                                         series={[
                                             {
                                                 className: "bar-color-1",

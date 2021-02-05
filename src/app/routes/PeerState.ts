@@ -15,4 +15,5 @@ export interface PeerState {
     sentMessagesDiff: number[];
     gossipMetrics?: IGossipMetrics;
     relation: string;
+    lastUpdateTime: number;
 }

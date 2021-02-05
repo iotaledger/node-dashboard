@@ -10,6 +10,7 @@ import "./App.scss";
 import Header from "./components/layout/Header";
 import NavPanel from "./components/layout/NavPanel";
 import Analytics from "./routes/Analytics";
+import { AnalyticsRouteProps } from "./routes/AnalyticsRouteProps";
 import Explorer from "./routes/Explorer";
 import Address from "./routes/explorer/Address";
 import { AddressRouteProps } from "./routes/explorer/AddressRouteProps";
@@ -82,8 +83,8 @@ class App extends Component<RouteComponentProps> {
                                 component={() => (<Home />)}
                             />
                             <Route
-                                path="/analytics"
-                                component={() => (<Analytics />)}
+                                path="/analytics/:section?"
+                                component={(props: AnalyticsRouteProps) => (<Analytics {...props} />)}
                             />
                             <Route
                                 exact={true}

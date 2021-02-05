@@ -15,4 +15,18 @@
       padding: 24px;
     }
   }
+
+  .gossip {
+    .col {
+      .gossip-value {
+        @include font-size(24px);
+
+        margin-top: $spacing-tiny;
+        color: var(--text-color-primary);
+        font-family: $font-sans;
+        font-weight: bold;
+        white-space: nowrap;
+      }
+    }
+  }
 }
