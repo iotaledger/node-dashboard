@@ -3,6 +3,7 @@ import { Route, RouteComponentProps, Switch, withRouter } from "react-router-dom
 import { ReactComponent as AnalyticsIcon } from "../assets/analytics.svg";
 import { ReactComponent as ExplorerIcon } from "../assets/explorer.svg";
 import { ReactComponent as HomeIcon } from "../assets/home.svg";
+import { ReactComponent as PadlockUnlockedIcon } from "../assets/padlock-unlocked.svg";
 import { ReactComponent as PadlockIcon } from "../assets/padlock.svg";
 import { ReactComponent as PeersIcon } from "../assets/peers.svg";
 import { ReactComponent as SettingsIcon } from "../assets/settings.svg";
@@ -104,7 +105,7 @@ class App extends Component<RouteComponentProps, AppState> {
                     },
                     {
                         label: this.state.isLoggedIn ? "Logout" : "Login",
-                        icon: <PadlockIcon />,
+                        icon: this.state.isLoggedIn ? <PadlockUnlockedIcon /> : <PadlockIcon />,
                         route: this.state.isLoggedIn ? "/logout" : "/login"
                     }
                 ]}
