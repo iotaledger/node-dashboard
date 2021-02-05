@@ -6,6 +6,8 @@ import App from "./app/App";
 import { ServiceFactory } from "./factories/serviceFactory";
 import "./index.scss";
 import { IBrandConfiguration } from "./models/IBrandConfiguration";
+import { AuthService } from "./services/authService";
+import { EventAggregator } from "./services/eventAggregator";
 import { LocalStorageService } from "./services/localStorageService";
 import { MetricsService } from "./services/metricsService";
 import { NodeConfigService } from "./services/nodeConfigService";
@@ -71,9 +73,23 @@ initServices()
  * @returns The brand configuration.
  */
 async function initServices(): Promise<IBrandConfiguration | undefined> {
-    ServiceFactory.register("web-socket", () => new WebSocketService());
-    ServiceFactory.register("tangle", () => new TangleService());
     ServiceFactory.register("storage", () => new LocalStorageService());
+
+    const authService = new AuthService();
+    await authService.initialize();
+    ServiceFactory.register("auth", () => authService);
+
+    const webSocketService = new WebSocketService();
+    ServiceFactory.register("web-socket", () => webSocketService);
+    ServiceFactory.register("tangle", () => new TangleService());
+
+    const themeService = new ThemeService();
+    themeService.initialize();
+    ServiceFactory.register("theme", () => themeService);
+
+    const nodeConfigService = new NodeConfigService();
+    await nodeConfigService.initialize();
+    ServiceFactory.register("node-config", () => nodeConfigService);
 
     const metricsService = new MetricsService();
     ServiceFactory.register("metrics", () => metricsService);
@@ -83,13 +99,9 @@ async function initServices(): Promise<IBrandConfiguration | undefined> {
     visualizerService.initialize();
     ServiceFactory.register("visualizer", () => visualizerService);
 
-    const themeService = new ThemeService();
-    themeService.initialize();
-    ServiceFactory.register("theme", () => themeService);
-
-    const nodeConfigService = new NodeConfigService();
-    await nodeConfigService.initialize();
-    ServiceFactory.register("node-config", () => nodeConfigService);
+    EventAggregator.subscribe("auth-state", "init", () => {
+        webSocketService.resubscribe();
+    });
 
     return BrandHelper.initialize();
 }

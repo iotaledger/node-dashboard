@@ -1,6 +1,7 @@
 import { ArrayHelper } from "@iota/iota.js";
 import classNames from "classnames";
-import React, { Component, ReactNode } from "react";
+import React, { ReactNode } from "react";
+import AsyncComponent from "./AsyncComponent";
 import "./Graph.scss";
 import { GraphProps } from "./GraphProps";
 import { GraphState } from "./GraphState";
@@ -8,7 +9,7 @@ import { GraphState } from "./GraphState";
 /**
  * Graph.
  */
-class Graph extends Component<GraphProps, GraphState> {
+class Graph extends AsyncComponent<GraphProps, GraphState> {
     /**
      * The graph element.
      */
@@ -44,6 +45,13 @@ class Graph extends Component<GraphProps, GraphState> {
         if (!dataEqual) {
             this.setState(this.calculateGraph());
         }
+    }
+
+    /**
+     * The component will unmount.
+     */
+    public componentWillUnmount(): void {
+        this._graphElement = null;
     }
 
     /**
@@ -100,7 +108,7 @@ class Graph extends Component<GraphProps, GraphState> {
                 this._graphElement = element;
                 this.setState(this.calculateGraph());
             }
-        }, 50);
+        }, 100);
     }
 
     /**
@@ -125,85 +133,89 @@ class Graph extends Component<GraphProps, GraphState> {
         if (this._graphElement && this.props.series.length > 0) {
             const axisLabelHeight = 20;
 
-            const graphWidth = this._graphElement.width.baseVal.value;
-            const graphHeight = this._graphElement.height.baseVal.value - axisLabelHeight;
+            try {
+                const graphWidth = this._graphElement.width.baseVal.value;
+                const graphHeight = this._graphElement.height.baseVal.value - axisLabelHeight;
 
-            const actualSeriesValues: number[][] =
-                this.props.series.map(s => s.values.slice(-this.props.seriesMaxLength));
+                const actualSeriesValues: number[][] =
+                    this.props.series.map(s => s.values.slice(-this.props.seriesMaxLength));
 
-            let maxY = 0;
-            const maxItems = Math.min(this.props.seriesMaxLength, actualSeriesValues[0].length);
+                let maxY = 0;
+                const maxItems = Math.min(this.props.seriesMaxLength, actualSeriesValues[0].length);
 
-            for (let i = 0; i < actualSeriesValues.length; i++) {
-                for (let j = 0; j < actualSeriesValues[i].length; j++) {
-                    if (actualSeriesValues[i][j] > maxY) {
-                        maxY = actualSeriesValues[i][j];
+                for (let i = 0; i < actualSeriesValues.length; i++) {
+                    for (let j = 0; j < actualSeriesValues[i].length; j++) {
+                        if (actualSeriesValues[i][j] > maxY) {
+                            maxY = actualSeriesValues[i][j];
+                        }
                     }
                 }
-            }
 
-            if (maxY === 0) {
-                maxY = 4;
-            }
+                if (maxY === 0) {
+                    maxY = 4;
+                }
 
-            const yUsage = 0.9;
-            const axisLabelWidth = 30;
-            const marginLeft = 10;
-            const marginRight = 10;
-            const axisLineCount = 4;
-            const decimalPlaces = maxY < 2 ? 2 : 0;
+                const yUsage = 0.9;
+                const axisLabelWidth = 30;
+                const marginLeft = 10;
+                const marginRight = 10;
+                const axisLineCount = 4;
+                const decimalPlaces = maxY < 2 ? 2 : 0;
 
-            const yScale = (graphHeight * yUsage) / maxY;
-            const barWidth = (graphWidth - axisLabelWidth - marginLeft - marginRight) /
-                (this.props.seriesMaxLength * this.props.series.length);
-            const axisSpacing = graphHeight / (axisLineCount - 1);
+                const yScale = (graphHeight * yUsage) / maxY;
+                const barWidth = (graphWidth - axisLabelWidth - marginLeft - marginRight) /
+                    (this.props.seriesMaxLength * this.props.series.length);
+                const axisSpacing = graphHeight / (axisLineCount - 1);
 
-            for (let i = 0; i < axisLineCount; i++) {
-                axis.push({
-                    path: `M ${axisLabelWidth} ${graphHeight - (i * axisSpacing)
-                        } L ${graphWidth} ${graphHeight - (i * axisSpacing)}`,
-                    className: "axis-color"
-                });
-                text.push({
-                    x: axisLabelWidth - 5,
-                    y: graphHeight - (i * axisSpacing) + 2,
-                    anchor: "end",
-                    content: (i * ((maxY / yUsage) / (axisLineCount - 1))).toFixed(decimalPlaces)
-                });
-            }
-
-            if (this.props.timeInterval && this.props.endTime) {
-                const numTimeEntries = this.props.timeMarkers ?? 10;
-                const startTime = this.props.endTime - (maxItems * this.props.timeInterval);
-                const timePerInterval = (this.props.seriesMaxLength * this.props.timeInterval) / numTimeEntries;
-                for (let i = 0; i <= numTimeEntries; i++) {
-                    const dt = new Date(startTime + (i * timePerInterval));
+                for (let i = 0; i < axisLineCount; i++) {
+                    axis.push({
+                        path: `M ${axisLabelWidth} ${graphHeight - (i * axisSpacing)
+                            } L ${graphWidth} ${graphHeight - (i * axisSpacing)}`,
+                        className: "axis-color"
+                    });
                     text.push({
-                        x: marginLeft + (axisLabelWidth / 2) +
-                            (((graphWidth - marginLeft - marginRight) / numTimeEntries) * i),
-                        y: graphHeight + axisLabelHeight,
-                        anchor: "middle",
-                        content: `${dt.getHours().toString()
-                            .padStart(2, "0")}:${dt.getMinutes().toString()
-                                .padStart(2, "0")}.${dt.getSeconds().toString()
-                                    .padStart(2, "0")}`
+                        x: axisLabelWidth - 5,
+                        y: graphHeight - (i * axisSpacing) + 2,
+                        anchor: "end",
+                        content: (i * ((maxY / yUsage) / (axisLineCount - 1))).toFixed(decimalPlaces)
                     });
                 }
-            }
 
-            for (let i = 0; i < maxItems; i++) {
-                for (let j = 0; j < actualSeriesValues.length; j++) {
-                    const val = actualSeriesValues[j][i];
-                    paths.push({
-                        path: this.calculatePath(
-                            graphHeight,
-                            barWidth,
-                            axisLabelWidth + marginLeft,
-                            j + (i * actualSeriesValues.length),
-                            val * yScale),
-                        className: this.props.series[j].className
-                    });
+                if (this.props.timeInterval && this.props.endTime) {
+                    const numTimeEntries = this.props.timeMarkers ?? 10;
+                    const startTime = this.props.endTime - (maxItems * this.props.timeInterval);
+                    const timePerInterval = (this.props.seriesMaxLength * this.props.timeInterval) / numTimeEntries;
+                    for (let i = 0; i <= numTimeEntries; i++) {
+                        const dt = new Date(startTime + (i * timePerInterval));
+                        text.push({
+                            x: marginLeft + (axisLabelWidth / 2) +
+                                (((graphWidth - marginLeft - marginRight) / numTimeEntries) * i),
+                            y: graphHeight + axisLabelHeight,
+                            anchor: "middle",
+                            content: `${dt.getHours().toString()
+                                .padStart(2, "0")}:${dt.getMinutes().toString()
+                                    .padStart(2, "0")}.${dt.getSeconds().toString()
+                                        .padStart(2, "0")}`
+                        });
+                    }
                 }
+
+                for (let i = 0; i < maxItems; i++) {
+                    for (let j = 0; j < actualSeriesValues.length; j++) {
+                        const val = actualSeriesValues[j][i];
+                        paths.push({
+                            path: this.calculatePath(
+                                graphHeight,
+                                barWidth,
+                                axisLabelWidth + marginLeft,
+                                j + (i * actualSeriesValues.length),
+                                val * yScale),
+                            className: this.props.series[j].className
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error(err);
             }
         }
 

@@ -3,10 +3,15 @@ import { Route, RouteComponentProps, Switch, withRouter } from "react-router-dom
 import { ReactComponent as AnalyticsIcon } from "../assets/analytics.svg";
 import { ReactComponent as ExplorerIcon } from "../assets/explorer.svg";
 import { ReactComponent as HomeIcon } from "../assets/home.svg";
+import { ReactComponent as PadlockIcon } from "../assets/padlock.svg";
 import { ReactComponent as PeersIcon } from "../assets/peers.svg";
 import { ReactComponent as SettingsIcon } from "../assets/settings.svg";
 import { ReactComponent as VisualizerIcon } from "../assets/visualizer.svg";
+import { ServiceFactory } from "../factories/serviceFactory";
+import { AuthService } from "../services/authService";
+import { EventAggregator } from "../services/eventAggregator";
 import "./App.scss";
+import { AppState } from "./AppState";
 import Header from "./components/layout/Header";
 import NavPanel from "./components/layout/NavPanel";
 import Analytics from "./routes/Analytics";
@@ -21,6 +26,8 @@ import { MessageRouteProps } from "./routes/explorer/MessageRouteProps";
 import Milestone from "./routes/explorer/Milestone";
 import { MilestoneRouteProps } from "./routes/explorer/MilestoneRouteProps";
 import Home from "./routes/Home";
+import Login from "./routes/Login";
+import Logout from "./routes/Logout";
 import Peer from "./routes/Peer";
 import { PeerRouteProps } from "./routes/PeerRouteProps";
 import Peers from "./routes/Peers";
@@ -32,7 +39,31 @@ import Visualizer from "./routes/Visualizer";
 /**
  * Main application class.
  */
-class App extends Component<RouteComponentProps> {
+class App extends Component<RouteComponentProps, AppState> {
+    /**
+     * The auth service.
+     */
+    private readonly _authService: AuthService;
+
+    /**
+     * Create a new instance of App.
+     * @param props The props.
+     */
+    constructor(props: RouteComponentProps) {
+        super(props);
+        this._authService = ServiceFactory.get<AuthService>("auth");
+
+        this.state = {
+            isLoggedIn: this._authService.getJwt() !== undefined
+        };
+
+        EventAggregator.subscribe("auth-state", "app", isLoggedIn => {
+            this.setState({
+                isLoggedIn
+            });
+        });
+    }
+
     /**
      * Render the component.
      * @returns The node to render.
@@ -70,6 +101,11 @@ class App extends Component<RouteComponentProps> {
                         label: "Settings",
                         icon: <SettingsIcon />,
                         route: "/settings"
+                    },
+                    {
+                        label: this.state.isLoggedIn ? "Logout" : "Login",
+                        icon: <PadlockIcon />,
+                        route: this.state.isLoggedIn ? "/logout" : "/login"
                     }
                 ]}
                 />
@@ -131,6 +167,14 @@ class App extends Component<RouteComponentProps> {
                             <Route
                                 path="/settings"
                                 component={() => (<Settings />)}
+                            />
+                            <Route
+                                path="/login"
+                                component={() => (<Login />)}
+                            />
+                            <Route
+                                path="/logout"
+                                component={() => (<Logout />)}
                             />
                         </Switch>
                     </div>

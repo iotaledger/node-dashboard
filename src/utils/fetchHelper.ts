@@ -47,8 +47,11 @@ export class FetchHelper {
                     signal: controller ? controller.signal : undefined
                 });
 
-            const json = await res.json();
-            return json as U;
+            if (res.ok) {
+                const json = await res.json();
+                return json as U;
+            }
+            throw new Error(`Fetched failed: ${res.statusText}`);
         } catch (err) {
             throw err.name === "AbortError" ? new Error("Timeout") : err;
         } finally {

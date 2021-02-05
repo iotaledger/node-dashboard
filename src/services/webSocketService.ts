@@ -1,7 +1,9 @@
 /* eslint-disable unicorn/prefer-add-event-listener */
 import { Converter, RandomHelper } from "@iota/iota.js";
+import { ServiceFactory } from "../factories/serviceFactory";
 import { IWebSocketMessage } from "../models/websocket/IWebSocketMessage";
 import { WebSocketTopic } from "../models/websocket/webSocketTopic";
+import { AuthService } from "./authService";
 
 /**
  * Service to handle the websocket connection.
@@ -34,9 +36,16 @@ export class WebSocketService {
     };
 
     /**
+     * The auth service.
+     */
+    private readonly _authService: AuthService;
+
+    /**
      * Create a new instance of WebSocketService.
      */
     constructor() {
+        this._authService = ServiceFactory.get<AuthService>("auth");
+
         this._subscriptions = {};
         this._lastMessage = 0;
     }
@@ -94,6 +103,19 @@ export class WebSocketService {
         if (Object.keys(this._subscriptions).length === 0) {
             this.clearTimer();
             this.disconnectSocket();
+        }
+    }
+
+    /**
+     * We resubscribe if the authentication, jwt token has been updated.
+     */
+    public resubscribe(): void {
+        const topics = Object.keys(this._subscriptions).map(k => Number(k));
+        for (const topic of topics) {
+            this.unsubscribeTopic(topic);
+        }
+        for (const topic of topics) {
+            this.subscribeTopic(topic);
         }
     }
 
@@ -166,10 +188,15 @@ export class WebSocketService {
      * @param topicId The topic to subscribe to.
      */
     private subscribeTopic(topicId: number) {
-        const arrayBuf = new ArrayBuffer(2);
+        const jwt = this._authService.getJwt();
+        const arrayBuf = new ArrayBuffer(2 + (jwt ? jwt.length : 0));
         const view = new Uint8Array(arrayBuf);
         view[0] = 0; // register
         view[1] = topicId;
+
+        if (jwt) {
+            view.set(Buffer.from(jwt, 2));
+        }
 
         if (this._webSocket) {
             this._webSocket.send(arrayBuf);
