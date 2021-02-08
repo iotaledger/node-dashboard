@@ -56,7 +56,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                 };
             }>(
                 `${window.location.protocol}//${window.location.host}`,
-                "/plugins/spammer/?cmd=settings",
+                "/api/plugins/spammer/?cmd=settings",
                 "get");
 
             if (res.data) {
@@ -165,7 +165,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                 };
             }>(
                 `${window.location.protocol}//${window.location.host}`,
-                "/plugins/spammer/?cmd=settings",
+                "/api/plugins/spammer/?cmd=settings",
                 "get");
 
             if (res.data) {
@@ -220,7 +220,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                 };
             }>(
                 `${window.location.protocol}//${window.location.host}`,
-                `/plugins/spammer/?cmd=start&mpsRateLimit=${this.state.mps
+                `/api/plugins/spammer/?cmd=start&mpsRateLimit=${this.state.mps
                 }&cpuMaxUsage=${Number.parseFloat(this.state.cpu) / 100
                 }&spammerWorkers=${this.state.workers}`,
                 "get");
@@ -252,7 +252,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                 };
             }>(
                 `${window.location.protocol}//${window.location.host}`,
-                "/plugins/spammer/?cmd=stop",
+                "/api/plugins/spammer/?cmd=stop",
                 "get");
 
             if (res.data) {
