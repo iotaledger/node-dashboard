@@ -91,7 +91,7 @@ export class AuthService {
      * Get the jwt.
      * @returns The jwt if logged in.
      */
-    public getJwt(): string | undefined {
+    public isLoggedIn(): string | undefined {
         return this._jwt;
     }
 }

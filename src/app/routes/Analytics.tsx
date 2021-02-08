@@ -9,6 +9,7 @@ import { IMpsMetrics } from "../../models/websocket/IMpsMetrics";
 import { ISpamMetrics } from "../../models/websocket/ISpamMetrics";
 import { IStatus } from "../../models/websocket/IStatus";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
+import { AuthService } from "../../services/authService";
 import { MetricsService } from "../../services/metricsService";
 import { DataHelper } from "../../utils/dataHelper";
 import AsyncComponent from "../components/layout/AsyncComponent";
@@ -64,6 +65,11 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
     private _spamSubscription?: string;
 
     /**
+     * The auth service.
+     */
+    private readonly _authService: AuthService;
+
+    /**
      * Create a new instance of Analytics.
      * @param props The props.
      */
@@ -71,8 +77,10 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
         super(props);
 
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
+        this._authService = ServiceFactory.get<AuthService>("auth");
 
         this.state = {
+            tabs: this.calculateTabs(false),
             activeTab: this.props.match.params.section ?? "tangle",
             mpsIncoming: [],
             mpsOutgoing: [],
@@ -278,7 +286,10 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
 
         const pluginDetails = await Spammer.pluginIsAvailable();
         if (pluginDetails) {
-            this.setState({ isSpammerAvailable: true });
+            this.setState({
+                isSpammerAvailable: true,
+                tabs: this.calculateTabs(true)
+            });
         }
     }
 
@@ -328,13 +339,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
             <div className="analytics">
                 <div className="content">
                     <TabPanel
-                        tabs={[
-                            "Tangle",
-                            "Node",
-                            "Memory",
-                            "Caches",
-                            "Log"
-                        ].concat(this.state.isSpammerAvailable ? ["Spammer"] : [])}
+                        tabs={this.state.tabs}
                         activeTab={this.state.activeTab}
                         onTabChanged={tab => {
                             this.props.history.replace(`/analytics/${tab.toLowerCase()}`);
@@ -695,68 +700,96 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                             </div>
                         </div>
 
-                        <div className="fill">
-                            <p>What should we show for the log?</p>
-                        </div>
+                        {this.state.isSpammerAvailable && (
+                            <div className="fill">
+                                <div className="card fill margin-r-s">
+                                    <Graph
+                                        caption="Tip Selection Duration Micro-Seconds"
+                                        seriesMaxLength={60}
+                                        timeInterval={this.state.lastSpamInterval}
+                                        endTime={this.state.lastSpamReceivedTime}
+                                        series={[
+                                            {
+                                                className: "bar-color-1",
+                                                label: "Tip Time",
+                                                values: this.state.tipSelection
+                                            }
+                                        ]}
+                                    />
+                                </div>
 
-                        <div className="fill">
-                            <div className="card fill margin-r-s">
-                                <Graph
-                                    caption="Tip Selection Duration Micro-Seconds"
-                                    seriesMaxLength={60}
-                                    timeInterval={this.state.lastSpamInterval}
-                                    endTime={this.state.lastSpamReceivedTime}
-                                    series={[
-                                        {
-                                            className: "bar-color-1",
-                                            label: "Tip Time",
-                                            values: this.state.tipSelection
-                                        }
-                                    ]}
-                                />
-                            </div>
+                                <div className="card fill margin-r-s margin-t-s">
+                                    <Graph
+                                        caption="PoW Duration Seconds"
+                                        seriesMaxLength={60}
+                                        timeInterval={this.state.lastSpamInterval}
+                                        endTime={this.state.lastSpamReceivedTime}
+                                        series={[
+                                            {
+                                                className: "bar-color-2",
+                                                label: "PoW Time",
+                                                values: this.state.pow
+                                            }
+                                        ]}
+                                    />
+                                </div>
 
-                            <div className="card fill margin-r-s margin-t-s">
-                                <Graph
-                                    caption="PoW Duration Seconds"
-                                    seriesMaxLength={60}
-                                    timeInterval={this.state.lastSpamInterval}
-                                    endTime={this.state.lastSpamReceivedTime}
-                                    series={[
-                                        {
-                                            className: "bar-color-2",
-                                            label: "PoW Time",
-                                            values: this.state.pow
-                                        }
-                                    ]}
-                                />
+                                <div className="card fill margin-r-s margin-t-s">
+                                    <Graph
+                                        caption="Spam Messages"
+                                        seriesMaxLength={30}
+                                        endTime={this.state.lastSpamAvgReceivedTime}
+                                        timeInterval={1000}
+                                        series={[
+                                            {
+                                                className: "bar-color-1",
+                                                label: "New Messages",
+                                                values: this.state.spamNewMsgs
+                                            },
+                                            {
+                                                className: "bar-color-2",
+                                                label: "Average Messages",
+                                                values: this.state.spamAvgMsgs
+                                            }
+                                        ]}
+                                    />
+                                </div>
                             </div>
+                        )}
 
-                            <div className="card fill margin-r-s margin-t-s">
-                                <Graph
-                                    caption="Spam Messages"
-                                    seriesMaxLength={30}
-                                    endTime={this.state.lastSpamAvgReceivedTime}
-                                    timeInterval={1000}
-                                    series={[
-                                        {
-                                            className: "bar-color-1",
-                                            label: "New Messages",
-                                            values: this.state.spamNewMsgs
-                                        },
-                                        {
-                                            className: "bar-color-2",
-                                            label: "Average Messages",
-                                            values: this.state.spamAvgMsgs
-                                        }
-                                    ]}
-                                />
+                        {this._authService.isLoggedIn() && (
+                            <div className="fill">
+                                <p>What should we show for the log?</p>
                             </div>
-                        </div>
+                        )}
                     </TabPanel>
                 </div>
             </div>
         );
+    }
+
+    /**
+     * Calculate the tabs to show.
+     * @param isSpammerAvailable Is the spammer available.
+     * @returns The tabs.
+     */
+    private calculateTabs(isSpammerAvailable: boolean): string[] {
+        const tabs = [
+            "Tangle",
+            "Node",
+            "Memory",
+            "Caches"
+        ];
+
+        if (isSpammerAvailable) {
+            tabs.push("Spammer");
+        }
+
+        if (this._authService.isLoggedIn()) {
+            tabs.push("Log");
+        }
+
+        return tabs;
     }
 }
 

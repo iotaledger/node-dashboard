@@ -188,7 +188,7 @@ export class WebSocketService {
      * @param topicId The topic to subscribe to.
      */
     private subscribeTopic(topicId: number) {
-        const jwt = this._authService.getJwt();
+        const jwt = this._authService.isLoggedIn();
         const arrayBuf = new ArrayBuffer(2 + (jwt ? jwt.length : 0));
         const view = new Uint8Array(arrayBuf);
         view[0] = 0; // register

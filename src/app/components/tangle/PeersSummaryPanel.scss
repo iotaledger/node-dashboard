@@ -17,6 +17,10 @@
       border: 0;
     }
 
+    &.public-mode {
+      pointer-events: none;
+    }
+
     .peer-health-icon {
       width: 16px;
     }

@@ -1,4 +1,5 @@
 import { IPeer } from "@iota/iota.js";
+import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ReactComponent as HealthBadIcon } from "../../../assets/health-bad.svg";
@@ -80,7 +81,13 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
                 {this.state.peers?.map((p, idx) => (
                     <Link
                         to={`/peers/${p.id}`}
-                        key={idx} className="peers-summary--item"
+                        key={idx}
+                        className={classNames(
+                            "peers-summary--item",
+                            {
+                                "public-mode": !this._authService.isLoggedIn()
+                            }
+                        )}
                     >
                         <span className="peer-health-icon">
                             {p.health === 0 && <HealthBadIcon />}
@@ -114,7 +121,7 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
                 id: p.id,
                 health: DataHelper.calculateHealth(p),
                 name: DataHelper.formatPeerName(p),
-                address: this._authService.getJwt() ? DataHelper.formatPeerAddress(p) : ""
+                address: this._authService.isLoggedIn() ? DataHelper.formatPeerAddress(p) : ""
             })));
         }
 

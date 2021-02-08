@@ -214,8 +214,7 @@ class Graph extends AsyncComponent<GraphProps, GraphState> {
                         });
                     }
                 }
-            } catch (err) {
-                console.error(err);
+            } catch {
             }
         }
 
