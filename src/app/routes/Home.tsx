@@ -86,18 +86,24 @@ class Home extends AsyncComponent<unknown, HomeState> {
             lastReceivedMpsTime: 0,
             mpsIncoming: [],
             mpsOutgoing: [],
-            bannerSrc: BrandHelper.getBanner(this._themeService.get())
+            bannerSrc: ""
         };
     }
 
     /**
      * The component mounted.
      */
-    public componentDidMount(): void {
+    public async componentDidMount(): Promise<void> {
         super.componentDidMount();
 
-        this._themeSubscriptionId = this._themeService.subscribe(() => {
-            this.setState({ bannerSrc: BrandHelper.getBanner(this._themeService.get()) });
+        this.setState({
+            bannerSrc: await BrandHelper.getBanner(this._themeService.get())
+        });
+
+        this._themeSubscriptionId = this._themeService.subscribe(async () => {
+            this.setState({
+                bannerSrc: await BrandHelper.getBanner(this._themeService.get())
+            });
         });
 
         this._statusSubscription = this._metricsService.subscribe<IStatus>(

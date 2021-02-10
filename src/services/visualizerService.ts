@@ -83,20 +83,27 @@ export class VisualizerService {
      * Initialize the service.
      */
     public initialize(): void {
-        this._subscriptions.push(this._metricsService.subscribe<IVertex>(
-            WebSocketTopic.Vertex, data => this.updateVertices(data)));
-
-        this._subscriptions.push(this._metricsService.subscribe<IMilestoneInfo>(
-            WebSocketTopic.MilestoneInfo, data => this.updateMilestoneInfo(data)));
-
-        this._subscriptions.push(this._metricsService.subscribe<ITipInfo>(
-            WebSocketTopic.TipInfo, data => this.updateTipInfo(data)));
-
-        this._subscriptions.push(this._metricsService.subscribe<IConfirmedInfo>(
-            WebSocketTopic.ConfirmedInfo, data => this.updateConfirmedInfo(data)));
-
-        this._subscriptions.push(this._metricsService.subscribe<ISolidInfo>(
-            WebSocketTopic.SolidInfo, data => this.updateSolidInfo(data)));
+        this._subscriptions.push(
+            this._metricsService.subscribe<IVertex>(
+                WebSocketTopic.Vertex,
+                data => this.updateVertices(data)
+            ),
+            this._metricsService.subscribe<IMilestoneInfo>(
+                WebSocketTopic.MilestoneInfo,
+                data => this.updateMilestoneInfo(data)
+            ),
+            this._metricsService.subscribe<ITipInfo>(
+                WebSocketTopic.TipInfo,
+                data => this.updateTipInfo(data)
+            ),
+            this._metricsService.subscribe<IConfirmedInfo>(
+                WebSocketTopic.ConfirmedInfo,
+                data => this.updateConfirmedInfo(data)
+            ),
+            this._metricsService.subscribe<ISolidInfo>(
+                WebSocketTopic.SolidInfo,
+                data => this.updateSolidInfo(data)
+            ));
     }
 
     /**

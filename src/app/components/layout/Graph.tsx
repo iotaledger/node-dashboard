@@ -23,8 +23,7 @@ class Graph extends Component<GraphProps, GraphState> {
 
         this._graphElement = null;
 
-        this.state = {
-        };
+        this.state = {};
     }
 
     /**
@@ -209,7 +208,7 @@ class Graph extends Component<GraphProps, GraphState> {
 
         return {
             text,
-            paths: axis.concat(paths.reverse())
+            paths: [...axis, ...paths.reverse()]
         };
     }
 
@@ -228,8 +227,9 @@ class Graph extends Component<GraphProps, GraphState> {
         const spacing = 2;
         let pathSegments = [`M ${marginLeft + (index * barWidth) + spacing} ${graphHeight}`];
 
-        pathSegments = pathSegments.concat(
-            scaledVal <= 0 ? [
+        pathSegments = [
+            ...pathSegments,
+            ...(scaledVal <= 0 ? [
                 `L ${marginLeft + ((index * barWidth) + spacing)} ${graphHeight - 1}`,
                 `L ${marginLeft + ((index + 1) * barWidth) - spacing} ${graphHeight - 1}`,
                 `L ${marginLeft + ((index + 1) * barWidth) - spacing} ${graphHeight}`
@@ -239,7 +239,9 @@ class Graph extends Component<GraphProps, GraphState> {
                     } ${marginLeft + ((index + 1) * barWidth) - spacing} ${graphHeight - scaledVal - 10
                     } ${marginLeft + ((index + 1) * barWidth) - spacing} ${graphHeight - scaledVal}`,
                     `L ${marginLeft + ((index + 1) * barWidth) - spacing} ${graphHeight}`
-                ]);
+                ])
+        ];
+
         return pathSegments.join(" ");
     }
 }

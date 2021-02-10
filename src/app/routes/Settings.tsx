@@ -122,7 +122,7 @@ class Settings extends AsyncComponent<unknown, SettingsState> {
                                             type="button"
                                             className="icon-button"
                                             onClick={e => this.setState({
-                                                sections: this.state.sections.concat([p.title]),
+                                                sections: [...this.state.sections, p.title],
                                                 activePluginIndex: idx,
                                                 activeSection: p.title
                                             })}

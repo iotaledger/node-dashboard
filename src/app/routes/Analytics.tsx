@@ -333,8 +333,9 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                             "Node",
                             "Memory",
                             "Caches",
-                            "Log"
-                        ].concat(this.state.isSpammerAvailable ? ["Spammer"] : [])}
+                            "Log",
+                            ...(this.state.isSpammerAvailable ? ["Spammer"] : [])
+                        ]}
                         activeTab={this.state.activeTab}
                         onTabChanged={tab => {
                             this.props.history.replace(`/analytics/${tab.toLowerCase()}`);

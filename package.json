@@ -11,13 +11,13 @@
     "dependencies": {
         "@iota/iota.js": "github:iotaledger/iota.js#d07361b093f0e45b49f093e21d8e8e6deb49aeb6",
         "classnames": "^2.2.6",
-        "humanize-duration": "^3.24.0",
+        "humanize-duration": "^3.25.1",
         "moment": "^2.29.1",
         "react": "^17.0.1",
         "react-dom": "^17.0.1",
         "react-helmet": "^6.1.0",
         "react-router-dom": "^5.2.0",
-        "react-scripts": "^3.4.3",
+        "react-scripts": "^4.0.2",
         "vivagraphjs": "^0.12.0"
     },
     "engines": {
@@ -41,25 +41,25 @@
         "not op_mini all"
     ],
     "devDependencies": {
-        "@craco/craco": "^5.8.0",
+        "@craco/craco": "^6.1.1",
         "@types/classnames": "^2.2.11",
         "@types/humanize-duration": "^3.18.1",
-        "@types/node": "^14.14.10",
-        "@types/react": "^17.0.0",
+        "@types/node": "^14.14.25",
+        "@types/react": "^17.0.1",
         "@types/react-dom": "^17.0.0",
         "@types/react-helmet": "^6.1.0",
-        "@types/react-router-dom": "^5.1.6",
-        "@typescript-eslint/eslint-plugin": "^4.8.2",
-        "@typescript-eslint/parser": "^4.8.2",
-        "cross-env": "^7.0.2",
-        "eslint": "^7.14.0",
+        "@types/react-router-dom": "^5.1.7",
+        "@typescript-eslint/eslint-plugin": "^4.15.0",
+        "@typescript-eslint/parser": "^4.15.0",
+        "cross-env": "^7.0.3",
+        "eslint": "^7.19.0",
         "eslint-plugin-import": "^2.22.1",
-        "eslint-plugin-jsdoc": "^30.7.8",
-        "eslint-plugin-react": "^7.21.5",
-        "eslint-plugin-unicorn": "^23.0.0",
+        "eslint-plugin-jsdoc": "^31.6.1",
+        "eslint-plugin-react": "^7.22.0",
+        "eslint-plugin-unicorn": "^28.0.0",
         "npm-run-all": "^4.1.5",
         "sass": "^1.32.7",
         "sass-lint": "^1.13.1",
-        "typescript": "^4.1.2"
+        "typescript": "^4.1.4"
     }
 }

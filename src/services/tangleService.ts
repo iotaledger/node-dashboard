@@ -49,7 +49,7 @@ export class TangleService {
                     milestone
                 };
             }
-        } catch { }
+        } catch {}
 
         try {
             if (!this._nodeInfo) {
@@ -67,7 +67,7 @@ export class TangleService {
                     };
                 }
             }
-        } catch { }
+        } catch {}
 
         try {
             // If the query is 64 bytes hex, try and look for a message
@@ -78,7 +78,7 @@ export class TangleService {
                     message
                 };
             }
-        } catch { }
+        } catch {}
 
         try {
             // If the query is 68 bytes hex, try and look for an output
@@ -89,7 +89,7 @@ export class TangleService {
                     output
                 };
             }
-        } catch { }
+        } catch {}
 
         try {
             if (Converter.isHex(queryLower) && queryLower.length === 64) {
@@ -105,7 +105,7 @@ export class TangleService {
                     };
                 }
             }
-        } catch { }
+        } catch {}
 
         try {
             // If the query is between 1 and 64 characters try a indexation lookup
@@ -118,7 +118,7 @@ export class TangleService {
                     };
                 }
             }
-        } catch { }
+        } catch {}
 
         return {};
     }
@@ -134,7 +134,7 @@ export class TangleService {
             const message = await this._client.message(messageId);
 
             return message?.payload;
-        } catch { }
+        } catch {}
     }
 
     /**
@@ -154,6 +154,6 @@ export class TangleService {
                 metadata,
                 childrenIds: children ? children.childrenMessageIds : undefined
             };
-        } catch { }
+        } catch {}
     }
 }
