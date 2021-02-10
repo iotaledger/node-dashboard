@@ -25,8 +25,8 @@
     font-weight: 500;
 
     &::placeholder {
-      color: var(--text-color-secondary);
       opacity: 1;
+      color: var(--text-color-secondary);
     }
   }
 

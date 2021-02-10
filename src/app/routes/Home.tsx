@@ -9,6 +9,7 @@ import { IMpsMetrics } from "../../models/websocket/IMpsMetrics";
 import { IStatus } from "../../models/websocket/IStatus";
 import { ISyncStatus } from "../../models/websocket/ISyncStatus";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
+import { AuthService } from "../../services/authService";
 import { MetricsService } from "../../services/metricsService";
 import { NodeConfigService } from "../../services/nodeConfigService";
 import { ThemeService } from "../../services/themeService";
@@ -61,6 +62,11 @@ class Home extends AsyncComponent<unknown, HomeState> {
     private readonly _networkId?: string;
 
     /**
+     * The auth service.
+     */
+    private readonly _authService: AuthService;
+
+    /**
      * Create a new instance of Home.
      * @param props The props.
      */
@@ -69,13 +75,14 @@ class Home extends AsyncComponent<unknown, HomeState> {
 
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
         this._themeService = ServiceFactory.get<ThemeService>("theme");
+        this._authService = ServiceFactory.get<AuthService>("auth");
 
         const nodeConfigService = ServiceFactory.get<NodeConfigService>("node-config");
         this._networkId = nodeConfigService.getNetworkId();
 
         this.state = {
             nodeName: "",
-            peerId: "No peer id",
+            peerId: "",
             displayVersion: "",
             displayLatestVersion: "",
             lmi: "-",
@@ -86,18 +93,24 @@ class Home extends AsyncComponent<unknown, HomeState> {
             lastReceivedMpsTime: 0,
             mpsIncoming: [],
             mpsOutgoing: [],
-            bannerSrc: BrandHelper.getBanner(this._themeService.get())
+            bannerSrc: ""
         };
     }
 
     /**
      * The component mounted.
      */
-    public componentDidMount(): void {
+    public async componentDidMount(): Promise<void> {
         super.componentDidMount();
 
-        this._themeSubscriptionId = this._themeService.subscribe(() => {
-            this.setState({ bannerSrc: BrandHelper.getBanner(this._themeService.get()) });
+        this.setState({
+            bannerSrc: await BrandHelper.getBanner(this._themeService.get())
+        });
+
+        this._themeSubscriptionId = this._themeService.subscribe(async () => {
+            this.setState({
+                bannerSrc: await BrandHelper.getBanner(this._themeService.get())
+            });
         });
 
         this._statusSubscription = this._metricsService.subscribe<IStatus>(
@@ -105,7 +118,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
             data => {
                 if (data) {
                     const nodeName = data.node_alias ? data.node_alias : BrandHelper.getConfiguration().name;
-                    const peerId = data.autopeering_id || "No peer Id.";
+                    const peerId = this._authService.isLoggedIn() ? data.autopeering_id || "No peer Id." : "";
                     const pruningIndex = data.pruning_index.toString();
                     const uptime = FormatHelper.duration(data.uptime);
                     const memory = FormatHelper.size(
@@ -210,7 +223,9 @@ class Home extends AsyncComponent<unknown, HomeState> {
                             <div className="node-info">
                                 <div>
                                     <h1>{this.state.nodeName}</h1>
-                                    <p className="secondary margin-t-t">{this.state.peerId}</p>
+                                    {this.state.peerId && (
+                                        <p className="secondary margin-t-t">{this.state.peerId}</p>
+                                    )}
                                 </div>
                                 <p className="secondary">
                                     {this._networkId}

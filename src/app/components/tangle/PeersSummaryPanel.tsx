@@ -42,8 +42,7 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
         this._authService = ServiceFactory.get<AuthService>("auth");
 
-        this.state = {
-        };
+        this.state = {};
     }
 
     /**

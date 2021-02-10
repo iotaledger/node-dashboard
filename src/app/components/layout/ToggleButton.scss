@@ -9,6 +9,15 @@
   outline: 0;
   background-color: var(--panel-background-highlight);
 
+  svg {
+    color: var(--text-color-secondary);
+  }
+
+  .icon-container {
+    position: relative;
+    left: -11px;
+  }
+
   &.toggle-button--checked {
     background-color: #61e884;
 
@@ -19,14 +28,5 @@
     .icon-container {
       left: 11px;
     }
-  }
-
-  svg {
-    color: var(--text-color-secondary);
-  }
-
-  .icon-container {
-    position: relative;
-    left: -11px;
   }
 }

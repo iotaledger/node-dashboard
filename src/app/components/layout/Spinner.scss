@@ -6,9 +6,9 @@
   left: 20px;
   width: 40px;
   height: 40px;
+  animation: pulse 1s ease-in-out infinite;
   border-radius: 100%;
   background-color: var(--text-color-secondary);
-  animation: pulse 1s ease-in-out infinite;
 
   &.spinner--compact {
     top: 10px;

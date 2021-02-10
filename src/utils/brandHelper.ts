@@ -39,8 +39,8 @@ export class BrandHelper {
      * @param theme The current theme.
      * @returns The navigation panel logo.
      */
-    public static getLogoNavigation(theme: string): string {
-        return require(`../assets/${BrandHelper._brandId}/themes/${theme}/logo-navigation.svg`);
+    public static async getLogoNavigation(theme: string): Promise<string> {
+        return (await import(`../assets/${BrandHelper._brandId}/themes/${theme}/logo-navigation.svg`)).default;
     }
 
     /**
@@ -48,7 +48,7 @@ export class BrandHelper {
      * @param theme The current theme.
      * @returns The banner panel logo.
      */
-    public static getBanner(theme: string): string {
-        return require(`../assets/${BrandHelper._brandId}/themes/${theme}/banner.svg`);
+    public static async getBanner(theme: string): Promise<string> {
+        return (await import(`../assets/${BrandHelper._brandId}/themes/${theme}/banner.svg`)).default;
     }
 }

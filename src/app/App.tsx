@@ -100,16 +100,12 @@ class App extends Component<RouteComponentProps, AppState> {
                 label: "Visualizer",
                 icon: <VisualizerIcon />,
                 route: "/visualizer"
-            }
-        );
-
-        sections.push({
-            label: "Settings",
-            icon: <SettingsIcon />,
-            route: "/settings"
-        });
-
-        sections.push(
+            },
+            {
+                label: "Settings",
+                icon: <SettingsIcon />,
+                route: "/settings"
+            },
             {
                 label: this.state.isLoggedIn ? "Logout" : "Login",
                 icon: this.state.isLoggedIn ? <PadlockUnlockedIcon /> : <PadlockIcon />,

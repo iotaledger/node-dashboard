@@ -79,8 +79,10 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
         this._authService = ServiceFactory.get<AuthService>("auth");
 
+        const isSpammerAvailable = Boolean(Spammer.pluginDetails());
+
         this.state = {
-            tabs: this.calculateTabs(false),
+            tabs: this.calculateTabs(isSpammerAvailable),
             activeTab: this.props.match.params.section ?? "tangle",
             mpsIncoming: [],
             mpsOutgoing: [],
@@ -96,7 +98,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
             lastStatusInterval: 1000,
             lastDbReceivedTime: 0,
             databaseSize: [],
-            isSpammerAvailable: false,
+            isSpammerAvailable,
             lastSpamAvgReceivedTime: 0,
             spamNewMsgs: [],
             spamAvgMsgs: [],
@@ -283,14 +285,6 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                     lastSpamAvgReceivedTime: Date.now()
                 });
             });
-
-        const pluginDetails = await Spammer.pluginIsAvailable();
-        if (pluginDetails) {
-            this.setState({
-                isSpammerAvailable: true,
-                tabs: this.calculateTabs(true)
-            });
-        }
     }
 
     /**

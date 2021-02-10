@@ -7,10 +7,10 @@
 
   svg {
     position: absolute;
+    z-index: 2;
     top: 16px;
     right: 18px;
     color: var(--text-color-primary);
-    z-index: 2;
     pointer-events: none;
   }
 

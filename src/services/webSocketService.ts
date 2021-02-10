@@ -168,7 +168,7 @@ export class WebSocketService {
                 if (this._webSocket.readyState === WebSocket.OPEN) {
                     this._webSocket.close();
                 }
-            } catch { }
+            } catch {}
             this._webSocket = undefined;
         }
     }
@@ -195,7 +195,7 @@ export class WebSocketService {
         view[1] = topicId;
 
         if (jwt) {
-            view.set(Buffer.from(jwt, 2));
+            view.set(Buffer.from(jwt), 2);
         }
 
         if (this._webSocket) {

@@ -32,16 +32,22 @@ class NavPanel extends Component<RouteComponentProps & NavPanelProps, NavPanelSt
         this._themeService = ServiceFactory.get<ThemeService>("theme");
 
         this.state = {
-            logoSrc: BrandHelper.getLogoNavigation(this._themeService.get())
+            logoSrc: ""
         };
     }
 
     /**
      * The component mounted.
      */
-    public componentDidMount(): void {
-        this._themeSubscriptionId = this._themeService.subscribe(() => {
-            this.setState({ logoSrc: BrandHelper.getLogoNavigation(this._themeService.get()) });
+    public async componentDidMount(): Promise<void> {
+        this.setState({
+            logoSrc: await BrandHelper.getLogoNavigation(this._themeService.get())
+        });
+
+        this._themeSubscriptionId = this._themeService.subscribe(async () => {
+            this.setState({
+                logoSrc: await BrandHelper.getLogoNavigation(this._themeService.get())
+            });
         });
     }
 

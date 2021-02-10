@@ -10,16 +10,16 @@ html {
 }
 
 * {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
 body {
   display: flex;
   height: 100vh;
-  background-color: var(--background);
   overflow: hidden;
+  background-color: var(--background);
 
   // sass-lint:disable no-ids
   #root {

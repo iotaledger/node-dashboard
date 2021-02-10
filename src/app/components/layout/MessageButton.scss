@@ -32,13 +32,13 @@
 
     position: absolute;
     min-width: 200px;
+    animation: fade 2s linear;
+    animation-fill-mode: forwards;
+    opacity: 1;
     color: var(--accent-primary);
     font-family: $font-sans;
     font-weight: bold;
     text-transform: uppercase;
-    opacity: 1;
-    animation: fade 2s linear;
-    animation-fill-mode: forwards;
 
     &.message-button--message--right {
       top: 3px;

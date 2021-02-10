@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { Helmet } from "react-helmet";
 import { BrowserRouter } from "react-router-dom";
 import App from "./app/App";
+import Spammer from "./app/components/plugins/Spammer";
 import { ServiceFactory } from "./factories/serviceFactory";
 import "./index.scss";
 import { IBrandConfiguration } from "./models/IBrandConfiguration";
@@ -99,9 +100,12 @@ async function initServices(): Promise<IBrandConfiguration | undefined> {
     visualizerService.initialize();
     ServiceFactory.register("visualizer", () => visualizerService);
 
-    EventAggregator.subscribe("auth-state", "init", () => {
+    EventAggregator.subscribe("auth-state", "init", async () => {
         webSocketService.resubscribe();
+        await Spammer.initPlugin();
     });
+
+    await Spammer.initPlugin();
 
     return BrandHelper.initialize();
 }

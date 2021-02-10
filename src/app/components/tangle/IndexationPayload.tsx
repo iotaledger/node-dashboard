@@ -26,7 +26,7 @@ class IndexationPayload extends Component<IndexationPayloadProps, IndexationPayl
 
             try {
                 json = JSON.stringify(JSON.parse(utf8), undefined, "\t");
-            } catch { }
+            } catch {}
 
             this.state = {
                 hex: match ? match.join(" ") : props.payload.data,
