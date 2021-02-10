@@ -34,12 +34,12 @@
           .peer-id {
             @include font-size(14px);
 
+            overflow: hidden;
             color: var(--text-color-primary);
             font-family: $font-sans;
             font-weight: 500;
             text-overflow: ellipsis;
             white-space: nowrap;
-            overflow: hidden;
           }
 
           .graph {

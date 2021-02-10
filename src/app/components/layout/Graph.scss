@@ -77,14 +77,14 @@
       .axis-label {
         @include font-size(10px);
 
+        fill: var(--text-color-secondary);
         font-family: $font-sans;
         font-weight: 500;
-        fill: var(--text-color-secondary);
       }
 
       .axis-color {
-        opacity: 0.2;
         stroke: var(--text-color-secondary);
+        opacity: 0.2;
       }
     }
   }

@@ -10,30 +10,30 @@
 
   .canvas {
     position: absolute;
+    z-index: 0;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: 0;
   }
 
   .action-panel-container {
     display: flex;
     position: absolute;
+    z-index: 2;
     top: 30px;
     right: 30px;
-    z-index: 2;
   }
 
   .stats-panel-container {
     display: flex;
     position: absolute;
+    z-index: 1;
     top: 0px;
     right: 30px;
     bottom: 0px;
     align-items: center;
     justify-content: center;
-    z-index: 1;
     pointer-events: none;
 
     .stats-panel {
@@ -47,11 +47,11 @@
   .key-panel-container {
     display: flex;
     position: absolute;
+    z-index: 1;
     right: 30px;
     bottom: 30px;
     left: 0px;
     justify-content: center;
-    z-index: 1;
     pointer-events: none;
 
     .key-panel {
@@ -86,10 +86,10 @@
   .info-panel-container {
     display: flex;
     position: absolute;
+    z-index: 2;
     top: 30px;
     left: 30px;
     width: 320px;
-    z-index: 2;
 
     .info-panel--key {
       width: 16px;

@@ -32,7 +32,7 @@
         "build-bee": "cross-env REACT_APP_BRAND_ID=bee run-s lint build-internal",
         "test": "craco test",
         "eject": "react-scripts eject",
-        "sass-lint": "sass-lint -v -c ./.sass-lint.yml"
+        "sass-lint": "stylelint ./src/**/*.scss"
     },
     "browserslist": [
         ">0.2%",
@@ -59,7 +59,13 @@
         "eslint-plugin-unicorn": "^28.0.0",
         "npm-run-all": "^4.1.5",
         "sass": "^1.32.7",
-        "sass-lint": "^1.13.1",
+        "stylelint": "^13.9.0",
+        "stylelint-config-property-sort-order-smacss": "^7.0.0",
+        "stylelint-config-recommended": "^3.0.0",
+        "stylelint-config-recommended-scss": "^4.2.0",
+        "stylelint-config-sass-guidelines": "^7.1.0",
+        "stylelint-config-standard": "^20.0.0",
+        "stylelint-scss": "^3.19.0",
         "typescript": "^4.1.4"
     }
 }

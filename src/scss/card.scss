@@ -3,10 +3,10 @@
 
 .card {
   padding: 10px;
+  overflow: hidden;
   border: 1px solid var(--panel-border);
   border-radius: 16px;
   background-color: var(--panel-background);
-  overflow: hidden;
 
   .card--header-count {
     @include font-size(12px);
@@ -68,9 +68,9 @@
       min-height: 150px;
       max-height: 150px;
       padding: 10px;
+      overflow: auto;
       background: var(--panel-border);
       font-family: $font-mono;
-      overflow: auto;
 
       &.card--value-textarea__utf8 {
         max-height: 350px;
@@ -79,8 +79,8 @@
 
       &.card--value-textarea__hex {
         max-height: 350px;
-        white-space: pre-wrap;
         word-break: break-word;
+        white-space: pre-wrap;
       }
 
       &.card--value-textarea__json {
