@@ -241,8 +241,8 @@ class Home extends AsyncComponent<unknown, HomeState> {
                         </div>
                     </div>
                     <div className="row fill margin-t-s">
-                        <div className="col">
-                            <div className="row">
+                        <div className="col fill">
+                            <div className="row fill">
                                 <InfoPanel
                                     caption="LSMI / LMI"
                                     value={`${this.state.lsmi} / ${this.state.lmi}`}
@@ -258,7 +258,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                     className="margin-r-s"
                                 />
                             </div>
-                            <div className="row margin-t-s">
+                            <div className="row fill margin-t-s">
                                 <InfoPanel
                                     caption="Uptime"
                                     value={this.state.uptime}
@@ -274,7 +274,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                     className="margin-r-s"
                                 />
                             </div>
-                            <div className="row margin-t-s">
+                            <div className="row fill margin-t-s">
                                 <div className="card fill messages-graph-panel margin-r-s">
                                     <Graph
                                         caption="Messages Per Second"
@@ -297,9 +297,11 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                 </div>
                             </div>
                         </div>
-                        <div className="card peers-summary-panel">
-                            <PeersSummaryPanel />
-                        </div>
+                        {this._authService.isLoggedIn() && (
+                            <div className="card peers-summary-panel">
+                                <PeersSummaryPanel />
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

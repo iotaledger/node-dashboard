@@ -1,5 +1,4 @@
 import { IPeer } from "@iota/iota.js";
-import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ReactComponent as HealthBadIcon } from "../../../assets/health-bad.svg";
@@ -7,7 +6,6 @@ import { ReactComponent as HealthGoodIcon } from "../../../assets/health-good.sv
 import { ReactComponent as HealthWarningIcon } from "../../../assets/health-warning.svg";
 import { ServiceFactory } from "../../../factories/serviceFactory";
 import { WebSocketTopic } from "../../../models/websocket/webSocketTopic";
-import { AuthService } from "../../../services/authService";
 import { MetricsService } from "../../../services/metricsService";
 import { DataHelper } from "../../../utils/dataHelper";
 import "./PeersSummaryPanel.scss";
@@ -23,11 +21,6 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
     private readonly _metricsService: MetricsService;
 
     /**
-     * The auth service.
-     */
-    private readonly _authService: AuthService;
-
-    /**
      * The peer subscription id.
      */
     private _peerSubscription?: string;
@@ -40,7 +33,6 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
         super(props);
 
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
-        this._authService = ServiceFactory.get<AuthService>("auth");
 
         this.state = {};
     }
@@ -81,12 +73,7 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
                     <Link
                         to={`/peers/${p.id}`}
                         key={idx}
-                        className={classNames(
-                            "peers-summary--item",
-                            {
-                                "public-mode": !this._authService.isLoggedIn()
-                            }
-                        )}
+                        className="peers-summary--item"
                     >
                         <span className="peer-health-icon">
                             {p.health === 0 && <HealthBadIcon />}
@@ -120,7 +107,7 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
                 id: p.id,
                 health: DataHelper.calculateHealth(p),
                 name: DataHelper.formatPeerName(p),
-                address: this._authService.isLoggedIn() ? DataHelper.formatPeerAddress(p) : ""
+                address: DataHelper.formatPeerAddress(p)
             })));
         }
 

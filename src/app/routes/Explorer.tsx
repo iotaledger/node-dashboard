@@ -2,7 +2,7 @@ import React, { ReactNode } from "react";
 import { Link, RouteComponentProps, withRouter } from "react-router-dom";
 import { ReactComponent as ConfirmationIcon } from "../../assets/confirmation.svg";
 import { ReactComponent as MilestoneIcon } from "../../assets/milestone.svg";
-import { ReactComponent as PruningIcon } from "../../assets/pruning.svg";
+import { ReactComponent as UptimeIcon } from "../../assets/uptime.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
 import { IConfirmedMsMetrics } from "../../models/websocket/IConfirmedMsMetrics";
 import { IMs } from "../../models/websocket/IMs";
@@ -128,8 +128,8 @@ class Peers extends AsyncComponent<RouteComponentProps, ExplorerState> {
                         <InfoPanel
                             caption="Confirmed Messages per Second"
                             value={this.state.cmps}
-                            icon={<PruningIcon />}
-                            backgroundStyle="orange"
+                            icon={<UptimeIcon />}
+                            backgroundStyle="blue"
                             className="margin-r-s"
                         />
                         <InfoPanel
