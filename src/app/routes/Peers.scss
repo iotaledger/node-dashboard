@@ -11,6 +11,29 @@
     flex: 1;
     max-width: $content-width-desktop;
 
+    .add-button {
+      @include font-size(14px);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      padding: 6px 12px;
+      border: 1px solid var(--text-color-secondary);
+      border-radius: $form-input-radius;
+      outline: 0;
+      background: var(--accent-primary);
+      color: #ffffff;
+      font-family: $font-sans;
+      cursor: pointer;
+
+      &:hover {
+        color: var(--accent-primary);
+      }
+
+      &:focus {
+        box-shadow: 0 0 3px 0 var(--accent-primary);
+      }
+    }
+
     .peers-panel {
       display: flex;
       flex-direction: row;

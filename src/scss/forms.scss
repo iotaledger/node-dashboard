@@ -71,4 +71,8 @@ input {
   &:disabled {
     opacity: 0.5;
   }
+
+  &.input--stretch {
+    width: 100%;
+  }
 }

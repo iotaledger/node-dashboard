@@ -165,6 +165,27 @@ export class TangleService {
     }
 
     /**
+     * Add a peer.
+     * @param peerAddress The peer address.
+     * @param peerAlias The peer alias.
+     */
+    public async peerAdd(peerAddress: string, peerAlias: string): Promise<void> {
+        const client = this.buildClient();
+
+        await client.peerAdd(peerAddress, peerAlias);
+    }
+
+    /**
+     * Delete a peer.
+     * @param peerId The peer to delete.
+     */
+    public async peerDelete(peerId: string): Promise<void> {
+        const client = this.buildClient();
+
+        await client.peerDelete(peerId);
+    }
+
+    /**
      * Build a client with auth header.
      * @returns The client.
      */

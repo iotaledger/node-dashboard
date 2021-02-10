@@ -255,7 +255,6 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                     value={this.state.pruningIndex?.toString()}
                                     icon={<PruningIcon />}
                                     backgroundStyle="orange"
-                                    className="margin-r-s"
                                 />
                             </div>
                             <div className="row fill margin-t-s">
@@ -271,11 +270,10 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                     value={this.state.memory}
                                     icon={<MemoryIcon />}
                                     backgroundStyle="purple"
-                                    className="margin-r-s"
                                 />
                             </div>
                             <div className="row fill margin-t-s">
-                                <div className="card fill messages-graph-panel margin-r-s">
+                                <div className="card fill messages-graph-panel">
                                     <Graph
                                         caption="Messages Per Second"
                                         seriesMaxLength={20}
@@ -298,7 +296,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
                             </div>
                         </div>
                         {this._authService.isLoggedIn() && (
-                            <div className="card peers-summary-panel">
+                            <div className="card peers-summary-panel margin-l-s">
                                 <PeersSummaryPanel />
                             </div>
                         )}

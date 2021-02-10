@@ -126,5 +126,19 @@
         color: var(--accent-primary);
       }
     }
+
+    &.card--action-danger {
+      background-color: $danger;
+      color: #ffffff;
+    }
+
+    &.card--action-primary {
+      background-color: var(--accent-primary);
+      color: #ffffff;
+
+      &:hover {
+        color: #ffffff;
+      }
+    }
   }
 }
