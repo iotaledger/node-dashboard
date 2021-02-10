@@ -21,7 +21,6 @@ body {
   overflow: hidden;
   background-color: var(--background);
 
-  // sass-lint:disable no-ids
   #root {
     display: flex;
     flex: 1;
@@ -44,20 +43,17 @@ body {
   }
 }
 
-// sass-lint:disable no-vendor-prefixes
 ::-webkit-scrollbar-track {
-  border-radius: 0px;
+  border-radius: 0;
   background-color: var(--scroll-background);
 }
 
-// sass-lint:disable no-vendor-prefixes
 ::-webkit-scrollbar {
   width: 12px;
   background-color: var(--scroll-background);
 }
 
-// sass-lint:disable no-vendor-prefixes
 ::-webkit-scrollbar-thumb {
-  border-radius: 0px;
+  border-radius: 0;
   background-color: var(--scroll-thumb);
 }

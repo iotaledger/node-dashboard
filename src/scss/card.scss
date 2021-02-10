@@ -15,7 +15,7 @@
     align-items: center;
     height: 24px;
     margin-left: 20px;
-    padding: 0px 8px;
+    padding: 0 8px;
     border-radius: 6px;
     background-color: var(--background);
     color: var(--accent-primary);
@@ -26,9 +26,9 @@
 
   .card--label {
     @include font-size(10px);
+
     margin-top: $spacing-small;
     margin-bottom: $spacing-tiny / 2;
-
     color: var(--text-color-secondary);
     font-family: $font-sans;
     font-weight: 500;
@@ -65,6 +65,7 @@
 
     &.card--value-textarea {
       @include font-size(12px);
+
       min-height: 150px;
       max-height: 150px;
       padding: 10px;
@@ -92,6 +93,7 @@
 
   .card--action {
     @include font-size(14px);
+
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -100,7 +102,6 @@
     border-radius: $form-input-radius;
     outline: 0;
     background: none;
-
     color: var(--text-color-primary);
     font-family: $font-sans;
     cursor: pointer;

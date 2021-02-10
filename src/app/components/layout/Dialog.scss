@@ -30,7 +30,7 @@
     border: 1px solid var(--panel-border);
     border-radius: 10px;
     background: var(--panel-background);
-    box-shadow: 5px 5px 5px 0px var(--drop-shadow);
+    box-shadow: 5px 5px 5px 0 var(--drop-shadow);
 
     .dialog-header {
       margin-bottom: 20px;
@@ -42,9 +42,9 @@
 
       .dialog--label {
         @include font-size(10px);
+
         margin-top: $spacing-small;
         margin-bottom: $spacing-tiny / 2;
-    
         color: var(--text-color-secondary);
         font-family: $font-sans;
         font-weight: 500;
@@ -58,6 +58,7 @@
 
       button {
         @include font-size(14px);
+
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -66,11 +67,10 @@
         border-radius: $form-input-radius;
         outline: 0;
         background: none;
-    
         color: var(--text-color-primary);
         font-family: $font-sans;
         cursor: pointer;
-    
+
         +button {
           margin-left: $spacing-small;
         }
@@ -78,7 +78,7 @@
         &:hover {
           color: var(--accent-primary);
         }
-    
+
         &:focus {
           box-shadow: 0 0 3px 0 var(--accent-primary);
         }

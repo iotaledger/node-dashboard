@@ -29,9 +29,9 @@
     display: flex;
     position: absolute;
     z-index: 1;
-    top: 0px;
+    top: 0;
     right: 30px;
-    bottom: 0px;
+    bottom: 0;
     align-items: center;
     justify-content: center;
     pointer-events: none;
@@ -50,7 +50,7 @@
     z-index: 1;
     right: 30px;
     bottom: 30px;
-    left: 0px;
+    left: 0;
     justify-content: center;
     pointer-events: none;
 

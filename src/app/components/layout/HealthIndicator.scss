@@ -7,6 +7,7 @@
 
   .label {
     @include font-size(10px);
+
     margin-left: $spacing-small;
     color: var(--text-color-secondary);
     font-family: $font-sans;
