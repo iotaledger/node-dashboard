@@ -45,8 +45,14 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
         light: 0xDDDDDDFF
     };
 
+    /**
+     * Children link color.
+     */
     private static readonly COLOR_LINK_CHILDREN = 0xFF5AAAFF;
 
+    /**
+     * Parent link color.
+     */
     private static readonly COLOR_LINK_PARENTS = 0x0000FFFF;
 
     /**

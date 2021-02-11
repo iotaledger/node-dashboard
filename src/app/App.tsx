@@ -1,5 +1,4 @@
 import React, { ReactNode } from "react";
-import { Helmet } from "react-helmet";
 import { Redirect, Route, RouteComponentProps, Switch, withRouter } from "react-router-dom";
 import { ReactComponent as AnalyticsIcon } from "../assets/analytics.svg";
 import { ReactComponent as ExplorerIcon } from "../assets/explorer.svg";
@@ -69,6 +68,21 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
     private _syncStatusSubscription?: string;
 
     /**
+     * The node alias.
+     */
+    private _alias?: string;
+
+    /**
+     * The lastest milestone index.
+     */
+    private _lmi?: string;
+
+    /**
+     * The lastest solid milestone index.
+     */
+    private _lsmi?: string;
+
+    /**
      * Create a new instance of App.
      * @param props The props.
      */
@@ -97,8 +111,9 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
         this._statusSubscription = this._metricsService.subscribe<IStatus>(
             WebSocketTopic.Status,
             data => {
-                if (data && data.node_alias !== this.state.alias) {
-                    this.setState({ alias: data.node_alias });
+                if (data && data.node_alias !== this._alias) {
+                    this._alias = data.node_alias;
+                    this.updateTitle();
                 }
             });
 
@@ -109,12 +124,10 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                     const lmi = data.lmi ? data.lmi.toString() : "";
                     const lsmi = data.lsmi ? data.lsmi.toString() : "";
 
-                    if (lmi !== this.state.lmi) {
-                        this.setState({ lmi });
-                    }
-
-                    if (lsmi !== this.state.lsmi) {
-                        this.setState({ lsmi });
+                    if (lmi !== this._lmi || lsmi !== this._lsmi) {
+                        this._lsmi = lsmi;
+                        this._lmi = lmi;
+                        this.updateTitle();
                     }
                 }
             });
@@ -187,38 +200,39 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
 
         return (
             <div className="app">
-                <Helmet defer={false}>
-                    <title>
-                        {BrandHelper.getConfiguration().name}
-                        {this.state.alias ? ` (${this.state.alias})` : ""}
-                        {this.state.lmi && this.state.lsmi ? ` ${this.state.lsmi} / ${this.state.lmi}` : ""}
-                    </title>
-                </Helmet>
                 <NavPanel buttons={sections} />
                 <div className="col fill">
                     <Header />
                     <div className="fill scroll-content">
                         <Switch>
-                            <Route
-                                exact={true}
-                                path="/"
-                                component={() => (<Home />)}
-                            />
-                            <Route
-                                path="/analytics/:section?"
-                                component={(props: AnalyticsRouteProps) => (<Analytics {...props} />)}
-                            />
                             {this.state.isLoggedIn && (
-                                <Route
-                                    exact={true}
-                                    path="/peers"
-                                    component={() => (<Peers />)}
-                                />
+                                <React.Fragment>
+                                    <Route
+                                        exact={true}
+                                        path="/"
+                                        component={() => (<Home />)}
+                                    />
+                                    <Route
+                                        path="/analytics/:section?"
+                                        component={(props: AnalyticsRouteProps) => (<Analytics {...props} />)}
+                                    />
+                                    <Route
+                                        exact={true}
+                                        path="/peers"
+                                        component={() => (<Peers />)}
+                                    />
+                                    <Route
+                                        path="/peers/:id"
+                                        component={(props: RouteComponentProps<PeerRouteProps>) =>
+                                            (<Peer {...props} />)}
+                                    />
+                                </React.Fragment>
                             )}
-                            {this.state.isLoggedIn && (
+                            {!this.state.isLoggedIn && (
                                 <Route
-                                    path="/peers/:id"
-                                    component={(props: RouteComponentProps<PeerRouteProps>) => (<Peer {...props} />)}
+                                    path="/"
+                                    exact={true}
+                                    component={() => (<Explorer />)}
                                 />
                             )}
                             <Route
@@ -276,6 +290,22 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                 </div>
             </div>
         );
+    }
+
+    /**
+     * Update the window title.
+     */
+    private updateTitle(): void {
+        let title = BrandHelper.getConfiguration().name;
+
+        if (this._alias) {
+            title += ` (${this._alias})`;
+        }
+        if (this._lmi && this._lsmi) {
+            title += ` ${this._lsmi} / ${this._lmi}`;
+        }
+
+        document.title = title;
     }
 }
 
