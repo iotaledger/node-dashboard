@@ -75,21 +75,36 @@ class NavPanel extends Component<RouteComponentProps & NavPanelProps, NavPanelSt
                 </Link>
 
                 {this.props.buttons.map(b => (
-                    <Link
-                        key={b.label}
-                        to={b.route}
-                        className={classNames(
-                            "nav-panel--button",
-                            {
-                                "nav-panel--button__selected":
-                                    (b.route.length > 1 && this.props.location.pathname.startsWith(b.route)) ||
-                                    b.route === this.props.location.pathname
-                            }
+                    <React.Fragment key={b.label}>
+                        {!b.hidden && b.route && (
+                            <Link
+                                to={b.route}
+                                className={classNames(
+                                    "nav-panel--button",
+                                    {
+                                        "nav-panel--button__selected":
+                                            (b.route.length > 1 && this.props.location.pathname.startsWith(b.route)) ||
+                                            b.route === this.props.location.pathname
+                                    }
+                                )}
+                            >
+                                {b.icon}
+                                <span className="margin-t-t">{b.label}</span>
+                            </Link>
                         )}
-                    >
-                        {b.icon}
-                        <span className="margin-t-t">{b.label}</span>
-                    </Link>
+                        {!b.hidden && b.function && (
+                            <button
+                                type="button"
+                                onClick={() => b.function?.()}
+                                className={classNames(
+                                    "nav-panel--button"
+                                )}
+                            >
+                                {b.icon}
+                                <span className="margin-t-t">{b.label}</span>
+                            </button>
+                        )}
+                    </React.Fragment>
                 ))}
             </div>
         );

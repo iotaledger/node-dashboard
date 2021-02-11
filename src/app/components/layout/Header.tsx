@@ -1,13 +1,16 @@
-import React, { Component, ReactNode } from "react";
+import React, { ReactNode } from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { ServiceFactory } from "../../../factories/serviceFactory";
 import { IDBSizeMetric } from "../../../models/websocket/IDBSizeMetric";
 import { IMpsMetrics } from "../../../models/websocket/IMpsMetrics";
 import { IStatus } from "../../../models/websocket/IStatus";
 import { WebSocketTopic } from "../../../models/websocket/webSocketTopic";
+import { AuthService } from "../../../services/authService";
+import { EventAggregator } from "../../../services/eventAggregator";
 import { MetricsService } from "../../../services/metricsService";
 import { DataHelper } from "../../../utils/dataHelper";
 import { FormatHelper } from "../../../utils/formatHelper";
+import AsyncComponent from "./AsyncComponent";
 import "./Header.scss";
 import { HeaderState } from "./HeaderState";
 import HealthIndicator from "./HealthIndicator";
@@ -17,7 +20,12 @@ import SearchInput from "./SearchInput";
 /**
  * Header panel.
  */
-class Header extends Component<RouteComponentProps, HeaderState> {
+class Header extends AsyncComponent<RouteComponentProps, HeaderState> {
+    /**
+     * The auth service.
+     */
+    private readonly _authService: AuthService;
+
     /**
      * The metrics service.
      */
@@ -39,13 +47,14 @@ class Header extends Component<RouteComponentProps, HeaderState> {
     private _mpsMetricsSubscription?: string;
 
     /**
-     * Create a new instance of Home.
+     * Create a new instance of Header.
      * @param props The props.
      */
     constructor(props: RouteComponentProps) {
         super(props);
 
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
+        this._authService = ServiceFactory.get<AuthService>("auth");
 
         this.state = {
             syncHealth: false,
@@ -55,7 +64,8 @@ class Header extends Component<RouteComponentProps, HeaderState> {
             memorySizeFormatted: "-",
             memorySize: [],
             databaseSizeFormatted: "-",
-            databaseSize: []
+            databaseSize: [],
+            isLoggedIn: Boolean(this._authService.isLoggedIn())
         };
     }
 
@@ -63,6 +73,14 @@ class Header extends Component<RouteComponentProps, HeaderState> {
      * The component mounted.
      */
     public componentDidMount(): void {
+        super.componentDidMount();
+
+        EventAggregator.subscribe("auth-state", "header", isLoggedIn => {
+            this.setState({
+                isLoggedIn
+            });
+        });
+
         this._statusSubscription = this._metricsService.subscribe<IStatus>(
             WebSocketTopic.Status,
             data => {
@@ -129,6 +147,10 @@ class Header extends Component<RouteComponentProps, HeaderState> {
      * The component will unmount.
      */
     public componentWillUnmount(): void {
+        super.componentWillUnmount();
+
+        EventAggregator.unsubscribe("auth-state", "header");
+
         if (this._statusSubscription) {
             this._metricsService.unsubscribe(this._statusSubscription);
             this._statusSubscription = undefined;
@@ -174,18 +196,22 @@ class Header extends Component<RouteComponentProps, HeaderState> {
                         values={this.state.mpsValues}
                         className="child"
                     />
-                    <MicroGraph
-                        label="Database"
-                        value={this.state.databaseSizeFormatted}
-                        values={this.state.databaseSize}
-                        className="child"
-                    />
-                    <MicroGraph
-                        label="Memory"
-                        value={this.state.memorySizeFormatted}
-                        values={this.state.memorySize}
-                        className="child"
-                    />
+                    {this.state.isLoggedIn && (
+                        <React.Fragment>
+                            <MicroGraph
+                                label="Database"
+                                value={this.state.databaseSizeFormatted}
+                                values={this.state.databaseSize}
+                                className="child"
+                            />
+                            <MicroGraph
+                                label="Memory"
+                                value={this.state.memorySizeFormatted}
+                                values={this.state.memorySize}
+                                className="child"
+                            />
+                        </React.Fragment>
+                    )}
                 </div>
             </header>
         );

@@ -38,4 +38,9 @@ export interface HeaderState {
      * Memory size values for micro graph.
      */
     memorySize: number[];
+
+    /**
+     * Is the auth logged in.
+     */
+    isLoggedIn: boolean;
 }

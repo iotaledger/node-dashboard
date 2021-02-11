@@ -37,6 +37,7 @@
     font-family: $font-sans;
     font-weight: bold;
     text-decoration: none;
+    cursor: pointer;
 
     &.nav-panel--button__selected {
       color: var(--accent-primary);

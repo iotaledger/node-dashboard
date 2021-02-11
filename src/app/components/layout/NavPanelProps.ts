@@ -16,6 +16,14 @@ export interface NavPanelProps {
         /**
          * The route to navigate for the button.
          */
-        route: string;
+        route?: string;
+        /**
+         * The function to trigger for the button.
+         */
+        function?: () => void;
+        /**
+         * Is the button visible.
+         */
+        hidden?: boolean;
     }[];
 }

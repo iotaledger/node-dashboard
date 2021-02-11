@@ -34,7 +34,6 @@ import Milestone from "./routes/explorer/Milestone";
 import { MilestoneRouteProps } from "./routes/explorer/MilestoneRouteProps";
 import Home from "./routes/Home";
 import Login from "./routes/Login";
-import Logout from "./routes/Logout";
 import Peer from "./routes/Peer";
 import { PeerRouteProps } from "./routes/PeerRouteProps";
 import Peers from "./routes/Peers";
@@ -92,14 +91,8 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
 
         this.state = {
-            isLoggedIn: this._authService.isLoggedIn() !== undefined
+            isLoggedIn: Boolean(this._authService.isLoggedIn())
         };
-
-        EventAggregator.subscribe("auth-state", "app", isLoggedIn => {
-            this.setState({
-                isLoggedIn
-            });
-        });
     }
 
     /**
@@ -107,6 +100,12 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
      */
     public async componentDidMount(): Promise<void> {
         super.componentDidMount();
+
+        EventAggregator.subscribe("auth-state", "app", isLoggedIn => {
+            this.setState({
+                isLoggedIn
+            });
+        });
 
         this._statusSubscription = this._metricsService.subscribe<IStatus>(
             WebSocketTopic.Status,
@@ -139,6 +138,8 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
     public componentWillUnmount(): void {
         super.componentWillUnmount();
 
+        EventAggregator.unsubscribe("auth-state", "app");
+
         if (this._statusSubscription) {
             this._metricsService.unsubscribe(this._statusSubscription);
             this._statusSubscription = undefined;
@@ -157,25 +158,25 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
     public render(): ReactNode {
         const sections = [];
 
-        if (this.state.isLoggedIn) {
-            sections.push(
-                {
-                    label: "Home",
-                    icon: <HomeIcon />,
-                    route: "/"
-                },
-                {
-                    label: "Analytics",
-                    icon: <AnalyticsIcon />,
-                    route: "/analytics"
-                },
-                {
-                    label: "Peers",
-                    icon: <PeersIcon />,
-                    route: "/peers"
-                });
-        }
         sections.push(
+            {
+                label: "Home",
+                icon: <HomeIcon />,
+                route: "/",
+                hidden: !this.state.isLoggedIn
+            },
+            {
+                label: "Analytics",
+                icon: <AnalyticsIcon />,
+                route: "/analytics",
+                hidden: !this.state.isLoggedIn
+            },
+            {
+                label: "Peers",
+                icon: <PeersIcon />,
+                route: "/peers",
+                hidden: !this.state.isLoggedIn
+            },
             {
                 label: "Explorer",
                 icon: <ExplorerIcon />,
@@ -192,9 +193,16 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                 route: "/settings"
             },
             {
-                label: this.state.isLoggedIn ? "Logout" : "Login",
-                icon: this.state.isLoggedIn ? <PadlockUnlockedIcon /> : <PadlockIcon />,
-                route: this.state.isLoggedIn ? "/logout" : "/login"
+                label: "Login",
+                icon: <PadlockIcon />,
+                route: "/login",
+                hidden: this.state.isLoggedIn
+            },
+            {
+                label: "Logout",
+                icon: <PadlockUnlockedIcon />,
+                function: () => this._authService.logout(),
+                hidden: !this.state.isLoggedIn
             }
         );
 
@@ -275,10 +283,6 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                             <Route
                                 path="/login"
                                 component={() => (<Login />)}
-                            />
-                            <Route
-                                path="/logout"
-                                component={() => (<Logout />)}
                             />
                             <Route
                                 exact={true}
