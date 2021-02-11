@@ -1,4 +1,5 @@
-import React, { Component, ReactNode } from "react";
+import React, { ReactNode } from "react";
+import { Helmet } from "react-helmet";
 import { Redirect, Route, RouteComponentProps, Switch, withRouter } from "react-router-dom";
 import { ReactComponent as AnalyticsIcon } from "../assets/analytics.svg";
 import { ReactComponent as ExplorerIcon } from "../assets/explorer.svg";
@@ -9,10 +10,16 @@ import { ReactComponent as PeersIcon } from "../assets/peers.svg";
 import { ReactComponent as SettingsIcon } from "../assets/settings.svg";
 import { ReactComponent as VisualizerIcon } from "../assets/visualizer.svg";
 import { ServiceFactory } from "../factories/serviceFactory";
+import { IStatus } from "../models/websocket/IStatus";
+import { ISyncStatus } from "../models/websocket/ISyncStatus";
+import { WebSocketTopic } from "../models/websocket/webSocketTopic";
 import { AuthService } from "../services/authService";
 import { EventAggregator } from "../services/eventAggregator";
+import { MetricsService } from "../services/metricsService";
+import { BrandHelper } from "../utils/brandHelper";
 import "./App.scss";
 import { AppState } from "./AppState";
+import AsyncComponent from "./components/layout/AsyncComponent";
 import Header from "./components/layout/Header";
 import NavPanel from "./components/layout/NavPanel";
 import Analytics from "./routes/Analytics";
@@ -40,11 +47,26 @@ import Visualizer from "./routes/Visualizer";
 /**
  * Main application class.
  */
-class App extends Component<RouteComponentProps, AppState> {
+class App extends AsyncComponent<RouteComponentProps, AppState> {
     /**
      * The auth service.
      */
     private readonly _authService: AuthService;
+
+    /**
+     * The metrics service.
+     */
+    private readonly _metricsService: MetricsService;
+
+    /**
+     * The status subscription id.
+     */
+    private _statusSubscription?: string;
+
+    /**
+     * The sync status metrics subscription id.
+     */
+    private _syncStatusSubscription?: string;
 
     /**
      * Create a new instance of App.
@@ -53,6 +75,7 @@ class App extends Component<RouteComponentProps, AppState> {
     constructor(props: RouteComponentProps) {
         super(props);
         this._authService = ServiceFactory.get<AuthService>("auth");
+        this._metricsService = ServiceFactory.get<MetricsService>("metrics");
 
         this.state = {
             isLoggedIn: this._authService.isLoggedIn() !== undefined
@@ -66,29 +89,78 @@ class App extends Component<RouteComponentProps, AppState> {
     }
 
     /**
+     * The component mounted.
+     */
+    public async componentDidMount(): Promise<void> {
+        super.componentDidMount();
+
+        this._statusSubscription = this._metricsService.subscribe<IStatus>(
+            WebSocketTopic.Status,
+            data => {
+                if (data && data.node_alias !== this.state.alias) {
+                    this.setState({ alias: data.node_alias });
+                }
+            });
+
+        this._syncStatusSubscription = this._metricsService.subscribe<ISyncStatus>(
+            WebSocketTopic.SyncStatus,
+            data => {
+                if (data) {
+                    const lmi = data.lmi ? data.lmi.toString() : "";
+                    const lsmi = data.lsmi ? data.lsmi.toString() : "";
+
+                    if (lmi !== this.state.lmi) {
+                        this.setState({ lmi });
+                    }
+
+                    if (lsmi !== this.state.lsmi) {
+                        this.setState({ lsmi });
+                    }
+                }
+            });
+    }
+
+    /**
+     * The component will unmount.
+     */
+    public componentWillUnmount(): void {
+        super.componentWillUnmount();
+
+        if (this._statusSubscription) {
+            this._metricsService.unsubscribe(this._statusSubscription);
+            this._statusSubscription = undefined;
+        }
+
+        if (this._syncStatusSubscription) {
+            this._metricsService.unsubscribe(this._syncStatusSubscription);
+            this._syncStatusSubscription = undefined;
+        }
+    }
+
+    /**
      * Render the component.
      * @returns The node to render.
      */
     public render(): ReactNode {
-        const sections = [
-            {
-                label: "Home",
-                icon: <HomeIcon />,
-                route: "/"
-            },
-            {
-                label: "Analytics",
-                icon: <AnalyticsIcon />,
-                route: "/analytics"
-            }
-        ];
+        const sections = [];
 
         if (this.state.isLoggedIn) {
-            sections.push({
-                label: "Peers",
-                icon: <PeersIcon />,
-                route: "/peers"
-            });
+            sections.push(
+                {
+                    label: "Home",
+                    icon: <HomeIcon />,
+                    route: "/"
+                },
+                {
+                    label: "Analytics",
+                    icon: <AnalyticsIcon />,
+                    route: "/analytics"
+                },
+                {
+                    label: "Peers",
+                    icon: <PeersIcon />,
+                    route: "/peers"
+                });
         }
         sections.push(
             {
@@ -115,6 +187,13 @@ class App extends Component<RouteComponentProps, AppState> {
 
         return (
             <div className="app">
+                <Helmet defer={false}>
+                    <title>
+                        {BrandHelper.getConfiguration().name}
+                        {this.state.alias ? ` (${this.state.alias})` : ""}
+                        {this.state.lmi && this.state.lsmi ? ` ${this.state.lsmi} / ${this.state.lmi}` : ""}
+                    </title>
+                </Helmet>
                 <NavPanel buttons={sections} />
                 <div className="col fill">
                     <Header />
