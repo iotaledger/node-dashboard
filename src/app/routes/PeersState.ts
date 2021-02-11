@@ -6,7 +6,9 @@ export interface PeersState {
         name: string;
         id: string;
         address?: string;
+        originalAddress?: string;
         health: number;
+        relation: string;
         newMessagesTotal: number[];
         sentMessagesTotal: number[];
         newMessagesDiff: number[];
@@ -17,7 +19,7 @@ export interface PeersState {
     /**
      * The type of dialog to show.
      */
-    dialogType?: "add" | "delete";
+    dialogType?: "add" | "delete" | "promote";
 
     /**
      * The peer to operate on.
