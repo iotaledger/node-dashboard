@@ -1,11 +1,16 @@
 @import '../../scss/card';
 @import '../../scss/fonts';
+@import '../../scss/media-queries';
 
 .home {
   display: flex;
   flex: 1;
   justify-content: center;
   padding: 60px;
+
+  @include phone-down {
+    padding: 10px;
+  }
 
   .content {
     flex: 1;

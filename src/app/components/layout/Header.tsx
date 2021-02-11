@@ -11,7 +11,9 @@ import { MetricsService } from "../../../services/metricsService";
 import { DataHelper } from "../../../utils/dataHelper";
 import { FormatHelper } from "../../../utils/formatHelper";
 import AsyncComponent from "./AsyncComponent";
+import Breakpoint from "./Breakpoint";
 import "./Header.scss";
+import { HeaderProps } from "./HeaderProps";
 import { HeaderState } from "./HeaderState";
 import HealthIndicator from "./HealthIndicator";
 import MicroGraph from "./MicroGraph";
@@ -20,7 +22,7 @@ import SearchInput from "./SearchInput";
 /**
  * Header panel.
  */
-class Header extends AsyncComponent<RouteComponentProps, HeaderState> {
+class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderState> {
     /**
      * The auth service.
      */
@@ -50,7 +52,7 @@ class Header extends AsyncComponent<RouteComponentProps, HeaderState> {
      * Create a new instance of Header.
      * @param props The props.
      */
-    constructor(props: RouteComponentProps) {
+    constructor(props: RouteComponentProps & HeaderProps) {
         super(props);
 
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
@@ -175,43 +177,48 @@ class Header extends AsyncComponent<RouteComponentProps, HeaderState> {
         return (
             <header className="header">
                 <div className="content">
+                    {this.props.children}
                     <SearchInput
                         compact={true}
                         onSearch={query => this.props.history.push(`/explorer/search/${query}`)}
                         className="child child-fill"
                     />
-                    <HealthIndicator
-                        label="Health"
-                        healthy={this.state.nodeHealth}
-                        className="child"
-                    />
-                    <HealthIndicator
-                        label="Sync"
-                        healthy={this.state.syncHealth}
-                        className="child"
-                    />
-                    <MicroGraph
-                        label="MPS"
-                        value={this.state.mps}
-                        values={this.state.mpsValues}
-                        className="child"
-                    />
-                    {this.state.isLoggedIn && (
-                        <React.Fragment>
-                            <MicroGraph
-                                label="Database"
-                                value={this.state.databaseSizeFormatted}
-                                values={this.state.databaseSize}
-                                className="child"
-                            />
-                            <MicroGraph
-                                label="Memory"
-                                value={this.state.memorySizeFormatted}
-                                values={this.state.memorySize}
-                                className="child"
-                            />
-                        </React.Fragment>
-                    )}
+                    <Breakpoint size="tablet" aboveBelow="above">
+                        <HealthIndicator
+                            label="Health"
+                            healthy={this.state.nodeHealth}
+                            className="child"
+                        />
+                        <HealthIndicator
+                            label="Sync"
+                            healthy={this.state.syncHealth}
+                            className="child"
+                        />
+                    </Breakpoint>
+                    <Breakpoint size="desktop" aboveBelow="above">
+                        <MicroGraph
+                            label="MPS"
+                            value={this.state.mps}
+                            values={this.state.mpsValues}
+                            className="child"
+                        />
+                        {this.state.isLoggedIn && (
+                            <React.Fragment>
+                                <MicroGraph
+                                    label="Database"
+                                    value={this.state.databaseSizeFormatted}
+                                    values={this.state.databaseSize}
+                                    className="child"
+                                />
+                                <MicroGraph
+                                    label="Memory"
+                                    value={this.state.memorySizeFormatted}
+                                    values={this.state.memorySize}
+                                    className="child"
+                                />
+                            </React.Fragment>
+                        )}
+                    </Breakpoint>
                 </div>
             </header>
         );

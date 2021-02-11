@@ -9,7 +9,6 @@ import { IMpsMetrics } from "../../models/websocket/IMpsMetrics";
 import { IStatus } from "../../models/websocket/IStatus";
 import { ISyncStatus } from "../../models/websocket/ISyncStatus";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
-import { AuthService } from "../../services/authService";
 import { MetricsService } from "../../services/metricsService";
 import { NodeConfigService } from "../../services/nodeConfigService";
 import { ThemeService } from "../../services/themeService";
@@ -62,11 +61,6 @@ class Home extends AsyncComponent<unknown, HomeState> {
     private readonly _networkId?: string;
 
     /**
-     * The auth service.
-     */
-    private readonly _authService: AuthService;
-
-    /**
      * Create a new instance of Home.
      * @param props The props.
      */
@@ -75,7 +69,6 @@ class Home extends AsyncComponent<unknown, HomeState> {
 
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
         this._themeService = ServiceFactory.get<ThemeService>("theme");
-        this._authService = ServiceFactory.get<AuthService>("auth");
 
         const nodeConfigService = ServiceFactory.get<NodeConfigService>("node-config");
         this._networkId = nodeConfigService.getNetworkId();
@@ -118,7 +111,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
             data => {
                 if (data) {
                     const nodeName = data.node_alias ? data.node_alias : BrandHelper.getConfiguration().name;
-                    const peerId = this._authService.isLoggedIn() ? data.autopeering_id || "No peer Id." : "";
+                    const peerId = data.autopeering_id || "No peer Id.";
                     const pruningIndex = data.pruning_index.toString();
                     const uptime = FormatHelper.duration(data.uptime);
                     const memory = FormatHelper.size(
@@ -295,11 +288,9 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                 </div>
                             </div>
                         </div>
-                        {this._authService.isLoggedIn() && (
-                            <div className="card peers-summary-panel margin-l-s">
-                                <PeersSummaryPanel />
-                            </div>
-                        )}
+                        <div className="card peers-summary-panel margin-l-s">
+                            <PeersSummaryPanel />
+                        </div>
                     </div>
                 </div>
             </div>

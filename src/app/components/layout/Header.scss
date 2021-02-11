@@ -1,3 +1,4 @@
+@import '../../../scss/media-queries';
 @import '../../../scss/variables';
 
 .header {
@@ -7,6 +8,12 @@
   height: 80px;
   padding: $spacing-small 60px;
   background-color: var(--panel-background);
+
+  @include tablet-down {
+    justify-content: flex-start;
+    height: 60px;
+    padding: $spacing-small;
+  }
 
   .content {
     display: flex;
@@ -18,9 +25,18 @@
       padding: $spacing-tiny $spacing-medium;
       border-right: 1px solid var(--panel-border);
 
+      @include desktop-down {
+        padding: $spacing-tiny;
+      }
+
       &.child-fill {
         flex: 1;
+        min-width: 250px;
         padding-right: 40px;
+
+        @include tablet-down {
+          padding-right: 0;
+        }
       }
     }
   }

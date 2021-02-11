@@ -67,7 +67,7 @@ class NavPanel extends Component<RouteComponentProps & NavPanelProps, NavPanelSt
      */
     public render(): ReactNode {
         return (
-            <div className="nav-panel">
+            <div className={classNames("nav-panel", { "full-width": this.props.fullWidth })}>
                 <Link
                     to="/"
                 >
@@ -89,7 +89,7 @@ class NavPanel extends Component<RouteComponentProps & NavPanelProps, NavPanelSt
                                 )}
                             >
                                 {b.icon}
-                                <span className="margin-t-t">{b.label}</span>
+                                <span className="nav-panel-button-label">{b.label}</span>
                             </Link>
                         )}
                         {!b.hidden && b.function && (
@@ -101,7 +101,7 @@ class NavPanel extends Component<RouteComponentProps & NavPanelProps, NavPanelSt
                                 )}
                             >
                                 {b.icon}
-                                <span className="margin-t-t">{b.label}</span>
+                                <span className="nav-panel-button-label">{b.label}</span>
                             </button>
                         )}
                     </React.Fragment>

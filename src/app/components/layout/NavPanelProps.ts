@@ -26,4 +26,9 @@ export interface NavPanelProps {
          */
         hidden?: boolean;
     }[];
+
+    /**
+     * Show the panel full width.
+     */
+    fullWidth: boolean;
 }

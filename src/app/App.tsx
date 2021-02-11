@@ -19,7 +19,9 @@ import { BrandHelper } from "../utils/brandHelper";
 import "./App.scss";
 import { AppState } from "./AppState";
 import AsyncComponent from "./components/layout/AsyncComponent";
+import Breakpoint from "./components/layout/Breakpoint";
 import Header from "./components/layout/Header";
+import NavMenu from "./components/layout/NavMenu";
 import NavPanel from "./components/layout/NavPanel";
 import Analytics from "./routes/Analytics";
 import { AnalyticsRouteProps } from "./routes/AnalyticsRouteProps";
@@ -208,34 +210,44 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
 
         return (
             <div className="app">
-                <NavPanel buttons={sections} />
+                <Breakpoint size="phone" aboveBelow="above">
+                    <NavPanel fullWidth={false} buttons={sections} />
+                </Breakpoint>
                 <div className="col fill">
-                    <Header />
+                    <Header>
+                        <Breakpoint size="phone" aboveBelow="below">
+                            <NavMenu>
+                                <NavPanel fullWidth={true} buttons={sections} />
+                            </NavMenu>
+                        </Breakpoint>
+                    </Header>
                     <div className="fill scroll-content">
                         <Switch>
-                            {this.state.isLoggedIn && (
-                                <React.Fragment>
-                                    <Route
-                                        exact={true}
-                                        path="/"
-                                        component={() => (<Home />)}
-                                    />
-                                    <Route
-                                        path="/analytics/:section?"
-                                        component={(props: AnalyticsRouteProps) => (<Analytics {...props} />)}
-                                    />
-                                    <Route
-                                        exact={true}
-                                        path="/peers"
-                                        component={() => (<Peers />)}
-                                    />
-                                    <Route
-                                        path="/peers/:id"
-                                        component={(props: RouteComponentProps<PeerRouteProps>) =>
-                                            (<Peer {...props} />)}
-                                    />
-                                </React.Fragment>
-                            )}
+                            {this.state.isLoggedIn && [
+                                <Route
+                                    exact={true}
+                                    path="/"
+                                    component={() => (<Home />)}
+                                    key="home"
+                                />,
+                                <Route
+                                    path="/analytics/:section?"
+                                    component={(props: AnalyticsRouteProps) => (<Analytics {...props} />)}
+                                    key="analytics"
+                                />,
+                                <Route
+                                    exact={true}
+                                    path="/peers"
+                                    component={() => (<Peers />)}
+                                    key="peers"
+                                />,
+                                <Route
+                                    path="/peers/:id"
+                                    component={(props: RouteComponentProps<PeerRouteProps>) =>
+                                        (<Peer {...props} />)}
+                                    key="peer"
+                                />
+                            ]}
                             {!this.state.isLoggedIn && (
                                 <Route
                                     path="/"
