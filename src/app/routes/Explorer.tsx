@@ -117,20 +117,18 @@ class Peers extends AsyncComponent<RouteComponentProps, ExplorerState> {
                             onSearch={query => this.props.history.push(`/explorer/search/${query}`)}
                         />
                     </div>
-                    <div className="row info margin-t-s">
+                    <div className="row tablet-down-column info margin-t-s">
                         <InfoPanel
                             caption="Messages per Second"
                             value={this.state.mps}
                             icon={<MilestoneIcon />}
                             backgroundStyle="green"
-                            className="margin-r-s"
                         />
                         <InfoPanel
                             caption="Confirmed Messages per Second"
                             value={this.state.cmps}
                             icon={<UptimeIcon />}
                             backgroundStyle="blue"
-                            className="margin-r-s"
                         />
                         <InfoPanel
                             caption="Confirmation Rate"

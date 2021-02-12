@@ -5,6 +5,10 @@
   display: flex;
   flex-direction: row;
 
+  &.start {
+    justify-content: flex-start;
+  }
+
   &.middle {
     align-items: center;
   }
@@ -41,17 +45,29 @@
     &.phone-down-column {
       flex-direction: column;
     }
+
+    &.start {
+      align-items: flex-start;
+    }
   }
 
   @include tablet-down {
     &.tablet-down-column {
       flex-direction: column;
     }
+
+    &.start {
+      align-items: flex-start;
+    }
   }
 
   @include tablet-down-only {
     &.tablet-down-only-column {
       flex-direction: column;
+
+      &.start {
+        align-items: flex-start;
+      }
     }
   }
 

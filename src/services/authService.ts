@@ -46,23 +46,22 @@ export class AuthService {
         this.logout();
 
         try {
-            // const response = await FetchHelper.json<{
-            //     user?: string;
-            //     password?: string;
-            //     jwt?: string;
-            // }, {
-            //     jwt?: string;
-            // }>(
-            //     `${window.location.protocol}//${window.location.host}`,
-            //     "/login",
-            //     "post",
-            //     {
-            //         user,
-            //         password,
-            //         jwt
-            //     });
+            const response = await FetchHelper.json<{
+                user?: string;
+                password?: string;
+                jwt?: string;
+            }, {
+                jwt?: string;
+            }>(
+                `${window.location.protocol}//${window.location.host}`,
+                "/login",
+                "post",
+                {
+                    user,
+                    password,
+                    jwt
+                });
 
-            const response = { jwt: "hkjhk" };
             if (response.jwt) {
                 const storageService = ServiceFactory.get<LocalStorageService>("storage");
                 this._jwt = response.jwt;

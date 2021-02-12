@@ -1,5 +1,6 @@
 @import '../../../scss/fonts';
 @import '../../../scss/variables';
+@import '../../../scss/media-queries';
 
 .message-tangle-state {
   @include font-size(12px);
@@ -7,7 +8,6 @@
   display: flex;
   align-items: center;
   height: 24px;
-  margin-left: 20px;
   padding: 0 8px;
   border: 0;
   border-radius: 6px;
@@ -18,6 +18,10 @@
   font-weight: bold;
   white-space: nowrap;
   cursor: pointer;
+
+  @include phone-down {
+    margin-top: $spacing-small;
+  }
 
   &.message-tangle-state__referenced {
     background-color: #12bf3f;

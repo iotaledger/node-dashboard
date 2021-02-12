@@ -110,8 +110,8 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                         <h3 className="secondary margin-l-s">Back to Explorer</h3>
                     </Link>
                     <div className="card margin-t-m padding-l">
-                        <div className="row">
-                            <h2>
+                        <div className="row phone-down-column start">
+                            <h2 className="margin-r-l">
                                 Message
                             </h2>
                             {this.state.messageTangleStatus && (

@@ -1,11 +1,16 @@
 @import '../../scss/card';
 @import '../../scss/fonts';
+@import '../../scss/media-queries';
 
 .explorer {
   display: flex;
   flex: 1;
   justify-content: center;
   padding: 60px;
+
+  @include desktop-down {
+    padding: $spacing-small;
+  }
 
   .content {
     flex: 1;
@@ -14,6 +19,21 @@
     .search-panel {
       margin-top: $spacing-large;
       padding: $spacing-small $spacing-large;
+
+      @include desktop-down {
+        margin-top: $spacing-small;
+      }
+    }
+
+    .info {
+      .info-panel + .info-panel {
+        margin-left: $spacing-small;
+
+        @include tablet-down {
+          margin-top: $spacing-small;
+          margin-left: 0;
+        }
+      }
     }
 
     .milestones-panel {
@@ -40,6 +60,7 @@
           color: var(--text-color-primary);
           font-family: $font-mono;
           text-decoration: none;
+          word-break: break-all;
         }
       }
     }
