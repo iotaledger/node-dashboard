@@ -1,6 +1,5 @@
 import { ArrayHelper } from "@iota/iota.js";
 import classNames from "classnames";
-import { WSAVERNOTSUPPORTED } from "constants";
 import React, { ReactNode } from "react";
 import AsyncComponent from "./AsyncComponent";
 import "./Graph.scss";
@@ -244,7 +243,7 @@ class Graph extends AsyncComponent<GraphProps, GraphState> {
                         });
                     }
                 }
-            } catch { }
+            } catch {}
         }
 
         return {
