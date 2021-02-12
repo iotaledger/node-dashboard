@@ -14,6 +14,12 @@ $phone-width: 480px;
   }
 }
 
+@mixin tablet-down-only {
+  @media (max-width: #{$tablet-width}) and (min-width: #{$phone-width + 1}) {
+    @content;
+  }
+}
+
 @mixin phone-down {
   @media (max-width: #{$phone-width}) {
     @content;

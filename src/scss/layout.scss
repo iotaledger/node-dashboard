@@ -28,7 +28,15 @@
   &.wrap {
     flex-wrap: wrap;
   }
+}
 
+.col {
+  display: flex;
+  flex-direction: column;
+}
+
+.col,
+.row {
   @include phone-down {
     &.phone-down-column {
       flex-direction: column;
@@ -41,16 +49,41 @@
     }
   }
 
+  @include tablet-down-only {
+    &.tablet-down-only-column {
+      flex-direction: column;
+    }
+  }
+
   @include desktop-down {
     &.desktop-down-column {
       flex-direction: column;
     }
   }
-}
 
-.col {
-  display: flex;
-  flex-direction: column;
+  @include phone-down {
+    &.phone-down-row {
+      flex-direction: row;
+    }
+  }
+
+  @include tablet-down {
+    &.tablet-down-row {
+      flex-direction: row;
+    }
+  }
+
+  @include tablet-down-only {
+    &.tablet-down-only-row {
+      flex-direction: row;
+    }
+  }
+
+  @include desktop-down {
+    &.desktop-down-row {
+      flex-direction: row;
+    }
+  }
 }
 
 .fill {

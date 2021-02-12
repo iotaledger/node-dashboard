@@ -124,7 +124,7 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                     sentMessagesDiff.push(
                         Math.max(
                             sentMessagesTotal[i] - sentMessagesTotal[i - 1]
-                        , 0)
+                            , 0)
                     );
                 }
 
@@ -178,16 +178,16 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                     </Link>
 
                     <div className="card">
-                        <div className="banner row spread">
+                        <div className="banner row tablet-down-column spread">
                             <div className="node-info">
                                 {this.state.alias && (
                                     <React.Fragment>
-                                        <h2>{this.state.alias}</h2>
+                                        <h2 className="word-break-all">{this.state.alias}</h2>
                                         <p className="secondary margin-t-t">{this.props.match.params.id}</p>
                                     </React.Fragment>
                                 )}
                                 {!this.state.alias && (
-                                    <h2>{this.props.match.params.id}</h2>
+                                    <h2 className="word-break-all">{this.props.match.params.id}</h2>
                                 )}
                                 <p className="secondary margin-t-t">{this.state.address}</p>
                                 <p className="secondary margin-t-t">
@@ -195,7 +195,7 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                                     {`${this.state.relation.slice(0, 1).toUpperCase()}${this.state.relation.slice(1)}`}
                                 </p>
                             </div>
-                            <div className="health-indicators">
+                            <div className="health-indicators col tablet-down-only-row phone-down-column">
                                 <HealthIndicator
                                     label="Connected"
                                     healthy={this.state.isConnected}
@@ -221,14 +221,12 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                             value={`${this.state.latestSolidMilestoneIndex} / ${this.state.latestMilestoneIndex}`}
                             icon={<MilestoneIcon />}
                             backgroundStyle="green"
-                            className="margin-r-s"
                         />
                         <InfoPanel
                             caption="Pruning Index"
                             value={this.state.pruningIndex}
                             icon={<PruningIcon />}
                             backgroundStyle="orange"
-                            className="margin-r-s"
                         />
                         <InfoPanel
                             caption="Synced Peers"
@@ -258,49 +256,73 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                             ]}
                         />
 
-                        <div className="row spread padding-s gossip">
-                            <div className="col">
+                        <div className="row wrap padding-s gossip">
+                            <div className="gossip-item">
                                 <h4>Known Messages</h4>
-                                <div className="gossip-value">{this.state.gossipMetrics?.knownMessages ?? "-"}</div>
-                                <h4 className="margin-t-s">Received Heartbeats</h4>
                                 <div className="gossip-value">
-                                    {this.state.gossipMetrics?.receivedHeartbeats ?? "-"}
+                                    {this.state.gossipMetrics?.knownMessages ?? "-"}
                                 </div>
                             </div>
-                            <div className="col">
+                            <div className="gossip-item">
                                 <h4>New Messages</h4>
-                                <div className="gossip-value">{this.state.gossipMetrics?.newMessages ?? "-"}</div>
-                                <h4 className="margin-t-s">Sent Heartbeats</h4>
-                                <div className="gossip-value">{this.state.gossipMetrics?.sentHeartbeats ?? "-"}</div>
+                                <div className="gossip-value">
+                                    {this.state.gossipMetrics?.newMessages ?? "-"}
+                                </div>
                             </div>
-                            <div className="col">
+                            <div className="gossip-item">
                                 <h4>Received Messages</h4>
-                                <div className="gossip-value">{this.state.gossipMetrics?.receivedMessages ?? "-"}</div>
-                                <h4 className="margin-t-s">Received Milestone Requests</h4>
                                 <div className="gossip-value">
-                                    {this.state.gossipMetrics?.receivedMilestoneRequests ?? "-"}
+                                    {this.state.gossipMetrics?.receivedMessages ?? "-"}
                                 </div>
                             </div>
-                            <div className="col">
+                            <div className="gossip-item">
                                 <h4>Sent Messages</h4>
-                                <div className="gossip-value">{this.state.gossipMetrics?.sentMessages ?? "-"}</div>
-                                <h4 className="margin-t-s">Sent Milestone Requests</h4>
                                 <div className="gossip-value">
-                                    {this.state.gossipMetrics?.sentMilestoneRequests ?? "-"}
+                                    {this.state.gossipMetrics?.sentMessages ?? "-"}
                                 </div>
                             </div>
-                            <div className="col">
+                            <div className="gossip-item">
                                 <h4>Received Message Requests</h4>
                                 <div className="gossip-value">
                                     {this.state.gossipMetrics?.receivedMessageRequests ?? "-"}
                                 </div>
-                                <h4 className="margin-t-s">Dropped Packets</h4>
-                                <div className="gossip-value">{this.state.gossipMetrics?.droppedPackets ?? "-"}</div>
                             </div>
-                            <div className="col">
+                            <div className="gossip-item">
                                 <h4>Sent Message Requests</h4>
                                 <div className="gossip-value">
                                     {this.state.gossipMetrics?.sentMessageRequests ?? "-"}
+                                </div>
+                            </div>
+
+
+                            <div className="gossip-item">
+                                <h4>Received Heartbeats</h4>
+                                <div className="gossip-value">
+                                    {this.state.gossipMetrics?.receivedHeartbeats ?? "-"}
+                                </div>
+                            </div>
+                            <div className="gossip-item">
+                                <h4>Sent Heartbeats</h4>
+                                <div className="gossip-value">
+                                    {this.state.gossipMetrics?.sentHeartbeats ?? "-"}
+                                </div>
+                            </div>
+                            <div className="gossip-item">
+                                <h4>Received Milestone Requests</h4>
+                                <div className="gossip-value">
+                                    {this.state.gossipMetrics?.receivedMilestoneRequests ?? "-"}
+                                </div>
+                            </div>
+                            <div className="gossip-item">
+                                <h4>Sent Milestone Requests</h4>
+                                <div className="gossip-value">
+                                    {this.state.gossipMetrics?.sentMilestoneRequests ?? "-"}
+                                </div>
+                            </div>
+                            <div className="gossip-item">
+                                <h4>Dropped Packets</h4>
+                                <div className="gossip-value">
+                                    {this.state.gossipMetrics?.droppedPackets ?? "-"}
                                 </div>
                             </div>
                         </div>
