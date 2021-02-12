@@ -1,11 +1,16 @@
 @import '../../scss/card';
 @import '../../scss/fonts';
+@import '../../scss/media-queries';
 
 .analytics {
   display: flex;
   flex: 1;
   justify-content: center;
   padding: 60px;
+
+  @include desktop-down {
+    padding: $spacing-small;
+  }
 
   .content {
     flex: 1;
@@ -17,11 +22,24 @@
   }
 
   .gossip {
-    .col {
+    padding: $spacing-small 0 0 $spacing-small;
+
+    .gossip-item {
+      width: 155px;
+      height: 75px;
+      margin-right: $spacing-small;
+
+      @include desktop-down {
+        width: 160px;
+      }
+
+      h4 {
+        min-height: 30px;
+      }
+
       .gossip-value {
         @include font-size(24px);
 
-        margin-top: $spacing-tiny;
         color: var(--text-color-primary);
         font-family: $font-sans;
         font-weight: bold;

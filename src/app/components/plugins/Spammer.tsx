@@ -54,7 +54,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
         try {
             const authHeaders = Spammer.buildAuthHeaders();
 
-            if (authHeaders.jwt) {
+            if (authHeaders.Authorization) {
                 const res = await FetchHelper.json<unknown, {
                     data?: ISpammerSettings;
                     error?: {
@@ -101,10 +101,10 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
      * Build authentication headers.
      * @returns The authentication headers.
      */
-    private static buildAuthHeaders(): { [id: string]: string } {
+    private static buildAuthHeaders(): Record<string, string> {
         const authService = ServiceFactory.get<AuthService>("auth");
 
-        const headers: { [id: string]: string } = {};
+        const headers: Record<string, string> = {};
         const jwt = authService.isLoggedIn();
         if (jwt) {
             headers.Authorization = jwt;
