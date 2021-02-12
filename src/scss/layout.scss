@@ -1,4 +1,5 @@
 @import './variables';
+@import './media-queries';
 
 .row {
   display: flex;
@@ -22,6 +23,24 @@
 
   &.spread {
     justify-content: space-between;
+  }
+
+  @include phone-down {
+    &.phone-down-column {
+      flex-direction: column;
+    }
+  }
+
+  @include tablet-down {
+    &.tablet-down-column {
+      flex-direction: column;
+    }
+  }
+
+  @include desktop-down {
+    &.desktop-down-column {
+      flex-direction: column;
+    }
   }
 }
 

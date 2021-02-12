@@ -75,20 +75,21 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
                         key={idx}
                         className="peers-summary--item"
                     >
-                        <span className="peer-health-icon">
+                        <div className="peer-health-icon">
                             {p.health === 0 && <HealthBadIcon />}
                             {p.health === 1 && <HealthWarningIcon />}
                             {p.health === 2 && <HealthGoodIcon />}
-                        </span>
-                        <span className="peer-id">
-                            {p.name}
+                        </div>
+                        <div className="col">
+                            <div className="peer-id">
+                                {p.name}
+                            </div>
                             {p.address && (
-                                <React.Fragment>
-                                    <br />
+                                <div className="peer-id">
                                     {p.address}
-                                </React.Fragment>
+                                </div>
                             )}
-                        </span>
+                        </div>
                     </Link>
                 ))}
             </div>

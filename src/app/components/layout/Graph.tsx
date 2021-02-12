@@ -1,5 +1,6 @@
 import { ArrayHelper } from "@iota/iota.js";
 import classNames from "classnames";
+import { WSAVERNOTSUPPORTED } from "constants";
 import React, { ReactNode } from "react";
 import AsyncComponent from "./AsyncComponent";
 import "./Graph.scss";
@@ -16,6 +17,11 @@ class Graph extends AsyncComponent<GraphProps, GraphState> {
     private _graphElement: SVGSVGElement | null;
 
     /**
+     * The resize method
+     */
+    private readonly _resize: () => void;
+
+    /**
      * Create a new instance of Graph.
      * @param props The props.
      */
@@ -23,8 +29,17 @@ class Graph extends AsyncComponent<GraphProps, GraphState> {
         super(props);
 
         this._graphElement = null;
+        this._resize = () => this.resize();
 
         this.state = {};
+    }
+
+    /**
+     * The component did mount.
+     */
+    public componentDidMount(): void {
+        super.componentDidMount();
+        window.addEventListener("resize", this._resize);
     }
 
     /**
@@ -50,7 +65,9 @@ class Graph extends AsyncComponent<GraphProps, GraphState> {
      * The component will unmount.
      */
     public componentWillUnmount(): void {
+        super.componentWillUnmount();
         this._graphElement = null;
+        window.removeEventListener("resize", this._resize);
     }
 
     /**
@@ -111,6 +128,15 @@ class Graph extends AsyncComponent<GraphProps, GraphState> {
     }
 
     /**
+     * The window was resized.
+     */
+    private resize(): void {
+        if (this._graphElement) {
+            this.setState(this.calculateGraph());
+        }
+    }
+
+    /**
      * Calculate the graph points.
      * @returns The graph points.
      */
@@ -136,11 +162,16 @@ class Graph extends AsyncComponent<GraphProps, GraphState> {
                 const graphWidth = this._graphElement.width.baseVal.value;
                 const graphHeight = this._graphElement.height.baseVal.value - axisLabelHeight;
 
+                let seriesMaxLength = this.props.seriesMaxLength;
+                if (graphWidth < 500) {
+                    seriesMaxLength /= 2;
+                }
+
                 const actualSeriesValues: number[][] =
-                    this.props.series.map(s => s.values.slice(-this.props.seriesMaxLength));
+                    this.props.series.map(s => s.values.slice(-seriesMaxLength));
 
                 let maxY = 0;
-                const maxItems = Math.min(this.props.seriesMaxLength, actualSeriesValues[0].length);
+                const maxItems = Math.min(seriesMaxLength, actualSeriesValues[0].length);
 
                 for (let i = 0; i < actualSeriesValues.length; i++) {
                     for (let j = 0; j < actualSeriesValues[i].length; j++) {
@@ -163,7 +194,7 @@ class Graph extends AsyncComponent<GraphProps, GraphState> {
 
                 const yScale = (graphHeight * yUsage) / maxY;
                 const barWidth = (graphWidth - axisLabelWidth - marginLeft - marginRight) /
-                    (this.props.seriesMaxLength * this.props.series.length);
+                    (seriesMaxLength * this.props.series.length);
                 const axisSpacing = graphHeight / (axisLineCount - 1);
 
                 for (let i = 0; i < axisLineCount; i++) {
@@ -181,9 +212,9 @@ class Graph extends AsyncComponent<GraphProps, GraphState> {
                 }
 
                 if (this.props.timeInterval && this.props.endTime) {
-                    const numTimeEntries = this.props.timeMarkers ?? 10;
+                    const numTimeEntries = this.props.timeMarkers ?? Math.floor(graphWidth / 100);
                     const startTime = this.props.endTime - (maxItems * this.props.timeInterval);
-                    const timePerInterval = (this.props.seriesMaxLength * this.props.timeInterval) / numTimeEntries;
+                    const timePerInterval = (seriesMaxLength * this.props.timeInterval) / numTimeEntries;
                     for (let i = 0; i <= numTimeEntries; i++) {
                         const dt = new Date(startTime + (i * timePerInterval));
                         text.push({
@@ -213,7 +244,7 @@ class Graph extends AsyncComponent<GraphProps, GraphState> {
                         });
                     }
                 }
-            } catch {}
+            } catch { }
         }
 
         return {

@@ -6,13 +6,12 @@
   align-items: center;
   justify-content: center;
   height: 80px;
-  padding: $spacing-small 60px;
+  padding: $spacing-small;
   background-color: var(--panel-background);
 
   @include tablet-down {
     justify-content: flex-start;
     height: 60px;
-    padding: $spacing-small;
   }
 
   .content {
@@ -35,6 +34,7 @@
         padding-right: 40px;
 
         @include tablet-down {
+          min-width: unset;
           padding-right: 0;
         }
       }

@@ -12,6 +12,10 @@
   border-right: 1px solid var(--panel-border);
   background-color: var(--panel-background);
 
+  @include tablet-down {
+    padding-top: 16px;
+  }
+
   a {
     &:focus {
       border: 0;
@@ -20,7 +24,14 @@
   }
 
   .logo {
+    width: 36px;
+    height: 36px;
     margin-bottom: 120px;
+
+    @include tablet-down {
+      width: 28px;
+      height: 28px;
+    }
   }
 
   .nav-panel--button {

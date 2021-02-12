@@ -80,3 +80,15 @@ hr {
     box-shadow: 0 0 3px 0 var(--accent-primary);
   }
 }
+
+.word-break {
+  word-break: break-all;
+}
+
+.hide-overflow {
+  overflow: hidden;
+}
+
+.text-ellipsis {
+  text-overflow: ellipsis;
+}

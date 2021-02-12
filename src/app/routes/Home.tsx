@@ -217,7 +217,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                 <div>
                                     <h1>{this.state.nodeName}</h1>
                                     {this.state.peerId && (
-                                        <p className="secondary margin-t-t">{this.state.peerId}</p>
+                                        <p className="secondary margin-t-t word-break">{this.state.peerId}</p>
                                     )}
                                 </div>
                                 <p className="secondary">
@@ -233,15 +233,14 @@ class Home extends AsyncComponent<unknown, HomeState> {
                             </div>
                         </div>
                     </div>
-                    <div className="row fill margin-t-s">
-                        <div className="col fill">
-                            <div className="row fill">
+                    <div className="row fill margin-t-s desktop-down-column">
+                        <div className="col info-col fill">
+                            <div className="row fill tablet-down-column">
                                 <InfoPanel
                                     caption="LSMI / LMI"
                                     value={`${this.state.lsmi} / ${this.state.lmi}`}
                                     icon={<MilestoneIcon />}
                                     backgroundStyle="green"
-                                    className="margin-r-s"
                                 />
                                 <InfoPanel
                                     caption="Pruning Index"
@@ -250,13 +249,12 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                     backgroundStyle="orange"
                                 />
                             </div>
-                            <div className="row fill margin-t-s">
+                            <div className="row fill margin-t-s tablet-down-column">
                                 <InfoPanel
                                     caption="Uptime"
                                     value={this.state.uptime}
                                     icon={<UptimeIcon />}
                                     backgroundStyle="blue"
-                                    className="margin-r-s"
                                 />
                                 <InfoPanel
                                     caption="Memory Usage"
@@ -288,7 +286,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                 </div>
                             </div>
                         </div>
-                        <div className="card peers-summary-panel margin-l-s">
+                        <div className="card col peers-summary-col peers-summary-panel">
                             <PeersSummaryPanel />
                         </div>
                     </div>
