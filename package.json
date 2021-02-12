@@ -9,7 +9,7 @@
     },
     "license": "MIT",
     "dependencies": {
-        "@iota/iota.js": "github:iotaledger/iota.js#0c0579e963a9be6574016b015a22857e0cf2552f",
+        "@iota/iota.js": "github:iotaledger/iota.js#181a24931238c1dc56259ae3085d8987413eb84d",
         "classnames": "^2.2.6",
         "humanize-duration": "^3.25.1",
         "moment": "^2.29.1",
