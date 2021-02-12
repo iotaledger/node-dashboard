@@ -1,4 +1,5 @@
 @import '../../../scss/fonts';
+@import '../../../scss/media-queries';
 @import '../../../scss/variables';
 
 .dialog-click-shield {
@@ -31,6 +32,10 @@
     border-radius: 10px;
     background: var(--panel-background);
     box-shadow: 5px 5px 5px 0 var(--drop-shadow);
+
+    @include tablet-down {
+      min-width: 90%;
+    }
 
     .dialog-header {
       margin-bottom: 20px;

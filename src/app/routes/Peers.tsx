@@ -186,7 +186,7 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                             {p.health === 1 && <HealthWarningIcon />}
                                             {p.health === 2 && <HealthGoodIcon />}
                                         </span>
-                                        <div className="peer-id">{p.name}<br />{p.address}</div>
+                                        <div className="peer-id word-break-all">{p.name}<br />{p.address}</div>
                                     </div>
                                     <Graph
                                         caption="Messages per Second"
@@ -207,10 +207,10 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                             }
                                         ]}
                                     />
-                                    <div className="row spread middle margin-t-l">
+                                    <div className="row peer-actions">
                                         <button
                                             type="button"
-                                            className="card--action card--action-danger"
+                                            className="card--action card--action-danger margin-t-s"
                                             onClick={() => this.setState({
                                                 dialogType: "delete",
                                                 dialogPeerId: p.id
@@ -221,7 +221,7 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                         {p.relation !== "known" && p.originalAddress && (
                                             <button
                                                 type="button"
-                                                className="card--action"
+                                                className="card--action margin-t-s"
                                                 onClick={() => this.setState({
                                                     dialogType: "promote",
                                                     peerAddress: p.originalAddress ?? ""
@@ -231,14 +231,14 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                             </button>
                                         )}
                                         {p.relation === "known" && (
-                                            <p>
-                                                Relation:&nbsp;{`${p.relation
+                                            <p className="margin-t-s padding-t">
+                                                Relation: {`${p.relation
                                                     .slice(0, 1).toUpperCase()}${p.relation.slice(1)}`}
                                             </p>
                                         )}
                                         <Link
                                             to={`/peers/${p.id}`}
-                                            className="card--action row middle inline"
+                                            className="card--action row middle inline margin-t-s"
                                         >
                                             <span className="margin-r-s">More details</span>
                                             <ChevronRightIcon className="secondary" />

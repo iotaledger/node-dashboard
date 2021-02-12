@@ -217,7 +217,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                 <div>
                                     <h1>{this.state.nodeName}</h1>
                                     {this.state.peerId && (
-                                        <p className="secondary margin-t-t word-break">{this.state.peerId}</p>
+                                        <p className="secondary margin-t-t word-break-all">{this.state.peerId}</p>
                                     )}
                                 </div>
                                 <p className="secondary">
