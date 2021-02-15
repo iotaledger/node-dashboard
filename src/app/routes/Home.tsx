@@ -6,7 +6,8 @@ import { ReactComponent as PruningIcon } from "../../assets/pruning.svg";
 import { ReactComponent as UptimeIcon } from "../../assets/uptime.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
 import { IMpsMetrics } from "../../models/websocket/IMpsMetrics";
-import { IStatus } from "../../models/websocket/IStatus";
+import { INodeStatus } from "../../models/websocket/INodeStatus";
+import { IPublicNodeStatus } from "../../models/websocket/IPublicNodeStatus";
 import { ISyncStatus } from "../../models/websocket/ISyncStatus";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
 import { MetricsService } from "../../services/metricsService";
@@ -43,7 +44,12 @@ class Home extends AsyncComponent<unknown, HomeState> {
     /**
      * The status subscription id.
      */
-    private _statusSubscription?: string;
+    private _nodeStatusSubscription?: string;
+
+    /**
+     * The public node status subscription id.
+     */
+    private _publicNodeStatusSubscription?: string;
 
     /**
      * The sync status subscription id.
@@ -106,13 +112,24 @@ class Home extends AsyncComponent<unknown, HomeState> {
             });
         });
 
-        this._statusSubscription = this._metricsService.subscribe<IStatus>(
-            WebSocketTopic.Status,
+        this._publicNodeStatusSubscription = this._metricsService.subscribe<IPublicNodeStatus>(
+            WebSocketTopic.NodeStatus,
+            data => {
+                if (data) {
+                    const pruningIndex = data.pruning_index.toString();
+
+                    if (pruningIndex !== this.state.pruningIndex) {
+                        this.setState({ pruningIndex });
+                    }
+                }
+            });
+
+        this._nodeStatusSubscription = this._metricsService.subscribe<INodeStatus>(
+            WebSocketTopic.NodeStatus,
             data => {
                 if (data) {
                     const nodeName = data.node_alias ? data.node_alias : BrandHelper.getConfiguration().name;
                     const peerId = data.autopeering_id || "No peer Id.";
-                    const pruningIndex = data.pruning_index.toString();
                     const uptime = FormatHelper.duration(data.uptime);
                     const memory = FormatHelper.size(
                         data.mem.heap_inuse +
@@ -127,10 +144,6 @@ class Home extends AsyncComponent<unknown, HomeState> {
 
                     if (peerId !== this.state.peerId) {
                         this.setState({ peerId });
-                    }
-
-                    if (pruningIndex !== this.state.pruningIndex) {
-                        this.setState({ pruningIndex });
                     }
 
                     if (uptime !== this.state.uptime) {
@@ -187,9 +200,14 @@ class Home extends AsyncComponent<unknown, HomeState> {
             this._themeSubscriptionId = undefined;
         }
 
-        if (this._statusSubscription) {
-            this._metricsService.unsubscribe(this._statusSubscription);
-            this._statusSubscription = undefined;
+        if (this._nodeStatusSubscription) {
+            this._metricsService.unsubscribe(this._nodeStatusSubscription);
+            this._nodeStatusSubscription = undefined;
+        }
+
+        if (this._publicNodeStatusSubscription) {
+            this._metricsService.unsubscribe(this._publicNodeStatusSubscription);
+            this._publicNodeStatusSubscription = undefined;
         }
 
         if (this._syncStatusSubscription) {

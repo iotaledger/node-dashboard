@@ -9,7 +9,7 @@ import { ReactComponent as PeersIcon } from "../assets/peers.svg";
 import { ReactComponent as SettingsIcon } from "../assets/settings.svg";
 import { ReactComponent as VisualizerIcon } from "../assets/visualizer.svg";
 import { ServiceFactory } from "../factories/serviceFactory";
-import { IStatus } from "../models/websocket/IStatus";
+import { INodeStatus } from "../models/websocket/INodeStatus";
 import { ISyncStatus } from "../models/websocket/ISyncStatus";
 import { WebSocketTopic } from "../models/websocket/webSocketTopic";
 import { AuthService } from "../services/authService";
@@ -109,8 +109,8 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
             });
         });
 
-        this._statusSubscription = this._metricsService.subscribe<IStatus>(
-            WebSocketTopic.Status,
+        this._statusSubscription = this._metricsService.subscribe<INodeStatus>(
+            WebSocketTopic.NodeStatus,
             data => {
                 if (data && data.node_alias !== this._alias) {
                     this._alias = data.node_alias;

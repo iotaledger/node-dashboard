@@ -3,7 +3,8 @@ import { RouteComponentProps, withRouter } from "react-router-dom";
 import { ServiceFactory } from "../../../factories/serviceFactory";
 import { IDBSizeMetric } from "../../../models/websocket/IDBSizeMetric";
 import { IMpsMetrics } from "../../../models/websocket/IMpsMetrics";
-import { IStatus } from "../../../models/websocket/IStatus";
+import { INodeStatus } from "../../../models/websocket/INodeStatus";
+import { IPublicNodeStatus } from "../../../models/websocket/IPublicNodeStatus";
 import { WebSocketTopic } from "../../../models/websocket/webSocketTopic";
 import { AuthService } from "../../../services/authService";
 import { EventAggregator } from "../../../services/eventAggregator";
@@ -34,9 +35,14 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
     private readonly _metricsService: MetricsService;
 
     /**
-     * The status subscription id.
+     * The node status subscription id.
      */
-    private _statusSubscription?: string;
+    private _nodeStatusSubscription?: string;
+
+    /**
+     * The public node status subscription id.
+     */
+    private _publicNodeStatusSubscription?: string;
 
     /**
      * The database size metrics subscription id.
@@ -83,20 +89,27 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
             });
         });
 
-        this._statusSubscription = this._metricsService.subscribe<IStatus>(
-            WebSocketTopic.Status,
+        this._publicNodeStatusSubscription = this._metricsService.subscribe<IPublicNodeStatus>(
+            WebSocketTopic.PublicNodeStatus,
+            data => {
+                if (data) {
+                    if (data.is_healthy !== this.state.nodeHealth) {
+                        this.setState({ nodeHealth: data.is_healthy });
+                    }
+                    if (data.is_synced !== this.state.syncHealth) {
+                        this.setState({ syncHealth: data.is_synced });
+                    }
+                }
+            });
+
+        this._nodeStatusSubscription = this._metricsService.subscribe<INodeStatus>(
+            WebSocketTopic.NodeStatus,
             data => {
                 if (data) {
                     const memorySizeFormatted = FormatHelper.size(DataHelper.calculateMemoryUsage(data), 1);
 
                     if (memorySizeFormatted !== this.state.memorySizeFormatted) {
                         this.setState({ memorySizeFormatted });
-                    }
-                    if (data.is_healthy !== this.state.nodeHealth) {
-                        this.setState({ nodeHealth: data.is_healthy });
-                    }
-                    if (data.is_synced !== this.state.syncHealth) {
-                        this.setState({ syncHealth: data.is_synced });
                     }
                 }
             },
@@ -153,9 +166,14 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
 
         EventAggregator.unsubscribe("auth-state", "header");
 
-        if (this._statusSubscription) {
-            this._metricsService.unsubscribe(this._statusSubscription);
-            this._statusSubscription = undefined;
+        if (this._publicNodeStatusSubscription) {
+            this._metricsService.unsubscribe(this._publicNodeStatusSubscription);
+            this._publicNodeStatusSubscription = undefined;
+        }
+
+        if (this._nodeStatusSubscription) {
+            this._metricsService.unsubscribe(this._nodeStatusSubscription);
+            this._nodeStatusSubscription = undefined;
         }
 
         if (this._databaseSizeSubscription) {

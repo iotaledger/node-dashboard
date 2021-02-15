@@ -6,8 +6,8 @@ import { IAvgSpamMetrics } from "../../models/websocket/IAvgSpamMetrics";
 import { IConfirmedMsMetrics } from "../../models/websocket/IConfirmedMsMetrics";
 import { IDBSizeMetric } from "../../models/websocket/IDBSizeMetric";
 import { IMpsMetrics } from "../../models/websocket/IMpsMetrics";
+import { INodeStatus } from "../../models/websocket/INodeStatus";
 import { ISpamMetrics } from "../../models/websocket/ISpamMetrics";
-import { IStatus } from "../../models/websocket/IStatus";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
 import { AuthService } from "../../services/authService";
 import { MetricsService } from "../../services/metricsService";
@@ -169,8 +169,8 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
             }
         );
 
-        this._statusSubscription = this._metricsService.subscribe<IStatus>(
-            WebSocketTopic.Status,
+        this._statusSubscription = this._metricsService.subscribe<INodeStatus>(
+            WebSocketTopic.NodeStatus,
             undefined,
             allData => {
                 const nonNull = allData.filter(d => d !== undefined && d !== null);
