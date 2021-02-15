@@ -195,7 +195,7 @@ export class TangleService {
             `${window.location.protocol}//${window.location.host}`,
             {
                 basePath: "/api/v1/",
-                authorizationHeader: jwt
+                authorizationHeader: `Bearer ${jwt}`
             });
     }
 }

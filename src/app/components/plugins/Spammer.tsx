@@ -107,7 +107,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
         const headers: Record<string, string> = {};
         const jwt = authService.isLoggedIn();
         if (jwt) {
-            headers.Authorization = jwt;
+            headers.Authorization = `Bearer ${jwt}`;
         }
 
         return headers;
