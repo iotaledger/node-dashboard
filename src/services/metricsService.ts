@@ -51,29 +51,32 @@ export class MetricsService {
      * Initialise the service.
      */
     public initialize(): void {
-        const topics = [
-            WebSocketTopic.SyncStatus,
-            WebSocketTopic.NodeStatus,
-            WebSocketTopic.PublicNodeStatus,
-            WebSocketTopic.MPSMetrics,
-            WebSocketTopic.DBSizeMetric,
-            WebSocketTopic.PeerMetric,
-            WebSocketTopic.ConfirmedMsMetrics,
-            WebSocketTopic.Ms,
-            WebSocketTopic.TipInfo,
-            WebSocketTopic.MilestoneInfo,
-            WebSocketTopic.ConfirmedInfo,
-            WebSocketTopic.SolidInfo,
-            WebSocketTopic.Vertex,
-            WebSocketTopic.SpamMetrics,
-            WebSocketTopic.AvgSpamMetrics
+        const topics: { topic: WebSocketTopic; isPublic: boolean }[] = [
+            { topic: WebSocketTopic.SyncStatus, isPublic: true },
+            { topic: WebSocketTopic.NodeStatus, isPublic: false },
+            { topic: WebSocketTopic.PublicNodeStatus, isPublic: true },
+            { topic: WebSocketTopic.MPSMetrics, isPublic: true },
+            { topic: WebSocketTopic.DBSizeMetric, isPublic: false },
+            { topic: WebSocketTopic.PeerMetric, isPublic: false },
+            { topic: WebSocketTopic.Ms, isPublic: true },
+            { topic: WebSocketTopic.ConfirmedMsMetrics, isPublic: true },
+            { topic: WebSocketTopic.TipInfo, isPublic: true },
+            { topic: WebSocketTopic.MilestoneInfo, isPublic: true },
+            { topic: WebSocketTopic.ConfirmedInfo, isPublic: true },
+            { topic: WebSocketTopic.SolidInfo, isPublic: true },
+            { topic: WebSocketTopic.Vertex, isPublic: true },
+            { topic: WebSocketTopic.SpamMetrics, isPublic: false },
+            { topic: WebSocketTopic.AvgSpamMetrics, isPublic: false }
         ];
 
-        for (const topic of topics) {
-            this._webSocketSubscriptions.push(this._webSocketService.subscribe(
-                topic, data => {
-                    this.triggerCallbacks(topic, data);
-                }));
+        for (const t of topics) {
+            this._webSocketSubscriptions.push(
+                this._webSocketService.subscribe(
+                    t.topic,
+                    !t.isPublic,
+                    data => {
+                        this.triggerCallbacks(t.topic, data);
+                    }));
         }
     }
 

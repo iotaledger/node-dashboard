@@ -28,11 +28,15 @@ export class WebSocketService {
      * Subscribers to the messages.
      */
     private readonly _subscriptions: {
-        [topic: number]: {
-            subscriptionId: string;
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            callback: (data: any) => void;
-        }[];
+        [topic: number]:
+        {
+            requiresAuth: boolean;
+            subs: {
+                subscriptionId: string;
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                callback: (data: any) => void;
+            }[];
+        };
     };
 
     /**
@@ -53,17 +57,21 @@ export class WebSocketService {
     /**
      * Subscribe to a topic.
      * @param topic The topic to subscribe to.
+     * @param requiresAuth Requires authentication.
      * @param callback The callback to send the data to.
      * @returns The subscription id.
      */
-    public subscribe<T>(topic: WebSocketTopic, callback: (data: T) => void): string {
+    public subscribe<T>(topic: WebSocketTopic, requiresAuth: boolean, callback: (data: T) => void): string {
         if (!this._subscriptions[topic]) {
-            this._subscriptions[topic] = [];
+            this._subscriptions[topic] = {
+                requiresAuth,
+                subs: []
+            };
         }
 
         const subscriptionId = Converter.bytesToHex(RandomHelper.generate(32));
 
-        this._subscriptions[topic].push({
+        this._subscriptions[topic].subs.push({
             subscriptionId,
             callback
         });
@@ -86,11 +94,11 @@ export class WebSocketService {
      */
     public unsubscribe(subscriptionId: string): void {
         for (const topic of Object.keys(this._subscriptions).map(k => Number(k))) {
-            const subscriptionIdx = this._subscriptions[topic].findIndex(s => s.subscriptionId === subscriptionId);
+            const subscriptionIdx = this._subscriptions[topic].subs.findIndex(s => s.subscriptionId === subscriptionId);
             if (subscriptionIdx >= 0) {
-                this._subscriptions[topic].splice(subscriptionIdx, 1);
+                this._subscriptions[topic].subs.splice(subscriptionIdx, 1);
 
-                if (this._subscriptions[topic].length === 0) {
+                if (this._subscriptions[topic].subs.length === 0) {
                     // No more subscriptions for this topic so unsubscribe the topic.
                     delete this._subscriptions[topic];
                     this.unsubscribeTopic(topic);
@@ -188,18 +196,24 @@ export class WebSocketService {
      * @param topicId The topic to subscribe to.
      */
     private subscribeTopic(topicId: number) {
-        const jwt = this._authService.isLoggedIn();
-        const arrayBuf = new ArrayBuffer(2 + (jwt ? jwt.length : 0));
-        const view = new Uint8Array(arrayBuf);
-        view[0] = 0; // register
-        view[1] = topicId;
+        if (this._subscriptions[topicId]) {
+            const requiresAuth = this._subscriptions[topicId].requiresAuth;
+            const jwt = this._authService.isLoggedIn();
 
-        if (jwt) {
-            view.set(Buffer.from(jwt), 2);
-        }
+            if (!requiresAuth || (requiresAuth && jwt)) {
+                const arrayBuf = new ArrayBuffer(2 + (jwt ? jwt.length : 0));
+                const view = new Uint8Array(arrayBuf);
+                view[0] = 0; // register
+                view[1] = topicId;
 
-        if (this._webSocket) {
-            this._webSocket.send(arrayBuf);
+                if (jwt) {
+                    view.set(Buffer.from(jwt), 2);
+                }
+
+                if (this._webSocket) {
+                    this._webSocket.send(arrayBuf);
+                }
+            }
         }
     }
 
@@ -226,7 +240,7 @@ export class WebSocketService {
         const message = JSON.parse(msg) as IWebSocketMessage;
 
         if (this._subscriptions[message.type]) {
-            for (const subscriber of this._subscriptions[message.type]) {
+            for (const subscriber of this._subscriptions[message.type].subs) {
                 subscriber.callback(message.data);
             }
         }
