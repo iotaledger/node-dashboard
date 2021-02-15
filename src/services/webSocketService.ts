@@ -178,7 +178,7 @@ export class WebSocketService {
                 if (this._webSocket.readyState === WebSocket.OPEN) {
                     this._webSocket.close();
                 }
-            } catch { }
+            } catch {}
             this._webSocket = undefined;
         }
     }
