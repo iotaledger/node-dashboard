@@ -15,11 +15,11 @@ class InfoPanel extends Component<InfoPanelProps> {
         return (
             <div className={classNames("card", "info-panel", this.props.className)}>
                 <div className="icon-container">
-                    {this.props.icon}
                     <div className={`icon-background icon-background--${this.props.backgroundStyle}`} />
+                    {this.props.icon}
                 </div>
-                <div className="col hide-overflow">
-                    <h4 className="margin-t-s">{this.props.caption}</h4>
+                <div className="col info--labels">
+                    <h4>{this.props.caption}</h4>
                     <div className="value">{this.props.value ?? "-"}</div>
                 </div>
             </div>

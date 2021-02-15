@@ -12,6 +12,11 @@
     height: 80px;
   }
 
+  .info--labels {
+    flex: 1;
+    justify-content: center;
+  }
+
   .value {
     @include font-size(24px);
 
@@ -86,6 +91,7 @@
 
     svg {
       z-index: 1;
+      flex: 1;
     }
   }
 }
