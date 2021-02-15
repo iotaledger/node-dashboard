@@ -3,10 +3,12 @@ import { Redirect, Route, RouteComponentProps, Switch, withRouter } from "react-
 import { ReactComponent as AnalyticsIcon } from "../assets/analytics.svg";
 import { ReactComponent as ExplorerIcon } from "../assets/explorer.svg";
 import { ReactComponent as HomeIcon } from "../assets/home.svg";
+import { ReactComponent as MoonIcon } from "../assets/moon.svg";
 import { ReactComponent as PadlockUnlockedIcon } from "../assets/padlock-unlocked.svg";
 import { ReactComponent as PadlockIcon } from "../assets/padlock.svg";
 import { ReactComponent as PeersIcon } from "../assets/peers.svg";
 import { ReactComponent as SettingsIcon } from "../assets/settings.svg";
+import { ReactComponent as SunIcon } from "../assets/sun.svg";
 import { ReactComponent as VisualizerIcon } from "../assets/visualizer.svg";
 import { ServiceFactory } from "../factories/serviceFactory";
 import { INodeStatus } from "../models/websocket/INodeStatus";
@@ -15,6 +17,7 @@ import { WebSocketTopic } from "../models/websocket/webSocketTopic";
 import { AuthService } from "../services/authService";
 import { EventAggregator } from "../services/eventAggregator";
 import { MetricsService } from "../services/metricsService";
+import { ThemeService } from "../services/themeService";
 import { BrandHelper } from "../utils/brandHelper";
 import "./App.scss";
 import { AppState } from "./AppState";
@@ -48,6 +51,11 @@ import Visualizer from "./routes/Visualizer";
  * Main application class.
  */
 class App extends AsyncComponent<RouteComponentProps, AppState> {
+    /**
+     * The theme service.
+     */
+    private readonly _themeService: ThemeService;
+
     /**
      * The auth service.
      */
@@ -89,11 +97,13 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
      */
     constructor(props: RouteComponentProps) {
         super(props);
+        this._themeService = ServiceFactory.get<ThemeService>("theme");
         this._authService = ServiceFactory.get<AuthService>("auth");
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
 
         this.state = {
-            isLoggedIn: Boolean(this._authService.isLoggedIn())
+            isLoggedIn: Boolean(this._authService.isLoggedIn()),
+            theme: this._themeService.get()
         };
     }
 
@@ -107,6 +117,10 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
             this.setState({
                 isLoggedIn
             });
+        });
+
+        EventAggregator.subscribe("theme", "app", theme => {
+            this.setState({ theme });
         });
 
         this._statusSubscription = this._metricsService.subscribe<INodeStatus>(
@@ -141,6 +155,7 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
         super.componentWillUnmount();
 
         EventAggregator.unsubscribe("auth-state", "app");
+        EventAggregator.unsubscribe("theme", "app");
 
         if (this._statusSubscription) {
             this._metricsService.unsubscribe(this._statusSubscription);
@@ -158,9 +173,7 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
      * @returns The node to render.
      */
     public render(): ReactNode {
-        const sections = [];
-
-        sections.push(
+        const sections = [
             {
                 label: "Home",
                 icon: <HomeIcon />,
@@ -192,7 +205,8 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
             {
                 label: "Settings",
                 icon: <SettingsIcon />,
-                route: "/settings"
+                route: "/settings",
+                hidden: !this.state.isLoggedIn
             },
             {
                 label: "Login",
@@ -206,18 +220,33 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                 function: () => this._authService.logout(),
                 hidden: !this.state.isLoggedIn
             }
-        );
+        ];
+
+        const endSections = [
+            {
+                label: "Light",
+                icon: <SunIcon />,
+                function: () => this._themeService.apply("light", true),
+                hidden: this.state.theme === "light"
+            },
+            {
+                label: "Dark",
+                icon: <MoonIcon />,
+                function: () => this._themeService.apply("dark", true),
+                hidden: this.state.theme === "dark"
+            }
+        ];
 
         return (
             <div className="app">
                 <Breakpoint size="phone" aboveBelow="above">
-                    <NavPanel fullWidth={false} buttons={sections} />
+                    <NavPanel fullWidth={false} middle={sections} end={endSections} />
                 </Breakpoint>
                 <div className="col fill">
                     <Header>
                         <Breakpoint size="phone" aboveBelow="below">
                             <NavMenu>
-                                <NavPanel fullWidth={true} buttons={sections} />
+                                <NavPanel fullWidth={true} middle={sections} end={endSections} />
                             </NavMenu>
                         </Breakpoint>
                     </Header>

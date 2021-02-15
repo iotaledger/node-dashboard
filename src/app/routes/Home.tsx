@@ -10,6 +10,7 @@ import { INodeStatus } from "../../models/websocket/INodeStatus";
 import { IPublicNodeStatus } from "../../models/websocket/IPublicNodeStatus";
 import { ISyncStatus } from "../../models/websocket/ISyncStatus";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
+import { EventAggregator } from "../../services/eventAggregator";
 import { MetricsService } from "../../services/metricsService";
 import { NodeConfigService } from "../../services/nodeConfigService";
 import { ThemeService } from "../../services/themeService";
@@ -30,11 +31,6 @@ class Home extends AsyncComponent<unknown, HomeState> {
      * The theme service.
      */
     private readonly _themeService: ThemeService;
-
-    /**
-     * The theme subscription id.
-     */
-    private _themeSubscriptionId?: string;
 
     /**
      * The metrics service.
@@ -106,9 +102,9 @@ class Home extends AsyncComponent<unknown, HomeState> {
             bannerSrc: await BrandHelper.getBanner(this._themeService.get())
         });
 
-        this._themeSubscriptionId = this._themeService.subscribe(async () => {
+        EventAggregator.subscribe("theme", "home", async theme => {
             this.setState({
-                bannerSrc: await BrandHelper.getBanner(this._themeService.get())
+                bannerSrc: await BrandHelper.getBanner(theme)
             });
         });
 
@@ -195,10 +191,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
     public componentWillUnmount(): void {
         super.componentWillUnmount();
 
-        if (this._themeSubscriptionId) {
-            this._themeService.unsubscribe(this._themeSubscriptionId);
-            this._themeSubscriptionId = undefined;
-        }
+        EventAggregator.unsubscribe("theme", "home");
 
         if (this._nodeStatusSubscription) {
             this._metricsService.unsubscribe(this._nodeStatusSubscription);

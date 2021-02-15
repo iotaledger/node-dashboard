@@ -6,6 +6,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   width: 120px;
   padding-top: 22px;
   overflow: hidden;
@@ -26,12 +27,17 @@
   .logo {
     width: 36px;
     height: 36px;
-    margin-bottom: 120px;
 
     @include tablet-down {
       width: 28px;
       height: 28px;
     }
+  }
+
+  .nav-panel-middle {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 120px;
   }
 
   .nav-panel--button {

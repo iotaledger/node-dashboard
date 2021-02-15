@@ -1,6 +1,7 @@
 import React, { Component, ReactNode } from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { ServiceFactory } from "../../../factories/serviceFactory";
+import { EventAggregator } from "../../../services/eventAggregator";
 import { ThemeService } from "../../../services/themeService";
 import { BrandHelper } from "../../../utils/brandHelper";
 import "./NavMenu.scss";
@@ -15,11 +16,6 @@ class NavMenu extends Component<RouteComponentProps & NavMenuProps, NavMenuState
      * The theme service.
      */
     private readonly _themeService: ThemeService;
-
-    /**
-     * The theme subscription id.
-     */
-    private _themeSubscriptionId?: string;
 
     /**
      * Create a new instance of NavMenu;
@@ -44,9 +40,9 @@ class NavMenu extends Component<RouteComponentProps & NavMenuProps, NavMenuState
             logoSrc: await BrandHelper.getLogoNavigation(this._themeService.get())
         });
 
-        this._themeSubscriptionId = this._themeService.subscribe(async () => {
+        EventAggregator.subscribe("theme", "navmenu", async theme => {
             this.setState({
-                logoSrc: await BrandHelper.getLogoNavigation(this._themeService.get())
+                logoSrc: await BrandHelper.getLogoNavigation(theme)
             });
         });
     }
@@ -55,10 +51,7 @@ class NavMenu extends Component<RouteComponentProps & NavMenuProps, NavMenuState
      * The component will unmount.
      */
     public componentWillUnmount(): void {
-        if (this._themeSubscriptionId) {
-            this._themeService.unsubscribe(this._themeSubscriptionId);
-            this._themeSubscriptionId = undefined;
-        }
+        EventAggregator.unsubscribe("theme", "navmenu");
     }
 
     /**

@@ -1,5 +1,5 @@
-import { Converter, RandomHelper } from "@iota/iota.js";
 import { ServiceFactory } from "../factories/serviceFactory";
+import { EventAggregator } from "./eventAggregator";
 import { LocalStorageService } from "./localStorageService";
 
 /**
@@ -12,16 +12,10 @@ export class ThemeService {
     private _theme: string;
 
     /**
-     * Subscribe to the theme changing.
-     */
-    private readonly _subscriptions: { [id: string]: () => void };
-
-    /**
      * Create a new instance of ThemeService.
      */
     constructor() {
         this._theme = "light";
-        this._subscriptions = {};
     }
 
     /**
@@ -47,9 +41,7 @@ export class ThemeService {
         document.body.classList.remove(`theme-${currentTheme}`);
         document.body.classList.add(`theme-${this._theme}`);
 
-        for (const subscriptionId in this._subscriptions) {
-            this._subscriptions[subscriptionId]();
-        }
+        EventAggregator.publish("theme", this._theme);
 
         if (save) {
             this.save();
@@ -70,26 +62,5 @@ export class ThemeService {
     public save(): void {
         const storageService = ServiceFactory.get<LocalStorageService>("storage");
         storageService.save("theme", this._theme);
-    }
-
-    /**
-     * Subscribe to theme changes
-     * @param callback Callback to call when the theme changes.
-     * @returns The subscription id.
-     */
-    public subscribe(callback: () => void): string {
-        const subscriptionId = Converter.bytesToHex(RandomHelper.generate(32));
-
-        this._subscriptions[subscriptionId] = callback;
-
-        return subscriptionId;
-    }
-
-    /**
-     * Unsubscribe from theme changes
-     * @param subscriptionId The subscription id.
-     */
-    public unsubscribe(subscriptionId: string): void {
-        delete this._subscriptions[subscriptionId];
     }
 }
