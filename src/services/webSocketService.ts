@@ -31,6 +31,7 @@ export class WebSocketService {
         [topic: number]:
         {
             requiresAuth: boolean;
+            isSubscribed: boolean;
             subs: {
                 subscriptionId: string;
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -65,6 +66,7 @@ export class WebSocketService {
         if (!this._subscriptions[topic]) {
             this._subscriptions[topic] = {
                 requiresAuth,
+                isSubscribed: false,
                 subs: []
             };
         }
@@ -176,7 +178,7 @@ export class WebSocketService {
                 if (this._webSocket.readyState === WebSocket.OPEN) {
                     this._webSocket.close();
                 }
-            } catch {}
+            } catch { }
             this._webSocket = undefined;
         }
     }
@@ -201,6 +203,8 @@ export class WebSocketService {
             const jwt = this._authService.isLoggedIn();
 
             if (!requiresAuth || (requiresAuth && jwt)) {
+                this._subscriptions[topicId].isSubscribed = true;
+
                 const arrayBuf = new ArrayBuffer(2 + (jwt ? jwt.length : 0));
                 const view = new Uint8Array(arrayBuf);
                 view[0] = 0; // register
@@ -222,13 +226,17 @@ export class WebSocketService {
      * @param topicId The topic to unsubscribe from.
      */
     private unsubscribeTopic(topicId: number) {
-        const arrayBuf = new ArrayBuffer(2);
-        const view = new Uint8Array(arrayBuf);
-        view[0] = 1; // unregister
-        view[1] = topicId;
+        if (this._subscriptions[topicId]?.isSubscribed) {
+            this._subscriptions[topicId].isSubscribed = false;
 
-        if (this._webSocket) {
-            this._webSocket.send(arrayBuf);
+            const arrayBuf = new ArrayBuffer(2);
+            const view = new Uint8Array(arrayBuf);
+            view[0] = 1; // unregister
+            view[1] = topicId;
+
+            if (this._webSocket) {
+                this._webSocket.send(arrayBuf);
+            }
         }
     }
 
