@@ -205,12 +205,12 @@ export class WebSocketService {
             if (!requiresAuth || (requiresAuth && jwt)) {
                 this._subscriptions[topicId].isSubscribed = true;
 
-                const arrayBuf = new ArrayBuffer(2 + (jwt ? jwt.length : 0));
+                const arrayBuf = new ArrayBuffer(2 + (jwt && requiresAuth ? jwt.length : 0));
                 const view = new Uint8Array(arrayBuf);
                 view[0] = 0; // register
                 view[1] = topicId;
 
-                if (jwt) {
+                if (jwt && requiresAuth) {
                     view.set(Buffer.from(jwt), 2);
                 }
 
