@@ -71,6 +71,13 @@ class Login extends AsyncComponent<unknown, LoginState> {
                                     value={this.state.password}
                                     disabled={this.state.isBusy}
                                     onChange={e => this.setState({ password: e.target.value })}
+                                    onKeyDown={e => {
+                                        if (e.key === "Enter" &&
+                                            this.state.password.trim().length > 0 &&
+                                            this.state.user.trim().length > 0) {
+                                            this.login();
+                                        }
+                                    }}
                                 />
                             </div>
                             <hr />
@@ -79,14 +86,14 @@ class Login extends AsyncComponent<unknown, LoginState> {
                                     className="card--action margin-r-s"
                                     type="button"
                                     disabled={this.state.isBusy ||
-                                        this.state.user.length === 0 ||
-                                        this.state.password.length === 0}
+                                        this.state.user.trim().length === 0 ||
+                                        this.state.password.trim().length === 0}
                                     onClick={e => this.login()}
                                 >
                                     Login
                                 </button>
                                 {this.state.isBusy && (
-                                    <Spinner />
+                                    <Spinner compact={true} />
                                 )}
                                 {this.state.error && (
                                     <p className="danger margin-l-t">Your login attempt failed, please try again.</p>
