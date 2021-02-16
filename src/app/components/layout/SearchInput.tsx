@@ -46,7 +46,7 @@ class SearchInput extends Component<SearchInputProps, SearchInputState> {
                     value={this.state.query}
                     onChange={e => this.setState({ query: e.target.value })}
                     onKeyDown={e => {
-                        if (e.keyCode === 13) {
+                        if (e.key === "Enter") {
                             this.props.onSearch(this.state.query);
                         }
                     }}
