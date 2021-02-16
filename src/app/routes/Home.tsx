@@ -109,7 +109,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
         });
 
         this._publicNodeStatusSubscription = this._metricsService.subscribe<IPublicNodeStatus>(
-            WebSocketTopic.NodeStatus,
+            WebSocketTopic.PublicNodeStatus,
             data => {
                 if (data) {
                     const pruningIndex = data.pruning_index.toString();
