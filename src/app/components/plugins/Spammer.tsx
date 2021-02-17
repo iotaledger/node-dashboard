@@ -68,7 +68,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                     authHeaders);
 
 
-                if (res.data) {
+                if (res.responseData.data) {
                     Spammer._isAvailable = true;
                 }
             }
@@ -105,9 +105,12 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
         const authService = ServiceFactory.get<AuthService>("auth");
 
         const headers: Record<string, string> = {};
-        const jwt = authService.isLoggedIn();
-        if (jwt) {
-            headers.Authorization = `Bearer ${jwt}`;
+        const loginData = authService.isLoggedIn();
+        if (loginData) {
+            headers.Authorization = `Bearer ${loginData.jwt}`;
+            if (loginData.csrf) {
+                headers["X-XSRF-TOKEN"] = loginData.csrf;
+            }
         }
 
         return headers;
@@ -198,7 +201,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
      */
     private async pluginSettings(): Promise<void> {
         try {
-            const res = await FetchHelper.json<unknown, {
+            const response = await FetchHelper.json<unknown, {
                 data?: ISpammerSettings;
                 error?: {
                     message: string;
@@ -210,16 +213,16 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                 undefined,
                 Spammer.buildAuthHeaders());
 
-            if (res.data) {
+            if (response.responseData.data) {
                 this.setState({
-                    isRunning: res.data.running,
-                    mps: res.data.mpsRateLimit.toString(),
-                    cpu: (res.data.cpuMaxUsage * 100).toString(),
-                    workers: res.data.spammerWorkers.toString(),
-                    workersMax: res.data.spammerWorkersMax
+                    isRunning: response.responseData.data.running,
+                    mps: response.responseData.data.mpsRateLimit.toString(),
+                    cpu: (response.responseData.data.cpuMaxUsage * 100).toString(),
+                    workers: response.responseData.data.spammerWorkers.toString(),
+                    workersMax: response.responseData.data.spammerWorkersMax
                 });
             } else {
-                console.log(res.error);
+                console.log(response.responseData.error);
             }
         } catch (err) {
             console.log(err);
@@ -255,7 +258,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
      */
     private async pluginStart(): Promise<void> {
         try {
-            const res = await FetchHelper.json<unknown, {
+            const response = await FetchHelper.json<unknown, {
                 data?: ISpammerSettings;
                 error?: {
                     message: string;
@@ -269,15 +272,15 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                 undefined,
                 Spammer.buildAuthHeaders());
 
-            if (res.data) {
+            if (response.responseData.data) {
                 this.setState({
-                    isRunning: res.data.running,
-                    mps: res.data.mpsRateLimit.toString(),
-                    cpu: (res.data.cpuMaxUsage * 100).toString(),
-                    workers: res.data.spammerWorkers.toString()
+                    isRunning: response.responseData.data.running,
+                    mps: response.responseData.data.mpsRateLimit.toString(),
+                    cpu: (response.responseData.data.cpuMaxUsage * 100).toString(),
+                    workers: response.responseData.data.spammerWorkers.toString()
                 });
             } else {
-                console.log(res.error);
+                console.log(response.responseData.error);
             }
         } catch (err) {
             console.log(err);
@@ -289,7 +292,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
      */
     private async pluginStop(): Promise<void> {
         try {
-            const res = await FetchHelper.json<unknown, {
+            const response = await FetchHelper.json<unknown, {
                 data?: ISpammerSettings;
                 error?: {
                     message: string;
@@ -301,15 +304,15 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                 undefined,
                 Spammer.buildAuthHeaders());
 
-            if (res.data) {
+            if (response.responseData.data) {
                 this.setState({
-                    isRunning: res.data.running,
-                    mps: res.data.mpsRateLimit.toString(),
-                    cpu: (res.data.cpuMaxUsage * 100).toString(),
-                    workers: res.data.spammerWorkers.toString()
+                    isRunning: response.responseData.data.running,
+                    mps: response.responseData.data.mpsRateLimit.toString(),
+                    cpu: (response.responseData.data.cpuMaxUsage * 100).toString(),
+                    workers: response.responseData.data.spammerWorkers.toString()
                 });
             } else {
-                console.log(res.error);
+                console.log(response.responseData.error);
             }
         } catch (err) {
             console.log(err);

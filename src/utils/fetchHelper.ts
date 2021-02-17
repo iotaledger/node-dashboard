@@ -10,7 +10,7 @@ export class FetchHelper {
      * @param payload The payload to send.
      * @param headers The headers to include in the fetch.
      * @param timeout Timeout for the request.
-     * @returns The fetched payload.
+     * @returns The fetched payload and any cookies.
      */
     public static async json<T, U>(
         baseUrl: string,
@@ -19,7 +19,10 @@ export class FetchHelper {
         payload?: T,
         headers?: { [id: string]: string },
         timeout?: number
-    ): Promise<U> {
+    ): Promise<{
+        responseData: U;
+        cookies?: string[];
+    }> {
         headers = headers ?? {};
         headers["Content-Type"] = "application/json";
 
@@ -49,7 +52,15 @@ export class FetchHelper {
 
             if (res.ok) {
                 const json = await res.json();
-                return json as U;
+                let cookies;
+                const setCookieHeader = res.headers.get("set-cookie");
+                if (setCookieHeader) {
+                    cookies = setCookieHeader.split(",");
+                }
+                return {
+                    responseData: json as U,
+                    cookies
+                };
             }
             throw new Error(`Fetched failed: ${res.statusText}`);
         } catch (err) {

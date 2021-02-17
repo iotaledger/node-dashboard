@@ -13,10 +13,16 @@ export class AuthService {
     private _jwt?: string;
 
     /**
+     * The csrf cookie from the login operation.
+     */
+    private _csrf?: string;
+
+    /**
      * Create a new instance of AuthService.
      */
     constructor() {
         this._jwt = undefined;
+        this._csrf = undefined;
     }
 
     /**
@@ -62,9 +68,19 @@ export class AuthService {
                     jwt
                 });
 
-            if (response.jwt) {
+            if (response.responseData.jwt) {
                 const storageService = ServiceFactory.get<LocalStorageService>("storage");
-                this._jwt = response.jwt;
+                this._jwt = response.responseData.jwt;
+                if (response.cookies) {
+                    const csrfCookie = response.cookies.find(c => c.startsWith("_csrf"));
+                    if (csrfCookie) {
+                        const parts = csrfCookie.split(";");
+                        const keyValue = parts[0].split("=");
+                        if (keyValue.length === 2) {
+                            this._csrf = keyValue[1];
+                        }
+                    }
+                }
                 storageService.save<string>("dashboard-jwt", this._jwt);
                 EventAggregator.publish("auth-state", true);
             }
@@ -83,6 +99,7 @@ export class AuthService {
             const storageService = ServiceFactory.get<LocalStorageService>("storage");
             storageService.remove("dashboard-jwt");
             this._jwt = undefined;
+            this._csrf = undefined;
             EventAggregator.publish("auth-state", false);
         }
     }
@@ -91,7 +108,13 @@ export class AuthService {
      * Get the jwt.
      * @returns The jwt if logged in.
      */
-    public isLoggedIn(): string | undefined {
-        return this._jwt;
+    public isLoggedIn(): {
+        jwt: string;
+        csrf?: string;
+    } | undefined {
+        return this._jwt ? {
+            jwt: this._jwt,
+            csrf: this._csrf
+        } : undefined;
     }
 }
