@@ -108,11 +108,20 @@ export class TangleService {
         } catch {}
 
         try {
-            // If the query is between 1 and 64 characters try a indexation lookup
-            if (query.length > 0 && query.length <= 64) {
-                const messages = await this._client.messagesFind(query);
+            if (query.length > 0) {
+                let messages;
 
-                if (messages.count > 0) {
+                // If the query is between 2 and 128 hex chars assume hex encoded bytes
+                if (query.length >= 2 && query.length <= 128 && Converter.isHex(queryLower)) {
+                    messages = await this._client.messagesFind(Converter.hexToBytes(queryLower));
+                }
+
+                // If not already found and query less than 64 bytes assume its UTF8
+                if (!messages && query.length <= 64) {
+                    messages = await this._client.messagesFind(Converter.utf8ToBytes(query));
+                }
+
+                if (messages && messages.count > 0) {
                     return {
                         indexMessageIds: messages.messageIds
                     };

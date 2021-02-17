@@ -87,6 +87,10 @@
         max-height: 350px;
         white-space: pre-wrap;
       }
+
+      &.card--value-textarea__fit {
+        min-height: auto;
+      }
     }
   }
 
