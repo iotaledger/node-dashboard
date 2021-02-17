@@ -13,6 +13,7 @@ import { MetricsService } from "../../services/metricsService";
 import { NodeConfigService } from "../../services/nodeConfigService";
 import { ThemeService } from "../../services/themeService";
 import { BrandHelper } from "../../utils/brandHelper";
+import { DataHelper } from "../../utils/dataHelper";
 import { FormatHelper } from "../../utils/formatHelper";
 import AsyncComponent from "../components/layout/AsyncComponent";
 import Graph from "../components/layout/Graph";
@@ -114,12 +115,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
                     const peerId = data.autopeering_id || "No peer Id.";
                     const pruningIndex = data.pruning_index.toString();
                     const uptime = FormatHelper.duration(data.uptime);
-                    const memory = FormatHelper.size(
-                        data.mem.heap_inuse +
-                        (data.mem.heap_idle - data.mem.heap_released) +
-                        data.mem.m_span_inuse +
-                        data.mem.m_cache_inuse +
-                        data.mem.stack_sys);
+                    const memory = FormatHelper.size(DataHelper.calculateMemoryUsage(data));
 
                     if (nodeName !== this.state.nodeName) {
                         this.setState({ nodeName });

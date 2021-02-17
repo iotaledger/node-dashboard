@@ -35,8 +35,8 @@ export class FormatHelper {
         const value = Number((bytes / Math.pow(1024, index)).toFixed(decimalPlaces));
         let unit = units[index];
 
-        if (unit === "Bytes" && (value === 0 || value === 1)) {
-            unit = unit.slice(0, -1);
+        if (unit === "Bytes" && value === 1) {
+            unit = "Byte";
         }
 
         if (unit === undefined) {
