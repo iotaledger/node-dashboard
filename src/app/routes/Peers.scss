@@ -73,6 +73,12 @@
           .peer-id {
             @include font-size(14px);
 
+            @media (min-width: 1340px) {
+              @include font-size(12px);
+            }
+
+            display: flex;
+            flex-direction: column;
             color: var(--text-color-primary);
             font-family: $font-sans;
             font-weight: 500;

@@ -186,7 +186,10 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                             {p.health === 1 && <HealthWarningIcon />}
                                             {p.health === 2 && <HealthGoodIcon />}
                                         </span>
-                                        <div className="peer-id word-break-all">{p.name}<br />{p.address}</div>
+                                        <div className="peer-id word-break-all">
+                                            <span>{p.name}</span>
+                                            <span>{p.address}</span>
+                                        </div>
                                     </div>
                                     <Graph
                                         caption="Messages per Second"
