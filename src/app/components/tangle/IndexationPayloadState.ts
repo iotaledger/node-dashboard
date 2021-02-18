@@ -1,16 +1,26 @@
 export interface IndexationPayloadState {
     /**
+     * Hex view of index.
+     */
+    hexIndex: string;
+
+    /**
+     * UTF8 view of index.
+     */
+    utf8Index: string;
+
+    /**
      * Hex view of data.
      */
-    hex?: string;
+    hexData?: string;
 
     /**
      * UTF8 view of data.
      */
-    utf8?: string;
+    utf8Data?: string;
 
     /**
      * JSON view of data.
      */
-    json?: string;
+    jsonData?: string;
 }
