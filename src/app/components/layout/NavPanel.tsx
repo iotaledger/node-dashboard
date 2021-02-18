@@ -2,6 +2,7 @@ import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
 import { Link, RouteComponentProps, withRouter } from "react-router-dom";
 import { ServiceFactory } from "../../../factories/serviceFactory";
+import { EventAggregator } from "../../../services/eventAggregator";
 import { ThemeService } from "../../../services/themeService";
 import { BrandHelper } from "../../../utils/brandHelper";
 import "./NavPanel.scss";
@@ -16,11 +17,6 @@ class NavPanel extends Component<RouteComponentProps & NavPanelProps, NavPanelSt
      * The theme service.
      */
     private readonly _themeService: ThemeService;
-
-    /**
-     * The theme subscription id.
-     */
-    private _themeSubscriptionId?: string;
 
     /**
      * Create a new instance of NavPanel;
@@ -44,9 +40,9 @@ class NavPanel extends Component<RouteComponentProps & NavPanelProps, NavPanelSt
             logoSrc: await BrandHelper.getLogoNavigation(this._themeService.get())
         });
 
-        this._themeSubscriptionId = this._themeService.subscribe(async () => {
+        EventAggregator.subscribe("theme", "navpanel", async theme => {
             this.setState({
-                logoSrc: await BrandHelper.getLogoNavigation(this._themeService.get())
+                logoSrc: await BrandHelper.getLogoNavigation(theme)
             });
         });
     }
@@ -55,10 +51,7 @@ class NavPanel extends Component<RouteComponentProps & NavPanelProps, NavPanelSt
      * The component will unmount.
      */
     public componentWillUnmount(): void {
-        if (this._themeSubscriptionId) {
-            this._themeService.unsubscribe(this._themeSubscriptionId);
-            this._themeSubscriptionId = undefined;
-        }
+        EventAggregator.unsubscribe("theme", "navpanel");
     }
 
     /**
@@ -67,30 +60,84 @@ class NavPanel extends Component<RouteComponentProps & NavPanelProps, NavPanelSt
      */
     public render(): ReactNode {
         return (
-            <div className="nav-panel">
+            <div className={classNames("nav-panel", { "full-width": this.props.fullWidth })}>
                 <Link
                     to="/"
                 >
                     <img src={this.state.logoSrc} className="logo" />
                 </Link>
 
-                {this.props.buttons.map(b => (
-                    <Link
-                        key={b.label}
-                        to={b.route}
-                        className={classNames(
-                            "nav-panel--button",
-                            {
-                                "nav-panel--button__selected":
-                                    (b.route.length > 1 && this.props.location.pathname.startsWith(b.route)) ||
-                                    b.route === this.props.location.pathname
-                            }
-                        )}
-                    >
-                        {b.icon}
-                        <span className="margin-t-t">{b.label}</span>
-                    </Link>
-                ))}
+                <div className="nav-panel-middle">
+                    {this.props.middle.map(b => (
+                        <React.Fragment key={b.label}>
+                            {!b.hidden && b.route && (
+                                <Link
+                                    to={b.route}
+                                    className={classNames(
+                                        "nav-panel--button",
+                                        {
+                                            "nav-panel--button__selected":
+                                                (b.route.length > 1 &&
+                                                    this.props.location.pathname.startsWith(b.route)) ||
+                                                b.route === this.props.location.pathname
+                                        }
+                                    )}
+                                >
+                                    {b.icon}
+                                    <span className="nav-panel-button-label">{b.label}</span>
+                                </Link>
+                            )}
+                            {!b.hidden && b.function && (
+                                <button
+                                    type="button"
+                                    onClick={() => b.function?.()}
+                                    className={classNames(
+                                        "nav-panel--button"
+                                    )}
+                                >
+                                    {b.icon}
+                                    <span className="nav-panel-button-label">{b.label}</span>
+                                </button>
+                            )}
+                        </React.Fragment>
+                    ))}
+                </div>
+
+                <div className="nav-panel-end">
+                    {this.props.end.map(b => (
+                        <React.Fragment key={b.label}>
+                            {!b.hidden && b.route && (
+                                <Link
+                                    to={b.route}
+                                    className={classNames(
+                                        "nav-panel--button",
+                                        {
+                                            "nav-panel--button__selected":
+                                                (b.route.length > 1 &&
+                                                    this.props.location.pathname.startsWith(b.route)) ||
+                                                b.route === this.props.location.pathname
+                                        }
+                                    )}
+                                >
+                                    {b.icon}
+                                    <span className="nav-panel-button-label">{b.label}</span>
+                                </Link>
+                            )}
+                            {!b.hidden && b.function && (
+                                <button
+                                    type="button"
+                                    onClick={() => b.function?.()}
+                                    className={classNames(
+                                        "nav-panel--button"
+                                    )}
+                                >
+                                    {b.icon}
+                                    <span className="nav-panel-button-label">{b.label}</span>
+                                </button>
+                            )}
+                        </React.Fragment>
+                    ))}
+                </div>
             </div>
         );
     }

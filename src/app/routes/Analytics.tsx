@@ -6,9 +6,10 @@ import { IAvgSpamMetrics } from "../../models/websocket/IAvgSpamMetrics";
 import { IConfirmedMsMetrics } from "../../models/websocket/IConfirmedMsMetrics";
 import { IDBSizeMetric } from "../../models/websocket/IDBSizeMetric";
 import { IMpsMetrics } from "../../models/websocket/IMpsMetrics";
+import { INodeStatus } from "../../models/websocket/INodeStatus";
 import { ISpamMetrics } from "../../models/websocket/ISpamMetrics";
-import { IStatus } from "../../models/websocket/IStatus";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
+import { AuthService } from "../../services/authService";
 import { MetricsService } from "../../services/metricsService";
 import { DataHelper } from "../../utils/dataHelper";
 import AsyncComponent from "../components/layout/AsyncComponent";
@@ -64,6 +65,11 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
     private _spamSubscription?: string;
 
     /**
+     * The auth service.
+     */
+    private readonly _authService: AuthService;
+
+    /**
      * Create a new instance of Analytics.
      * @param props The props.
      */
@@ -71,8 +77,12 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
         super(props);
 
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
+        this._authService = ServiceFactory.get<AuthService>("auth");
+
+        const isSpammerAvailable = Boolean(Spammer.pluginDetails());
 
         this.state = {
+            tabs: this.calculateTabs(isSpammerAvailable),
             activeTab: this.props.match.params.section ?? "tangle",
             mpsIncoming: [],
             mpsOutgoing: [],
@@ -88,7 +98,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
             lastStatusInterval: 1000,
             lastDbReceivedTime: 0,
             databaseSize: [],
-            isSpammerAvailable: false,
+            isSpammerAvailable,
             lastSpamAvgReceivedTime: 0,
             spamNewMsgs: [],
             spamAvgMsgs: [],
@@ -159,8 +169,8 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
             }
         );
 
-        this._statusSubscription = this._metricsService.subscribe<IStatus>(
-            WebSocketTopic.Status,
+        this._statusSubscription = this._metricsService.subscribe<INodeStatus>(
+            WebSocketTopic.NodeStatus,
             undefined,
             allData => {
                 const nonNull = allData.filter(d => d !== undefined && d !== null);
@@ -275,11 +285,6 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                     lastSpamAvgReceivedTime: Date.now()
                 });
             });
-
-        const pluginDetails = await Spammer.pluginIsAvailable();
-        if (pluginDetails) {
-            this.setState({ isSpammerAvailable: true });
-        }
     }
 
     /**
@@ -328,14 +333,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
             <div className="analytics">
                 <div className="content">
                     <TabPanel
-                        tabs={[
-                            "Tangle",
-                            "Node",
-                            "Memory",
-                            "Caches",
-                            "Log",
-                            ...(this.state.isSpammerAvailable ? ["Spammer"] : [])
-                        ]}
+                        tabs={this.state.tabs}
                         activeTab={this.state.activeTab}
                         onTabChanged={tab => {
                             this.props.history.replace(`/analytics/${tab.toLowerCase()}`);
@@ -343,69 +341,81 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                     >
                         <div className="fill">
                             {this.state.gossipMetrics && (
-                                <div className="card messages-graph-panel margin-r-s margin-t-s fill">
-                                    <div className="row spread padding-s gossip">
-                                        <div className="col">
+                                <div className="card messages-graph-panel margin-t-s fill">
+                                    <div className="row wrap gossip">
+                                        <div className="gossip-item">
                                             <h4>Known Messages</h4>
                                             <div className="gossip-value">
                                                 {this.state.gossipMetrics?.knownMessages ?? "-"}
                                             </div>
-                                            <h4 className="margin-t-s">Received Heartbeats</h4>
-                                            <div className="gossip-value">
-                                                {this.state.gossipMetrics?.receivedHeartbeats ?? "-"}
-                                            </div>
                                         </div>
-                                        <div className="col">
+                                        <div className="gossip-item">
                                             <h4>New Messages</h4>
                                             <div className="gossip-value">
                                                 {this.state.gossipMetrics?.newMessages ?? "-"}
                                             </div>
-                                            <h4 className="margin-t-s">Sent Heartbeats</h4>
-                                            <div className="gossip-value">
-                                                {this.state.gossipMetrics?.sentHeartbeats ?? "-"}
-                                            </div>
                                         </div>
-                                        <div className="col">
+                                        <div className="gossip-item">
                                             <h4>Received Messages</h4>
                                             <div className="gossip-value">
                                                 {this.state.gossipMetrics?.receivedMessages ?? "-"}
                                             </div>
-                                            <h4 className="margin-t-s">Received Milestone Requests</h4>
-                                            <div className="gossip-value">
-                                                {this.state.gossipMetrics?.receivedMilestoneRequests ?? "-"}
-                                            </div>
                                         </div>
-                                        <div className="col">
+                                        <div className="gossip-item">
                                             <h4>Sent Messages</h4>
                                             <div className="gossip-value">
                                                 {this.state.gossipMetrics?.sentMessages ?? "-"}
                                             </div>
-                                            <h4 className="margin-t-s">Sent Milestone Requests</h4>
-                                            <div className="gossip-value">
-                                                {this.state.gossipMetrics?.sentMilestoneRequests ?? "-"}
-                                            </div>
                                         </div>
-                                        <div className="col">
+                                        <div className="gossip-item">
                                             <h4>Received Message Requests</h4>
                                             <div className="gossip-value">
                                                 {this.state.gossipMetrics?.receivedMessageRequests ?? "-"}
                                             </div>
-                                            <h4 className="margin-t-s">Dropped Packets</h4>
-                                            <div className="gossip-value">
-                                                {this.state.gossipMetrics?.droppedPackets ?? "-"}
-                                            </div>
                                         </div>
-                                        <div className="col">
+                                        <div className="gossip-item">
                                             <h4>Sent Message Requests</h4>
                                             <div className="gossip-value">
                                                 {this.state.gossipMetrics?.sentMessageRequests ?? "-"}
+                                            </div>
+                                        </div>
+
+
+                                        <div className="gossip-item">
+                                            <h4>Received Heartbeats</h4>
+                                            <div className="gossip-value">
+                                                {this.state.gossipMetrics?.receivedHeartbeats ?? "-"}
+                                            </div>
+                                        </div>
+                                        <div className="gossip-item">
+                                            <h4>Sent Heartbeats</h4>
+                                            <div className="gossip-value">
+                                                {this.state.gossipMetrics?.sentHeartbeats ?? "-"}
+                                            </div>
+                                        </div>
+                                        <div className="gossip-item">
+                                            <h4>Received Milestone Requests</h4>
+                                            <div className="gossip-value">
+                                                {this.state.gossipMetrics?.receivedMilestoneRequests ?? "-"}
+                                            </div>
+                                        </div>
+                                        <div className="gossip-item">
+                                            <h4>Sent Milestone Requests</h4>
+                                            <div className="gossip-value">
+                                                {this.state.gossipMetrics?.sentMilestoneRequests ?? "-"}
+                                            </div>
+                                        </div>
+                                        <div className="gossip-item">
+                                            <h4>Dropped Packets</h4>
+                                            <div className="gossip-value">
+                                                {this.state.gossipMetrics?.droppedPackets ?? "-"}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             )}
 
-                            <div className="card fill margin-r-s margin-t-s">
+                            <div className="card fill margin-t-s">
                                 <Graph
                                     caption="Messages Per Second"
                                     seriesMaxLength={30}
@@ -425,7 +435,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                                     ]}
                                 />
                             </div>
-                            <div className="card fill margin-r-s margin-t-s">
+                            <div className="card fill margin-t-s">
                                 <Graph
                                     caption="Messages Per Milestone"
                                     seriesMaxLength={30}
@@ -445,7 +455,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                                     ]}
                                 />
                             </div>
-                            <div className="card fill margin-r-s margin-t-s">
+                            <div className="card fill margin-t-s">
                                 <Graph
                                     caption="Time Between Milestones"
                                     seriesMaxLength={60}
@@ -463,7 +473,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                         </div>
 
                         <div className="fill">
-                            <div className="card fill margin-r-s">
+                            <div className="card fill">
                                 <Graph
                                     caption="Database (MB)"
                                     seriesMaxLength={60}
@@ -478,7 +488,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                                     ]}
                                 />
                             </div>
-                            <div className="card fill margin-r-s margin-t-s">
+                            <div className="card fill margin-t-s">
                                 <Graph
                                     caption="Memory (MB)"
                                     seriesMaxLength={60}
@@ -493,7 +503,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                                     ]}
                                 />
                             </div>
-                            <div className="card fill margin-r-s margin-t-s">
+                            <div className="card fill margin-t-s">
                                 <Graph
                                     caption="Request Queue"
                                     seriesMaxLength={30}
@@ -526,7 +536,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                         </div>
 
                         <div className="fill">
-                            <div className="card fill margin-r-s">
+                            <div className="card fill">
                                 <Graph
                                     caption="Stack Alloc (MB)"
                                     seriesMaxLength={60}
@@ -541,7 +551,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                                     ]}
                                 />
                             </div>
-                            <div className="card fill margin-r-s margin-t-s">
+                            <div className="card fill margin-t-s">
                                 <Graph
                                     caption="Heap In Use (MB)"
                                     seriesMaxLength={60}
@@ -556,7 +566,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                                     ]}
                                 />
                             </div>
-                            <div className="card fill margin-r-s margin-t-s">
+                            <div className="card fill margin-t-s">
                                 <Graph
                                     caption="Heap Released (MB)"
                                     seriesMaxLength={60}
@@ -571,7 +581,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                                     ]}
                                 />
                             </div>
-                            <div className="card fill margin-r-s margin-t-s">
+                            <div className="card fill margin-t-s">
                                 <Graph
                                     caption="Heap Idle (MB)"
                                     seriesMaxLength={60}
@@ -586,7 +596,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                                     ]}
                                 />
                             </div>
-                            <div className="card fill margin-r-s margin-t-s">
+                            <div className="card fill margin-t-s">
                                 <Graph
                                     caption="Heap Sys (MB)"
                                     seriesMaxLength={60}
@@ -601,7 +611,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                                     ]}
                                 />
                             </div>
-                            <div className="card fill margin-r-s margin-t-s">
+                            <div className="card fill margin-t-s">
                                 <Graph
                                     caption="Total Alloc (MB)"
                                     seriesMaxLength={60}
@@ -619,7 +629,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                         </div>
 
                         <div className="fill">
-                            <div className="card fill margin-r-s">
+                            <div className="card fill">
                                 <Graph
                                     caption="Request Queue"
                                     seriesMaxLength={60}
@@ -634,7 +644,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                                     ]}
                                 />
                             </div>
-                            <div className="card fill margin-r-s margin-t-s">
+                            <div className="card fill margin-t-s">
                                 <Graph
                                     caption="Children"
                                     seriesMaxLength={60}
@@ -649,7 +659,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                                     ]}
                                 />
                             </div>
-                            <div className="card fill margin-r-s margin-t-s">
+                            <div className="card fill margin-t-s">
                                 <Graph
                                     caption="Milestones"
                                     seriesMaxLength={60}
@@ -664,7 +674,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                                     ]}
                                 />
                             </div>
-                            <div className="card fill margin-r-s margin-t-s">
+                            <div className="card fill margin-t-s">
                                 <Graph
                                     caption="Messages"
                                     seriesMaxLength={60}
@@ -679,7 +689,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                                     ]}
                                 />
                             </div>
-                            <div className="card fill margin-r-s margin-t-s">
+                            <div className="card fill margin-t-s">
                                 <Graph
                                     caption="Incoming Message Work Units"
                                     seriesMaxLength={60}
@@ -696,68 +706,94 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                             </div>
                         </div>
 
-                        <div className="fill">
-                            <p>What should we show for the log?</p>
-                        </div>
+                        {this.state.isSpammerAvailable && (
+                            <div className="fill">
+                                <div className="card fill">
+                                    <Graph
+                                        caption="Tip Selection Duration Micro-Seconds"
+                                        seriesMaxLength={60}
+                                        timeInterval={this.state.lastSpamInterval}
+                                        endTime={this.state.lastSpamReceivedTime}
+                                        series={[
+                                            {
+                                                className: "bar-color-1",
+                                                label: "Tip Time",
+                                                values: this.state.tipSelection
+                                            }
+                                        ]}
+                                    />
+                                </div>
 
-                        <div className="fill">
-                            <div className="card fill margin-r-s">
-                                <Graph
-                                    caption="Tip Selection Duration Micro-Seconds"
-                                    seriesMaxLength={60}
-                                    timeInterval={this.state.lastSpamInterval}
-                                    endTime={this.state.lastSpamReceivedTime}
-                                    series={[
-                                        {
-                                            className: "bar-color-1",
-                                            label: "Tip Time",
-                                            values: this.state.tipSelection
-                                        }
-                                    ]}
-                                />
-                            </div>
+                                <div className="card fill margin-t-s">
+                                    <Graph
+                                        caption="PoW Duration Seconds"
+                                        seriesMaxLength={60}
+                                        timeInterval={this.state.lastSpamInterval}
+                                        endTime={this.state.lastSpamReceivedTime}
+                                        series={[
+                                            {
+                                                className: "bar-color-2",
+                                                label: "PoW Time",
+                                                values: this.state.pow
+                                            }
+                                        ]}
+                                    />
+                                </div>
 
-                            <div className="card fill margin-r-s margin-t-s">
-                                <Graph
-                                    caption="PoW Duration Seconds"
-                                    seriesMaxLength={60}
-                                    timeInterval={this.state.lastSpamInterval}
-                                    endTime={this.state.lastSpamReceivedTime}
-                                    series={[
-                                        {
-                                            className: "bar-color-2",
-                                            label: "PoW Time",
-                                            values: this.state.pow
-                                        }
-                                    ]}
-                                />
+                                <div className="card fill margin-t-s">
+                                    <Graph
+                                        caption="Spam Messages"
+                                        seriesMaxLength={30}
+                                        endTime={this.state.lastSpamAvgReceivedTime}
+                                        timeInterval={1000}
+                                        series={[
+                                            {
+                                                className: "bar-color-1",
+                                                label: "New Messages",
+                                                values: this.state.spamNewMsgs
+                                            },
+                                            {
+                                                className: "bar-color-2",
+                                                label: "Average Messages",
+                                                values: this.state.spamAvgMsgs
+                                            }
+                                        ]}
+                                    />
+                                </div>
                             </div>
+                        )}
 
-                            <div className="card fill margin-r-s margin-t-s">
-                                <Graph
-                                    caption="Spam Messages"
-                                    seriesMaxLength={30}
-                                    endTime={this.state.lastSpamAvgReceivedTime}
-                                    timeInterval={1000}
-                                    series={[
-                                        {
-                                            className: "bar-color-1",
-                                            label: "New Messages",
-                                            values: this.state.spamNewMsgs
-                                        },
-                                        {
-                                            className: "bar-color-2",
-                                            label: "Average Messages",
-                                            values: this.state.spamAvgMsgs
-                                        }
-                                    ]}
-                                />
+                        {this._authService.isLoggedIn() && (
+                            <div className="fill">
+                                <p>What should we show for the log?</p>
                             </div>
-                        </div>
+                        )}
                     </TabPanel>
                 </div>
             </div>
         );
+    }
+
+    /**
+     * Calculate the tabs to show.
+     * @param isSpammerAvailable Is the spammer available.
+     * @returns The tabs.
+     */
+    private calculateTabs(isSpammerAvailable: boolean): string[] {
+        const tabs = [
+            "Tangle",
+            "Node",
+            "Memory",
+            "Caches"
+        ];
+
+        if (isSpammerAvailable) {
+            tabs.push("Spammer");
+        }
+
+        tabs.push("Log");
+
+        return tabs;
     }
 }
 

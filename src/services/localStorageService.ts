@@ -41,6 +41,20 @@ export class LocalStorageService {
     }
 
     /**
+     * Delete an item in local storage.
+     * @param key The key of the item to store.
+     */
+    public remove(key: string): void {
+        if (window.localStorage) {
+            try {
+                window.localStorage.removeItem(key);
+            } catch {
+                // Nothing to do
+            }
+        }
+    }
+
+    /**
      * Clear the local storage.
      * @param rootKey Clear all items that start with the root key, if undefined clear everything.
      */

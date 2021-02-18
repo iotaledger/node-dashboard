@@ -2,6 +2,11 @@ import { IGossipMetrics } from "@iota/iota.js";
 
 export interface AnalyticsState {
     /**
+     * The tabs to show.
+     */
+    tabs: string[];
+
+    /**
      * The active tab.
      */
     activeTab: string;

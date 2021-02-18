@@ -6,9 +6,11 @@ import { ReactComponent as PruningIcon } from "../../assets/pruning.svg";
 import { ReactComponent as UptimeIcon } from "../../assets/uptime.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
 import { IMpsMetrics } from "../../models/websocket/IMpsMetrics";
-import { IStatus } from "../../models/websocket/IStatus";
+import { INodeStatus } from "../../models/websocket/INodeStatus";
+import { IPublicNodeStatus } from "../../models/websocket/IPublicNodeStatus";
 import { ISyncStatus } from "../../models/websocket/ISyncStatus";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
+import { EventAggregator } from "../../services/eventAggregator";
 import { MetricsService } from "../../services/metricsService";
 import { NodeConfigService } from "../../services/nodeConfigService";
 import { ThemeService } from "../../services/themeService";
@@ -32,11 +34,6 @@ class Home extends AsyncComponent<unknown, HomeState> {
     private readonly _themeService: ThemeService;
 
     /**
-     * The theme subscription id.
-     */
-    private _themeSubscriptionId?: string;
-
-    /**
      * The metrics service.
      */
     private readonly _metricsService: MetricsService;
@@ -44,7 +41,12 @@ class Home extends AsyncComponent<unknown, HomeState> {
     /**
      * The status subscription id.
      */
-    private _statusSubscription?: string;
+    private _nodeStatusSubscription?: string;
+
+    /**
+     * The public node status subscription id.
+     */
+    private _publicNodeStatusSubscription?: string;
 
     /**
      * The sync status subscription id.
@@ -76,7 +78,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
 
         this.state = {
             nodeName: "",
-            peerId: "No peer id",
+            peerId: "",
             displayVersion: "",
             displayLatestVersion: "",
             lmi: "-",
@@ -101,19 +103,30 @@ class Home extends AsyncComponent<unknown, HomeState> {
             bannerSrc: await BrandHelper.getBanner(this._themeService.get())
         });
 
-        this._themeSubscriptionId = this._themeService.subscribe(async () => {
+        EventAggregator.subscribe("theme", "home", async theme => {
             this.setState({
-                bannerSrc: await BrandHelper.getBanner(this._themeService.get())
+                bannerSrc: await BrandHelper.getBanner(theme)
             });
         });
 
-        this._statusSubscription = this._metricsService.subscribe<IStatus>(
-            WebSocketTopic.Status,
+        this._publicNodeStatusSubscription = this._metricsService.subscribe<IPublicNodeStatus>(
+            WebSocketTopic.PublicNodeStatus,
+            data => {
+                if (data) {
+                    const pruningIndex = data.pruning_index.toString();
+
+                    if (pruningIndex !== this.state.pruningIndex) {
+                        this.setState({ pruningIndex });
+                    }
+                }
+            });
+
+        this._nodeStatusSubscription = this._metricsService.subscribe<INodeStatus>(
+            WebSocketTopic.NodeStatus,
             data => {
                 if (data) {
                     const nodeName = data.node_alias ? data.node_alias : BrandHelper.getConfiguration().name;
                     const peerId = data.autopeering_id || "No peer Id.";
-                    const pruningIndex = data.pruning_index.toString();
                     const uptime = FormatHelper.duration(data.uptime);
                     const memory = FormatHelper.size(DataHelper.calculateMemoryUsage(data));
 
@@ -123,10 +136,6 @@ class Home extends AsyncComponent<unknown, HomeState> {
 
                     if (peerId !== this.state.peerId) {
                         this.setState({ peerId });
-                    }
-
-                    if (pruningIndex !== this.state.pruningIndex) {
-                        this.setState({ pruningIndex });
                     }
 
                     if (uptime !== this.state.uptime) {
@@ -178,14 +187,16 @@ class Home extends AsyncComponent<unknown, HomeState> {
     public componentWillUnmount(): void {
         super.componentWillUnmount();
 
-        if (this._themeSubscriptionId) {
-            this._themeService.unsubscribe(this._themeSubscriptionId);
-            this._themeSubscriptionId = undefined;
+        EventAggregator.unsubscribe("theme", "home");
+
+        if (this._nodeStatusSubscription) {
+            this._metricsService.unsubscribe(this._nodeStatusSubscription);
+            this._nodeStatusSubscription = undefined;
         }
 
-        if (this._statusSubscription) {
-            this._metricsService.unsubscribe(this._statusSubscription);
-            this._statusSubscription = undefined;
+        if (this._publicNodeStatusSubscription) {
+            this._metricsService.unsubscribe(this._publicNodeStatusSubscription);
+            this._publicNodeStatusSubscription = undefined;
         }
 
         if (this._syncStatusSubscription) {
@@ -212,7 +223,9 @@ class Home extends AsyncComponent<unknown, HomeState> {
                             <div className="node-info">
                                 <div>
                                     <h1>{this.state.nodeName}</h1>
-                                    <p className="secondary margin-t-t">{this.state.peerId}</p>
+                                    {this.state.peerId && (
+                                        <p className="secondary margin-t-t word-break-all">{this.state.peerId}</p>
+                                    )}
                                 </div>
                                 <p className="secondary">
                                     {this._networkId}
@@ -227,42 +240,38 @@ class Home extends AsyncComponent<unknown, HomeState> {
                             </div>
                         </div>
                     </div>
-                    <div className="row fill margin-t-s">
-                        <div className="col">
-                            <div className="row">
+                    <div className="row fill margin-t-s desktop-down-column">
+                        <div className="col info-col fill">
+                            <div className="row fill tablet-down-column">
                                 <InfoPanel
                                     caption="LSMI / LMI"
                                     value={`${this.state.lsmi} / ${this.state.lmi}`}
                                     icon={<MilestoneIcon />}
                                     backgroundStyle="green"
-                                    className="margin-r-s"
                                 />
                                 <InfoPanel
                                     caption="Pruning Index"
                                     value={this.state.pruningIndex?.toString()}
                                     icon={<PruningIcon />}
                                     backgroundStyle="orange"
-                                    className="margin-r-s"
                                 />
                             </div>
-                            <div className="row margin-t-s">
+                            <div className="row fill margin-t-s tablet-down-column">
                                 <InfoPanel
                                     caption="Uptime"
                                     value={this.state.uptime}
                                     icon={<UptimeIcon />}
                                     backgroundStyle="blue"
-                                    className="margin-r-s"
                                 />
                                 <InfoPanel
                                     caption="Memory Usage"
                                     value={this.state.memory}
                                     icon={<MemoryIcon />}
                                     backgroundStyle="purple"
-                                    className="margin-r-s"
                                 />
                             </div>
-                            <div className="row margin-t-s">
-                                <div className="card fill messages-graph-panel margin-r-s">
+                            <div className="row fill margin-t-s">
+                                <div className="card fill messages-graph-panel">
                                     <Graph
                                         caption="Messages Per Second"
                                         seriesMaxLength={20}
@@ -284,7 +293,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                 </div>
                             </div>
                         </div>
-                        <div className="card peers-summary-panel">
+                        <div className="card col peers-summary-col peers-summary-panel">
                             <PeersSummaryPanel />
                         </div>
                     </div>

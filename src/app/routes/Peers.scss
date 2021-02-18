@@ -1,5 +1,6 @@
 @import '../../scss/card';
 @import '../../scss/fonts';
+@import '../../scss/media-queries';
 
 .peers {
   display: flex;
@@ -7,9 +8,37 @@
   justify-content: center;
   padding: 60px;
 
+  @include desktop-down {
+    padding: $spacing-small;
+  }
+
   .content {
     flex: 1;
     max-width: $content-width-desktop;
+
+    .add-button {
+      @include font-size(14px);
+
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      padding: 6px 12px;
+      border: 1px solid var(--text-color-secondary);
+      border-radius: $form-input-radius;
+      outline: 0;
+      background: var(--accent-primary);
+      color: #ffffff;
+      font-family: $font-sans;
+      cursor: pointer;
+
+      &:hover {
+        color: var(--accent-primary);
+      }
+
+      &:focus {
+        box-shadow: 0 0 3px 0 var(--accent-primary);
+      }
+    }
 
     .peers-panel {
       display: flex;
@@ -17,10 +46,20 @@
       flex-wrap: wrap;
       justify-content: space-between;
 
+      @media (max-width: 1340px) {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+      }
+
       .peers-panel--item {
         width: $content-width-desktop / 2 - $spacing-small / 2;
         margin-top: $spacing-small;
         overflow: hidden;
+
+        @media (max-width: 1340px) {
+          width: 100%;
+        }
 
         .card {
           padding: $spacing-large;
@@ -34,16 +73,31 @@
           .peer-id {
             @include font-size(14px);
 
-            overflow: hidden;
             color: var(--text-color-primary);
             font-family: $font-sans;
             font-weight: 500;
-            text-overflow: ellipsis;
-            white-space: nowrap;
           }
 
           .graph {
             margin-top: 24px;
+          }
+
+          .peer-actions {
+            justify-content: space-between;
+            margin-top: $spacing-small;
+
+            @media (max-width: 620px) {
+              flex-direction: column;
+
+              .card--action {
+                justify-content: center;
+              }
+
+              p {
+                display: flex;
+                justify-content: center;
+              }
+            }
           }
         }
       }

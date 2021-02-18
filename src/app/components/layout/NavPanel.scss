@@ -1,15 +1,21 @@
 @import '../../../scss/fonts';
+@import '../../../scss/media-queries';
 @import '../../../scss/variables';
 
 .nav-panel {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   width: 120px;
   padding-top: 22px;
-  overflow: hidden;
+  overflow: auto;
   border-right: 1px solid var(--panel-border);
   background-color: var(--panel-background);
+
+  @include tablet-down {
+    padding-top: $spacing-small;
+  }
 
   a {
     &:focus {
@@ -19,7 +25,25 @@
   }
 
   .logo {
-    margin-bottom: 120px;
+    width: 36px;
+    height: 36px;
+
+    @include tablet-down {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  .nav-panel-middle {
+    display: flex;
+    flex-direction: column;
+    margin: $spacing-large 0;
+  }
+
+  .nav-panel-end {
+    display: flex;
+    flex-direction: column;
+    margin: $spacing-large 0;
   }
 
   .nav-panel--button {
@@ -29,7 +53,6 @@
     flex-direction: column;
     align-items: center;
     height: 50px;
-    margin-bottom: 30px;
     border: 0;
     outline: 0;
     background: none;
@@ -37,9 +60,35 @@
     font-family: $font-sans;
     font-weight: bold;
     text-decoration: none;
+    cursor: pointer;
 
     &.nav-panel--button__selected {
       color: var(--accent-primary);
+    }
+
+    .nav-panel-button-label {
+      margin-top: $spacing-tiny;
+    }
+
+    +.nav-panel--button {
+      margin-top: $spacing-large;
+    }
+  }
+
+  &.full-width {
+    width: 100%;
+
+    .nav-panel--button {
+      flex-direction: row;
+
+      .nav-panel-button-label {
+        margin-top: 0;
+        margin-left: $spacing-small;
+      }
+
+      +.nav-panel--button {
+        margin-top: $spacing-small;
+      }
     }
   }
 }

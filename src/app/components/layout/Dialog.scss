@@ -1,0 +1,98 @@
+@import '../../../scss/fonts';
+@import '../../../scss/media-queries';
+@import '../../../scss/variables';
+
+.dialog-click-shield {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  opacity: 0.2;
+  background: var(--dialog-shield);
+}
+
+.dialog-container {
+  display: flex;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  align-items: center;
+  justify-content: center;
+
+  .dialog {
+    display: flex;
+    flex-direction: column;
+    min-width: 500px;
+    min-height: 400px;
+    padding: 20px;
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    background: var(--panel-background);
+    box-shadow: 5px 5px 5px 0 var(--drop-shadow);
+
+    @include tablet-down {
+      min-width: 90%;
+    }
+
+    .dialog-header {
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--panel-border);
+    }
+
+    .dialog-content {
+      flex: 1;
+
+      .dialog--label {
+        @include font-size(10px);
+
+        margin-top: $spacing-small;
+        margin-bottom: $spacing-tiny / 2;
+        color: var(--text-color-secondary);
+        font-family: $font-sans;
+        font-weight: 500;
+        text-transform: uppercase;
+      }
+    }
+
+    .dialog-footer {
+      display: flex;
+      justify-content: flex-end;
+
+      button {
+        @include font-size(14px);
+
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 6px 12px;
+        border: 1px solid var(--text-color-secondary);
+        border-radius: $form-input-radius;
+        outline: 0;
+        background: none;
+        color: var(--text-color-primary);
+        font-family: $font-sans;
+        cursor: pointer;
+
+        +button {
+          margin-left: $spacing-small;
+        }
+
+        &:hover {
+          color: var(--accent-primary);
+        }
+
+        &:focus {
+          box-shadow: 0 0 3px 0 var(--accent-primary);
+        }
+
+        &:disabled {
+          opacity: 0.5;
+          pointer-events: none;
+        }
+      }
+    }
+  }
+}

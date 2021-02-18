@@ -1,11 +1,16 @@
 @import '../../scss/card';
 @import '../../scss/fonts';
+@import '../../scss/media-queries';
 
 .peer {
   display: flex;
   flex: 1;
   justify-content: center;
   padding: 60px;
+
+  @include desktop-down {
+    padding: $spacing-small;
+  }
 
   .content {
     flex: 1;
@@ -18,22 +23,44 @@
         flex-direction: column;
         justify-content: space-between;
         padding: $spacing-small;
-        overflow: hidden;
-
-        h2 {
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
       }
 
       .health-indicators {
-        display: flex;
-        flex-direction: column;
         justify-content: space-around;
         border-left: 1px solid var(--panel-border);
 
         .child {
-          padding: 0px $spacing-small;
+          padding: 0 $spacing-small;
+        }
+
+        @include tablet-down-only {
+          justify-content: space-between;
+          margin: 0 $spacing-small;
+
+          .child {
+            padding: $spacing-small 0;
+          }
+        }
+
+        @include phone-down {
+          .child {
+            padding: $spacing-tiny $spacing-small;
+          }
+        }
+      }
+    }
+
+    .info {
+      @include tablet-down {
+        flex-direction: column;
+      }
+
+      .info-panel + .info-panel {
+        margin-left: $spacing-small;
+
+        @include tablet-down {
+          margin-top: $spacing-small;
+          margin-left: 0;
         }
       }
     }
@@ -45,11 +72,24 @@
     }
 
     .gossip {
-      .col {
+      padding: $spacing-small 0 0 $spacing-small;
+
+      .gossip-item {
+        width: 155px;
+        height: 75px;
+        margin-right: $spacing-small;
+
+        @include desktop-down {
+          width: 160px;
+        }
+
+        h4 {
+          min-height: 30px;
+        }
+
         .gossip-value {
           @include font-size(24px);
 
-          margin-top: $spacing-tiny;
           color: var(--text-color-primary);
           font-family: $font-sans;
           font-weight: bold;

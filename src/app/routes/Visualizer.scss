@@ -1,5 +1,6 @@
 @import '../../scss/card';
 @import '../../scss/fonts';
+@import '../../scss/media-queries';
 
 .visualizer {
   display: flex;
@@ -29,9 +30,9 @@
     display: flex;
     position: absolute;
     z-index: 1;
-    top: 0px;
+    top: 0;
     right: 30px;
-    bottom: 0px;
+    bottom: 0;
     align-items: center;
     justify-content: center;
     pointer-events: none;
@@ -50,13 +51,14 @@
     z-index: 1;
     right: 30px;
     bottom: 30px;
-    left: 0px;
+    left: 30px;
     justify-content: center;
     pointer-events: none;
 
     .key-panel {
       display: flex;
       flex-direction: row;
+      flex-wrap: wrap;
       padding: $spacing-small;
 
       .key-panel-item {
@@ -64,6 +66,11 @@
         flex-direction: row;
         align-items: center;
         margin: 0 $spacing-small;
+
+        @include desktop-down {
+          width: 110px;
+          margin: 0;
+        }
 
         .key-marker {
           width: 12px;
@@ -90,6 +97,12 @@
     top: 30px;
     left: 30px;
     width: 320px;
+
+    @include phone-down {
+      top: 10px;
+      left: 10px;
+      width: 90%;
+    }
 
     .info-panel--key {
       width: 16px;

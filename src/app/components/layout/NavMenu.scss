@@ -1,0 +1,32 @@
+@import '../../../scss/fonts';
+@import '../../../scss/media-queries';
+@import '../../../scss/variables';
+
+.nav-menu {
+  display: flex;
+  align-items: center;
+
+  button {
+    border: 0;
+    outline: 0;
+    background: none;
+    cursor: pointer;
+
+    .logo {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  .popup-container {
+    display: flex;
+    position: fixed;
+    z-index: 10;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+}

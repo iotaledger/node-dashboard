@@ -1,7 +1,9 @@
 /* eslint-disable unicorn/prefer-add-event-listener */
 import { Converter, RandomHelper } from "@iota/iota.js";
+import { ServiceFactory } from "../factories/serviceFactory";
 import { IWebSocketMessage } from "../models/websocket/IWebSocketMessage";
 import { WebSocketTopic } from "../models/websocket/webSocketTopic";
+import { AuthService } from "./authService";
 
 /**
  * Service to handle the websocket connection.
@@ -26,17 +28,29 @@ export class WebSocketService {
      * Subscribers to the messages.
      */
     private readonly _subscriptions: {
-        [topic: number]: {
-            subscriptionId: string;
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            callback: (data: any) => void;
-        }[];
+        [topic: number]:
+        {
+            requiresAuth: boolean;
+            isSubscribed: boolean;
+            subs: {
+                subscriptionId: string;
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                callback: (data: any) => void;
+            }[];
+        };
     };
+
+    /**
+     * The auth service.
+     */
+    private readonly _authService: AuthService;
 
     /**
      * Create a new instance of WebSocketService.
      */
     constructor() {
+        this._authService = ServiceFactory.get<AuthService>("auth");
+
         this._subscriptions = {};
         this._lastMessage = 0;
     }
@@ -44,17 +58,22 @@ export class WebSocketService {
     /**
      * Subscribe to a topic.
      * @param topic The topic to subscribe to.
+     * @param requiresAuth Requires authentication.
      * @param callback The callback to send the data to.
      * @returns The subscription id.
      */
-    public subscribe<T>(topic: WebSocketTopic, callback: (data: T) => void): string {
+    public subscribe<T>(topic: WebSocketTopic, requiresAuth: boolean, callback: (data: T) => void): string {
         if (!this._subscriptions[topic]) {
-            this._subscriptions[topic] = [];
+            this._subscriptions[topic] = {
+                requiresAuth,
+                isSubscribed: false,
+                subs: []
+            };
         }
 
         const subscriptionId = Converter.bytesToHex(RandomHelper.generate(32));
 
-        this._subscriptions[topic].push({
+        this._subscriptions[topic].subs.push({
             subscriptionId,
             callback
         });
@@ -77,11 +96,11 @@ export class WebSocketService {
      */
     public unsubscribe(subscriptionId: string): void {
         for (const topic of Object.keys(this._subscriptions).map(k => Number(k))) {
-            const subscriptionIdx = this._subscriptions[topic].findIndex(s => s.subscriptionId === subscriptionId);
+            const subscriptionIdx = this._subscriptions[topic].subs.findIndex(s => s.subscriptionId === subscriptionId);
             if (subscriptionIdx >= 0) {
-                this._subscriptions[topic].splice(subscriptionIdx, 1);
+                this._subscriptions[topic].subs.splice(subscriptionIdx, 1);
 
-                if (this._subscriptions[topic].length === 0) {
+                if (this._subscriptions[topic].subs.length === 0) {
                     // No more subscriptions for this topic so unsubscribe the topic.
                     delete this._subscriptions[topic];
                     this.unsubscribeTopic(topic);
@@ -94,6 +113,19 @@ export class WebSocketService {
         if (Object.keys(this._subscriptions).length === 0) {
             this.clearTimer();
             this.disconnectSocket();
+        }
+    }
+
+    /**
+     * We resubscribe if the authentication, jwt token has been updated.
+     */
+    public resubscribe(): void {
+        const topics = Object.keys(this._subscriptions).map(k => Number(k));
+        for (const topic of topics) {
+            this.unsubscribeTopic(topic);
+        }
+        for (const topic of topics) {
+            this.subscribeTopic(topic);
         }
     }
 
@@ -166,13 +198,26 @@ export class WebSocketService {
      * @param topicId The topic to subscribe to.
      */
     private subscribeTopic(topicId: number) {
-        const arrayBuf = new ArrayBuffer(2);
-        const view = new Uint8Array(arrayBuf);
-        view[0] = 0; // register
-        view[1] = topicId;
+        if (this._subscriptions[topicId]) {
+            const requiresAuth = this._subscriptions[topicId].requiresAuth;
+            const jwt = this._authService.isLoggedIn();
 
-        if (this._webSocket) {
-            this._webSocket.send(arrayBuf);
+            if (!requiresAuth || (requiresAuth && jwt)) {
+                this._subscriptions[topicId].isSubscribed = true;
+
+                const arrayBuf = new ArrayBuffer(2 + (jwt && requiresAuth ? jwt.length : 0));
+                const view = new Uint8Array(arrayBuf);
+                view[0] = 0; // register
+                view[1] = topicId;
+
+                if (jwt && requiresAuth) {
+                    view.set(Buffer.from(jwt), 2);
+                }
+
+                if (this._webSocket) {
+                    this._webSocket.send(arrayBuf);
+                }
+            }
         }
     }
 
@@ -181,13 +226,17 @@ export class WebSocketService {
      * @param topicId The topic to unsubscribe from.
      */
     private unsubscribeTopic(topicId: number) {
-        const arrayBuf = new ArrayBuffer(2);
-        const view = new Uint8Array(arrayBuf);
-        view[0] = 1; // unregister
-        view[1] = topicId;
+        if (this._subscriptions[topicId]?.isSubscribed) {
+            this._subscriptions[topicId].isSubscribed = false;
 
-        if (this._webSocket) {
-            this._webSocket.send(arrayBuf);
+            const arrayBuf = new ArrayBuffer(2);
+            const view = new Uint8Array(arrayBuf);
+            view[0] = 1; // unregister
+            view[1] = topicId;
+
+            if (this._webSocket) {
+                this._webSocket.send(arrayBuf);
+            }
         }
     }
 
@@ -199,7 +248,7 @@ export class WebSocketService {
         const message = JSON.parse(msg) as IWebSocketMessage;
 
         if (this._subscriptions[message.type]) {
-            for (const subscriber of this._subscriptions[message.type]) {
+            for (const subscriber of this._subscriptions[message.type].subs) {
                 subscriber.callback(message.data);
             }
         }

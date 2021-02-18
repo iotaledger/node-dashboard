@@ -18,8 +18,8 @@
     @include font-size(14px);
 
     height: 40px;
-    margin: 0px;
-    padding: 0px 48px 0px 20px;
+    margin: 0;
+    padding: 0 48px 0 20px;
     border: 1px solid var(--text-color-secondary);
     border-radius: $form-input-radius;
     outline: none;
@@ -32,12 +32,10 @@
       box-shadow: 0 0 3px 0 var(--accent-primary);
     }
 
-    // sass-lint:disable no-vendor-prefixes
     &:-ms-expand {
       display: none;
     }
 
-    // sass-lint:disable no-vendor-prefixes
     &:-moz-focusring {
       color: transparent;
       text-shadow: 0 0 0 var(--text-color-primary);
@@ -54,8 +52,8 @@ input {
   @include font-size(14px);
 
   height: 40px;
-  margin: 0px;
-  padding: 0px 48px 0px 20px;
+  margin: 0;
+  padding: 0 48px 0 20px;
   border: 1px solid var(--text-color-secondary);
   border-radius: $form-input-radius;
   outline: none;
@@ -66,5 +64,13 @@ input {
 
   &:focus {
     box-shadow: 0 0 3px 0 var(--accent-primary);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+
+  &.input--stretch {
+    width: 100%;
   }
 }

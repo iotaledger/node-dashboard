@@ -2,7 +2,7 @@ import React, { ReactNode } from "react";
 import { Link, RouteComponentProps, withRouter } from "react-router-dom";
 import { ReactComponent as ConfirmationIcon } from "../../assets/confirmation.svg";
 import { ReactComponent as MilestoneIcon } from "../../assets/milestone.svg";
-import { ReactComponent as PruningIcon } from "../../assets/pruning.svg";
+import { ReactComponent as UptimeIcon } from "../../assets/uptime.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
 import { IConfirmedMsMetrics } from "../../models/websocket/IConfirmedMsMetrics";
 import { IMs } from "../../models/websocket/IMs";
@@ -117,20 +117,18 @@ class Peers extends AsyncComponent<RouteComponentProps, ExplorerState> {
                             onSearch={query => this.props.history.push(`/explorer/search/${query}`)}
                         />
                     </div>
-                    <div className="row info margin-t-s">
+                    <div className="row tablet-down-column info margin-t-s">
                         <InfoPanel
                             caption="Messages per Second"
                             value={this.state.mps}
                             icon={<MilestoneIcon />}
                             backgroundStyle="green"
-                            className="margin-r-s"
                         />
                         <InfoPanel
                             caption="Confirmed Messages per Second"
                             value={this.state.cmps}
-                            icon={<PruningIcon />}
-                            backgroundStyle="orange"
-                            className="margin-r-s"
+                            icon={<UptimeIcon />}
+                            backgroundStyle="blue"
                         />
                         <InfoPanel
                             caption="Confirmation Rate"

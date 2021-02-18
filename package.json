@@ -9,7 +9,7 @@
     },
     "license": "MIT",
     "dependencies": {
-        "@iota/iota.js": "github:iotaledger/iota.js#d07361b093f0e45b49f093e21d8e8e6deb49aeb6",
+        "@iota/iota.js": "github:iotaledger/iota.js#7bedbdd4047cc3688655c15dac3315deb629f0c8",
         "classnames": "^2.2.6",
         "humanize-duration": "^3.25.1",
         "moment": "^2.29.1",
@@ -21,18 +21,18 @@
         "vivagraphjs": "^0.12.0"
     },
     "engines": {
-        "node": "12.x.x"
+        "node": "14.x.x"
     },
     "scripts": {
         "start": "cross-env PORT=9090 WDS_SOCKET_PORT=9090 REACT_APP_SOCKET=8081 REACT_APP_BRAND_ID=hornet craco start",
         "start-bee": "cross-env PORT=9090 WDS_SOCKET_PORT=9090 REACT_APP_SOCKET=8081 REACT_APP_BRAND_ID=bee craco start",
         "lint": "eslint src --ext .tsx,.ts",
+        "sass-lint": "stylelint ./src/**/*.scss",
         "build-internal": "craco build",
-        "build": "cross-env REACT_APP_BRAND_ID=hornet run-s lint build-internal",
-        "build-bee": "cross-env REACT_APP_BRAND_ID=bee run-s lint build-internal",
+        "build": "cross-env REACT_APP_BRAND_ID=hornet run-s lint sass-lint build-internal",
+        "build-bee": "cross-env REACT_APP_BRAND_ID=bee run-s lint sass-lint build-internal",
         "test": "craco test",
-        "eject": "react-scripts eject",
-        "sass-lint": "stylelint ./src/**/*.scss"
+        "eject": "react-scripts eject"
     },
     "browserslist": [
         ">0.2%",

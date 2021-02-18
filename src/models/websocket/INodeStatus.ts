@@ -1,9 +1,5 @@
 /* eslint-disable camelcase */
-export interface IStatus {
-    snapshot_index: number;
-    pruning_index: number;
-    is_healthy: boolean;
-    is_synced: boolean;
+export interface INodeStatus {
     version: string;
     latest_version: string;
     uptime: number;

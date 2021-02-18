@@ -2,6 +2,7 @@ import React, { ReactNode } from "react";
 import { ReactComponent as ChevronDownIcon } from "../../assets/chevron-down.svg";
 import { ReactComponent as EllipsisIcon } from "../../assets/ellipsis.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
+import { AuthService } from "../../services/authService";
 import { ThemeService } from "../../services/themeService";
 import AsyncComponent from "../components/layout/AsyncComponent";
 import TabPanel from "../components/layout/TabPanel";
@@ -19,6 +20,11 @@ class Settings extends AsyncComponent<unknown, SettingsState> {
     private readonly _themeService: ThemeService;
 
     /**
+     * The auth service.
+     */
+    private readonly _authService: AuthService;
+
+    /**
      * The standard sections that are not plugins.
      */
     private readonly _standardSections: string[];
@@ -31,6 +37,7 @@ class Settings extends AsyncComponent<unknown, SettingsState> {
         super(props);
 
         this._themeService = ServiceFactory.get<ThemeService>("theme");
+        this._authService = ServiceFactory.get<AuthService>("auth");
         this._standardSections = ["General"];
 
         this.state = {
@@ -50,9 +57,11 @@ class Settings extends AsyncComponent<unknown, SettingsState> {
 
         const plugins = [];
 
-        const pluginDetails = await Spammer.pluginIsAvailable();
-        if (pluginDetails) {
-            plugins.push(pluginDetails);
+        if (this._authService.isLoggedIn()) {
+            const pluginDetails = Spammer.pluginDetails();
+            if (pluginDetails) {
+                plugins.push(pluginDetails);
+            }
         }
 
         if (plugins.length > 0) {

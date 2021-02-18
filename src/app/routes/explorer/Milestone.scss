@@ -1,11 +1,16 @@
 @import '../../../scss/fonts';
 @import '../../../scss/variables';
+@import '../../../scss/media-queries';
 
 .milestone {
   display: flex;
   flex: 1;
   justify-content: center;
   padding: 40px 60px;
+
+  @include desktop-down {
+    padding: $spacing-small;
+  }
 
   .content {
     flex: 1;

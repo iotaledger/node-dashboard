@@ -1,24 +1,47 @@
 @import '../../../scss/fonts';
+@import '../../../scss/media-queries';
 @import '../../../scss/variables';
 
 .info-panel {
   display: flex;
   flex: 1;
   flex-direction: row;
-  width: 350px;
   height: 100px;
+
+  @include phone-down {
+    height: 80px;
+  }
+
+  .info--labels {
+    flex: 1;
+    justify-content: center;
+  }
 
   .value {
     @include font-size(24px);
 
     margin-top: $spacing-tiny;
+    overflow: hidden;
     color: var(--text-color-primary);
     font-family: $font-sans;
     font-weight: bold;
+    text-overflow: ellipsis;
     white-space: nowrap;
 
     .value--small {
       @include font-size(14px);
+    }
+
+    @include desktop-down {
+      @include font-size(18px);
+    }
+
+    @include tablet-down {
+      @include font-size(17px);
+    }
+
+    @include phone-down {
+      @include font-size(16px);
     }
   }
 
@@ -32,12 +55,22 @@
     margin-right: 20px;
     border-radius: $spacing-small;
 
+    @include phone-down {
+      width: 60px;
+      height: 60px;
+    }
+
     .icon-background {
       position: absolute;
       width: 80px;
       height: 80px;
       border-radius: $spacing-small;
       opacity: 0.1;
+
+      @include phone-down {
+        width: 60px;
+        height: 60px;
+      }
 
       &.icon-background--green {
         background-color: #16e1d5;
@@ -58,6 +91,7 @@
 
     svg {
       z-index: 1;
+      flex: 1;
     }
   }
 }

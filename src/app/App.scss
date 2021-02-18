@@ -3,6 +3,8 @@
   flex: 1;
   flex-direction: row;
   align-items: stretch;
+  min-width: 320px;
+  overflow: hidden;
 
   .scroll-content {
     overflow: auto;

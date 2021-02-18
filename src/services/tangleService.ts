@@ -1,26 +1,27 @@
-import { Bech32Helper, Converter, IIndexationPayload, IMessageMetadata, IMilestonePayload, INodeInfo, ITransactionPayload, SingleNodeClient } from "@iota/iota.js";
+import { Bech32Helper, Converter, IClient, IIndexationPayload, IMessageMetadata, IMilestonePayload, INodeInfo, ITransactionPayload, SingleNodeClient } from "@iota/iota.js";
+import { ServiceFactory } from "../factories/serviceFactory";
 import { ISearchResponse } from "../models/tangle/ISearchResponse";
+import { AuthService } from "./authService";
 
 /**
  * Service to handle api requests.
  */
 export class TangleService {
     /**
-     * The api client.
-     */
-    private readonly _client: SingleNodeClient;
-
-    /**
      * The node info.
      */
     private _nodeInfo?: INodeInfo;
 
     /**
+     * The auth service.
+     */
+    private readonly _authService: AuthService;
+
+    /**
      * Create a new instance of TangleService.
      */
     constructor() {
-        this._client = new SingleNodeClient(
-            `${window.location.protocol}//${window.location.host}`, { basePath: "/api/v1/" });
+        this._authService = ServiceFactory.get<AuthService>("auth");
     }
 
     /**
@@ -28,7 +29,8 @@ export class TangleService {
      * @returns The node info.
      */
     public async info(): Promise<INodeInfo> {
-        this._nodeInfo = await this._client.info();
+        const client = this.buildClient();
+        this._nodeInfo = await client.info();
         return this._nodeInfo;
     }
 
@@ -39,11 +41,12 @@ export class TangleService {
      */
     public async search(query: string): Promise<ISearchResponse> {
         const queryLower = query.toLowerCase();
+        const client = this.buildClient();
 
         try {
             // If the query is an integer then lookup a milestone
             if (/^\d+$/.test(query)) {
-                const milestone = await this._client.milestone(Number.parseInt(query, 10));
+                const milestone = await client.milestone(Number.parseInt(query, 10));
 
                 return {
                     milestone
@@ -56,10 +59,10 @@ export class TangleService {
                 await this.info();
             }
             if (this._nodeInfo && Bech32Helper.matches(queryLower, this._nodeInfo.bech32HRP)) {
-                const address = await this._client.address(queryLower);
+                const address = await client.address(queryLower);
 
                 if (address) {
-                    const addressOutputs = await this._client.addressOutputs(queryLower);
+                    const addressOutputs = await client.addressOutputs(queryLower);
 
                     return {
                         address,
@@ -72,7 +75,7 @@ export class TangleService {
         try {
             // If the query is 64 bytes hex, try and look for a message
             if (Converter.isHex(queryLower) && queryLower.length === 64) {
-                const message = await this._client.message(queryLower);
+                const message = await client.message(queryLower);
 
                 return {
                     message
@@ -83,7 +86,7 @@ export class TangleService {
         try {
             // If the query is 68 bytes hex, try and look for an output
             if (Converter.isHex(queryLower) && queryLower.length === 68) {
-                const output = await this._client.output(queryLower);
+                const output = await client.output(queryLower);
 
                 return {
                     output
@@ -94,9 +97,9 @@ export class TangleService {
         try {
             if (Converter.isHex(queryLower) && queryLower.length === 64) {
                 // We have 64 characters hex so could possible be a raw ed25519 address
-                const address = await this._client.addressEd25519(queryLower);
+                const address = await client.addressEd25519(queryLower);
 
-                const addressOutputs = await this._client.addressEd25519Outputs(queryLower);
+                const addressOutputs = await client.addressEd25519Outputs(queryLower);
 
                 if (addressOutputs.count > 0) {
                     return {
@@ -108,11 +111,20 @@ export class TangleService {
         } catch {}
 
         try {
-            // If the query is between 1 and 64 characters try a indexation lookup
-            if (query.length > 0 && query.length <= 64) {
-                const messages = await this._client.messagesFind(query);
+            if (query.length > 0) {
+                let messages;
 
-                if (messages.count > 0) {
+                // If the query is between 2 and 128 hex chars assume hex encoded bytes
+                if (query.length >= 2 && query.length <= 128 && Converter.isHex(queryLower)) {
+                    messages = await client.messagesFind(Converter.hexToBytes(queryLower));
+                }
+
+                // If not already found and query less than 64 bytes assume its UTF8
+                if (!messages && query.length <= 64) {
+                    messages = await client.messagesFind(query);
+                }
+
+                if (messages && messages.count > 0) {
                     return {
                         indexMessageIds: messages.messageIds
                     };
@@ -131,7 +143,9 @@ export class TangleService {
     public async payload(
         messageId: string): Promise<ITransactionPayload | IIndexationPayload | IMilestonePayload | undefined> {
         try {
-            const message = await this._client.message(messageId);
+            const client = this.buildClient();
+
+            const message = await client.message(messageId);
 
             return message?.payload;
         } catch {}
@@ -147,13 +161,61 @@ export class TangleService {
         childrenIds?: string[];
     } | undefined> {
         try {
-            const metadata = await this._client.messageMetadata(messageId);
-            const children = await this._client.messageChildren(messageId);
+            const client = this.buildClient();
+
+            const metadata = await client.messageMetadata(messageId);
+            const children = await client.messageChildren(messageId);
 
             return {
                 metadata,
                 childrenIds: children ? children.childrenMessageIds : undefined
             };
         } catch {}
+    }
+
+    /**
+     * Add a peer.
+     * @param peerAddress The peer address.
+     * @param peerAlias The peer alias.
+     */
+    public async peerAdd(peerAddress: string, peerAlias: string): Promise<void> {
+        const client = this.buildClient();
+
+        await client.peerAdd(peerAddress, peerAlias);
+    }
+
+    /**
+     * Delete a peer.
+     * @param peerId The peer to delete.
+     */
+    public async peerDelete(peerId: string): Promise<void> {
+        const client = this.buildClient();
+
+        await client.peerDelete(peerId);
+    }
+
+    /**
+     * Build a client with auth header.
+     * @returns The client.
+     */
+    private buildClient(): IClient {
+        const jwt = this._authService.isLoggedIn();
+        const headers: { [id: string]: string} = {};
+
+        if (jwt) {
+            headers.Authorization = `Bearer ${jwt}`;
+        }
+
+        const csrf = this._authService.csrf();
+        if (csrf) {
+            headers["X-CSRF-Token"] = csrf;
+        }
+
+        return new SingleNodeClient(
+            `${window.location.protocol}//${window.location.host}`,
+            {
+                basePath: "/api/v1/",
+                headers
+            });
     }
 }

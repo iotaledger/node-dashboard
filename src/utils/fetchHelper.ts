@@ -10,7 +10,7 @@ export class FetchHelper {
      * @param payload The payload to send.
      * @param headers The headers to include in the fetch.
      * @param timeout Timeout for the request.
-     * @returns The fetched payload.
+     * @returns The fetched payload and any cookies.
      */
     public static async json<T, U>(
         baseUrl: string,
@@ -47,8 +47,11 @@ export class FetchHelper {
                     signal: controller ? controller.signal : undefined
                 });
 
-            const json = await res.json();
-            return json as U;
+            if (res.ok) {
+                const json = await res.json();
+                return json as U;
+            }
+            throw new Error(`Fetched failed: ${res.statusText}`);
         } catch (err) {
             throw err.name === "AbortError" ? new Error("Timeout") : err;
         } finally {

@@ -1,14 +1,20 @@
-import React, { Component, ReactNode } from "react";
+import React, { ReactNode } from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { ServiceFactory } from "../../../factories/serviceFactory";
 import { IDBSizeMetric } from "../../../models/websocket/IDBSizeMetric";
 import { IMpsMetrics } from "../../../models/websocket/IMpsMetrics";
-import { IStatus } from "../../../models/websocket/IStatus";
+import { INodeStatus } from "../../../models/websocket/INodeStatus";
+import { IPublicNodeStatus } from "../../../models/websocket/IPublicNodeStatus";
 import { WebSocketTopic } from "../../../models/websocket/webSocketTopic";
+import { AuthService } from "../../../services/authService";
+import { EventAggregator } from "../../../services/eventAggregator";
 import { MetricsService } from "../../../services/metricsService";
 import { DataHelper } from "../../../utils/dataHelper";
 import { FormatHelper } from "../../../utils/formatHelper";
+import AsyncComponent from "./AsyncComponent";
+import Breakpoint from "./Breakpoint";
 import "./Header.scss";
+import { HeaderProps } from "./HeaderProps";
 import { HeaderState } from "./HeaderState";
 import HealthIndicator from "./HealthIndicator";
 import MicroGraph from "./MicroGraph";
@@ -17,16 +23,26 @@ import SearchInput from "./SearchInput";
 /**
  * Header panel.
  */
-class Header extends Component<RouteComponentProps, HeaderState> {
+class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderState> {
+    /**
+     * The auth service.
+     */
+    private readonly _authService: AuthService;
+
     /**
      * The metrics service.
      */
     private readonly _metricsService: MetricsService;
 
     /**
-     * The status subscription id.
+     * The node status subscription id.
      */
-    private _statusSubscription?: string;
+    private _nodeStatusSubscription?: string;
+
+    /**
+     * The public node status subscription id.
+     */
+    private _publicNodeStatusSubscription?: string;
 
     /**
      * The database size metrics subscription id.
@@ -39,13 +55,14 @@ class Header extends Component<RouteComponentProps, HeaderState> {
     private _mpsMetricsSubscription?: string;
 
     /**
-     * Create a new instance of Home.
+     * Create a new instance of Header.
      * @param props The props.
      */
-    constructor(props: RouteComponentProps) {
+    constructor(props: RouteComponentProps & HeaderProps) {
         super(props);
 
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
+        this._authService = ServiceFactory.get<AuthService>("auth");
 
         this.state = {
             syncHealth: false,
@@ -55,7 +72,8 @@ class Header extends Component<RouteComponentProps, HeaderState> {
             memorySizeFormatted: "-",
             memorySize: [],
             databaseSizeFormatted: "-",
-            databaseSize: []
+            databaseSize: [],
+            isLoggedIn: Boolean(this._authService.isLoggedIn())
         };
     }
 
@@ -63,20 +81,35 @@ class Header extends Component<RouteComponentProps, HeaderState> {
      * The component mounted.
      */
     public componentDidMount(): void {
-        this._statusSubscription = this._metricsService.subscribe<IStatus>(
-            WebSocketTopic.Status,
+        super.componentDidMount();
+
+        EventAggregator.subscribe("auth-state", "header", isLoggedIn => {
+            this.setState({
+                isLoggedIn
+            });
+        });
+
+        this._publicNodeStatusSubscription = this._metricsService.subscribe<IPublicNodeStatus>(
+            WebSocketTopic.PublicNodeStatus,
+            data => {
+                if (data) {
+                    if (data.is_healthy !== this.state.nodeHealth) {
+                        this.setState({ nodeHealth: data.is_healthy });
+                    }
+                    if (data.is_synced !== this.state.syncHealth) {
+                        this.setState({ syncHealth: data.is_synced });
+                    }
+                }
+            });
+
+        this._nodeStatusSubscription = this._metricsService.subscribe<INodeStatus>(
+            WebSocketTopic.NodeStatus,
             data => {
                 if (data) {
                     const memorySizeFormatted = FormatHelper.size(DataHelper.calculateMemoryUsage(data), 1);
 
                     if (memorySizeFormatted !== this.state.memorySizeFormatted) {
                         this.setState({ memorySizeFormatted });
-                    }
-                    if (data.is_healthy !== this.state.nodeHealth) {
-                        this.setState({ nodeHealth: data.is_healthy });
-                    }
-                    if (data.is_synced !== this.state.syncHealth) {
-                        this.setState({ syncHealth: data.is_synced });
                     }
                 }
             },
@@ -129,9 +162,18 @@ class Header extends Component<RouteComponentProps, HeaderState> {
      * The component will unmount.
      */
     public componentWillUnmount(): void {
-        if (this._statusSubscription) {
-            this._metricsService.unsubscribe(this._statusSubscription);
-            this._statusSubscription = undefined;
+        super.componentWillUnmount();
+
+        EventAggregator.unsubscribe("auth-state", "header");
+
+        if (this._publicNodeStatusSubscription) {
+            this._metricsService.unsubscribe(this._publicNodeStatusSubscription);
+            this._publicNodeStatusSubscription = undefined;
+        }
+
+        if (this._nodeStatusSubscription) {
+            this._metricsService.unsubscribe(this._nodeStatusSubscription);
+            this._nodeStatusSubscription = undefined;
         }
 
         if (this._databaseSizeSubscription) {
@@ -153,39 +195,48 @@ class Header extends Component<RouteComponentProps, HeaderState> {
         return (
             <header className="header">
                 <div className="content">
+                    {this.props.children}
                     <SearchInput
                         compact={true}
                         onSearch={query => this.props.history.push(`/explorer/search/${query}`)}
                         className="child child-fill"
                     />
-                    <HealthIndicator
-                        label="Health"
-                        healthy={this.state.nodeHealth}
-                        className="child"
-                    />
-                    <HealthIndicator
-                        label="Sync"
-                        healthy={this.state.syncHealth}
-                        className="child"
-                    />
-                    <MicroGraph
-                        label="MPS"
-                        value={this.state.mps}
-                        values={this.state.mpsValues}
-                        className="child"
-                    />
-                    <MicroGraph
-                        label="Database"
-                        value={this.state.databaseSizeFormatted}
-                        values={this.state.databaseSize}
-                        className="child"
-                    />
-                    <MicroGraph
-                        label="Memory"
-                        value={this.state.memorySizeFormatted}
-                        values={this.state.memorySize}
-                        className="child"
-                    />
+                    <Breakpoint size="tablet" aboveBelow="above">
+                        <HealthIndicator
+                            label="Health"
+                            healthy={this.state.nodeHealth}
+                            className="child"
+                        />
+                        <HealthIndicator
+                            label="Sync"
+                            healthy={this.state.syncHealth}
+                            className="child"
+                        />
+                    </Breakpoint>
+                    <Breakpoint size="desktop" aboveBelow="above">
+                        <MicroGraph
+                            label="MPS"
+                            value={this.state.mps}
+                            values={this.state.mpsValues}
+                            className="child"
+                        />
+                        {this.state.isLoggedIn && (
+                            <React.Fragment>
+                                <MicroGraph
+                                    label="Database"
+                                    value={this.state.databaseSizeFormatted}
+                                    values={this.state.databaseSize}
+                                    className="child"
+                                />
+                                <MicroGraph
+                                    label="Memory"
+                                    value={this.state.memorySizeFormatted}
+                                    values={this.state.memorySize}
+                                    className="child"
+                                />
+                            </React.Fragment>
+                        )}
+                    </Breakpoint>
                 </div>
             </header>
         );

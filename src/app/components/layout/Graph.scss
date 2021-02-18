@@ -1,4 +1,5 @@
 @import '../../../scss/fonts';
+@import '../../../scss/media-queries';
 @import '../../../scss/variables';
 
 .graph {
@@ -56,11 +57,15 @@
 
       .key-label {
         @include font-size(10px);
-        margin-left: $spacing-small;
 
+        margin-left: $spacing-small;
         color: var(--text-color-secondary);
         font-family: $font-sans;
         font-weight: 500;
+      }
+
+      @include tablet-down {
+        display: none;
       }
     }
   }

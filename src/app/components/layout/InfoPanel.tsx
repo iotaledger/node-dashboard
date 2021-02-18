@@ -18,8 +18,8 @@ class InfoPanel extends Component<InfoPanelProps> {
                     <div className={`icon-background icon-background--${this.props.backgroundStyle}`} />
                     {this.props.icon}
                 </div>
-                <div className="col">
-                    <h4 className="margin-t-s">{this.props.caption}</h4>
+                <div className="col info--labels">
+                    <h4>{this.props.caption}</h4>
                     <div className="value">{this.props.value ?? "-"}</div>
                 </div>
             </div>

@@ -1,8 +1,13 @@
 @import './variables';
+@import './media-queries';
 
 .row {
   display: flex;
   flex-direction: row;
+
+  &.start {
+    justify-content: flex-start;
+  }
 
   &.middle {
     align-items: center;
@@ -23,11 +28,78 @@
   &.spread {
     justify-content: space-between;
   }
+
+  &.wrap {
+    flex-wrap: wrap;
+  }
 }
 
 .col {
   display: flex;
   flex-direction: column;
+}
+
+.col,
+.row {
+  @include phone-down {
+    &.phone-down-column {
+      flex-direction: column;
+    }
+
+    &.start {
+      align-items: flex-start;
+    }
+  }
+
+  @include tablet-down {
+    &.tablet-down-column {
+      flex-direction: column;
+    }
+
+    &.start {
+      align-items: flex-start;
+    }
+  }
+
+  @include tablet-down-only {
+    &.tablet-down-only-column {
+      flex-direction: column;
+
+      &.start {
+        align-items: flex-start;
+      }
+    }
+  }
+
+  @include desktop-down {
+    &.desktop-down-column {
+      flex-direction: column;
+    }
+  }
+
+  @include phone-down {
+    &.phone-down-row {
+      flex-direction: row;
+    }
+  }
+
+  @include tablet-down {
+    &.tablet-down-row {
+      flex-direction: row;
+    }
+  }
+
+  @include tablet-down-only {
+    &.tablet-down-only-row {
+      flex-direction: row;
+    }
+  }
+
+  @include desktop-down {
+    &.desktop-down-row {
+      flex-direction: row;
+    }
+  }
 }
 
 .fill {

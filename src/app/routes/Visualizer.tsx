@@ -11,6 +11,7 @@ import { IVisualizerCounts } from "../../models/visualizer/IVisualizerCounts";
 import { IVisualizerVertex } from "../../models/visualizer/IVisualizerVertex";
 import { IMpsMetrics } from "../../models/websocket/IMpsMetrics";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
+import { EventAggregator } from "../../services/eventAggregator";
 import { MetricsService } from "../../services/metricsService";
 import { TangleService } from "../../services/tangleService";
 import { ThemeService } from "../../services/themeService";
@@ -45,8 +46,14 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
         light: 0xDDDDDDFF
     };
 
+    /**
+     * Children link color.
+     */
     private static readonly COLOR_LINK_CHILDREN = 0xFF5AAAFF;
 
+    /**
+     * Parent link color.
+     */
     private static readonly COLOR_LINK_PARENTS = 0x0000FFFF;
 
     /**
@@ -93,11 +100,6 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      * The mps metrics subscription id.
      */
     private _mpsMetricsSubscription?: string;
-
-    /**
-     * The theme subscription id.
-     */
-    private _themeSubscriptionId?: string;
 
     /**
      * The resize method
@@ -176,8 +178,10 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                 }
             });
 
-        this._themeSubscriptionId = this._themeService.subscribe(() => {
-            this.setState({ theme: this._themeService.get() }, () => this.styleAllLinks());
+        EventAggregator.subscribe("theme", "visualizer", theme => {
+            this.setState({
+                theme
+            }, () => this.styleAllLinks());
         });
     }
 
@@ -192,10 +196,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
             this._mpsMetricsSubscription = undefined;
         }
 
-        if (this._themeSubscriptionId) {
-            this._themeService.unsubscribe(this._themeSubscriptionId);
-            this._themeSubscriptionId = undefined;
-        }
+        EventAggregator.unsubscribe("theme", "visualizer");
 
         this._graph = undefined;
         this._graphics = undefined;

@@ -1,11 +1,16 @@
 @import '../../scss/card';
 @import '../../scss/fonts';
+@import '../../scss/media-queries';
 
 .home {
   display: flex;
   flex: 1;
   justify-content: center;
   padding: 60px;
+
+  @include desktop-down {
+    padding: $spacing-small;
+  }
 
   .content {
     flex: 1;
@@ -15,16 +20,30 @@
       flex: 1;
       height: 140px;
 
+      @include desktop-down {
+        height: unset;
+      }
+
       .node-info {
         display: flex;
         flex: 1;
         flex-direction: column;
         justify-content: space-between;
         padding: $spacing-small;
+
+        @include desktop-down {
+          * + .secondary {
+            margin-top: $spacing-tiny;
+          }
+        }
       }
 
       .banner-curve {
         color: var(--panel-background-highlight);
+
+        @include desktop-down {
+          display: none;
+        }
       }
 
       .banner-image {
@@ -32,8 +51,12 @@
         flex: 1;
         align-items: center;
         justify-content: center;
-        border-radius:  0 16px 16px 0;
+        border-radius: 0 16px 16px 0;
         background-color: var(--panel-background-highlight);
+
+        @include desktop-down {
+          display: none;
+        }
       }
     }
 
@@ -43,9 +66,40 @@
       }
     }
 
+    .info-col {
+      width: 66%;
+      overflow: hidden;
+
+      @include desktop-down {
+        width: unset;
+      }
+    }
+
+    .peers-summary-col {
+      width: 33%;
+      overflow: hidden;
+
+      @include desktop-down {
+        width: unset;
+      }
+    }
+
     .peers-summary-panel {
-      // flex: 1;
-      min-width: 350px;
+      margin-left: $spacing-small;
+
+      @include desktop-down {
+        margin-top: $spacing-small;
+        margin-left: 0;
+      }
+    }
+
+    .info-panel + .info-panel {
+      margin-left: $spacing-small;
+
+      @include tablet-down {
+        margin-top: $spacing-small;
+        margin-left: 0;
+      }
     }
   }
 }
