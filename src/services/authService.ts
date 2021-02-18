@@ -22,7 +22,19 @@ export class AuthService {
      */
     constructor() {
         this._jwt = undefined;
-        this._csrf = undefined;
+
+        if (document.cookie) {
+            const cookies = document.cookie.split(";");
+
+            const csrf = cookies.find(c => c.trim().startsWith("_csrf"));
+
+            if (csrf) {
+                const parts = csrf.split("=");
+                if (parts.length === 2) {
+                    this._csrf = parts[1];
+                }
+            }
+        }
     }
 
     /**
@@ -52,6 +64,11 @@ export class AuthService {
         this.logout();
 
         try {
+            const headers: Record<string, string> = {};
+            if (this._csrf) {
+                headers["X-XSRF-TOKEN"] = this._csrf;
+            }
+
             const response = await FetchHelper.json<{
                 user?: string;
                 password?: string;
@@ -66,21 +83,12 @@ export class AuthService {
                     user,
                     password,
                     jwt
-                });
+                },
+                headers);
 
-            if (response.responseData.jwt) {
+            if (response.jwt) {
                 const storageService = ServiceFactory.get<LocalStorageService>("storage");
-                this._jwt = response.responseData.jwt;
-                if (response.cookies) {
-                    const csrfCookie = response.cookies.find(c => c.startsWith("_csrf"));
-                    if (csrfCookie) {
-                        const parts = csrfCookie.split(";");
-                        const keyValue = parts[0].split("=");
-                        if (keyValue.length === 2) {
-                            this._csrf = keyValue[1];
-                        }
-                    }
-                }
+                this._jwt = response.jwt;
                 storageService.save<string>("dashboard-jwt", this._jwt);
                 EventAggregator.publish("auth-state", true);
             }

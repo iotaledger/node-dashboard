@@ -68,7 +68,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                     authHeaders);
 
 
-                if (res.responseData.data) {
+                if (res.data) {
                     Spammer._isAvailable = true;
                 }
             }
@@ -213,16 +213,16 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                 undefined,
                 Spammer.buildAuthHeaders());
 
-            if (response.responseData.data) {
+            if (response.data) {
                 this.setState({
-                    isRunning: response.responseData.data.running,
-                    mps: response.responseData.data.mpsRateLimit.toString(),
-                    cpu: (response.responseData.data.cpuMaxUsage * 100).toString(),
-                    workers: response.responseData.data.spammerWorkers.toString(),
-                    workersMax: response.responseData.data.spammerWorkersMax
+                    isRunning: response.data.running,
+                    mps: response.data.mpsRateLimit.toString(),
+                    cpu: (response.data.cpuMaxUsage * 100).toString(),
+                    workers: response.data.spammerWorkers.toString(),
+                    workersMax: response.data.spammerWorkersMax
                 });
             } else {
-                console.log(response.responseData.error);
+                console.log(response.error);
             }
         } catch (err) {
             console.log(err);
@@ -272,15 +272,15 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                 undefined,
                 Spammer.buildAuthHeaders());
 
-            if (response.responseData.data) {
+            if (response.data) {
                 this.setState({
-                    isRunning: response.responseData.data.running,
-                    mps: response.responseData.data.mpsRateLimit.toString(),
-                    cpu: (response.responseData.data.cpuMaxUsage * 100).toString(),
-                    workers: response.responseData.data.spammerWorkers.toString()
+                    isRunning: response.data.running,
+                    mps: response.data.mpsRateLimit.toString(),
+                    cpu: (response.data.cpuMaxUsage * 100).toString(),
+                    workers: response.data.spammerWorkers.toString()
                 });
             } else {
-                console.log(response.responseData.error);
+                console.log(response.error);
             }
         } catch (err) {
             console.log(err);
@@ -304,15 +304,15 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                 undefined,
                 Spammer.buildAuthHeaders());
 
-            if (response.responseData.data) {
+            if (response.data) {
                 this.setState({
-                    isRunning: response.responseData.data.running,
-                    mps: response.responseData.data.mpsRateLimit.toString(),
-                    cpu: (response.responseData.data.cpuMaxUsage * 100).toString(),
-                    workers: response.responseData.data.spammerWorkers.toString()
+                    isRunning: response.data.running,
+                    mps: response.data.mpsRateLimit.toString(),
+                    cpu: (response.data.cpuMaxUsage * 100).toString(),
+                    workers: response.data.spammerWorkers.toString()
                 });
             } else {
-                console.log(response.responseData.error);
+                console.log(response.error);
             }
         } catch (err) {
             console.log(err);

@@ -19,10 +19,7 @@ export class FetchHelper {
         payload?: T,
         headers?: { [id: string]: string },
         timeout?: number
-    ): Promise<{
-        responseData: U;
-        cookies?: string[];
-    }> {
+    ): Promise<U> {
         headers = headers ?? {};
         headers["Content-Type"] = "application/json";
 
@@ -52,15 +49,7 @@ export class FetchHelper {
 
             if (res.ok) {
                 const json = await res.json();
-                let cookies;
-                const setCookieHeader = res.headers.get("set-cookie");
-                if (setCookieHeader) {
-                    cookies = setCookieHeader.split(",");
-                }
-                return {
-                    responseData: json as U,
-                    cookies
-                };
+                return json as U;
             }
             throw new Error(`Fetched failed: ${res.statusText}`);
         } catch (err) {
