@@ -74,58 +74,67 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                     };
                 } = {};
 
-                for (const allDataPeers of allData) {
-                    if (allDataPeers) {
-                        for (const peer of allDataPeers) {
-                            const name = DataHelper.formatPeerName(peer);
-                            const address = DataHelper.formatPeerAddress(peer);
-                            const health = DataHelper.calculateHealth(peer);
+                if (allData.length > 0) {
+                    // Only track data for the peers that appear in the most recent list.
+                    const finalPeerIds = new Set(allData[allData.length - 1].map(p => p.id));
 
-                            if (!peers[peer.id]) {
-                                peers[peer.id] = {
-                                    id: peer.id,
-                                    name,
-                                    address,
-                                    health,
-                                    relation: peer.relation,
-                                    newMessagesTotal: [],
-                                    sentMessagesTotal: [],
-                                    newMessagesDiff: [],
-                                    sentMessagesDiff: [],
-                                    lastUpdateTime: 0
-                                };
-                            } else {
-                                peers[peer.id].name = name;
-                                peers[peer.id].address = address;
-                                peers[peer.id].health = health;
-                            }
-                            peers[peer.id].id = peer.id;
-                            peers[peer.id].relation = peer.relation;
-                            peers[peer.id].lastUpdateTime = Date.now();
-                            if (peer.multiAddresses?.length) {
-                                peers[peer.id].originalAddress = peer.multiAddresses[0];
-                            }
+                    for (const allDataPeers of allData) {
+                        if (allDataPeers) {
+                            for (const peer of allDataPeers) {
+                                if (finalPeerIds.has(peer.id)) {
+                                    const name = DataHelper.formatPeerName(peer);
+                                    const address = DataHelper.formatPeerAddress(peer);
+                                    const health = DataHelper.calculateHealth(peer);
 
-                            if (peer.gossip) {
-                                peers[peer.id].newMessagesTotal.push(peer.gossip.metrics.newMessages);
-                                peers[peer.id].sentMessagesTotal.push(peer.gossip.metrics.sentMessages);
-                            }
+                                    if (!peers[peer.id]) {
+                                        peers[peer.id] = {
+                                            id: peer.id,
+                                            name,
+                                            address,
+                                            health,
+                                            relation: peer.relation,
+                                            newMessagesTotal: [],
+                                            sentMessagesTotal: [],
+                                            newMessagesDiff: [],
+                                            sentMessagesDiff: [],
+                                            lastUpdateTime: 0
+                                        };
+                                    } else {
+                                        peers[peer.id].name = name;
+                                        peers[peer.id].address = address;
+                                        peers[peer.id].health = health;
+                                    }
+                                    peers[peer.id].id = peer.id;
+                                    peers[peer.id].relation = peer.relation;
+                                    peers[peer.id].lastUpdateTime = Date.now();
+                                    if (peer.multiAddresses?.length) {
+                                        peers[peer.id].originalAddress = peer.multiAddresses[0];
+                                    }
 
-                            peers[peer.id].newMessagesDiff = [];
-                            for (let i = 1; i < peers[peer.id].newMessagesTotal.length; i++) {
-                                peers[peer.id].newMessagesDiff.push(
-                                    Math.max(
-                                        peers[peer.id].newMessagesTotal[i] - peers[peer.id].newMessagesTotal[i - 1]
-                                        , 0)
-                                );
-                            }
-                            peers[peer.id].sentMessagesDiff = [];
-                            for (let i = 1; i < peers[peer.id].sentMessagesTotal.length; i++) {
-                                peers[peer.id].sentMessagesDiff.push(
-                                    Math.max(
-                                        peers[peer.id].sentMessagesTotal[i] - peers[peer.id].sentMessagesTotal[i - 1]
-                                        , 0)
-                                );
+                                    if (peer.gossip) {
+                                        peers[peer.id].newMessagesTotal.push(peer.gossip.metrics.newMessages);
+                                        peers[peer.id].sentMessagesTotal.push(peer.gossip.metrics.sentMessages);
+                                    }
+
+                                    peers[peer.id].newMessagesDiff = [];
+                                    for (let i = 1; i < peers[peer.id].newMessagesTotal.length; i++) {
+                                        peers[peer.id].newMessagesDiff.push(
+                                            Math.max(
+                                                peers[peer.id].newMessagesTotal[i] -
+                                                peers[peer.id].newMessagesTotal[i - 1]
+                                                , 0)
+                                        );
+                                    }
+                                    peers[peer.id].sentMessagesDiff = [];
+                                    for (let i = 1; i < peers[peer.id].sentMessagesTotal.length; i++) {
+                                        peers[peer.id].sentMessagesDiff.push(
+                                            Math.max(
+                                                peers[peer.id].sentMessagesTotal[i] -
+                                                peers[peer.id].sentMessagesTotal[i - 1]
+                                                , 0)
+                                        );
+                                    }
+                                }
                             }
                         }
                     }
