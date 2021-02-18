@@ -553,7 +553,7 @@ module.exports = {
             "off"
         ],
         "linebreak-style": [
-            "error"
+            "off"
         ],
         "lines-around-comment": [
             "off"
