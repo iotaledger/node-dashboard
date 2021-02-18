@@ -66,7 +66,7 @@ export class AuthService {
         try {
             const headers: Record<string, string> = {};
             if (this._csrf) {
-                headers["X-XSRF-TOKEN"] = this._csrf;
+                headers["X-CSRF-Token"] = this._csrf;
             }
 
             const response = await FetchHelper.json<{

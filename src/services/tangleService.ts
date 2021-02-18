@@ -197,7 +197,7 @@ export class TangleService {
             headers.Authorization = `Bearer ${loginData.jwt}`;
         }
         if (loginData?.csrf) {
-            headers["X-XSRF-TOKEN"] = loginData.csrf;
+            headers["X-CSRF-Token"] = loginData.csrf;
         }
 
         return new SingleNodeClient(

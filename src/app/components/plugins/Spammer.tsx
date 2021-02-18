@@ -109,7 +109,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
         if (loginData) {
             headers.Authorization = `Bearer ${loginData.jwt}`;
             if (loginData.csrf) {
-                headers["X-XSRF-TOKEN"] = loginData.csrf;
+                headers["X-CSRF-Token"] = loginData.csrf;
             }
         }
 
