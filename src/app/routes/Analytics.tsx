@@ -791,9 +791,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
             tabs.push("Spammer");
         }
 
-        if (this._authService.isLoggedIn()) {
-            tabs.push("Log");
-        }
+        tabs.push("Log");
 
         return tabs;
     }

@@ -190,14 +190,16 @@ export class TangleService {
      * @returns The client.
      */
     private buildClient(): IClient {
-        const loginData = this._authService.isLoggedIn();
+        const jwt = this._authService.isLoggedIn();
         const headers: { [id: string]: string} = {};
 
-        if (loginData?.jwt) {
-            headers.Authorization = `Bearer ${loginData.jwt}`;
+        if (jwt) {
+            headers.Authorization = `Bearer ${jwt}`;
         }
-        if (loginData?.csrf) {
-            headers["X-CSRF-Token"] = loginData.csrf;
+
+        const csrf = this._authService.csrf();
+        if (csrf) {
+            headers["X-CSRF-Token"] = csrf;
         }
 
         return new SingleNodeClient(

@@ -105,12 +105,13 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
         const authService = ServiceFactory.get<AuthService>("auth");
 
         const headers: Record<string, string> = {};
-        const loginData = authService.isLoggedIn();
-        if (loginData) {
-            headers.Authorization = `Bearer ${loginData.jwt}`;
-            if (loginData.csrf) {
-                headers["X-CSRF-Token"] = loginData.csrf;
-            }
+        const jwt = authService.isLoggedIn();
+        if (jwt) {
+            headers.Authorization = `Bearer ${jwt}`;
+        }
+        const csrf = authService.csrf();
+        if (csrf) {
+            headers["X-CSRF-Token"] = csrf;
         }
 
         return headers;

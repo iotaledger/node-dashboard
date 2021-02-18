@@ -116,13 +116,15 @@ export class AuthService {
      * Get the jwt.
      * @returns The jwt if logged in.
      */
-    public isLoggedIn(): {
-        jwt: string;
-        csrf?: string;
-    } | undefined {
-        return this._jwt ? {
-            jwt: this._jwt,
-            csrf: this._csrf
-        } : undefined;
+    public isLoggedIn(): string | undefined {
+        return this._jwt;
+    }
+
+    /**
+     * Get the csrf.
+     * @returns The csrf.
+     */
+    public csrf(): string | undefined {
+        return this._csrf;
     }
 }
