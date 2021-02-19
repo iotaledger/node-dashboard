@@ -174,7 +174,7 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                             className="add-button"
                             onClick={() => this.setState({
                                 dialogType: "add",
-                                dialogPeerId: undefined,
+                                dialogPeerId: "",
                                 peerAddress: "",
                                 peerAlias: ""
                             })}
@@ -236,7 +236,8 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                                 className="card--action margin-t-s"
                                                 onClick={() => this.setState({
                                                     dialogType: "promote",
-                                                    peerAddress: p.originalAddress ?? ""
+                                                    peerAddress: p.originalAddress ?? "",
+                                                    dialogPeerId: p.id
                                                 })}
                                             >
                                                 Promote to Known
@@ -274,7 +275,8 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                     key={0}
                                     disabled={this.state.dialogBusy || (
                                         (this.state.dialogType === "add" || this.state.dialogType === "promote") &&
-                                        this.state.peerAddress.length === 0
+                                        (this.state.peerAddress.trim().length === 0 ||
+                                            this.state.dialogPeerId?.trim().length === 0)
                                     )}
                                 >
                                     {(this.state.dialogType === "add" || this.state.dialogType === "promote")
@@ -311,6 +313,19 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                             value={this.state.peerAddress}
                                             disabled={this.state.dialogBusy}
                                             onChange={e => this.setState({ peerAddress: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="dialog--label">
+                                        Id
+                                    </div>
+                                    <div className="dialog--value">
+                                        <input
+                                            type="text"
+                                            className="input--stretch"
+                                            placeholder="12D3KooWC7uE9w3RN4Vh1FJAZa8SbE8yMWR6wCVBajcWpyWguV73"
+                                            value={this.state.dialogPeerId}
+                                            disabled={this.state.dialogBusy}
+                                            onChange={e => this.setState({ dialogPeerId: e.target.value })}
                                         />
                                     </div>
                                     <div className="dialog--label">
@@ -357,7 +372,12 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
             const tangleService = ServiceFactory.get<TangleService>("tangle");
 
             try {
-                await tangleService.peerAdd(this.state.peerAddress, this.state.peerAlias);
+                let addr = this.state.peerAddress;
+                if (!addr.endsWith("/")) {
+                    addr += "/";
+                }
+                addr += `p2p/${this.state.dialogPeerId}`;
+                await tangleService.peerAdd(addr, this.state.peerAlias);
 
                 this.setState({
                     dialogBusy: false,
