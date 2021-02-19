@@ -322,7 +322,7 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                         <input
                                             type="text"
                                             className="input--stretch"
-                                            placeholder="12D3KooWC7uE9w3RN4Vh1FJAZa8SbE8yMWR6wCVBajcWpyWguV73"
+                                            placeholder="e.g. 12D3KooWC7uE9w3RN4Vh1FJAZa8SbE8yMWR6wCVBajcWpyWguV73"
                                             value={this.state.dialogPeerId}
                                             disabled={this.state.dialogBusy}
                                             onChange={e => this.setState({ dialogPeerId: e.target.value })}
