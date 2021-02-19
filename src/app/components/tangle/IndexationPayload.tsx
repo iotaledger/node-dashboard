@@ -39,9 +39,11 @@ class IndexationPayload extends Component<IndexationPayloadProps, IndexationPayl
         this.state = {
             utf8Index,
             hexIndex,
+            indexLengthBytes: props.payload.index.length / 2,
             utf8Data,
             hexData,
-            jsonData
+            jsonData,
+            dataLengthBytes: props.payload.data ? props.payload.data.length / 2 : 0
         };
     }
 
@@ -54,7 +56,7 @@ class IndexationPayload extends Component<IndexationPayloadProps, IndexationPayl
             <div className="indexation-payload">
                 <h2>Indexation Payload</h2>
                 <div className="card--label row middle">
-                    <span className="margin-r-t">Index UTF8</span>
+                    <span className="margin-r-t">Index UTF8 [{this.state.indexLengthBytes}]</span>
                     <MessageButton
                         onClick={() => ClipboardHelper.copy(
                             this.state.utf8Index
@@ -73,7 +75,7 @@ class IndexationPayload extends Component<IndexationPayloadProps, IndexationPayl
                     </Link>
                 </div>
                 <div className="card--label row middle">
-                    <span className="margin-r-t">Index Hex</span>
+                    <span className="margin-r-t">Index Hex [{this.state.indexLengthBytes}]</span>
                     <MessageButton
                         onClick={() => ClipboardHelper.copy(
                             this.state.hexIndex.replace(/ /g, "")
@@ -88,7 +90,7 @@ class IndexationPayload extends Component<IndexationPayloadProps, IndexationPayl
                 {!this.state.jsonData && this.state.utf8Data && (
                     <React.Fragment>
                         <div className="card--label row bottom spread">
-                            Data UTF8
+                            <span className="margin-r-t">Data UTF8 [{this.state.dataLengthBytes}]</span>
                             <MessageButton
                                 onClick={() => ClipboardHelper.copy(
                                     this.state.utf8Data
@@ -122,7 +124,7 @@ class IndexationPayload extends Component<IndexationPayloadProps, IndexationPayl
                 {this.state.hexData && (
                     <React.Fragment>
                         <div className="card--label row middle">
-                            <span className="margin-r-t">Data Hex</span>
+                            <span className="margin-r-t">Data Hex [{this.state.dataLengthBytes}]</span>
                             <MessageButton
                                 onClick={() => ClipboardHelper.copy(
                                     this.state.hexData?.replace(/ /g, "")
