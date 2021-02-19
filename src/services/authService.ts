@@ -15,7 +15,7 @@ export class AuthService {
     /**
      * The csrf cookie from the login operation.
      */
-    private _csrf?: string;
+    private readonly _csrf?: string;
 
     /**
      * Create a new instance of AuthService.
@@ -107,7 +107,6 @@ export class AuthService {
             const storageService = ServiceFactory.get<LocalStorageService>("storage");
             storageService.remove("dashboard-jwt");
             this._jwt = undefined;
-            this._csrf = undefined;
             EventAggregator.publish("auth-state", false);
         }
     }
