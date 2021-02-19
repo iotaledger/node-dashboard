@@ -1,4 +1,4 @@
-import { INDEXATION_PAYLOAD_TYPE, MILESTONE_PAYLOAD_TYPE, SIG_LOCKED_SINGLE_OUTPUT_TYPE, TRANSACTION_PAYLOAD_TYPE, UnitsHelper } from "@iota/iota.js";
+import { Converter, INDEXATION_PAYLOAD_TYPE, MILESTONE_PAYLOAD_TYPE, SIG_LOCKED_SINGLE_OUTPUT_TYPE, TRANSACTION_PAYLOAD_TYPE, UnitsHelper } from "@iota/iota.js";
 import classNames from "classnames";
 import React, { ReactNode } from "react";
 import { RouteComponentProps } from "react-router-dom";
@@ -372,10 +372,28 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                                     this.state.selected.payload.type === INDEXATION_PAYLOAD_TYPE && (
                                         <React.Fragment>
                                             <div className="card--label">
-                                                Index
+                                                Index UTF8
                                             </div>
                                             <div className="card--value">
-                                                {this.state.selected.payload.index}
+                                                <a
+                                                    href={this.calculateIndexedLink(this.state.selected.payload.index)}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    {Converter.hexToUtf8(this.state.selected.payload.index)}
+                                                </a>
+                                            </div>
+                                            <div className="card--label">
+                                                Index Hex
+                                            </div>
+                                            <div className="card--value">
+                                                <a
+                                                    href={this.calculateIndexedLink(this.state.selected.payload.index)}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    {this.state.selected.payload.index}
+                                                </a>
                                             </div>
                                         </React.Fragment>
                                     )}
@@ -772,6 +790,15 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
         return vertex?.fullId
             ? `${window.location.protocol}//${window.location.host}/explorer/message/${vertex.fullId}`
             : "";
+    }
+
+    /**
+     * Calculate the link for the index.
+     * @param index The payload index.
+     * @returns The url for the index.
+     */
+    private calculateIndexedLink(index: string): string {
+        return `${window.location.protocol}//${window.location.host}/explorer/indexed/${index}`;
     }
 
     /**
