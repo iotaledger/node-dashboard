@@ -12,6 +12,11 @@ export interface ISearchResponse {
     indexMessageIds?: string[];
 
     /**
+     * Index type if result from indexation.
+     */
+    indexMessageType?: "utf8" | "hex" | undefined;
+
+    /**
      * Address if it was found.
      */
     address?: IAddressResponse;

@@ -57,7 +57,7 @@ class IndexationPayload extends Component<IndexationPayloadProps, IndexationPayl
                     <span className="margin-r-t">Index UTF8</span>
                     <MessageButton
                         onClick={() => ClipboardHelper.copy(
-                            this.props.payload.index
+                            this.state.utf8Index
                         )}
                         buttonType="copy"
                         labelPosition="right"
