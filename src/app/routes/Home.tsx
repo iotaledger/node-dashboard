@@ -242,7 +242,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
                     </div>
                     <div className="row fill margin-t-s desktop-down-column">
                         <div className="col info-col fill">
-                            <div className="row fill tablet-down-column">
+                            <div className="row tablet-down-column">
                                 <InfoPanel
                                     caption="LSMI / LMI"
                                     value={`${this.state.lsmi} / ${this.state.lmi}`}
@@ -256,7 +256,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                     backgroundStyle="orange"
                                 />
                             </div>
-                            <div className="row fill margin-t-s tablet-down-column">
+                            <div className="row margin-t-s tablet-down-column">
                                 <InfoPanel
                                     caption="Uptime"
                                     value={this.state.uptime}
@@ -270,7 +270,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                     backgroundStyle="purple"
                                 />
                             </div>
-                            <div className="row fill margin-t-s">
+                            <div className="row margin-t-s">
                                 <div className="card fill messages-graph-panel">
                                     <Graph
                                         caption="Messages Per Second"
