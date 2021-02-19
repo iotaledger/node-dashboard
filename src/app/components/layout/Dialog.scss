@@ -25,7 +25,7 @@
   .dialog {
     display: flex;
     flex-direction: column;
-    min-width: 500px;
+    width: 500px;
     min-height: 400px;
     padding: 20px;
     border: 1px solid var(--panel-border);

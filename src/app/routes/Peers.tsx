@@ -268,14 +268,17 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                 <button
                                     type="button"
                                     onClick={() =>
-                                    (this.state.dialogType === "add" ? this.peerAdd() : this.peerDelete()
+                                    (this.state.dialogType === "add" || this.state.dialogType === "promote"
+                                        ? this.peerAdd() : this.peerDelete()
                                     )}
                                     key={0}
                                     disabled={this.state.dialogBusy || (
-                                        this.state.dialogType === "add" && this.state.peerAddress.length === 0
+                                        (this.state.dialogType === "add" || this.state.dialogType === "promote") &&
+                                        this.state.peerAddress.length === 0
                                     )}
                                 >
-                                    {this.state.dialogType === "add" ? "OK" : "Yes"}
+                                    {(this.state.dialogType === "add" || this.state.dialogType === "promote")
+                                        ? "OK" : "Yes"}
                                 </button>,
                                 <button
                                     type="button"
@@ -286,7 +289,8 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                     key={1}
                                     disabled={this.state.dialogBusy}
                                 >
-                                    {this.state.dialogType === "add" ? "Cancel" : "No"}
+                                    {(this.state.dialogType === "add" || this.state.dialogType === "promote")
+                                        ? "Cancel" : "No"}
                                 </button>
                             ]}
                         >
