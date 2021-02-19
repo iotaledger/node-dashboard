@@ -124,8 +124,14 @@ export class WebSocketService {
         for (const topic of topics) {
             this.unsubscribeTopic(topic);
         }
-        for (const topic of topics) {
-            this.subscribeTopic(topic);
+
+        // If the socket is not yet open dont subscribe again
+        // when the socket open completes the subscribeTopics will
+        // be called automatically
+        if (this._webSocket && this._webSocket.readyState === WebSocket.OPEN) {
+            for (const topic of topics) {
+                this.subscribeTopic(topic);
+            }
         }
     }
 
@@ -234,7 +240,7 @@ export class WebSocketService {
             view[0] = 1; // unregister
             view[1] = topicId;
 
-            if (this._webSocket) {
+            if (this._webSocket && this._webSocket.readyState === WebSocket.OPEN) {
                 this._webSocket.send(arrayBuf);
             }
         }
