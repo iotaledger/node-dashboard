@@ -105,6 +105,8 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
             isLoggedIn: Boolean(this._authService.isLoggedIn()),
             theme: this._themeService.get()
         };
+
+        this.updateTitle();
     }
 
     /**

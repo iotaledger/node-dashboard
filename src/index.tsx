@@ -1,6 +1,5 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { Helmet } from "react-helmet";
 import { BrowserRouter } from "react-router-dom";
 import App from "./app/App";
 import Spammer from "./app/components/plugins/Spammer";
@@ -25,42 +24,6 @@ initServices()
                 ? (<div>REACT_APP_BRAND_ID is not set</div>)
                 : (
                     <BrowserRouter>
-                        <Helmet>
-                            <link
-                                rel="apple-touch-icon"
-                                sizes="180x180"
-                                href={`/branding/${brandConfiguration?.name.toLowerCase()
-                                    }/favicon/apple-touch-icon.png`}
-                            />
-                            <link
-                                rel="icon"
-                                type="image/png"
-                                sizes="32x32"
-                                href={`/branding/${brandConfiguration?.name.toLowerCase()
-                                    }/favicon/favicon-32x32.png`}
-                            />
-                            <link
-                                rel="icon"
-                                type="image/png"
-                                sizes="16x16"
-                                href={`/branding/${brandConfiguration?.name.toLowerCase()
-                                    }/favicon/favicon-16x16.png`}
-                            />
-                            <link
-                                rel="manifest"
-                                href={`/branding/${brandConfiguration?.name.toLowerCase()
-                                    }/favicon/site.webmanifest`}
-                            />
-                            <link
-                                rel="mask-icon"
-                                href={`/branding/${brandConfiguration?.name.toLowerCase()
-                                    }/favicon/safari-pinned-tab.svg`}
-                                color="#485776"
-                            />
-                            <title>{brandConfiguration?.name} Dashboard</title>
-                            <meta name="keywords" content={`IOTA,Node,Dashboard,${brandConfiguration?.name}`} />
-                            <meta name="description" content={`IOTA Node Dashboard ${brandConfiguration?.name}`} />
-                        </Helmet>
                         <App />
                     </BrowserRouter>
                 ),
