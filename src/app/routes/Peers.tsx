@@ -173,7 +173,9 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                 dialogType: "add",
                                 dialogPeerId: "",
                                 peerAddress: "",
-                                peerAlias: ""
+                                peerAlias: "",
+                                dialogStatus: "",
+                                dialogBusy: false
                             })}
                         >
                             Add Peer
@@ -222,7 +224,11 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                             className="card--action card--action-danger margin-t-s"
                                             onClick={() => this.setState({
                                                 dialogType: "delete",
-                                                dialogPeerId: p.id
+                                                dialogPeerId: p.id,
+                                                peerAddress: "",
+                                                peerAlias: "",
+                                                dialogStatus: "",
+                                                dialogBusy: false
                                             })}
                                         >
                                             Delete
@@ -234,7 +240,10 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                                 onClick={() => this.setState({
                                                     dialogType: "promote",
                                                     peerAddress: p.originalAddress ?? "",
-                                                    dialogPeerId: p.id
+                                                    peerAlias: "",
+                                                    dialogPeerId: p.id,
+                                                    dialogStatus: "",
+                                                    dialogBusy: false
                                                 })}
                                             >
                                                 Promote to Known
