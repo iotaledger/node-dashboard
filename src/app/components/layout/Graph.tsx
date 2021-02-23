@@ -211,7 +211,10 @@ class Graph extends AsyncComponent<GraphProps, GraphState> {
                 }
 
                 if (this.props.timeInterval && this.props.endTime) {
-                    const numTimeEntries = this.props.timeMarkers ?? Math.floor(graphWidth / 100);
+                    let numTimeEntries = this.props.timeMarkers ?? Math.floor(graphWidth / 100);
+                    if (graphWidth < 300) {
+                        numTimeEntries = 3;
+                    }
                     const startTime = this.props.endTime - (maxItems * this.props.timeInterval);
                     const timePerInterval = (seriesMaxLength * this.props.timeInterval) / numTimeEntries;
                     for (let i = 0; i <= numTimeEntries; i++) {
