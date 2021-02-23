@@ -45,4 +45,9 @@ export interface PeersState {
      * Alias for adding a peer.
      */
     peerAlias: string;
+
+    /**
+     * Hide any secure details.
+     */
+    blindMode: boolean;
 }

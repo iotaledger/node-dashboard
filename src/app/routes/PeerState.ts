@@ -16,4 +16,9 @@ export interface PeerState {
     gossipMetrics?: IGossipMetrics;
     relation: string;
     lastUpdateTime: number;
+
+    /**
+     * Hide any secure details.
+     */
+    blindMode: boolean;
 }

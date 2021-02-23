@@ -16,6 +16,18 @@
     flex: 1;
     max-width: $content-width-desktop;
 
+    .peer--icon-button {
+      border: 0;
+      outline: 0;
+      background: none;
+      color: var(--text-color-secondary);
+      cursor: pointer;
+
+      &:hover {
+        color: var(--accent-primary);
+      }
+    }
+
     .banner {
       .node-info {
         display: flex;

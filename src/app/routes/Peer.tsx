@@ -3,11 +3,14 @@ import React, { ReactNode } from "react";
 import { Link, RouteComponentProps, withRouter } from "react-router-dom";
 import { ReactComponent as ChevronLeftIcon } from "../../assets/chevron-left.svg";
 import { ReactComponent as ConfirmationIcon } from "../../assets/confirmation.svg";
+import { ReactComponent as EyeClosedIcon } from "../../assets/eye-closed.svg";
+import { ReactComponent as EyeIcon } from "../../assets/eye.svg";
 import { ReactComponent as MilestoneIcon } from "../../assets/milestone.svg";
 import { ReactComponent as PruningIcon } from "../../assets/pruning.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
 import { MetricsService } from "../../services/metricsService";
+import { SettingsService } from "../../services/settingsService";
 import { DataHelper } from "../../utils/dataHelper";
 import AsyncComponent from "../components/layout/AsyncComponent";
 import Graph from "../components/layout/Graph";
@@ -27,6 +30,11 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
     private readonly _metricsService: MetricsService;
 
     /**
+     * The settings service.
+     */
+    private readonly _settingsService: SettingsService;
+
+    /**
      * The peers subscription id.
      */
     private _peersSubscription?: string;
@@ -39,6 +47,7 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
         super(props);
 
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
+        this._settingsService = ServiceFactory.get<SettingsService>("settings");
 
         this.state = {
             address: "",
@@ -53,7 +62,8 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
             newMessagesDiff: [],
             sentMessagesDiff: [],
             relation: "-",
-            lastUpdateTime: 0
+            lastUpdateTime: 0,
+            blindMode: this._settingsService.getBlindMode()
         };
     }
 
@@ -169,27 +179,45 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
         return (
             <div className="peer">
                 <div className="content">
-                    <Link
-                        to="/peers"
-                        className="row inline middle margin-b-s"
-                    >
-                        <ChevronLeftIcon className="secondary" />
-                        <h3 className="secondary margin-l-s">Back to Peers</h3>
-                    </Link>
+                    <div className="row middle spread margin-b-s">
+                        <Link
+                            to="/peers"
+                            className="row inline middle"
+                        >
+                            <ChevronLeftIcon className="secondary" />
+                            <h3 className="secondary margin-l-s">Back to Peers</h3>
+                        </Link>
+                        <button
+                            type="button"
+                            onClick={() => this.toggleBlindMode()}
+                            className="peer--icon-button"
+                        >
+                            {this.state.blindMode ? <EyeIcon /> : <EyeClosedIcon />}
+                        </button>
+                    </div>
 
                     <div className="card">
                         <div className="banner row tablet-down-column spread">
                             <div className="node-info">
                                 {this.state.alias && (
                                     <React.Fragment>
-                                        <h2 className="word-break-all">{this.state.alias}</h2>
-                                        <p className="secondary margin-t-t">{this.props.match.params.id}</p>
+                                        <h2 className="word-break-all">{this.state.blindMode
+                                            ? "*".repeat(this.state.alias.length) : this.state.alias}
+                                        </h2>
+                                        <p className="secondary margin-t-t">{this.state.blindMode
+                                            ? "*".repeat(this.props.match.params.id.length)
+                                            : this.props.match.params.id}
+                                        </p>
                                     </React.Fragment>
                                 )}
                                 {!this.state.alias && (
-                                    <h2 className="word-break-all">{this.props.match.params.id}</h2>
+                                    <h2 className="word-break-all">{this.state.blindMode
+                                        ? "*".repeat(this.props.match.params.id.length) : this.props.match.params.id}
+                                    </h2>
                                 )}
-                                <p className="secondary margin-t-t">{this.state.address}</p>
+                                <p className="secondary margin-t-t">{this.state.blindMode
+                                    ? "*".repeat(this.state.address.length) : this.state.address}
+                                </p>
                                 <p className="secondary margin-t-t">
                                     Relation:&nbsp;
                                     {`${this.state.relation.slice(0, 1).toUpperCase()}${this.state.relation.slice(1)}`}
@@ -330,6 +358,14 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                 </div>
             </div>
         );
+    }
+
+    /**
+     * Toggle the flag for blind mode.
+     */
+    private toggleBlindMode(): void {
+        this._settingsService.setBlindMode(!this.state.blindMode);
+        this.setState({ blindMode: !this.state.blindMode });
     }
 }
 

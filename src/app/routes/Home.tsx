@@ -13,6 +13,7 @@ import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
 import { EventAggregator } from "../../services/eventAggregator";
 import { MetricsService } from "../../services/metricsService";
 import { NodeConfigService } from "../../services/nodeConfigService";
+import { SettingsService } from "../../services/settingsService";
 import { ThemeService } from "../../services/themeService";
 import { BrandHelper } from "../../utils/brandHelper";
 import { DataHelper } from "../../utils/dataHelper";
@@ -37,6 +38,11 @@ class Home extends AsyncComponent<unknown, HomeState> {
      * The metrics service.
      */
     private readonly _metricsService: MetricsService;
+
+    /**
+     * The settings service.
+     */
+    private readonly _settingsService: SettingsService;
 
     /**
      * The status subscription id.
@@ -72,6 +78,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
 
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
         this._themeService = ServiceFactory.get<ThemeService>("theme");
+        this._settingsService = ServiceFactory.get<SettingsService>("settings");
 
         const nodeConfigService = ServiceFactory.get<NodeConfigService>("node-config");
         this._networkId = nodeConfigService.getNetworkId();
@@ -90,7 +97,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
             mpsIncoming: [],
             mpsOutgoing: [],
             bannerSrc: "",
-            obfuscateDetails: false
+            blindMode: this._settingsService.getBlindMode()
         };
     }
 
@@ -181,8 +188,8 @@ class Home extends AsyncComponent<unknown, HomeState> {
             }
         );
 
-        EventAggregator.subscribe("obfuscate-details", "home", o => {
-            this.setState({ obfuscateDetails: o });
+        EventAggregator.subscribe("settings.blindMode", "home", blindMode => {
+            this.setState({ blindMode });
         });
     }
 
@@ -214,7 +221,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
             this._mpsMetricsSubscription = undefined;
         }
 
-        EventAggregator.unsubscribe("obfuscate-details", "home");
+        EventAggregator.unsubscribe("settings.blindMode", "home");
     }
 
     /**
@@ -229,10 +236,10 @@ class Home extends AsyncComponent<unknown, HomeState> {
                         <div className="banner row">
                             <div className="node-info">
                                 <div>
-                                    <h1>{this.state.obfuscateDetails ? "**********" : this.state.nodeName}</h1>
+                                    <h1>{this.state.blindMode ? "**********" : this.state.nodeName}</h1>
                                     {this.state.peerId && (
                                         <p className="secondary margin-t-t word-break-all">
-                                            {this.state.obfuscateDetails ? "*********" : this.state.peerId}
+                                            {this.state.blindMode ? "*********" : this.state.peerId}
                                         </p>
                                     )}
                                 </div>

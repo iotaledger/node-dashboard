@@ -10,7 +10,7 @@ export interface PeersSummaryState {
     }[];
 
     /**
-     * Hide any details.
+     * Hide any secure details.
      */
-    obfuscateDetails: boolean;
+    blindMode: boolean;
 }

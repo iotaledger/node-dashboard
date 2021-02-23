@@ -8,8 +8,8 @@ import { ReactComponent as HealthGoodIcon } from "../../../assets/health-good.sv
 import { ReactComponent as HealthWarningIcon } from "../../../assets/health-warning.svg";
 import { ServiceFactory } from "../../../factories/serviceFactory";
 import { WebSocketTopic } from "../../../models/websocket/webSocketTopic";
-import { EventAggregator } from "../../../services/eventAggregator";
 import { MetricsService } from "../../../services/metricsService";
+import { SettingsService } from "../../../services/settingsService";
 import { DataHelper } from "../../../utils/dataHelper";
 import "./PeersSummaryPanel.scss";
 import { PeersSummaryState } from "./PeersSummaryState";
@@ -24,6 +24,11 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
     private readonly _metricsService: MetricsService;
 
     /**
+     * The settings service.
+     */
+    private readonly _settingsService: SettingsService;
+
+    /**
      * The peer subscription id.
      */
     private _peerSubscription?: string;
@@ -36,9 +41,10 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
         super(props);
 
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
+        this._settingsService = ServiceFactory.get<SettingsService>("settings");
 
         this.state = {
-            obfuscateDetails: false
+            blindMode: this._settingsService.getBlindMode()
         };
     }
 
@@ -74,10 +80,10 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
                     <h4>Peers</h4>
                     <button
                         type="button"
-                        onClick={() => this.toggleObfuscateDetails()}
+                        onClick={() => this.toggleBlindMode()}
                         className="peers-summary--icon-button"
                     >
-                        {this.state.obfuscateDetails ? <EyeIcon /> : <EyeClosedIcon />}
+                        {this.state.blindMode ? <EyeIcon /> : <EyeClosedIcon />}
                     </button>
                 </div>
                 {!this.state.peers && (
@@ -96,12 +102,12 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
                         </div>
                         <div className="col">
                             <div className="peer-id">
-                                {this.state.obfuscateDetails && ("*".repeat((p.alias ?? p.id).length))}
-                                {!this.state.obfuscateDetails && (p.alias ?? p.id)}
+                                {this.state.blindMode && ("*".repeat((p.alias ?? p.id).length))}
+                                {!this.state.blindMode && (p.alias ?? p.id)}
                             </div>
                             {p.address && (
                                 <div className="peer-id">
-                                    {this.state.obfuscateDetails ? "*".repeat(p.address.length) : p.address}
+                                    {this.state.blindMode ? "*".repeat(p.address.length) : p.address}
                                 </div>
                             )}
                         </div>
@@ -132,9 +138,12 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
         });
     }
 
-    private toggleObfuscateDetails(): void {
-        EventAggregator.publish("obfuscate-details", !this.state.obfuscateDetails);
-        this.setState({ obfuscateDetails: !this.state.obfuscateDetails });
+    /**
+     * Toggle the flag for blind mode.
+     */
+    private toggleBlindMode(): void {
+        this._settingsService.setBlindMode(!this.state.blindMode);
+        this.setState({ blindMode: !this.state.blindMode });
     }
 }
 

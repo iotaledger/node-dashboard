@@ -16,6 +16,19 @@
     flex: 1;
     max-width: $content-width-desktop;
 
+    .peers--icon-button {
+      margin-right: $spacing-small;
+      border: 0;
+      outline: 0;
+      background: none;
+      color: var(--text-color-secondary);
+      cursor: pointer;
+
+      &:hover {
+        color: var(--accent-primary);
+      }
+    }
+
     .add-button {
       @include font-size(14px);
 

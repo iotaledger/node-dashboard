@@ -78,5 +78,5 @@ export interface HomeState {
     /**
      * Hide any details.
      */
-    obfuscateDetails: boolean;
+    blindMode: boolean;
 }

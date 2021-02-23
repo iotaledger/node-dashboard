@@ -3,12 +3,15 @@ import classNames from "classnames";
 import React, { ReactNode } from "react";
 import { Link, RouteComponentProps, withRouter } from "react-router-dom";
 import { ReactComponent as ChevronRightIcon } from "../../assets/chevron-right.svg";
+import { ReactComponent as EyeClosedIcon } from "../../assets/eye-closed.svg";
+import { ReactComponent as EyeIcon } from "../../assets/eye.svg";
 import { ReactComponent as HealthBadIcon } from "../../assets/health-bad.svg";
 import { ReactComponent as HealthGoodIcon } from "../../assets/health-good.svg";
 import { ReactComponent as HealthWarningIcon } from "../../assets/health-warning.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
 import { MetricsService } from "../../services/metricsService";
+import { SettingsService } from "../../services/settingsService";
 import { TangleService } from "../../services/tangleService";
 import { DataHelper } from "../../utils/dataHelper";
 import AsyncComponent from "../components/layout/AsyncComponent";
@@ -28,6 +31,11 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
     private readonly _metricsService: MetricsService;
 
     /**
+     * The settings service.
+     */
+    private readonly _settingsService: SettingsService;
+
+    /**
      * The peers subscription id.
      */
     private _peersSubscription?: string;
@@ -40,11 +48,13 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
         super(props);
 
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
+        this._settingsService = ServiceFactory.get<SettingsService>("settings");
 
         this.state = {
             peers: [],
             peerAddress: "",
-            peerAlias: ""
+            peerAlias: "",
+            blindMode: this._settingsService.getBlindMode()
         };
     }
 
@@ -166,20 +176,30 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                 <div className="content">
                     <div className="row spread">
                         <h2>Peers</h2>
-                        <button
-                            type="button"
-                            className="add-button"
-                            onClick={() => this.setState({
-                                dialogType: "add",
-                                dialogPeerId: "",
-                                peerAddress: "",
-                                peerAlias: "",
-                                dialogStatus: "",
-                                dialogBusy: false
-                            })}
-                        >
-                            Add Peer
-                        </button>
+                        <div className="row">
+                            <button
+                                type="button"
+                                onClick={() => this.toggleBlindMode()}
+                                className="peers--icon-button"
+                            >
+                                {this.state.blindMode ? <EyeIcon /> : <EyeClosedIcon />}
+                            </button>
+
+                            <button
+                                type="button"
+                                className="add-button"
+                                onClick={() => this.setState({
+                                    dialogType: "add",
+                                    dialogPeerId: "",
+                                    peerAddress: "",
+                                    peerAlias: "",
+                                    dialogStatus: "",
+                                    dialogBusy: false
+                                })}
+                            >
+                                Add Peer
+                            </button>
+                        </div>
                     </div>
                     <div className="peers-panel">
                         {this.state.peers.length === 0 && (
@@ -195,8 +215,13 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                             {p.health === 2 && <HealthGoodIcon />}
                                         </span>
                                         <div className="peer-id word-break-all">
-                                            <span>{p.alias ?? p.id}</span>
-                                            <span>{p.address}</span>
+                                            <span>
+                                                {this.state.blindMode && ("*".repeat((p.alias ?? p.id).length))}
+                                                {!this.state.blindMode && (p.alias ?? p.id)}
+                                            </span>
+                                            <span>{this.state.blindMode
+                                                ? "*".repeat(p.address?.length ?? 10) : p.address}
+                                            </span>
                                         </div>
                                     </div>
                                     <Graph
@@ -428,6 +453,14 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                 }
             }
         });
+    }
+
+    /**
+     * Toggle the flag for blind mode.
+     */
+    private toggleBlindMode(): void {
+        this._settingsService.setBlindMode(!this.state.blindMode);
+        this.setState({ blindMode: !this.state.blindMode });
     }
 }
 

@@ -11,6 +11,7 @@ import { EventAggregator } from "./services/eventAggregator";
 import { LocalStorageService } from "./services/localStorageService";
 import { MetricsService } from "./services/metricsService";
 import { NodeConfigService } from "./services/nodeConfigService";
+import { SettingsService } from "./services/settingsService";
 import { TangleService } from "./services/tangleService";
 import { ThemeService } from "./services/themeService";
 import { VisualizerService } from "./services/visualizerService";
@@ -38,6 +39,8 @@ initServices()
  */
 async function initServices(): Promise<IBrandConfiguration | undefined> {
     ServiceFactory.register("storage", () => new LocalStorageService());
+    const settingsService = new SettingsService();
+    ServiceFactory.register("settings", () => settingsService);
 
     const authService = new AuthService();
     await authService.initialize();
@@ -69,6 +72,8 @@ async function initServices(): Promise<IBrandConfiguration | undefined> {
     });
 
     await Spammer.initPlugin();
+
+    settingsService.initialize();
 
     return BrandHelper.initialize();
 }
