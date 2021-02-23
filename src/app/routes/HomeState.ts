@@ -74,4 +74,9 @@ export interface HomeState {
      * The banner logo source.
      */
     bannerSrc: string;
+
+    /**
+     * Hide any details.
+     */
+    obfuscateDetails: boolean;
 }

@@ -4,8 +4,13 @@ export interface PeersSummaryState {
      */
     peers?: {
         id: string;
+        alias?: string;
         health: number;
-        name: string;
         address?: string;
     }[];
+
+    /**
+     * Hide any details.
+     */
+    obfuscateDetails: boolean;
 }

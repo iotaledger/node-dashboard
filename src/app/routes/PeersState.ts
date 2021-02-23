@@ -3,8 +3,8 @@ export interface PeersState {
      * The peers.
      */
     peers: {
-        name: string;
         id: string;
+        alias?: string;
         address?: string;
         originalAddress?: string;
         health: number;

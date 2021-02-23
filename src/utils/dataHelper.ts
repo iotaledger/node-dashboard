@@ -19,23 +19,6 @@ export class DataHelper {
     }
 
     /**
-     * Format the name for the peer.
-     * @param peer The peer.
-     * @returns The formatted name.
-     */
-    public static formatPeerName(peer: IPeer): string {
-        let name = "";
-
-        if (peer.alias) {
-            name += peer.alias;
-        } else if (peer.id) {
-            name += peer.id;
-        }
-
-        return name;
-    }
-
-    /**
      * Format the address for the peer.
      * @param peer The peer.
      * @returns The formatted address.
@@ -98,13 +81,13 @@ export class DataHelper {
      * @param peers The peers to sort.
      * @returns The sorted peers.
      */
-    public static sortPeers<T extends { health: number; name: string }>(peers: T[]): T[] {
+    public static sortPeers<T extends { health: number; id: string; alias?: string }>(peers: T[]): T[] {
         return peers.sort((a, b) => {
             if (a.health !== b.health) {
                 return b.health - a.health;
             }
 
-            return a.name.localeCompare(b.name);
+            return (a.alias ?? a.id).localeCompare(b.alias ?? b.id);
         });
     }
 

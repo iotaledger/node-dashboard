@@ -4,10 +4,23 @@
 .peers-summary {
   padding: $spacing-small;
 
+  .peers-summary--icon-button {
+    border: 0;
+    outline: 0;
+    background: none;
+    color: var(--text-color-secondary);
+    cursor: pointer;
+
+    &:hover {
+      color: var(--accent-primary);
+    }
+  }
+
   .peers-summary--item {
     display: flex;
     flex-direction: row;
     align-items: center;
+    min-height: 90px;
     margin-bottom: $spacing-small;
     padding: $spacing-small;
     overflow: hidden;

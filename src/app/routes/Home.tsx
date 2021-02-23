@@ -89,7 +89,8 @@ class Home extends AsyncComponent<unknown, HomeState> {
             lastReceivedMpsTime: 0,
             mpsIncoming: [],
             mpsOutgoing: [],
-            bannerSrc: ""
+            bannerSrc: "",
+            obfuscateDetails: false
         };
     }
 
@@ -179,6 +180,10 @@ class Home extends AsyncComponent<unknown, HomeState> {
                 this.setState({ mpsIncoming, mpsOutgoing, lastReceivedMpsTime: Date.now() });
             }
         );
+
+        EventAggregator.subscribe("obfuscate-details", "home", o => {
+            this.setState({ obfuscateDetails: o });
+        });
     }
 
     /**
@@ -208,6 +213,8 @@ class Home extends AsyncComponent<unknown, HomeState> {
             this._metricsService.unsubscribe(this._mpsMetricsSubscription);
             this._mpsMetricsSubscription = undefined;
         }
+
+        EventAggregator.unsubscribe("obfuscate-details", "home");
     }
 
     /**
@@ -222,9 +229,11 @@ class Home extends AsyncComponent<unknown, HomeState> {
                         <div className="banner row">
                             <div className="node-info">
                                 <div>
-                                    <h1>{this.state.nodeName}</h1>
+                                    <h1>{this.state.obfuscateDetails ? "**********" : this.state.nodeName}</h1>
                                     {this.state.peerId && (
-                                        <p className="secondary margin-t-t word-break-all">{this.state.peerId}</p>
+                                        <p className="secondary margin-t-t word-break-all">
+                                            {this.state.obfuscateDetails ? "*********" : this.state.peerId}
+                                        </p>
                                     )}
                                 </div>
                                 <p className="secondary">

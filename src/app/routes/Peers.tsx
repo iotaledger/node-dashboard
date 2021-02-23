@@ -61,7 +61,7 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                 const peers: {
                     [id: string]: {
                         id: string;
-                        name: string;
+                        alias?: string;
                         address?: string;
                         originalAddress?: string;
                         health: number;
@@ -82,16 +82,14 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                         if (allDataPeers) {
                             for (const peer of allDataPeers) {
                                 if (finalPeerIds.has(peer.id)) {
-                                    const name = DataHelper.formatPeerName(peer);
                                     const address = DataHelper.formatPeerAddress(peer);
                                     const health = DataHelper.calculateHealth(peer);
 
                                     if (!peers[peer.id]) {
                                         peers[peer.id] = {
                                             id: peer.id,
-                                            name,
-                                            address,
-                                            health,
+                                            address: "",
+                                            health: 0,
                                             relation: peer.relation,
                                             newMessagesTotal: [],
                                             sentMessagesTotal: [],
@@ -99,12 +97,11 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                             sentMessagesDiff: [],
                                             lastUpdateTime: 0
                                         };
-                                    } else {
-                                        peers[peer.id].name = name;
-                                        peers[peer.id].address = address;
-                                        peers[peer.id].health = health;
                                     }
                                     peers[peer.id].id = peer.id;
+                                    peers[peer.id].alias = peer.alias;
+                                    peers[peer.id].address = address;
+                                    peers[peer.id].health = health;
                                     peers[peer.id].relation = peer.relation;
                                     peers[peer.id].lastUpdateTime = Date.now();
                                     if (peer.multiAddresses?.length) {
@@ -196,7 +193,7 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                             {p.health === 2 && <HealthGoodIcon />}
                                         </span>
                                         <div className="peer-id word-break-all">
-                                            <span>{p.name}</span>
+                                            <span>{p.alias ?? p.id}</span>
                                             <span>{p.address}</span>
                                         </div>
                                     </div>
