@@ -133,8 +133,7 @@
     }
 
     &.card--action-danger {
-      background-color: $danger;
-      color: #ffffff;
+      background-color: transparentize($danger, 0.9);
     }
 
     &.card--action-primary {
