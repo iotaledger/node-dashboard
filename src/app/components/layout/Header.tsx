@@ -73,7 +73,8 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
             memorySize: [],
             databaseSizeFormatted: "-",
             databaseSize: [],
-            isLoggedIn: Boolean(this._authService.isLoggedIn())
+            isLoggedIn: Boolean(this._authService.isLoggedIn()),
+            online: false
         };
     }
 
@@ -89,10 +90,23 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
             });
         });
 
+        EventAggregator.subscribe("online", "header", online => {
+            if (online !== this.state.online) {
+                this.setState({
+                    online
+                });
+            }
+        });
+
         this._publicNodeStatusSubscription = this._metricsService.subscribe<IPublicNodeStatus>(
             WebSocketTopic.PublicNodeStatus,
             data => {
                 if (data) {
+                    if (!this.state.online) {
+                        this.setState({
+                            online: true
+                        });
+                    }
                     if (data.is_healthy !== this.state.nodeHealth) {
                         this.setState({ nodeHealth: data.is_healthy });
                     }
@@ -165,6 +179,7 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
         super.componentWillUnmount();
 
         EventAggregator.unsubscribe("auth-state", "header");
+        EventAggregator.unsubscribe("online", "header");
 
         if (this._publicNodeStatusSubscription) {
             this._metricsService.unsubscribe(this._publicNodeStatusSubscription);
@@ -195,48 +210,52 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
         return (
             <header className="header">
                 <div className="content">
-                    {this.props.children}
-                    <SearchInput
-                        compact={true}
-                        onSearch={query => this.props.history.push(`/explorer/search/${query}`)}
-                        className="child child-fill"
-                    />
-                    <Breakpoint size="tablet" aboveBelow="above">
-                        <HealthIndicator
-                            label="Health"
-                            healthy={this.state.nodeHealth}
-                            className="child"
-                        />
-                        <HealthIndicator
-                            label="Sync"
-                            healthy={this.state.syncHealth}
-                            className="child"
-                        />
-                    </Breakpoint>
-                    <Breakpoint size="desktop" aboveBelow="above">
-                        <MicroGraph
-                            label="MPS"
-                            value={this.state.mps}
-                            values={this.state.mpsValues}
-                            className="child"
-                        />
-                        {this.state.isLoggedIn && (
-                            <React.Fragment>
-                                <MicroGraph
-                                    label="Database"
-                                    value={this.state.databaseSizeFormatted}
-                                    values={this.state.databaseSize}
+                    {this.state.online && (
+                        <React.Fragment>
+                            {this.props.children}
+                            <SearchInput
+                                compact={true}
+                                onSearch={query => this.props.history.push(`/explorer/search/${query}`)}
+                                className="child child-fill"
+                            />
+                            <Breakpoint size="tablet" aboveBelow="above">
+                                <HealthIndicator
+                                    label="Health"
+                                    healthy={this.state.nodeHealth}
                                     className="child"
                                 />
-                                <MicroGraph
-                                    label="Memory"
-                                    value={this.state.memorySizeFormatted}
-                                    values={this.state.memorySize}
+                                <HealthIndicator
+                                    label="Sync"
+                                    healthy={this.state.syncHealth}
                                     className="child"
                                 />
-                            </React.Fragment>
-                        )}
-                    </Breakpoint>
+                            </Breakpoint>
+                            <Breakpoint size="desktop" aboveBelow="above">
+                                <MicroGraph
+                                    label="MPS"
+                                    value={this.state.mps}
+                                    values={this.state.mpsValues}
+                                    className="child"
+                                />
+                                {this.state.isLoggedIn && (
+                                    <React.Fragment>
+                                        <MicroGraph
+                                            label="Database"
+                                            value={this.state.databaseSizeFormatted}
+                                            values={this.state.databaseSize}
+                                            className="child"
+                                        />
+                                        <MicroGraph
+                                            label="Memory"
+                                            value={this.state.memorySizeFormatted}
+                                            values={this.state.memorySize}
+                                            className="child"
+                                        />
+                                    </React.Fragment>
+                                )}
+                            </Breakpoint>
+                        </React.Fragment>
+                    )}
                 </div>
             </header>
         );

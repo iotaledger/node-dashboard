@@ -12,6 +12,7 @@ import { ReactComponent as SunIcon } from "../assets/sun.svg";
 import { ReactComponent as VisualizerIcon } from "../assets/visualizer.svg";
 import { ServiceFactory } from "../factories/serviceFactory";
 import { INodeStatus } from "../models/websocket/INodeStatus";
+import { IPublicNodeStatus } from "../models/websocket/IPublicNodeStatus";
 import { ISyncStatus } from "../models/websocket/ISyncStatus";
 import { WebSocketTopic } from "../models/websocket/webSocketTopic";
 import { AuthService } from "../services/authService";
@@ -67,6 +68,11 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
     private readonly _metricsService: MetricsService;
 
     /**
+     * The public node status subscription id.
+     */
+    private _publicNodeStatusSubscription?: string;
+
+    /**
      * The status subscription id.
      */
     private _statusSubscription?: string;
@@ -92,6 +98,16 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
     private _lsmi?: string;
 
     /**
+     * The time of the last status update.
+     */
+    private _lastStatus: number;
+
+    /**
+     * The status timer.
+     */
+    private _statusTimer?: NodeJS.Timer;
+
+    /**
      * Create a new instance of App.
      * @param props The props.
      */
@@ -100,10 +116,12 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
         this._themeService = ServiceFactory.get<ThemeService>("theme");
         this._authService = ServiceFactory.get<AuthService>("auth");
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
+        this._lastStatus = 0;
 
         this.state = {
             isLoggedIn: Boolean(this._authService.isLoggedIn()),
-            theme: this._themeService.get()
+            theme: this._themeService.get(),
+            online: false
         };
 
         this.updateTitle();
@@ -148,6 +166,30 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                     }
                 }
             });
+
+        this._publicNodeStatusSubscription = this._metricsService.subscribe<IPublicNodeStatus>(
+            WebSocketTopic.PublicNodeStatus,
+            data => {
+                if (data) {
+                    this._lastStatus = Date.now();
+                    if (!this.state.online) {
+                        EventAggregator.publish("online", true);
+                        this.setState({
+                            online: true
+                        });
+                    }
+                }
+            });
+
+        this._statusTimer = setInterval(() => {
+            if (Date.now() - this._lastStatus > 10000 && this.state.online) {
+                this.setState({
+                    online: false
+                });
+
+                EventAggregator.publish("online", false);
+            }
+        }, 1000);
     }
 
     /**
@@ -167,6 +209,16 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
         if (this._syncStatusSubscription) {
             this._metricsService.unsubscribe(this._syncStatusSubscription);
             this._syncStatusSubscription = undefined;
+        }
+
+        if (this._publicNodeStatusSubscription) {
+            this._metricsService.unsubscribe(this._publicNodeStatusSubscription);
+            this._publicNodeStatusSubscription = undefined;
+        }
+
+        if (this._statusTimer !== undefined) {
+            clearInterval(this._statusTimer);
+            this._statusTimer = undefined;
         }
     }
 
@@ -242,97 +294,111 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
         return (
             <div className="app">
                 <Breakpoint size="phone" aboveBelow="above">
-                    <NavPanel fullWidth={false} middle={sections} end={endSections} />
+                    <NavPanel
+                        fullWidth={false}
+                        middle={this.state.online ? sections : []}
+                        end={this.state.online ? endSections : []}
+                    />
                 </Breakpoint>
                 <div className="col fill">
                     <Header>
                         <Breakpoint size="phone" aboveBelow="below">
                             <NavMenu>
-                                <NavPanel fullWidth={true} middle={sections} end={endSections} />
+                                <NavPanel
+                                    fullWidth={true}
+                                    middle={this.state.online ? sections : []}
+                                    end={this.state.online ? endSections : []}
+                                />
                             </NavMenu>
                         </Breakpoint>
                     </Header>
                     <div className="fill scroll-content">
-                        <Switch>
-                            {this.state.isLoggedIn && [
+                        {!this.state.online && (
+                            <p className="padding-l">The node is offline.</p>
+                        )}
+                        {this.state.online && (
+                            <Switch>
+                                {this.state.isLoggedIn && [
+                                    <Route
+                                        exact={true}
+                                        path="/"
+                                        component={() => (<Home />)}
+                                        key="home"
+                                    />,
+                                    <Route
+                                        path="/analytics/:section?"
+                                        component={(props: AnalyticsRouteProps) => (<Analytics {...props} />)}
+                                        key="analytics"
+                                    />,
+                                    <Route
+                                        exact={true}
+                                        path="/peers"
+                                        component={() => (<Peers />)}
+                                        key="peers"
+                                    />,
+                                    <Route
+                                        path="/peers/:id"
+                                        component={(props: RouteComponentProps<PeerRouteProps>) =>
+                                            (<Peer {...props} />)}
+                                        key="peer"
+                                    />
+                                ]}
+                                {!this.state.isLoggedIn && (
+                                    <Route
+                                        path="/"
+                                        exact={true}
+                                        component={() => (<Explorer />)}
+                                    />
+                                )}
                                 <Route
-                                    exact={true}
-                                    path="/"
-                                    component={() => (<Home />)}
-                                    key="home"
-                                />,
-                                <Route
-                                    path="/analytics/:section?"
-                                    component={(props: AnalyticsRouteProps) => (<Analytics {...props} />)}
-                                    key="analytics"
-                                />,
-                                <Route
-                                    exact={true}
-                                    path="/peers"
-                                    component={() => (<Peers />)}
-                                    key="peers"
-                                />,
-                                <Route
-                                    path="/peers/:id"
-                                    component={(props: RouteComponentProps<PeerRouteProps>) =>
-                                        (<Peer {...props} />)}
-                                    key="peer"
-                                />
-                            ]}
-                            {!this.state.isLoggedIn && (
-                                <Route
-                                    path="/"
+                                    path="/explorer"
                                     exact={true}
                                     component={() => (<Explorer />)}
                                 />
-                            )}
-                            <Route
-                                path="/explorer"
-                                exact={true}
-                                component={() => (<Explorer />)}
-                            />
-                            <Route
-                                path="/explorer/search/:query?"
-                                component={(props: RouteComponentProps<SearchRouteProps>) => (<Search {...props} />)}
-                            />
-                            <Route
-                                path="/explorer/message/:messageId"
-                                component={(props: RouteComponentProps<MessageRouteProps>) =>
-                                    (<Message {...props} />)}
-                            />
-                            <Route
-                                path="/explorer/milestone/:milestoneIndex"
-                                component={(props: RouteComponentProps<MilestoneRouteProps>) =>
-                                    (<Milestone {...props} />)}
-                            />
-                            <Route
-                                path="/explorer/indexed/:index"
-                                component={(props: RouteComponentProps<IndexedRouteProps>) =>
-                                    (<Indexed {...props} />)}
-                            />
-                            <Route
-                                path="/explorer/address/:address"
-                                component={(props: RouteComponentProps<AddressRouteProps>) =>
-                                    (<Address {...props} />)}
-                            />
-                            <Route
-                                path="/visualizer"
-                                component={(props: RouteComponentProps) => (<Visualizer {...props} />)}
-                            />
-                            <Route
-                                path="/settings"
-                                component={() => (<Settings />)}
-                            />
-                            <Route
-                                path="/login"
-                                component={() => (<Login />)}
-                            />
-                            <Route
-                                exact={true}
-                                path="*"
-                                component={() => (<Redirect to="/" />)}
-                            />
-                        </Switch>
+                                <Route
+                                    path="/explorer/search/:query?"
+                                    component={(props: RouteComponentProps<SearchRouteProps>) =>
+                                        (<Search {...props} />)}
+                                />
+                                <Route
+                                    path="/explorer/message/:messageId"
+                                    component={(props: RouteComponentProps<MessageRouteProps>) =>
+                                        (<Message {...props} />)}
+                                />
+                                <Route
+                                    path="/explorer/milestone/:milestoneIndex"
+                                    component={(props: RouteComponentProps<MilestoneRouteProps>) =>
+                                        (<Milestone {...props} />)}
+                                />
+                                <Route
+                                    path="/explorer/indexed/:index"
+                                    component={(props: RouteComponentProps<IndexedRouteProps>) =>
+                                        (<Indexed {...props} />)}
+                                />
+                                <Route
+                                    path="/explorer/address/:address"
+                                    component={(props: RouteComponentProps<AddressRouteProps>) =>
+                                        (<Address {...props} />)}
+                                />
+                                <Route
+                                    path="/visualizer"
+                                    component={(props: RouteComponentProps) => (<Visualizer {...props} />)}
+                                />
+                                <Route
+                                    path="/settings"
+                                    component={() => (<Settings />)}
+                                />
+                                <Route
+                                    path="/login"
+                                    component={() => (<Login />)}
+                                />
+                                <Route
+                                    exact={true}
+                                    path="*"
+                                    component={() => (<Redirect to="/" />)}
+                                />
+                            </Switch>
+                        )}
                     </div>
                 </div>
             </div>

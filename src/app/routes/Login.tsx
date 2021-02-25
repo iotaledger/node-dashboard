@@ -59,6 +59,7 @@ class Login extends AsyncComponent<unknown, LoginState> {
                                     value={this.state.user}
                                     disabled={this.state.isBusy}
                                     onChange={e => this.setState({ user: e.target.value })}
+                                    autoFocus={true}
                                 />
                             </div>
                             <div className="card--label">

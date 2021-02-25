@@ -43,4 +43,9 @@ export interface HeaderState {
      * Is the auth logged in.
      */
     isLoggedIn: boolean;
+
+    /**
+     * Is the app online.
+     */
+    online: boolean;
 }

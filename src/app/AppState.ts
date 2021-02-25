@@ -9,4 +9,9 @@ export interface AppState {
      * What is the current theme.
      */
     theme: string;
+
+    /**
+     * Is the app online.
+     */
+    online: boolean;
 }
