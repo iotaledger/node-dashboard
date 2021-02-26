@@ -27,11 +27,15 @@ export class NodeConfigService {
      * Initialise NodeConfigService.
      */
     public async initialize(): Promise<void> {
-        const tangleService = ServiceFactory.get<TangleService>("tangle");
+        if (!this._bech32Hrp || !this._networkId) {
+            const tangleService = ServiceFactory.get<TangleService>("tangle");
 
-        const info = await tangleService.info();
-        this._bech32Hrp = info.bech32HRP;
-        this._networkId = info.networkId;
+            try {
+                const info = await tangleService.info();
+                this._bech32Hrp = info.bech32HRP;
+                this._networkId = info.networkId;
+            } catch {}
+        }
     }
 
     /**

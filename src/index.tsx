@@ -71,6 +71,13 @@ async function initServices(): Promise<IBrandConfiguration | undefined> {
         await Spammer.initPlugin();
     });
 
+    EventAggregator.subscribe("online", "init", async o => {
+        if (o) {
+            await nodeConfigService.initialize();
+            webSocketService.resubscribe();
+        }
+    });
+
     await Spammer.initPlugin();
 
     settingsService.initialize();
