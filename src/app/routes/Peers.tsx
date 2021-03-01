@@ -52,8 +52,8 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
 
         this.state = {
             peers: [],
-            peerAddress: "",
-            peerAlias: "",
+            dialogPeerAddress: "",
+            dialogPeerAlias: "",
             blindMode: this._settingsService.getBlindMode()
         };
     }
@@ -190,9 +190,10 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                 className="add-button"
                                 onClick={() => this.setState({
                                     dialogType: "add",
+                                    dialogIsEdit: true,
                                     dialogPeerId: "",
-                                    peerAddress: "",
-                                    peerAlias: "",
+                                    dialogPeerAddress: "",
+                                    dialogPeerAlias: "",
                                     dialogStatus: "",
                                     dialogBusy: false
                                 })}
@@ -244,28 +245,19 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                         ]}
                                     />
                                     <div className="row peer-actions">
-                                        <button
-                                            type="button"
-                                            className="card--action card--action-danger margin-t-s"
-                                            onClick={() => this.setState({
-                                                dialogType: "delete",
-                                                dialogPeerId: p.id,
-                                                peerAddress: "",
-                                                peerAlias: "",
-                                                dialogStatus: "",
-                                                dialogBusy: false
-                                            })}
-                                        >
-                                            Delete
-                                        </button>
+                                        <p className="margin-t-s padding-t">
+                                            Relation: {`${p.relation
+                                                .slice(0, 1).toUpperCase()}${p.relation.slice(1)}`}
+                                        </p>
                                         {p.relation !== "known" && p.originalAddress && (
                                             <button
                                                 type="button"
                                                 className="card--action margin-t-s"
                                                 onClick={() => this.setState({
                                                     dialogType: "promote",
-                                                    peerAddress: p.originalAddress ?? "",
-                                                    peerAlias: "",
+                                                    dialogIsEdit: true,
+                                                    dialogPeerAddress: p.originalAddress ?? "",
+                                                    dialogPeerAlias: "",
                                                     dialogPeerId: p.id,
                                                     dialogStatus: "",
                                                     dialogBusy: false
@@ -275,11 +267,37 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                             </button>
                                         )}
                                         {p.relation === "known" && (
-                                            <p className="margin-t-s padding-t">
-                                                Relation: {`${p.relation
-                                                    .slice(0, 1).toUpperCase()}${p.relation.slice(1)}`}
-                                            </p>
+                                            <button
+                                                type="button"
+                                                className="card--action margin-t-s"
+                                                onClick={() => this.setState({
+                                                    dialogType: "edit",
+                                                    dialogIsEdit: true,
+                                                    dialogPeerAddress: p.originalAddress ?? "",
+                                                    dialogPeerAlias: p.alias ?? "",
+                                                    dialogPeerId: p.id,
+                                                    dialogStatus: "",
+                                                    dialogBusy: false
+                                                })}
+                                            >
+                                                Edit
+                                            </button>
                                         )}
+                                        <button
+                                            type="button"
+                                            className="card--action card--action-danger margin-t-s"
+                                            onClick={() => this.setState({
+                                                dialogType: "delete",
+                                                dialogIsEdit: false,
+                                                dialogPeerId: p.id,
+                                                dialogPeerAddress: "",
+                                                dialogPeerAlias: "",
+                                                dialogStatus: "",
+                                                dialogBusy: false
+                                            })}
+                                        >
+                                            Delete
+                                        </button>
                                         <Link
                                             to={`/peers/${p.id}`}
                                             className="card--action row middle inline margin-t-s"
@@ -294,24 +312,25 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                     </div>
                     {this.state.dialogType && (
                         <Dialog
-                            title={this.state.dialogType === "add" ? "Add Peer"
-                                : (this.state.dialogType === "promote" ? "Promote to Known" : "Delete Confirmation")}
+                            title={{
+                                "add": "Add Peer",
+                                "edit": "Edit Peer",
+                                "promote": "Promote to Known",
+                                "delete": "Delete Confirmation"
+                            }[this.state.dialogType]}
                             actions={[
                                 <button
                                     type="button"
                                     onClick={() =>
-                                    (this.state.dialogType === "add" || this.state.dialogType === "promote"
-                                        ? this.peerAdd() : this.peerDelete()
-                                    )}
+                                        (this.state.dialogIsEdit ? this.peerConfigure() : this.peerDelete())}
                                     key={0}
                                     disabled={this.state.dialogBusy || (
-                                        (this.state.dialogType === "add" || this.state.dialogType === "promote") &&
-                                        (this.state.peerAddress.trim().length === 0 ||
+                                        this.state.dialogIsEdit &&
+                                        (this.state.dialogPeerAddress.trim().length === 0 ||
                                             this.state.dialogPeerId?.trim().length === 0)
                                     )}
                                 >
-                                    {(this.state.dialogType === "add" || this.state.dialogType === "promote")
-                                        ? "OK" : "Yes"}
+                                    {this.state.dialogIsEdit ? "OK" : "Yes"}
                                 </button>,
                                 <button
                                     type="button"
@@ -322,15 +341,14 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                     key={1}
                                     disabled={this.state.dialogBusy}
                                 >
-                                    {(this.state.dialogType === "add" || this.state.dialogType === "promote")
-                                        ? "Cancel" : "No"}
+                                    {this.state.dialogIsEdit ? "Cancel" : "No"}
                                 </button>
                             ]}
                         >
                             {this.state.dialogType === "delete" && (
                                 <p className="margin-b-l">Are you sure you want to delete the peer?</p>
                             )}
-                            {(this.state.dialogType === "add" || this.state.dialogType === "promote") && (
+                            {this.state.dialogIsEdit && (
                                 <React.Fragment>
                                     <p>Please enter the details of the peer to {this.state.dialogType}.</p>
                                     <div className="dialog--label">
@@ -341,9 +359,9 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                             type="text"
                                             className="input--stretch"
                                             placeholder="e.g. /ip4/127.0.0.1/tcp/15600"
-                                            value={this.state.peerAddress}
+                                            value={this.state.dialogPeerAddress}
                                             disabled={this.state.dialogBusy}
-                                            onChange={e => this.setState({ peerAddress: e.target.value })}
+                                            onChange={e => this.setState({ dialogPeerAddress: e.target.value })}
                                         />
                                     </div>
                                     <div className="dialog--label">
@@ -367,9 +385,9 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                             type="text"
                                             className="input--stretch"
                                             placeholder="e.g. My Friend's Node"
-                                            value={this.state.peerAlias}
+                                            value={this.state.dialogPeerAlias}
                                             disabled={this.state.dialogBusy}
-                                            onChange={e => this.setState({ peerAlias: e.target.value })}
+                                            onChange={e => this.setState({ dialogPeerAlias: e.target.value })}
                                         />
                                     </div>
                                 </React.Fragment>
@@ -394,7 +412,7 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
     /**
      * Add a new peer.
      */
-    private peerAdd(): void {
+    private peerConfigure(): void {
         this.setState({
             dialogBusy: true,
             dialogStatus: this.state.dialogType === "add"
@@ -403,12 +421,15 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
             const tangleService = ServiceFactory.get<TangleService>("tangle");
 
             try {
-                let addr = this.state.peerAddress;
+                if (this.state.dialogType === "edit" && this.state.dialogPeerId) {
+                    await tangleService.peerDelete(this.state.dialogPeerId);
+                }
+                let addr = this.state.dialogPeerAddress;
                 if (!addr.endsWith("/")) {
                     addr += "/";
                 }
                 addr += `p2p/${this.state.dialogPeerId}`;
-                await tangleService.peerAdd(addr, this.state.peerAlias);
+                await tangleService.peerAdd(addr, this.state.dialogPeerAlias);
 
                 this.setState({
                     dialogBusy: false,

@@ -19,7 +19,12 @@ export interface PeersState {
     /**
      * The type of dialog to show.
      */
-    dialogType?: "add" | "delete" | "promote";
+    dialogType?: "add" | "edit" | "promote" | "delete";
+
+    /**
+     * Is the an edit type dialog.
+     */
+    dialogIsEdit?: boolean;
 
     /**
      * The peer to operate on.
@@ -39,12 +44,12 @@ export interface PeersState {
     /**
      * Address for adding a peer.
      */
-    peerAddress: string;
+    dialogPeerAddress: string;
 
     /**
      * Alias for adding a peer.
      */
-    peerAlias: string;
+    dialogPeerAlias: string;
 
     /**
      * Hide any secure details.

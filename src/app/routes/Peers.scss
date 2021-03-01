@@ -105,7 +105,7 @@
             justify-content: space-between;
             margin-top: $spacing-small;
 
-            @media (max-width: 620px) {
+            @media (max-width: 720px) {
               flex-direction: column;
 
               .card--action {
