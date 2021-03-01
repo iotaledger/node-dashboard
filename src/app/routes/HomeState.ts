@@ -31,9 +31,9 @@ export interface HomeState {
     displayLatestVersion?: string;
 
     /**
-     * Latest solid milestone index.
+     * Confirmed milestone index.
      */
-    lsmi?: string;
+    cmi?: string;
 
     /**
      * Latest milestone index.

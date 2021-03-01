@@ -85,11 +85,11 @@ class MessageTangleState extends AsyncComponent<MessageTangleStateProps, Message
      */
     private async updateMilestone(): Promise<void> {
         if (this.props.milestoneIndex) {
-            const result = await this._tangleService.search(this.props.milestoneIndex.toString());
-            if (result?.milestone) {
+            const result = await this._tangleService.milestoneDetails(this.props.milestoneIndex);
+            if (result) {
                 this.setState({
-                    timestamp: result.milestone.timestamp
-                        ? ` at ${FormatHelper.dateShort(result?.milestone.timestamp)}`
+                    timestamp: result.timestamp
+                        ? ` at ${FormatHelper.dateShort(result.timestamp)}`
                         : undefined
                 });
             }

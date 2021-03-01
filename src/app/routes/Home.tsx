@@ -89,7 +89,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
             displayVersion: "",
             displayLatestVersion: "",
             lmi: "-",
-            lsmi: "-",
+            cmi: "-",
             pruningIndex: "-",
             memory: "-",
             uptime: "-",
@@ -163,14 +163,14 @@ class Home extends AsyncComponent<unknown, HomeState> {
             data => {
                 if (data) {
                     const lmi = data.lmi ? data.lmi.toString() : "";
-                    const lsmi = data.lsmi ? data.lsmi.toString() : "";
+                    const cmi = data.cmi ? data.cmi.toString() : "";
 
                     if (lmi !== this.state.lmi) {
                         this.setState({ lmi });
                     }
 
-                    if (lsmi !== this.state.lsmi) {
-                        this.setState({ lsmi });
+                    if (cmi !== this.state.cmi) {
+                        this.setState({ cmi });
                     }
                 }
             });
@@ -260,8 +260,8 @@ class Home extends AsyncComponent<unknown, HomeState> {
                         <div className="col info-col fill">
                             <div className="row tablet-down-column">
                                 <InfoPanel
-                                    caption="LSMI / LMI"
-                                    value={`${this.state.lsmi} / ${this.state.lmi}`}
+                                    caption="CMI / LMI"
+                                    value={`${this.state.cmi} / ${this.state.lmi}`}
                                     icon={<MilestoneIcon />}
                                     backgroundStyle="green"
                                 />

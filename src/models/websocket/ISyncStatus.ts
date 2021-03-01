@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
 export interface ISyncStatus {
-    lsmi: number;
+    cmi: number;
     lmi: number;
 }

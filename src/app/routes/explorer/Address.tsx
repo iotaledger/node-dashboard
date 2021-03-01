@@ -67,10 +67,14 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
 
                 if (result.addressOutputIds) {
                     for (const outputId of result.addressOutputIds) {
-                        const outputResult = await this._tangleService.search(outputId);
+                        const outputResult = await this._tangleService.outputDetails(outputId);
 
-                        if (outputResult?.output) {
-                            outputs.push(outputResult?.output);
+                        if (outputResult) {
+                            outputs.push(outputResult);
+
+                            this.setState({
+                                outputs
+                            });
                         }
                     }
                 }
@@ -131,6 +135,20 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                         )}
                     </div>
 
+                    {this.state.outputs &&
+                        this.state.outputIds &&
+                        this.state.outputs.length > 0 &&
+                        this.state.outputs.map((output, idx) => (
+                            <div className="card margin-t-m padding-l" key={idx}>
+                                <Output
+                                    key={idx}
+                                    index={idx + 1}
+                                    id={this.state.outputIds ? this.state.outputIds[idx] : ""}
+                                    output={output}
+                                />
+                            </div>
+                        ))}
+
                     {(this.state.statusBusy ||
                         (this.state.outputs && this.state.outputs.length === 0)) && (
                             <div className="card margin-t-m padding-l">
@@ -143,19 +161,6 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                                 )}
                             </div>
                         )}
-
-                    {this.state.outputs &&
-                        this.state.outputIds &&
-                        this.state.outputs.length > 0 &&
-                        this.state.outputs.map((output, idx) => (
-                            <div className="card margin-t-m padding-l" key={idx}>
-                                <Output
-                                    key={idx}
-                                    id={this.state.outputIds ? this.state.outputIds[idx] : ""}
-                                    output={output}
-                                />
-                            </div>
-                        ))}
                 </div>
             </div>
         );

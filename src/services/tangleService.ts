@@ -1,4 +1,4 @@
-import { Bech32Helper, Converter, IClient, IIndexationPayload, IMessageMetadata, IMilestonePayload, INodeInfo, ITransactionPayload, SingleNodeClient } from "@iota/iota.js";
+import { Bech32Helper, Converter, IClient, IIndexationPayload, IMessageMetadata, IMilestonePayload, IMilestoneResponse, INodeInfo, IOutputResponse, ITransactionPayload, SingleNodeClient } from "@iota/iota.js";
 import { ServiceFactory } from "../factories/serviceFactory";
 import { ISearchResponse } from "../models/tangle/ISearchResponse";
 import { AuthService } from "./authService";
@@ -157,6 +157,34 @@ export class TangleService {
             const message = await client.message(messageId);
 
             return message?.payload;
+        } catch {}
+    }
+
+    /**
+     * Get the output details.
+     * @param outputId The output to get the details for.
+     * @returns The details response.
+     */
+    public async outputDetails(
+        outputId: string): Promise<IOutputResponse | undefined> {
+        try {
+            const client = this.buildClient();
+
+            return await client.output(outputId);
+        } catch {}
+    }
+
+    /**
+     * Get the miletsone details.
+     * @param milestoneIndex The miletsone to get the details for.
+     * @returns The details response.
+     */
+    public async milestoneDetails(
+        milestoneIndex: number): Promise<IMilestoneResponse | undefined> {
+        try {
+            const client = this.buildClient();
+
+            return await client.milestone(milestoneIndex);
         } catch {}
     }
 

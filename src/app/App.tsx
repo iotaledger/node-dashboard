@@ -93,9 +93,9 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
     private _lmi?: string;
 
     /**
-     * The lastest solid milestone index.
+     * The confirmed milestone index.
      */
-    private _lsmi?: string;
+    private _cmi?: string;
 
     /**
      * The time of the last status update.
@@ -157,10 +157,10 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
             data => {
                 if (data) {
                     const lmi = data.lmi ? data.lmi.toString() : "";
-                    const lsmi = data.lsmi ? data.lsmi.toString() : "";
+                    const smi = data.cmi ? data.cmi.toString() : "";
 
-                    if (lmi !== this._lmi || lsmi !== this._lsmi) {
-                        this._lsmi = lsmi;
+                    if (lmi !== this._lmi || smi !== this._cmi) {
+                        this._cmi = smi;
                         this._lmi = lmi;
                         this.updateTitle();
                     }
@@ -414,8 +414,8 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
         if (this._alias) {
             title += ` (${this._alias})`;
         }
-        if (this._lmi && this._lsmi) {
-            title += ` ${this._lsmi} / ${this._lmi}`;
+        if (this._lmi && this._cmi) {
+            title += ` ${this._cmi} / ${this._lmi}`;
         }
 
         document.title = title;

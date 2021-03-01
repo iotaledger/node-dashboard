@@ -31,8 +31,7 @@ class Output extends Component<OutputProps, OutputState> {
     public render(): ReactNode {
         return (
             <div className="output">
-                <h2>{NameHelper.getOutputTypeName(this.props.output.output.type)}
-                </h2>
+                <h2>{NameHelper.getOutputTypeName(this.props.output.output.type)} {this.props.index}</h2>
                 <div className="card--label">
                     Message Id
                 </div>

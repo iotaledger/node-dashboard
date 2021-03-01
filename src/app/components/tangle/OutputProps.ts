@@ -7,6 +7,11 @@ export interface OutputProps {
     id: string;
 
     /**
+     * The index within the parent.
+     */
+    index: number;
+
+    /**
      * The output to display.
      */
     output: IOutputResponse;

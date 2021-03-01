@@ -138,11 +138,11 @@ class Milestone extends AsyncComponent<RouteComponentProps<MilestoneRouteProps>,
      * @param updateUrl Update the url.
      */
     private async loadIndex(index: string, updateUrl: boolean): Promise<void> {
-        const result = await this._tangleService.search(index);
+        const result = await this._tangleService.milestoneDetails(Number.parseInt(index, 10));
 
-        if (result?.milestone) {
+        if (result) {
             this.setState({
-                milestone: result.milestone
+                milestone: result
             }, async () => this.checkForAdjacentMilestones());
 
             if (updateUrl) {
@@ -167,14 +167,14 @@ class Milestone extends AsyncComponent<RouteComponentProps<MilestoneRouteProps>,
             let hasPrevious = false;
 
             if (previousIndex > 0) {
-                const resultPrevious = await this._tangleService.search(previousIndex.toString());
-                if (resultPrevious?.milestone) {
+                const resultPrevious = await this._tangleService.milestoneDetails(previousIndex);
+                if (resultPrevious) {
                     hasPrevious = true;
                 }
             }
 
-            const resultNext = await this._tangleService.search(nextIndex.toString());
-            if (resultNext?.milestone) {
+            const resultNext = await this._tangleService.milestoneDetails(nextIndex);
+            if (resultNext) {
                 hasNext = true;
             }
 
