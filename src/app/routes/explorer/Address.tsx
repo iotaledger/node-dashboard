@@ -73,8 +73,13 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                             outputs.push(outputResult);
 
                             this.setState({
-                                outputs
+                                outputs,
+                                status: `Loading outputs [${outputs.length}/${result.addressOutputIds.length}]`
                             });
+                        }
+
+                        if (!this._isMounted) {
+                            break;
                         }
                     }
                 }
@@ -133,6 +138,14 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                                 </div>
                             </div>
                         )}
+                        {this.state.status && (
+                            <div className="middle row margin-t-m">
+                                {this.state.statusBusy && (<Spinner compact={true} />)}
+                                <p className="status margin-l-s">
+                                    {this.state.status}
+                                </p>
+                            </div>
+                        )}
                     </div>
 
                     {this.state.outputs &&
@@ -149,18 +162,16 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                             </div>
                         ))}
 
-                    {(this.state.statusBusy ||
-                        (this.state.outputs && this.state.outputs.length === 0)) && (
-                            <div className="card margin-t-m padding-l">
-                                <h2 className="margin-b-s">Outputs</h2>
-                                {this.state.statusBusy && (<Spinner />)}
-                                {this.state.outputs && this.state.outputs.length === 0 && (
-                                    <div className="card--value">
-                                        There are no outputs for this address.
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                    {this.state.outputs && this.state.outputs.length === 0 && (
+                        <div className="card margin-t-m padding-l">
+                            <h2 className="margin-b-s">Outputs</h2>
+                            {this.state.outputs && this.state.outputs.length === 0 && (
+                                <div className="card--value">
+                                    There are no outputs for this address.
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
         );
