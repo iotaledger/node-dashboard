@@ -101,9 +101,9 @@ export class WebSocketService {
                 this._subscriptions[topic].subs.splice(subscriptionIdx, 1);
 
                 if (this._subscriptions[topic].subs.length === 0) {
+                    this.unsubscribeTopic(topic);
                     // No more subscriptions for this topic so unsubscribe the topic.
                     delete this._subscriptions[topic];
-                    this.unsubscribeTopic(topic);
                     break;
                 }
             }
