@@ -9,7 +9,7 @@
     },
     "license": "MIT",
     "dependencies": {
-        "@iota/iota.js": "github:iotaledger/iota.js#aabf7f23b1ff9ed7f38def15b0ef8da38ca5dca6",
+        "@iota/iota.js": "github:iotaledger/iota.js#4364121a6ce44d001ecf3132134ae993c080ed86",
         "classnames": "^2.2.6",
         "humanize-duration": "^3.25.1",
         "moment": "^2.29.1",
@@ -48,12 +48,12 @@
         "@types/react-dom": "^17.0.1",
         "@types/react-helmet": "^6.1.0",
         "@types/react-router-dom": "^5.1.7",
-        "@typescript-eslint/eslint-plugin": "^4.15.2",
-        "@typescript-eslint/parser": "^4.15.2",
+        "@typescript-eslint/eslint-plugin": "^4.16.1",
+        "@typescript-eslint/parser": "^4.16.1",
         "cross-env": "^7.0.3",
-        "eslint": "^7.20.0",
+        "eslint": "^7.21.0",
         "eslint-plugin-import": "^2.22.1",
-        "eslint-plugin-jsdoc": "^32.1.1",
+        "eslint-plugin-jsdoc": "^32.2.0",
         "eslint-plugin-react": "^7.22.0",
         "eslint-plugin-unicorn": "^28.0.2",
         "npm-run-all": "^4.1.5",
@@ -65,6 +65,6 @@
         "stylelint-config-sass-guidelines": "^8.0.0",
         "stylelint-config-standard": "^20.0.0",
         "stylelint-scss": "^3.19.0",
-        "typescript": "^4.1.5"
+        "typescript": "^4.2.2"
     }
 }
