@@ -196,6 +196,8 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
             this._mpsMetricsSubscription = undefined;
         }
 
+        this._vizualizerService.unsubscribe();
+
         EventAggregator.unsubscribe("theme", "visualizer");
 
         this._graph = undefined;

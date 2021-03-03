@@ -156,6 +156,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                     <input
                         type="text"
                         value={this.state.mps}
+                        disabled={!this.state.isRunning}
                         onChange={e => this.setState({ mps: e.target.value })}
                         onBlur={e => this.validateSettings()}
                     />
@@ -167,6 +168,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                     <input
                         type="text"
                         value={this.state.cpu}
+                        disabled={!this.state.isRunning}
                         onChange={e => this.setState({ cpu: e.target.value })}
                         onBlur={e => this.validateSettings()}
                     />
@@ -179,6 +181,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                     <input
                         type="text"
                         value={this.state.workers}
+                        disabled={!this.state.isRunning}
                         onChange={e => this.setState({ workers: e.target.value })}
                         onBlur={e => this.validateSettings()}
                     />
@@ -188,6 +191,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                     <button
                         className="card--action margin-r-s"
                         type="button"
+                        disabled={!this.state.isRunning}
                         onClick={async e => this.pluginStart()}
                     >
                         Apply

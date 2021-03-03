@@ -8,19 +8,19 @@ import { ISolidInfo } from "../models/websocket/ISolidInfo";
 import { ITipInfo } from "../models/websocket/ITipInfo";
 import { IVertex } from "../models/websocket/IVertex";
 import { WebSocketTopic } from "../models/websocket/webSocketTopic";
-import { MetricsService } from "./metricsService";
+import { WebSocketService } from "./webSocketService";
 
 /**
  * Visualizer Service.
  */
 export class VisualizerService {
     /**
-     * The metrics service.
+     * The web socket service.
      */
-    private readonly _metricsService: MetricsService;
+    private readonly _webSocketService: WebSocketService;
 
     /**
-     * Metric subscriptions.
+     * Web socket subscriptions.
      */
     private _subscriptions: string[];
 
@@ -76,46 +76,7 @@ export class VisualizerService {
             conflicting: 0,
             tips: 0
         };
-        this._metricsService = ServiceFactory.get<MetricsService>("metrics");
-    }
-
-    /**
-     * Initialize the service.
-     */
-    public initialize(): void {
-        this._subscriptions.push(
-            this._metricsService.subscribe<IVertex>(
-                WebSocketTopic.Vertex,
-                data => this.updateVertices(data)
-            ),
-            this._metricsService.subscribe<IMilestoneInfo>(
-                WebSocketTopic.MilestoneInfo,
-                data => this.updateMilestoneInfo(data)
-            ),
-            this._metricsService.subscribe<ITipInfo>(
-                WebSocketTopic.TipInfo,
-                data => this.updateTipInfo(data)
-            ),
-            this._metricsService.subscribe<IConfirmedInfo>(
-                WebSocketTopic.ConfirmedInfo,
-                data => this.updateConfirmedInfo(data)
-            ),
-            this._metricsService.subscribe<ISolidInfo>(
-                WebSocketTopic.SolidInfo,
-                data => this.updateSolidInfo(data)
-            ));
-    }
-
-    /**
-     * The component will unmount.
-     */
-    public cleanup(): void {
-        for (const subscription of this._subscriptions) {
-            this._metricsService.unsubscribe(subscription);
-        }
-        this._subscriptions = [];
-        this._vertices = {};
-        this._verticesOrder = [];
+        this._webSocketService = ServiceFactory.get<WebSocketService>("web-socket");
     }
 
     /**
@@ -128,9 +89,48 @@ export class VisualizerService {
         vertexCallback: (vertex: IVisualizerVertex, operation: VisualizerVertexOperation) => void,
         countsCallback: (counts: IVisualizerCounts) => void,
         referencedCallback: (id: string, excluded: string[], count: IVisualizerCounts) => void): void {
+        this._subscriptions.push(
+            this._webSocketService.subscribe<IVertex>(
+                WebSocketTopic.Vertex,
+                false,
+                data => this.updateVertices(data)
+            ),
+            this._webSocketService.subscribe<IMilestoneInfo>(
+                WebSocketTopic.MilestoneInfo,
+                false,
+                data => this.updateMilestoneInfo(data)
+            ),
+            this._webSocketService.subscribe<ITipInfo>(
+                WebSocketTopic.TipInfo,
+                false,
+                data => this.updateTipInfo(data)
+            ),
+            this._webSocketService.subscribe<IConfirmedInfo>(
+                WebSocketTopic.ConfirmedInfo,
+                false,
+                data => this.updateConfirmedInfo(data)
+            ),
+            this._webSocketService.subscribe<ISolidInfo>(
+                WebSocketTopic.SolidInfo,
+                false,
+                data => this.updateSolidInfo(data)
+            ));
+
         this._vertexCallback = vertexCallback;
         this._countsCallback = countsCallback;
         this._referencedCallback = referencedCallback;
+    }
+
+    /**
+     * Unsubscribe and cleanup.
+     */
+    public unsubscribe(): void {
+        for (const subscription of this._subscriptions) {
+            this._webSocketService.unsubscribe(subscription);
+        }
+        this._subscriptions = [];
+        this._vertices = {};
+        this._verticesOrder = [];
     }
 
     /**

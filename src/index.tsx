@@ -62,9 +62,7 @@ async function initServices(): Promise<IBrandConfiguration | undefined> {
     ServiceFactory.register("metrics", () => metricsService);
     metricsService.initialize();
 
-    const visualizerService = new VisualizerService();
-    visualizerService.initialize();
-    ServiceFactory.register("visualizer", () => visualizerService);
+    ServiceFactory.register("visualizer", () => new VisualizerService());
 
     EventAggregator.subscribe("auth-state", "init", async () => {
         webSocketService.resubscribe();

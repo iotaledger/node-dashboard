@@ -60,11 +60,6 @@ export class MetricsService {
             { topic: WebSocketTopic.PeerMetric, isPublic: false },
             { topic: WebSocketTopic.Ms, isPublic: true },
             { topic: WebSocketTopic.ConfirmedMsMetrics, isPublic: true },
-            { topic: WebSocketTopic.TipInfo, isPublic: true },
-            { topic: WebSocketTopic.MilestoneInfo, isPublic: true },
-            { topic: WebSocketTopic.ConfirmedInfo, isPublic: true },
-            { topic: WebSocketTopic.SolidInfo, isPublic: true },
-            { topic: WebSocketTopic.Vertex, isPublic: true },
             { topic: WebSocketTopic.SpamMetrics, isPublic: false },
             { topic: WebSocketTopic.AvgSpamMetrics, isPublic: false }
         ];
