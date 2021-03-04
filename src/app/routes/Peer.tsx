@@ -245,7 +245,7 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
 
                     <div className="row info margin-t-s">
                         <InfoPanel
-                            caption="LSMI / LMI"
+                            caption="SMI / LMI"
                             value={`${this.state.latestSolidMilestoneIndex} / ${this.state.latestMilestoneIndex}`}
                             icon={<MilestoneIcon />}
                             backgroundStyle="green"
