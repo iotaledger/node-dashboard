@@ -276,6 +276,7 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                                     dialogPeerAddress: p.originalAddress ?? "",
                                                     dialogPeerAlias: p.alias ?? "",
                                                     dialogPeerId: p.id,
+                                                    dialogPeerIdOriginal: p.id,
                                                     dialogStatus: "",
                                                     dialogBusy: false
                                                 })}
@@ -336,6 +337,7 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                     type="button"
                                     onClick={() => this.setState({
                                         dialogPeerId: undefined,
+                                        dialogPeerIdOriginal: undefined,
                                         dialogType: undefined
                                     })}
                                     key={1}
@@ -421,8 +423,8 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
             const tangleService = ServiceFactory.get<TangleService>("tangle");
 
             try {
-                if (this.state.dialogType === "edit" && this.state.dialogPeerId) {
-                    await tangleService.peerDelete(this.state.dialogPeerId);
+                if (this.state.dialogType === "edit" && this.state.dialogPeerIdOriginal) {
+                    await tangleService.peerDelete(this.state.dialogPeerIdOriginal);
                 }
                 let addr = this.state.dialogPeerAddress;
                 if (!addr.endsWith("/")) {

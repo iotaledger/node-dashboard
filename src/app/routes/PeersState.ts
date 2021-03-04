@@ -32,6 +32,11 @@ export interface PeersState {
     dialogPeerId?: string;
 
     /**
+     * The peer to operate on.
+     */
+    dialogPeerIdOriginal?: string;
+
+    /**
      * Is the dialog busy.
      */
     dialogBusy?: boolean;
