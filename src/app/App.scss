@@ -1,3 +1,6 @@
+@import '../scss/media-queries';
+@import '../scss/variables';
+
 .app {
   display: flex;
   flex: 1;
@@ -8,5 +11,17 @@
 
   .scroll-content {
     overflow: auto;
+  }
+
+  @include tablet-down {
+    .health-indicators {
+      padding: $spacing-small 20px;
+    }
+  }
+
+  @include phone-down {
+    .health-indicators {
+      padding: $spacing-small 20px $spacing-small 66px;
+    }
   }
 }

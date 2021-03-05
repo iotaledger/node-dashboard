@@ -14,4 +14,14 @@ export interface AppState {
      * Is the app online.
      */
     online: boolean;
+
+    /**
+     * The sync health.
+     */
+    syncHealth: boolean;
+
+    /**
+     * The node health.
+     */
+    nodeHealth: boolean;
 }

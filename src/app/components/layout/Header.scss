@@ -12,6 +12,11 @@
   @include tablet-down {
     justify-content: flex-start;
     height: 60px;
+    padding-left: 0;
+  }
+
+  @include phone-down {
+    padding-left: $spacing-small;
   }
 
   .content {

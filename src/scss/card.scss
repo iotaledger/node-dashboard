@@ -8,6 +8,10 @@
   border-radius: 16px;
   background-color: var(--panel-background);
 
+  &.card__flat {
+    border-radius: 0;
+  }
+
   .card--header-count {
     @include font-size(12px);
 

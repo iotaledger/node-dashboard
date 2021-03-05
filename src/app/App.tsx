@@ -25,6 +25,7 @@ import { AppState } from "./AppState";
 import AsyncComponent from "./components/layout/AsyncComponent";
 import Breakpoint from "./components/layout/Breakpoint";
 import Header from "./components/layout/Header";
+import HealthIndicator from "./components/layout/HealthIndicator";
 import NavMenu from "./components/layout/NavMenu";
 import NavPanel from "./components/layout/NavPanel";
 import Analytics from "./routes/Analytics";
@@ -121,7 +122,9 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
         this.state = {
             isLoggedIn: Boolean(this._authService.isLoggedIn()),
             theme: this._themeService.get(),
-            online: false
+            online: false,
+            syncHealth: false,
+            nodeHealth: false
         };
 
         this.updateTitle();
@@ -177,6 +180,12 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                         this.setState({
                             online: true
                         });
+                    }
+                    if (data.is_healthy !== this.state.nodeHealth) {
+                        this.setState({ nodeHealth: data.is_healthy });
+                    }
+                    if (data.is_synced !== this.state.syncHealth) {
+                        this.setState({ syncHealth: data.is_synced });
                     }
                 }
             });
@@ -317,87 +326,103 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                             <p className="padding-l">The node is offline.</p>
                         )}
                         {this.state.online && (
-                            <Switch>
-                                {this.state.isLoggedIn && [
+                            <React.Fragment>
+                                <Breakpoint size="tablet" aboveBelow="below">
+                                    <div className="card card__flat row middle health-indicators">
+                                        <HealthIndicator
+                                            label="Health"
+                                            healthy={this.state.nodeHealth}
+                                            className="child margin-r-l"
+                                        />
+                                        <HealthIndicator
+                                            label="Sync"
+                                            healthy={this.state.syncHealth}
+                                            className="child"
+                                        />
+                                    </div>
+                                </Breakpoint>
+                                <Switch>
+                                    {this.state.isLoggedIn && [
+                                        <Route
+                                            exact={true}
+                                            path="/"
+                                            component={() => (<Home />)}
+                                            key="home"
+                                        />,
+                                        <Route
+                                            path="/analytics/:section?"
+                                            component={(props: AnalyticsRouteProps) => (<Analytics {...props} />)}
+                                            key="analytics"
+                                        />,
+                                        <Route
+                                            exact={true}
+                                            path="/peers"
+                                            component={() => (<Peers />)}
+                                            key="peers"
+                                        />,
+                                        <Route
+                                            path="/peers/:id"
+                                            component={(props: RouteComponentProps<PeerRouteProps>) =>
+                                                (<Peer {...props} />)}
+                                            key="peer"
+                                        />
+                                    ]}
+                                    {!this.state.isLoggedIn && (
+                                        <Route
+                                            path="/"
+                                            exact={true}
+                                            component={() => (<Explorer />)}
+                                        />
+                                    )}
                                     <Route
-                                        exact={true}
-                                        path="/"
-                                        component={() => (<Home />)}
-                                        key="home"
-                                    />,
-                                    <Route
-                                        path="/analytics/:section?"
-                                        component={(props: AnalyticsRouteProps) => (<Analytics {...props} />)}
-                                        key="analytics"
-                                    />,
-                                    <Route
-                                        exact={true}
-                                        path="/peers"
-                                        component={() => (<Peers />)}
-                                        key="peers"
-                                    />,
-                                    <Route
-                                        path="/peers/:id"
-                                        component={(props: RouteComponentProps<PeerRouteProps>) =>
-                                            (<Peer {...props} />)}
-                                        key="peer"
-                                    />
-                                ]}
-                                {!this.state.isLoggedIn && (
-                                    <Route
-                                        path="/"
+                                        path="/explorer"
                                         exact={true}
                                         component={() => (<Explorer />)}
                                     />
-                                )}
-                                <Route
-                                    path="/explorer"
-                                    exact={true}
-                                    component={() => (<Explorer />)}
-                                />
-                                <Route
-                                    path="/explorer/search/:query?"
-                                    component={(props: RouteComponentProps<SearchRouteProps>) =>
-                                        (<Search {...props} />)}
-                                />
-                                <Route
-                                    path="/explorer/message/:messageId"
-                                    component={(props: RouteComponentProps<MessageRouteProps>) =>
-                                        (<Message {...props} />)}
-                                />
-                                <Route
-                                    path="/explorer/milestone/:milestoneIndex"
-                                    component={(props: RouteComponentProps<MilestoneRouteProps>) =>
-                                        (<Milestone {...props} />)}
-                                />
-                                <Route
-                                    path="/explorer/indexed/:index"
-                                    component={(props: RouteComponentProps<IndexedRouteProps>) =>
-                                        (<Indexed {...props} />)}
-                                />
-                                <Route
-                                    path="/explorer/address/:address"
-                                    component={(props: RouteComponentProps<AddressRouteProps>) =>
-                                        (<Address {...props} />)}
-                                />
-                                <Route
-                                    path="/visualizer"
-                                    component={(props: RouteComponentProps) => (<Visualizer {...props} />)}
-                                />
-                                <Route
-                                    path="/settings"
-                                    component={() => (<Settings />)}
-                                />
-                                <Route
-                                    path="/login"
-                                    component={() => (<Login />)}
-                                />
-                                <Route
-                                    exact={true}
-                                    path="*"
-                                    component={() => (<Redirect to="/" />)}
-                                />
-                            </Switch>
+                                    <Route
+                                        path="/explorer/search/:query?"
+                                        component={(props: RouteComponentProps<SearchRouteProps>) =>
+                                            (<Search {...props} />)}
+                                    />
+                                    <Route
+                                        path="/explorer/message/:messageId"
+                                        component={(props: RouteComponentProps<MessageRouteProps>) =>
+                                            (<Message {...props} />)}
+                                    />
+                                    <Route
+                                        path="/explorer/milestone/:milestoneIndex"
+                                        component={(props: RouteComponentProps<MilestoneRouteProps>) =>
+                                            (<Milestone {...props} />)}
+                                    />
+                                    <Route
+                                        path="/explorer/indexed/:index"
+                                        component={(props: RouteComponentProps<IndexedRouteProps>) =>
+                                            (<Indexed {...props} />)}
+                                    />
+                                    <Route
+                                        path="/explorer/address/:address"
+                                        component={(props: RouteComponentProps<AddressRouteProps>) =>
+                                            (<Address {...props} />)}
+                                    />
+                                    <Route
+                                        path="/visualizer"
+                                        component={(props: RouteComponentProps) => (<Visualizer {...props} />)}
+                                    />
+                                    <Route
+                                        path="/settings"
+                                        component={() => (<Settings />)}
+                                    />
+                                    <Route
+                                        path="/login"
+                                        component={() => (<Login />)}
+                                    />
+                                    <Route
+                                        exact={true}
+                                        path="*"
+                                        component={() => (<Redirect to="/" />)}
+                                    />
+                                </Switch>
+                            </React.Fragment>
                         )}
                     </div>
                 </div>
