@@ -189,7 +189,7 @@ class Graph extends AsyncComponent<GraphProps, GraphState> {
                 const marginLeft = 10;
                 const marginRight = 10;
                 const axisLineCount = 4;
-                const decimalPlaces = maxY < 2 ? 2 : 0;
+                const decimalPlaces = maxY <= 2 ? 2 : 0;
 
                 const yScale = (graphHeight * yUsage) / maxY;
                 const barWidth = (graphWidth - axisLabelWidth - marginLeft - marginRight) /
