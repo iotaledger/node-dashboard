@@ -3,7 +3,7 @@ export interface INodeStatus {
     version: string;
     latest_version: string;
     uptime: number;
-    autopeering_id: string;
+    node_id: string;
     node_alias: string;
     bech32_hrp: string;
     connected_peers_count: number;

@@ -85,7 +85,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
 
         this.state = {
             nodeName: "",
-            peerId: "",
+            nodeId: "",
             displayVersion: "",
             displayLatestVersion: "",
             lmi: "-",
@@ -134,7 +134,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
             data => {
                 if (data) {
                     const nodeName = data.node_alias ? data.node_alias : BrandHelper.getConfiguration().name;
-                    const peerId = data.autopeering_id || "No peer Id.";
+                    const nodeId = data.node_id || "No node Id.";
                     const uptime = FormatHelper.duration(data.uptime);
                     const memory = FormatHelper.size(DataHelper.calculateMemoryUsage(data));
 
@@ -142,8 +142,8 @@ class Home extends AsyncComponent<unknown, HomeState> {
                         this.setState({ nodeName });
                     }
 
-                    if (peerId !== this.state.peerId) {
-                        this.setState({ peerId });
+                    if (nodeId !== this.state.nodeId) {
+                        this.setState({ nodeId });
                     }
 
                     if (uptime !== this.state.uptime) {
@@ -237,9 +237,9 @@ class Home extends AsyncComponent<unknown, HomeState> {
                             <div className="node-info">
                                 <div>
                                     <h1>{this.state.blindMode ? "**********" : this.state.nodeName}</h1>
-                                    {this.state.peerId && (
+                                    {this.state.nodeId && (
                                         <p className="secondary margin-t-t word-break-all">
-                                            {this.state.blindMode ? "*********" : this.state.peerId}
+                                            {this.state.blindMode ? "*********" : this.state.nodeId}
                                         </p>
                                     )}
                                 </div>

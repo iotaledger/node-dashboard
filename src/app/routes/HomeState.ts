@@ -6,9 +6,9 @@ export interface HomeState {
     nodeName?: string;
 
     /**
-     * The peer id.
+     * The node id.
      */
-    peerId?: string;
+    nodeId?: string;
 
     /**
      * The version.
