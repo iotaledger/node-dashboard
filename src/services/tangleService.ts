@@ -72,16 +72,25 @@ export class TangleService {
             }
         } catch {}
 
-        try {
-            // If the query is 64 bytes hex, try and look for a message
-            if (Converter.isHex(queryLower) && queryLower.length === 64) {
+        // If the query is 64 bytes hex, try and look for a message
+        if (Converter.isHex(queryLower) && queryLower.length === 64) {
+            try {
                 const message = await client.message(queryLower);
 
                 return {
                     message
                 };
-            }
-        } catch {}
+            } catch {}
+
+            // If the query is 64 bytes hex, try and look for a transaction included message
+            try {
+                const message = await client.transactionIncludedMessage(queryLower);
+
+                return {
+                    message
+                };
+            } catch {}
+        }
 
         try {
             // If the query is 68 bytes hex, try and look for an output
