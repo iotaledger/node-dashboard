@@ -45,8 +45,8 @@ class Peers extends AsyncComponent<RouteComponentProps, ExplorerState> {
         this.state = {
             milestones: [],
             mps: "-",
-            cmps: "-",
-            confirmationRate: "-"
+            rmps: "-",
+            referencedRate: "-"
         };
     }
 
@@ -77,8 +77,8 @@ class Peers extends AsyncComponent<RouteComponentProps, ExplorerState> {
                 if (data) {
                     this.setState({
                         mps: data.mps.toFixed(1).toString(),
-                        cmps: data.cmps.toFixed(1).toString(),
-                        confirmationRate: `${data.referenced_rate.toFixed(1).toString()}%`
+                        rmps: data.rmps.toFixed(1).toString(),
+                        referencedRate: `${data.referenced_rate.toFixed(1).toString()}%`
                     });
                 }
             }
@@ -125,14 +125,14 @@ class Peers extends AsyncComponent<RouteComponentProps, ExplorerState> {
                             backgroundStyle="green"
                         />
                         <InfoPanel
-                            caption="Confirmed Messages per Second"
-                            value={this.state.cmps}
+                            caption="Referenced Messages per Second"
+                            value={this.state.rmps}
                             icon={<UptimeIcon />}
                             backgroundStyle="blue"
                         />
                         <InfoPanel
-                            caption="Confirmation Rate"
-                            value={this.state.confirmationRate}
+                            caption="Referenced Rate"
+                            value={this.state.referencedRate}
                             icon={<ConfirmationIcon />}
                             backgroundStyle="purple"
                         />
