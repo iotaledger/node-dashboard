@@ -91,7 +91,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
             lastMsReceivedTime: 0,
             milestoneTiming: [],
             mps: [],
-            cmps: [],
+            rmps: [],
             lastStatusReceivedTime: 0,
             lastDbInterval: 1000,
             memorySize: [],
@@ -164,7 +164,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                     lastMsReceivedTime: Date.now(),
                     milestoneTiming: nonNull.map(m => m.time_since_last_ms),
                     mps: nonNull.map(m => m.mps * m.time_since_last_ms),
-                    cmps: nonNull.map(m => m.cmps * m.time_since_last_ms)
+                    rmps: nonNull.map(m => m.rmps * m.time_since_last_ms)
                 });
             }
         );
@@ -449,8 +449,8 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                                         },
                                         {
                                             className: "bar-color-2",
-                                            label: "Confirmed Messages",
-                                            values: this.state.cmps
+                                            label: "Referenced Messages",
+                                            values: this.state.rmps
                                         }
                                     ]}
                                 />

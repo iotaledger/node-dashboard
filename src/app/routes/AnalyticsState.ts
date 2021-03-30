@@ -52,9 +52,9 @@ export interface AnalyticsState {
     mps: number[];
 
     /**
-     * Confirmed messages per milestone.
+     * Referenced messages per milestone.
      */
-    cmps: number[];
+    rmps: number[];
 
     /**
      * Last db size received time.

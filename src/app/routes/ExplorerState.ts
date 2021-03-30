@@ -5,14 +5,14 @@ export interface ExplorerState {
     mps: string;
 
     /**
-     * Confirmed messages per second.
+     * Referenced messages per second.
      */
-    cmps: string;
+    rmps: string;
 
     /**
-     * Confirmation rate.
+     * Referenced rate.
      */
-    confirmationRate: string;
+    referencedRate: string;
 
     /**
      * The milestones.
