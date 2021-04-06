@@ -1551,7 +1551,7 @@ module.exports = {
             "error"
         ],
         "unicorn/prefer-spread": [
-            "error"
+            "off"
         ],
         "unicorn/prefer-starts-ends-with": [
             "error"
