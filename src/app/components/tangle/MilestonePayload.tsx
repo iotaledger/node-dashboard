@@ -69,7 +69,7 @@ class MilestonePayload extends Component<MilestonePayloadProps> {
                 <div className="card--value card--value__mono">
                     {this.props.payload.inclusionMerkleProof}
                 </div>
-                {this.props.payload.nextPoWScore && this.props.payload.nextPoWScoreMilestoneIndex && (
+                {this.props.payload.nextPoWScore !== 0 && this.props.payload.nextPoWScoreMilestoneIndex !== 0 && (
                     <React.Fragment>
                         <div className="card--label">
                             Next PoW Score
