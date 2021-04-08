@@ -791,8 +791,6 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
             tabs.push("Spammer");
         }
 
-        tabs.push("Log");
-
         return tabs;
     }
 }
