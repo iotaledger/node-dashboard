@@ -62,7 +62,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                     };
                 }>(
                     `${window.location.protocol}//${window.location.host}`,
-                    "/api/plugins/spammer/?cmd=settings",
+                    "/api/plugins/spammer/status",
                     "get",
                     undefined,
                     authHeaders);
@@ -123,7 +123,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
     public async componentDidMount(): Promise<void> {
         super.componentDidMount();
 
-        await this.pluginSettings();
+        await this.pluginStatus();
     }
 
     /**
@@ -202,9 +202,9 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
     }
 
     /**
-     * Get the settings for the plugin.
+     * Get the status for the plugin.
      */
-    private async pluginSettings(): Promise<void> {
+    private async pluginStatus(): Promise<void> {
         try {
             const response = await FetchHelper.json<unknown, {
                 data?: ISpammerSettings;
@@ -213,7 +213,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                 };
             }>(
                 `${window.location.protocol}//${window.location.host}`,
-                "/api/plugins/spammer/?cmd=settings",
+                "/api/plugins/spammer/status",
                 "get",
                 undefined,
                 Spammer.buildAuthHeaders());
@@ -250,7 +250,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
             this.setState({ cpu: "80" });
         }
 
-        const numWorkers = Number.parseFloat(this.state.workers);
+        const numWorkers = Number.parseInt(this.state.workers, 10);
         if (Number.isNaN(numWorkers)) {
             this.setState({ workers: this.state.workersMax.toString() });
         } else if (numWorkers <= 0 || numWorkers > this.state.workersMax) {
@@ -263,30 +263,23 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
      */
     private async pluginStart(): Promise<void> {
         try {
-            const response = await FetchHelper.json<unknown, {
+            await FetchHelper.json<unknown, {
                 data?: ISpammerSettings;
                 error?: {
                     message: string;
                 };
             }>(
                 `${window.location.protocol}//${window.location.host}`,
-                `/api/plugins/spammer/?cmd=start&mpsRateLimit=${this.state.mps
-                }&cpuMaxUsage=${Number.parseFloat(this.state.cpu) / 100
-                }&spammerWorkers=${this.state.workers}`,
-                "get",
-                undefined,
+                "/api/plugins/spammer/start",
+                "post",
+                {
+                    mpsRateLimit: Number.parseFloat(this.state.mps),
+                    cpuMaxUsage: Number.parseFloat(this.state.cpu) / 100,
+                    spammerWorkers: Number.parseInt(this.state.workers, 10)
+                },
                 Spammer.buildAuthHeaders());
 
-            if (response.data) {
-                this.setState({
-                    isRunning: response.data.running,
-                    mps: response.data.mpsRateLimit.toString(),
-                    cpu: (response.data.cpuMaxUsage * 100).toString(),
-                    workers: response.data.spammerWorkers.toString()
-                });
-            } else {
-                console.log(response.error);
-            }
+            await this.pluginStatus();
         } catch (err) {
             console.log(err);
         }
@@ -297,28 +290,19 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
      */
     private async pluginStop(): Promise<void> {
         try {
-            const response = await FetchHelper.json<unknown, {
+            await FetchHelper.json<unknown, {
                 data?: ISpammerSettings;
                 error?: {
                     message: string;
                 };
             }>(
                 `${window.location.protocol}//${window.location.host}`,
-                "/api/plugins/spammer/?cmd=stop",
-                "get",
+                "/api/plugins/spammer/stop",
+                "post",
                 undefined,
                 Spammer.buildAuthHeaders());
 
-            if (response.data) {
-                this.setState({
-                    isRunning: response.data.running,
-                    mps: response.data.mpsRateLimit.toString(),
-                    cpu: (response.data.cpuMaxUsage * 100).toString(),
-                    workers: response.data.spammerWorkers.toString()
-                });
-            } else {
-                console.log(response.error);
-            }
+            await this.pluginStatus();
         } catch (err) {
             console.log(err);
         }
