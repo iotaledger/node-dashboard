@@ -16,11 +16,11 @@
 
 # About
 
-Common dashboard used by IOTA node software.
+Common dashboard used by IOTA node software Hornet and Bee.
 
 ## Prerequisites
 
-To deploy your own version of the Node Dashboard, you need to have at least [version 10 of Node.js](https://nodejs.org/en/download/) installed on your device.
+To deploy your own version of the Node Dashboard, you need to have at least [version 14 of Node.js](https://nodejs.org/en/download/) installed on your device.
 
 To check if you have Node.js installed, run the following command:
 
@@ -32,7 +32,7 @@ If Node.js is installed, you should see the version that's installed.
 
 # Getting Started
 
-You need to run a local version of the Hornet node software from the Chrysalis Part 2 branch [https://github.com/gohornet/hornet/tree/chrysalis-pt2](https://github.com/gohornet/hornet/tree/chrysalis-pt2)
+You need to run a local version of the Hornet node software from the main branch [https://github.com/gohornet/hornet/](https://github.com/gohornet/hornet/)
 
 1. Make sure to set `dashboard.dev` to true in Hornet config, to enable the node to serve assets
    from the dev instance.
@@ -50,4 +50,4 @@ See our [contributing guidelines](.github/CONTRIBUTING.md) for more information.
 
 ## Joining the discussion
 
-If you want to get involved in the community, need help with getting set up, have any issues or just want to discuss IOTA, Distributed Registry Technology (DRT), and IoT with other people, feel free to join our [Discord](https://discord.iota.org/).
+If you want to get involved in the community, need help with getting set up, have any issues or just want to discuss IOTA, feel free to join our [Discord](https://discord.iota.org/).
