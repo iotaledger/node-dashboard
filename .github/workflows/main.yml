@@ -1,16 +1,16 @@
-name: Client Build Chrysalis Pt 2
+name: Client Build Main/Develop
 
 on: 
   push:
-    branches: [feature/chrysalis-pt2]
+    branches: [main]
     paths:
       - "src/**"
-      - ".github/workflows/chrysalis-pt2.yml"
+      - ".github/workflows/main.yml"
   pull_request:
-    branches: [feature/chrysalis-pt2]
+    branches: [feature/develop]
     paths:
       - "src/**"
-      - ".github/workflows/chrysalis-pt2.yml"
+      - ".github/workflows/main.yml"
 
 jobs:
   build:
