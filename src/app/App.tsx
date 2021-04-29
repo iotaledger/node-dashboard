@@ -387,7 +387,7 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                                     />
                                     <Route
                                         path="/explorer/unavailable"
-                                        component={() => (<Unavailable />)}
+                                        component={(props: RouteComponentProps<never>) => (<Unavailable {...props} />)}
                                     />
                                     <Route
                                         path="/explorer/message/:messageId"
