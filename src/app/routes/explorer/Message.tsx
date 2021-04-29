@@ -78,6 +78,8 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
             }, async () => {
                 await this.updateMessageDetails();
             });
+        } else if (result?.unavailable) {
+            this.props.history.replace("/explorer/unavailable");
         } else {
             this.props.history.replace(`/explorer/search/${this.props.match.params.messageId}`);
         }
@@ -180,8 +182,11 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                         <h2>
                             Metadata
                         </h2>
-                        {!this.state.metadata && (
+                        {!this.state.metadata && !this.state.metadataStatus && (
                             <Spinner />
+                        )}
+                        {this.state.metadataStatus && (
+                            <p className="margin-t-s danger">{this.state.metadataStatus}</p>
                         )}
                         {this.state.metadata && (
                             <React.Fragment>
@@ -322,10 +327,12 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
             childrenIds: details?.childrenIds && details?.childrenIds.length > 0
                 ? details?.childrenIds : (this.state.childrenIds ?? []),
             messageTangleStatus: this.calculateStatus(details?.metadata),
-            childrenBusy: false
+            childrenBusy: false,
+            metadataStatus: details?.unavailable ? "The node is currently unavailable or is not synced" : undefined
         });
 
-        if (!details?.metadata?.referencedByMilestoneIndex || !details?.metadata?.milestoneIndex) {
+        if (!details?.unavailable &&
+            (!details?.metadata?.referencedByMilestoneIndex || !details?.metadata?.milestoneIndex)) {
             this._timerId = setTimeout(async () => {
                 await this.updateMessageDetails();
             }, 10000);

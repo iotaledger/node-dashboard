@@ -1,4 +1,4 @@
-import { Bech32Helper, Converter, IClient, IIndexationPayload, IMessageMetadata, IMilestonePayload, IMilestoneResponse, INodeInfo, IOutputResponse, ITransactionPayload, SingleNodeClient } from "@iota/iota.js";
+import { Bech32Helper, ClientError, Converter, IClient, IIndexationPayload, IMessageMetadata, IMilestonePayload, IMilestoneResponse, INodeInfo, IOutputResponse, ITransactionPayload, SingleNodeClient } from "@iota/iota.js";
 import { ServiceFactory } from "../factories/serviceFactory";
 import { ISearchResponse } from "../models/tangle/ISearchResponse";
 import { AuthService } from "./authService";
@@ -39,7 +39,7 @@ export class TangleService {
      * @param query The query to search for.
      * @returns The response data.
      */
-    public async search(query: string): Promise<ISearchResponse> {
+    public async search(query: string): Promise<ISearchResponse & { unavailable?: boolean }> {
         const queryLower = query.toLowerCase();
         const client = this.buildClient();
 
@@ -52,7 +52,13 @@ export class TangleService {
                     milestone
                 };
             }
-        } catch {}
+        } catch (err) {
+            if (this.checkForUnavailable(err)) {
+                return {
+                    unavailable: true
+                };
+            }
+        }
 
         try {
             if (!this._nodeInfo) {
@@ -70,7 +76,13 @@ export class TangleService {
                     };
                 }
             }
-        } catch {}
+        } catch (err) {
+            if (this.checkForUnavailable(err)) {
+                return {
+                    unavailable: true
+                };
+            }
+        }
 
         // If the query is 64 bytes hex, try and look for a message
         if (Converter.isHex(queryLower) && queryLower.length === 64) {
@@ -80,7 +92,13 @@ export class TangleService {
                 return {
                     message
                 };
-            } catch {}
+            } catch (err) {
+                if (this.checkForUnavailable(err)) {
+                    return {
+                        unavailable: true
+                    };
+                }
+            }
 
             // If the query is 64 bytes hex, try and look for a transaction included message
             try {
@@ -89,7 +107,13 @@ export class TangleService {
                 return {
                     message
                 };
-            } catch {}
+            } catch (err) {
+                if (this.checkForUnavailable(err)) {
+                    return {
+                        unavailable: true
+                    };
+                }
+            }
         }
 
         try {
@@ -101,7 +125,13 @@ export class TangleService {
                     output
                 };
             }
-        } catch {}
+        } catch (err) {
+            if (this.checkForUnavailable(err)) {
+                return {
+                    unavailable: true
+                };
+            }
+        }
 
         try {
             if (Converter.isHex(queryLower) && queryLower.length === 64) {
@@ -117,7 +147,13 @@ export class TangleService {
                     };
                 }
             }
-        } catch {}
+        } catch (err) {
+            if (this.checkForUnavailable(err)) {
+                return {
+                    unavailable: true
+                };
+            }
+        }
 
         try {
             if (query.length > 0) {
@@ -148,7 +184,13 @@ export class TangleService {
                     };
                 }
             }
-        } catch {}
+        } catch (err) {
+            if (this.checkForUnavailable(err)) {
+                return {
+                    unavailable: true
+                };
+            }
+        }
 
         return {};
     }
@@ -205,6 +247,7 @@ export class TangleService {
     public async messageDetails(messageId: string): Promise<{
         metadata?: IMessageMetadata;
         childrenIds?: string[];
+        unavailable?: boolean;
     } | undefined> {
         try {
             const client = this.buildClient();
@@ -216,7 +259,11 @@ export class TangleService {
                 metadata,
                 childrenIds: children ? children.childrenMessageIds : undefined
             };
-        } catch {}
+        } catch (err) {
+            return {
+                unavailable: this.checkForUnavailable(err)
+            };
+        }
     }
 
     /**
@@ -246,7 +293,7 @@ export class TangleService {
      */
     private buildClient(): IClient {
         const jwt = this._authService.isLoggedIn();
-        const headers: { [id: string]: string} = {};
+        const headers: { [id: string]: string } = {};
 
         if (jwt) {
             headers.Authorization = `Bearer ${jwt}`;
@@ -263,5 +310,14 @@ export class TangleService {
                 basePath: "/api/v1/",
                 headers
             });
+    }
+
+    /**
+     * Check for the node being unavaialable.
+     * @param error The error.
+     * @returns unavailable if detected.
+     */
+    private checkForUnavailable(error: ClientError): boolean {
+        return error.httpStatus === 503;
     }
 }

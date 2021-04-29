@@ -13,6 +13,11 @@ export interface MessageState {
     metadata?: IMessageMetadata;
 
     /**
+     * Metadata status.
+     */
+    metadataStatus?: string;
+
+    /**
      * Reason for the conflict.
      */
     conflictReason?: string;
