@@ -3,7 +3,6 @@ import React, { Component, ReactNode } from "react";
 import { ServiceFactory } from "../../../factories/serviceFactory";
 import { NodeConfigService } from "../../../services/nodeConfigService";
 import { Bech32AddressHelper } from "../../../utils/bech32AddressHelper";
-import { FormatHelper } from "../../../utils/formatHelper";
 import Bech32Address from "./Bech32Address";
 import { ReceiptPayloadProps } from "./ReceiptPayloadProps";
 import { ReceiptPayloadState } from "./ReceiptPayloadState";
@@ -44,13 +43,15 @@ class ReceiptPayload extends Component<ReceiptPayloadProps, ReceiptPayloadState>
                     Migrated At
                 </div>
                 <div className="card--value row">
-                    {FormatHelper.duration(this.props.payload.migratedAt)}
+                    {this.props.payload.migratedAt}
                 </div>
                 <div className="card--label">
                     Final
                 </div>
                 <div className="card--value row">
-                    {this.props.payload.final}
+                    <div className="margin-b-m">
+                        {this.props.payload.final ? "Yes" : "No"}
+                    </div>
                 </div>
                 {this.props.payload.funds.map((f, idx) => (
                     <div
@@ -64,9 +65,6 @@ class ReceiptPayload extends Component<ReceiptPayloadProps, ReceiptPayloadState>
                         <div className="card--value card--value__mono">
                             {f.tailTransactionHash}
                         </div>
-                        <div className="card--label">
-                            Address
-                        </div>
                         <div className="card--value card--value__mono">
                             <Bech32Address
                                 activeLinks={true}
@@ -76,7 +74,7 @@ class ReceiptPayload extends Component<ReceiptPayloadProps, ReceiptPayloadState>
                             />
                         </div>
                         <div className="card--label">
-                            Despoit
+                            Deposit
                         </div>
                         <div className="card--value card--value__mono">
                             <button
@@ -101,7 +99,7 @@ class ReceiptPayload extends Component<ReceiptPayloadProps, ReceiptPayloadState>
                     {this.props.payload.transaction.input.milestoneId}
                 </div>
                 <div className="card--label">
-                    Output Transaction Amount
+                    Output Transaction Amount to Treasury
                 </div>
                 <div className="card--value card--value__mono">
                     <button
