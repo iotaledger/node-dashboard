@@ -126,27 +126,31 @@ class Search extends AsyncComponent<RouteComponentProps<SearchRouteProps>, Searc
                 let redirect = "";
 
                 if (response) {
-                    let objType;
-                    let objParam = query;
-                    if (response.message) {
-                        objType = "message";
-                        // Recalculate the message id from the content, in case
-                        // the lookup was a response to a transaction id lookup
-                        const writeStream = new WriteStream();
-                        serializeMessage(writeStream, response.message);
-                        objParam = Converter.bytesToHex(Blake2b.sum256(writeStream.finalBytes()));
-                    } else if (response.address) {
-                        objType = "address";
-                    } else if (response.indexMessageIds) {
-                        objType = "indexed";
-                    } else if (response.output) {
-                        objType = "message";
-                        objParam = response.output.messageId;
-                    } else if (response.milestone) {
-                        objType = "milestone";
-                    }
-                    if (objType) {
-                        redirect = `/explorer/${objType}/${objParam}`;
+                    if (response.unavailable) {
+                        redirect = "/explorer/unavailable";
+                    } else {
+                        let objType;
+                        let objParam = query;
+                        if (response.message) {
+                            objType = "message";
+                            // Recalculate the message id from the content, in case
+                            // the lookup was a response to a transaction id lookup
+                            const writeStream = new WriteStream();
+                            serializeMessage(writeStream, response.message);
+                            objParam = Converter.bytesToHex(Blake2b.sum256(writeStream.finalBytes()));
+                        } else if (response.address) {
+                            objType = "address";
+                        } else if (response.indexMessageIds) {
+                            objType = "indexed";
+                        } else if (response.output) {
+                            objType = "message";
+                            objParam = response.output.messageId;
+                        } else if (response.milestone) {
+                            objType = "milestone";
+                        }
+                        if (objType) {
+                            redirect = `/explorer/${objType}/${objParam}`;
+                        }
                     }
                 }
 

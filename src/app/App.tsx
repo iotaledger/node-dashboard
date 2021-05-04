@@ -47,6 +47,7 @@ import Peers from "./routes/Peers";
 import Search from "./routes/Search";
 import { SearchRouteProps } from "./routes/SearchRouteProps";
 import Settings from "./routes/Settings";
+import Unavailable from "./routes/Unavailable";
 import Visualizer from "./routes/Visualizer";
 
 /**
@@ -383,6 +384,10 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                                         path="/explorer/search/:query?"
                                         component={(props: RouteComponentProps<SearchRouteProps>) =>
                                             (<Search {...props} />)}
+                                    />
+                                    <Route
+                                        path="/explorer/unavailable"
+                                        component={(props: RouteComponentProps<never>) => (<Unavailable {...props} />)}
                                     />
                                     <Route
                                         path="/explorer/message/:messageId"

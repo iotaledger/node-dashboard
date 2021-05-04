@@ -90,6 +90,8 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                     statusBusy: false
                 });
             });
+        } else if (result?.unavailable) {
+            this.props.history.replace("/explorer/unavailable");
         } else {
             this.props.history.replace(`/explorer/search/${this.props.match.params.address}`);
         }

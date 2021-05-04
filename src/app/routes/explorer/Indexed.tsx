@@ -71,6 +71,8 @@ class Indexed extends AsyncComponent<RouteComponentProps<IndexedRouteProps>, Ind
                     statusBusy: false
                 });
             });
+        } else if (result?.unavailable) {
+            this.props.history.replace("/explorer/unavailable");
         } else {
             this.props.history.replace(`/explorer/search/${this.props.match.params.index}`);
         }
