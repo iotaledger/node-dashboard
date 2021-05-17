@@ -324,7 +324,7 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                     </Header>
                     <div className="fill scroll-content">
                         {!this.state.online && (
-                            <p className="padding-l">The node is offline.</p>
+                            <p className="padding-l">The node is offline or loading.</p>
                         )}
                         {this.state.online && (
                             <React.Fragment>
