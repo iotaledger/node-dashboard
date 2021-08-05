@@ -27,7 +27,12 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
     /**
      * Number of bytes in a MB.
      */
-    private static readonly BYTES_PER_MB: number = 1024 * 1024;
+    private static readonly BYTES_PER_MB: number = 1000 * 1000;
+
+    /**
+     * Number of bytes in a MiB.
+     */
+    private static readonly BYTES_PER_MIB: number = 1024 * 1024;
 
     /**
      * The metrics service.
@@ -176,7 +181,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                 const nonNull = allData.filter(d => d !== undefined && d !== null);
 
                 this.setState({
-                    memorySize: nonNull.map(d => DataHelper.calculateMemoryUsage(d) / Analytics.BYTES_PER_MB),
+                    memorySize: nonNull.map(d => DataHelper.calculateMemoryUsage(d) / Analytics.BYTES_PER_MIB),
                     lastStatusReceivedTime: Date.now(),
                     lastStatusInterval: this.state.lastStatusReceivedTime === 0
                         ? 1000 : Date.now() - this.state.lastStatusReceivedTime
@@ -212,12 +217,12 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
 
                 this.setState({
                     memory: {
-                        stackAlloc: nonNull.map(d => d.mem.stack_sys / Analytics.BYTES_PER_MB),
-                        heapReleased: nonNull.map(d => d.mem.heap_released / Analytics.BYTES_PER_MB),
-                        heapInUse: nonNull.map(d => d.mem.heap_inuse / Analytics.BYTES_PER_MB),
-                        heapIdle: nonNull.map(d => d.mem.heap_idle / Analytics.BYTES_PER_MB),
-                        heapSys: nonNull.map(d => d.mem.heap_sys / Analytics.BYTES_PER_MB),
-                        totalAlloc: nonNull.map(d => d.mem.sys / Analytics.BYTES_PER_MB)
+                        stackAlloc: nonNull.map(d => d.mem.stack_sys / Analytics.BYTES_PER_MIB),
+                        heapReleased: nonNull.map(d => d.mem.heap_released / Analytics.BYTES_PER_MIB),
+                        heapInUse: nonNull.map(d => d.mem.heap_inuse / Analytics.BYTES_PER_MIB),
+                        heapIdle: nonNull.map(d => d.mem.heap_idle / Analytics.BYTES_PER_MIB),
+                        heapSys: nonNull.map(d => d.mem.heap_sys / Analytics.BYTES_PER_MIB),
+                        totalAlloc: nonNull.map(d => d.mem.sys / Analytics.BYTES_PER_MIB)
                     }
                 });
 
@@ -239,7 +244,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                 const nonNull = allData.filter(d => d !== undefined && d !== null);
 
                 this.setState({
-                    databaseSize: nonNull.map(d => d.total / 1024 / 1024),
+                    databaseSize: nonNull.map(d => d.total / Analytics.BYTES_PER_MB),
                     lastDbReceivedTime: Date.now(),
                     lastDbInterval: this.state.lastDbReceivedTime === 0
                         ? 60000 : Date.now() - this.state.lastDbReceivedTime
@@ -490,7 +495,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                             </div>
                             <div className="card fill margin-t-s">
                                 <Graph
-                                    caption="Memory (MB)"
+                                    caption="Memory (MiB)"
                                     seriesMaxLength={60}
                                     endTime={this.state.lastDbReceivedTime}
                                     timeInterval={this.state.lastDbInterval}
@@ -538,7 +543,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                         <div className="fill">
                             <div className="card fill">
                                 <Graph
-                                    caption="Stack Alloc (MB)"
+                                    caption="Stack Alloc (MiB)"
                                     seriesMaxLength={60}
                                     endTime={this.state.lastStatusReceivedTime}
                                     timeInterval={this.state.lastStatusInterval}
@@ -553,7 +558,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                             </div>
                             <div className="card fill margin-t-s">
                                 <Graph
-                                    caption="Heap In Use (MB)"
+                                    caption="Heap In Use (MiB)"
                                     seriesMaxLength={60}
                                     endTime={this.state.lastStatusReceivedTime}
                                     timeInterval={this.state.lastStatusInterval}
@@ -568,7 +573,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                             </div>
                             <div className="card fill margin-t-s">
                                 <Graph
-                                    caption="Heap Released (MB)"
+                                    caption="Heap Released (MiB)"
                                     seriesMaxLength={60}
                                     endTime={this.state.lastStatusReceivedTime}
                                     timeInterval={this.state.lastStatusInterval}
@@ -583,7 +588,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                             </div>
                             <div className="card fill margin-t-s">
                                 <Graph
-                                    caption="Heap Idle (MB)"
+                                    caption="Heap Idle (MiB)"
                                     seriesMaxLength={60}
                                     endTime={this.state.lastStatusReceivedTime}
                                     timeInterval={this.state.lastStatusInterval}
@@ -598,7 +603,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                             </div>
                             <div className="card fill margin-t-s">
                                 <Graph
-                                    caption="Heap Sys (MB)"
+                                    caption="Heap Sys (MiB)"
                                     seriesMaxLength={60}
                                     endTime={this.state.lastStatusReceivedTime}
                                     timeInterval={this.state.lastStatusInterval}
@@ -613,7 +618,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                             </div>
                             <div className="card fill margin-t-s">
                                 <Graph
-                                    caption="Total Alloc (MB)"
+                                    caption="Total Alloc (MiB)"
                                     seriesMaxLength={60}
                                     endTime={this.state.lastStatusReceivedTime}
                                     timeInterval={this.state.lastStatusInterval}
