@@ -19,24 +19,52 @@ export class FormatHelper {
     }
 
     /**
-     * Format the bytes to a human readable size.
+     * Format the bytes to a human readable size. (SI standard)
      * @param bytes The bytes to format.
      * @param decimalPlaces The number of decimal places.
      * @returns The formatted string.
      */
     public static size(bytes: number, decimalPlaces: number = 2): string {
         if (!bytes) {
-            return "0 Bytes";
+            return "0 bytes";
+        }
+
+        const index = Math.floor(Math.log(bytes) / Math.log(1000));
+        const units = ["bytes", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+
+        const value = Number((bytes / Math.pow(1000, index)).toFixed(decimalPlaces));
+        let unit = units[index];
+
+        if (unit === "bytes" && value === 1) {
+            unit = "byte";
+        }
+
+        if (unit === undefined) {
+            return bytes.toFixed(decimalPlaces).toString();
+        }
+
+        return `${value} ${unit}`;
+    }
+
+    /**
+     * Format the bytes to a human readable size. (IEC standard)
+     * @param bytes The bytes to format.
+     * @param decimalPlaces The number of decimal places.
+     * @returns The formatted string.
+     */
+     public static iSize(bytes: number, decimalPlaces: number = 2): string {
+        if (!bytes) {
+            return "0 bytes";
         }
 
         const index = Math.floor(Math.log(bytes) / Math.log(1024));
-        const units = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+        const units = ["bytes", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"];
 
         const value = Number((bytes / Math.pow(1024, index)).toFixed(decimalPlaces));
         let unit = units[index];
 
-        if (unit === "Bytes" && value === 1) {
-            unit = "Byte";
+        if (unit === "bytes" && value === 1) {
+            unit = "byte";
         }
 
         if (unit === undefined) {
