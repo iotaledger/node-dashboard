@@ -7,6 +7,7 @@ import { ThemeService } from "../../services/themeService";
 import AsyncComponent from "../components/layout/AsyncComponent";
 import TabPanel from "../components/layout/TabPanel";
 import Spammer from "../components/plugins/Spammer";
+import Participation from "../components/plugins/Participation";
 import "./Settings.scss";
 import { SettingsState } from "./SettingsState";
 
@@ -61,6 +62,10 @@ class Settings extends AsyncComponent<unknown, SettingsState> {
             const pluginDetails = Spammer.pluginDetails();
             if (pluginDetails) {
                 plugins.push(pluginDetails);
+            }
+            const participationDetails = Participation.pluginDetails();
+            if (participationDetails) {
+                plugins.push(participationDetails);
             }
         }
 
@@ -144,7 +149,7 @@ class Settings extends AsyncComponent<unknown, SettingsState> {
                             ))}
                         </div>
                         {this.state.activePluginIndex >= 0 && (
-                            <div className="card padding-l">
+                            <div>
                                 {this.state.plugins[this.state.activePluginIndex].settings}
                             </div>
                         )}

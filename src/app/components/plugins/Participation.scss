@@ -1,0 +1,160 @@
+@import '../../../scss/card';
+@import '../../../scss/fonts';
+@import '../../../scss/variables';
+@import '../../../scss/media-queries';
+
+.participation {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+
+
+    .content {
+        flex: 1;
+        max-width: $content-width-desktop;
+
+        .add-button {
+            @include font-size(14px);
+    
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 6px 12px;
+            border: 1px solid var(--text-color-secondary);
+            border-radius: $form-input-radius;
+            outline: 0;
+            background: var(--bar-color-2);
+            color: var(--text-color-primary);
+            font-family: $font-sans;
+            cursor: pointer;
+    
+            &:hover {
+            color: var(--accent-primary);
+            }
+    
+            &:focus {
+            box-shadow: 0 0 3px 0 var(--accent-primary);
+            }
+        }
+        .events-panel {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: space-between;
+      
+            @media (max-width: 1340px) {
+              flex-direction: column;
+              flex-wrap: nowrap;
+              justify-content: flex-start;
+            }
+      
+            .events-panel--item {
+              width: $content-width-desktop / 2 - $spacing-small / 2;
+              margin-top: $spacing-small;
+              overflow: hidden;
+      
+              @media (max-width: 1340px) {
+                width: 100%;
+              }
+      
+              .card {
+                padding: $spacing-large;
+      
+                .event-id {
+                  @include font-size(14px);
+
+                  @media (min-width: 1340px) {
+                    @include font-size(12px);
+                  }
+      
+                  display: flex;
+                  flex-direction: column;
+                  color: var(--text-color-primary);
+                  font-family: $font-sans;
+                  font-weight: 500;
+
+                  h4{
+                    display: inline;
+                  }
+                }
+
+                .event-actions {
+                  justify-content: space-between;
+                  margin-top: $spacing-small;
+      
+                  @media (max-width: 720px) {
+                    flex-direction: column;
+      
+                    .card--action {
+                      justify-content: center;
+                    }
+      
+                    p {
+                      display: flex;
+                      justify-content: center;
+                    }
+                  }
+                }
+              }
+            }
+          }
+    }
+
+    .participation-item {
+      width: 155px;
+      height: 75px;
+      margin-right: $spacing-small;
+
+      @include desktop-down {
+        width: 160px;
+      }
+
+      h4 {
+        min-height: 30px;
+      }
+
+      .participation-value {
+        @include font-size(16px);
+
+        color: var(--text-color-primary);
+        font-family: $font-sans;
+        font-weight: bold;
+        white-space: nowrap;
+      }
+    }
+
+    .dialog--value-textarea {
+        @include font-size(12px);
+
+        min-height: 150px;
+        max-height: 150px;
+        padding: 10px;
+        overflow: auto;
+        resize: vertical;
+
+        border: 1px solid var(--text-color-secondary);
+        border-radius: $form-input-radius;
+        outline: none;
+        background-color: transparent;
+        color: var(--text-color-primary);
+        font-family: $font-sans;
+        appearance: none;
+
+        &.dialog--value-textarea__json {
+          max-height: 350px;
+          white-space: pre-wrap;
+        }
+    }
+
+    .textarea--stretch{
+      width: 100%;
+    }
+  
+    .validation--error{
+      @include font-size(12px);
+
+      font-family: $font-sans;
+      color: $danger
+    }  
+    
+}

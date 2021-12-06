@@ -132,72 +132,75 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
      */
     public render(): ReactNode {
         return (
-            <div className="spammer">
-                <h2>{Spammer.PLUGIN_TITLE}</h2>
-                <p className="margin-t-s">
-                    {Spammer.PLUGIN_DESCRIPTION}
-                </p>
-                <div className="card--label">
-                    Running
-                </div>
-                <div className="card--value row">
-                    <ToggleButton
-                        value={this.state.isRunning}
-                        onChanged={async value => {
-                            await (value ? this.pluginStart() : this.pluginStop());
-                        }}
-                    />
-                </div>
-                <h2 className="margin-t-s">Settings</h2>
-                <div className="card--label">
-                    Messages Per Second
-                </div>
-                <div className="card--value row">
-                    <input
-                        type="text"
-                        value={this.state.mps}
-                        disabled={!this.state.isRunning}
-                        onChange={e => this.setState({ mps: e.target.value })}
-                        onBlur={e => this.validateSettings()}
-                    />
-                </div>
-                <div className="card--label">
-                    CPU Utilization
-                </div>
-                <div className="card--value row middle">
-                    <input
-                        type="text"
-                        value={this.state.cpu}
-                        disabled={!this.state.isRunning}
-                        onChange={e => this.setState({ cpu: e.target.value })}
-                        onBlur={e => this.validateSettings()}
-                    />
-                    <p className="margin-l-t">%</p>
-                </div>
-                <div className="card--label">
-                    Number of Workers
-                </div>
-                <div className="card--value row">
-                    <input
-                        type="text"
-                        value={this.state.workers}
-                        disabled={!this.state.isRunning}
-                        onChange={e => this.setState({ workers: e.target.value })}
-                        onBlur={e => this.validateSettings()}
-                    />
-                </div>
-                <hr />
-                <div className="card--value">
-                    <button
-                        className="card--action margin-r-s"
-                        type="button"
-                        disabled={!this.state.isRunning}
-                        onClick={async e => this.pluginStart()}
-                    >
-                        Apply
-                    </button>
+            <div className="card padding-l">
+                <div className="spammer">
+                    <h2>{Spammer.PLUGIN_TITLE}</h2>
+                    <p className="margin-t-s">
+                        {Spammer.PLUGIN_DESCRIPTION}
+                    </p>
+                    <div className="card--label">
+                        Running
+                    </div>
+                    <div className="card--value row">
+                        <ToggleButton
+                            value={this.state.isRunning}
+                            onChanged={async value => {
+                                await (value ? this.pluginStart() : this.pluginStop());
+                            }}
+                        />
+                    </div>
+                    <h2 className="margin-t-s">Settings</h2>
+                    <div className="card--label">
+                        Messages Per Second
+                    </div>
+                    <div className="card--value row">
+                        <input
+                            type="text"
+                            value={this.state.mps}
+                            disabled={!this.state.isRunning}
+                            onChange={e => this.setState({ mps: e.target.value })}
+                            onBlur={e => this.validateSettings()}
+                        />
+                    </div>
+                    <div className="card--label">
+                        CPU Utilization
+                    </div>
+                    <div className="card--value row middle">
+                        <input
+                            type="text"
+                            value={this.state.cpu}
+                            disabled={!this.state.isRunning}
+                            onChange={e => this.setState({ cpu: e.target.value })}
+                            onBlur={e => this.validateSettings()}
+                        />
+                        <p className="margin-l-t">%</p>
+                    </div>
+                    <div className="card--label">
+                        Number of Workers
+                    </div>
+                    <div className="card--value row">
+                        <input
+                            type="text"
+                            value={this.state.workers}
+                            disabled={!this.state.isRunning}
+                            onChange={e => this.setState({ workers: e.target.value })}
+                            onBlur={e => this.validateSettings()}
+                        />
+                    </div>
+                    <hr />
+                    <div className="card--value">
+                        <button
+                            className="card--action margin-r-s"
+                            type="button"
+                            disabled={!this.state.isRunning}
+                            onClick={async e => this.pluginStart()}
+                        >
+                            Apply
+                        </button>
+                    </div>
                 </div>
             </div>
+
         );
     }
 
