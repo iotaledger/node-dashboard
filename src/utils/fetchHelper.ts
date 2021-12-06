@@ -48,7 +48,8 @@ export class FetchHelper {
                 });
 
             if (res.ok) {
-                const json = await res.json();
+                const json = (res.status === 204) ? {} : await res.json();
+                
                 return json as U;
             }
             throw new Error(`Fetched failed: ${res.statusText}`);
