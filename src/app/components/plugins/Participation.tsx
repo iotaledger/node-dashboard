@@ -6,6 +6,8 @@ import InfoPanel from "../../components/layout/InfoPanel";
 import { ServiceFactory } from "../../../factories/serviceFactory";
 import { IParticipationEvents } from "../../../models/plugins/IParticipationEvents";
 import { IParticipationEvent } from "../../../models/plugins/IParticipationEvent";
+import { IParticipationEventInfo } from '../../../models/plugins/IParticipationEventInfo';
+import { IParticipationEventStatus } from '../../../models/plugins/IParticipationEventStatus';
 import { TangleService } from "../../../services/tangleService";
 import { AuthService } from "../../../services/authService";
 import { FetchHelper } from "../../../utils/fetchHelper";
@@ -26,7 +28,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
     /**
      * The description of the plugin.
      */
-    private static readonly PLUGIN_DESCRIPTION = "List staking and voting events";
+    private static readonly PLUGIN_DESCRIPTION = "Manage on-tangle ballots and staking events tracked by the node.";
 
     /**
      * Is the participation plugin available.
@@ -120,7 +122,11 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
      */
     public componentDidUpdate(prevProps: unknown, prevState: ParticipationState): void {
         if (this.state.eventIds !== prevState.eventIds) {
-            this.state.eventIds.map(id => this.fetchEventInfo(id));
+            this.state.eventIds.map(id => {
+                this.fetchEventInfo(id)
+                this.fetchEventStatus(id)
+                
+            });
         }
     }
 
@@ -150,7 +156,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                         </div>
                     </div>
                     <div className="events-panel">
-                        {this.state.events.length === 0 && (
+                        {this.state.eventIds.length === 0 && (
                             <p className="margin-t-s">There are no events.</p>
                         )}
                         {this.state.eventIds.map((e, idx) => {
@@ -159,7 +165,6 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                                 <div className="card col padding-m">
                                     <div className="col">
                                         <div className="event-id word-break-all margin-b-s">
-                                            
                                             <span><h4>ID</h4> {e}</span>
                                         </div>
                                         <div className="participation-item">
@@ -171,9 +176,15 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                                     </div>
                                     <div className="row wrap">
                                         <div className="participation-item">
-                                            <h4>Milestone index start</h4>
+                                            <h4>Milestone index commence</h4>
                                             <div className="participation-value word-break-all">
                                                 {eventInfo?.milestoneIndexCommence}
+                                            </div>
+                                        </div>
+                                        <div className="participation-item">
+                                            <h4>Milestone index start</h4>
+                                            <div className="participation-value word-break-all">
+                                                {eventInfo?.milestoneIndexStart}
                                             </div>
                                         </div>
                                         <div className="participation-item">
@@ -182,9 +193,35 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                                                 {eventInfo?.milestoneIndexEnd}
                                             </div>
                                         </div>
+                                        <div className="participation-item">
+                                            <h4>Type</h4>
+                                            <div className="participation-value word-break-all">
+                                                {eventInfo?.payload.type == 0 ? 'Ballot' : 'Staking'}
+                                            </div>
+                                        </div>
+                                        <div className="participation-item">
+                                            <h4>Status</h4>
+                                            <div className="participation-value word-break-all">
+                                                {eventInfo?.status?.status
+                                                .slice(0, 1).toUpperCase()}{eventInfo?.status?.status.slice(1)}
+                                            </div>
+                                        </div>
                                     </div>
                                     
                                     <div className="row event-actions">
+                                        <button
+                                            type="button"
+                                            className="card--action card--action margin-t-s margin-r-s"
+                                            onClick={() => this.setState({
+                                                dialogType: "details",
+                                                dialogIsAdd: false,
+                                                dialogStatus: "",
+                                                dialogBusy: false,
+                                                detailsId: e,
+                                            })}
+                                        >
+                                            More details
+                                        </button>
                                         <button
                                             type="button"
                                             className="card--action card--action-danger margin-t-s"
@@ -194,7 +231,6 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                                                 dialogStatus: "",
                                                 dialogBusy: false,
                                                 deleteId: e,
-                                                deleteName: eventInfo?.name
                                             })}
                                         >
                                             Delete
@@ -208,10 +244,12 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                         <Dialog
                             title={{
                                 "add": "Add Event",
-                                "delete": "Delete Event"
+                                "delete": "Delete Event",
+                                "details": "Event details"
                             }[this.state.dialogType]}
                             actions={[
                                 <button
+                                    className={(this.state.dialogType == "details") ? "d-none" : ''}
                                     type="button"
                                     onClick={() =>
                                         (this.state.dialogIsAdd ? this.eventAdd() : this.eventDelete(this.state.deleteId))}
@@ -234,40 +272,83 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                                     key={1}
                                     disabled={this.state.dialogBusy}
                                 >
-                                    {this.state.dialogIsAdd ? "Cancel" : "No"}
+                                    {this.state.dialogIsAdd || this.state.dialogType === "details" ? "Cancel" : "No"}
                                 </button>
                             ]}
                         >
                             {this.state.dialogType === "delete" && (
-                                <p className="margin-b-l">Are you sure you want to delete the event {this.state.deleteName}?</p>
+                                <p className="margin-b-l">Are you sure you want to delete the event {(this.state.deleteId) ? this.state.events[this.state.deleteId].name : ''}?</p>
+                            )}
+                            {(this.state.dialogType === "details" && this.state.detailsId)  && (
+                                <div className="row wrap">
+                                    <div className="participation-item">
+                                        <h4>Milestone index</h4>
+                                        <div className="participation-value word-break-all">
+                                            {this.state.events[this.state.detailsId].status.milestoneIndex}
+                                        </div>
+                                    </div>
+                                    <div className="participation-item">
+                                        <h4>Status</h4>
+                                        <div className="participation-value word-break-all">
+                                            {this.state.events[this.state.detailsId].status.status
+                                                .slice(0, 1).toUpperCase()}{this.state.events[this.state.detailsId].status.status.slice(1)}
+                                        </div>
+                                    </div>
+                                    {/* Ballot */}
+                                    {this.state.events[this.state.detailsId].payload.type == 0 && (
+                                        <div>
+                                            {this.state.events[this.state.detailsId].payload.questions.map((q: any, idx: any) => {
+                                            return (<div className="participation-item--background margin-b-s" key={idx}>
+                                                        <div className="participation-item participation-item--small">
+                                                            <h4>Question</h4>
+                                                            <div className="participation-value word-break-all">
+                                                                {q.text}
+                                                            </div>
+                                                        </div>
+
+                                                        {q.answers.map((a: any, idy: any) => {
+                                                            return (<div className="row wrap" key={idy}>
+                                                                        <div className="participation-item participation-item--small">
+                                                                            <h4>Answer</h4>
+                                                                            <div className="participation-value word-break-all">
+                                                                                {a.text}
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="participation-item participation-item--small">
+                                                                            <h4>current</h4>
+                                                                            <div className="participation-value word-break-all">
+                                                                                {(this.state.detailsId) ? this.state.events[this.state.detailsId].status.questions[idx].answers[idy].current : ''}
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="participation-item participation-item--small">
+                                                                            <h4>accumulated</h4>
+                                                                            <div className="participation-value word-break-all">
+                                                                                {(this.state.detailsId) ? this.state.events[this.state.detailsId].status.questions[idx].answers[idy].accumulated : ''}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                            )})}
+                                                    </div>
+                                            )})}
+                                        </div>
+                                        
+                                    )}
+
+                                    {/* Staking */}
+                                    
+                                </div>
                             )}
                             {this.state.dialogIsAdd && (
                                 <React.Fragment>
                                     <p>Please enter the details of the event to {this.state.dialogType}.</p>
+                                    
                                     <div className="dialog--label">
-                                        URL
-                                    </div>
-                                    <div className="dialog--value">
-                                        <input
-                                            type="text"
-                                            className="input--stretch"
-                                            placeholder="e.g. http://example.com"
-                                            value={this.state.eventInfoUrl}
-                                            disabled={this.state.dialogBusy}
-                                            onChange={e => this.setState({ eventInfoUrl: e.target.value })}
-                                            onBlur={e => { if(this.state.eventInfoUrl && this.isValidUrl(this.state.eventInfoUrl)) this.fetchEventJsonConfig(this.state.eventInfoUrl) }}
-                                        />
-                                        {this.state.eventInfoUrl && !this.isValidUrl(this.state.eventInfoUrl) && (
-                                            <span className="validation--error">Not a valid URL</span>
-                                        )}
-                                    </div>
-                                    <div className="dialog--label">
-                                        Json Config
+                                        Json Config or URL
                                     </div>
                                     <div className="dialog--value">
                                         <textarea
                                             className="textarea--stretch dialog--value-textarea dialog--value-textarea__json"
-                                            placeholder='e.g. {"name":"Example even title"}'
+                                            placeholder='e.g. {"name":"Example even title" ... } or http://example.com'
                                             value={this.state.eventInfo}
                                             disabled={this.state.dialogBusy}
                                             onChange={e => this.setState({ eventInfo: e.target.value })}
@@ -331,7 +412,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
     private async fetchEventInfo(id: string): Promise<void> {
         try {
             const response = await FetchHelper.json<unknown, {
-                data?: any;
+                data?: IParticipationEventInfo;
                 error?: {
                     message: string;
                 };
@@ -348,8 +429,45 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                         ...prevState.events,
                         [id]: response.data
                     }
-                }))
+                }));
                 
+            } else {
+                console.log(response.error);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+    /**
+     *  Get the event status info as a JSON payload.
+     */
+    private async fetchEventStatus(id: string): Promise<void> {
+        try {
+            const response = await FetchHelper.json<unknown, {
+                data?: IParticipationEventStatus;
+                error?: {
+                    message: string;
+                };
+            }>(
+                `${window.location.protocol}//${window.location.host}`,
+                `/api/plugins/participation/events/${id}/status`,
+                "get",
+                undefined,
+                Participation.buildAuthHeaders());
+
+            if (response.data) {
+                if(this.state.events[id]){
+                    this.setState(prevState => ({
+                        ...prevState,
+                        events:{
+                            ...prevState.events,
+                            [id]: {
+                                ...prevState.events[id],
+                                status: response.data
+                            }
+                        }
+                    }));
+                }
             } else {
                 console.log(response.error);
             }
@@ -379,6 +497,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                     "post",
                     JSON.parse(this.state.eventInfo),
                     Participation.buildAuthHeaders());
+                    
                     this.setState({
                         dialogBusy: false,
                         dialogStatus: "",
@@ -413,9 +532,6 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
      *  Delete event.
      */
     private async eventDelete(eventId: string | undefined): Promise<void> {
-        if (!eventId) {
-            return;
-        }
         this.setState({
             dialogBusy: true,
             dialogStatus: "Deleting event, please wait..."

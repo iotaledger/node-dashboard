@@ -1,9 +1,11 @@
+import { IParticipationEventInfo } from './../../../models/plugins/IParticipationEventInfo';
+
 export interface ParticipationState {
     /**
      * The events.
      */
     events: {
-        [id: string]: any;
+        [id: string]: IParticipationEventInfo | any;
     };
     
     /**
@@ -27,14 +29,14 @@ export interface ParticipationState {
     deleteId?: string;
     
     /**
-     * Name of the event to delete.
+     * Show details of the event based on Id.
      */
-     deleteName?: string;
+    detailsId?: string;
 
     /**
      * The type of dialog to show.
      */
-    dialogType?: "add" | "delete";
+    dialogType?: "add" | "delete" | "details";
 
     /**
      * Is the dialog edit type.

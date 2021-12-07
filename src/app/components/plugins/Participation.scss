@@ -79,7 +79,7 @@
                 }
 
                 .event-actions {
-                  justify-content: space-between;
+                  justify-content: end;
                   margin-top: $spacing-small;
       
                   @media (max-width: 720px) {
@@ -101,9 +101,9 @@
     }
 
     .participation-item {
-      width: 155px;
+      width: 145px;
       height: 75px;
-      margin-right: $spacing-small;
+      margin-right: $spacing-tiny;
 
       @include desktop-down {
         width: 160px;
@@ -121,6 +121,16 @@
         font-weight: bold;
         white-space: nowrap;
       }
+
+      &.participation-item--small{
+       width: 125px; 
+      }
+    }
+
+    .participation-item--background{
+      border-radius: $spacing-small;
+      background-color: var(--panel-background-highlight);
+      padding: $spacing-small;
     }
 
     .dialog--value-textarea {
@@ -144,6 +154,10 @@
           max-height: 350px;
           white-space: pre-wrap;
         }
+    }
+
+    .dialog-content{
+      overflow-y: scroll;
     }
 
     .textarea--stretch{

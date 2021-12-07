@@ -21,8 +21,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
     /**
      * The description of the plugin.
      */
-    private static readonly PLUGIN_DESCRIPTION = "Spams the IOTA network with transactions" +
-        " doing proof of work locally. Must inject a curl implementation to perform proof of work and other things.";
+    private static readonly PLUGIN_DESCRIPTION = "Spam the IOTA network with data messages.";
 
     /**
      * Is the spammer plugin available.

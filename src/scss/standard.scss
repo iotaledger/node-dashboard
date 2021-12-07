@@ -90,6 +90,9 @@ hr {
 .hide-overflow {
   overflow: hidden;
 }
+.d-none {
+  display: none !important;
+}
 
 .text-ellipsis {
   text-overflow: ellipsis;
