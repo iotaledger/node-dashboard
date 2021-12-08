@@ -6,8 +6,8 @@ import { AuthService } from "../../services/authService";
 import { ThemeService } from "../../services/themeService";
 import AsyncComponent from "../components/layout/AsyncComponent";
 import TabPanel from "../components/layout/TabPanel";
-import Spammer from "../components/plugins/Spammer";
 import Participation from "../components/plugins/Participation";
+import Spammer from "../components/plugins/Spammer";
 import "./Settings.scss";
 import { SettingsState } from "./SettingsState";
 

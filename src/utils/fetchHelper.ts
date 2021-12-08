@@ -49,10 +49,14 @@ export class FetchHelper {
 
             if (res.ok) {
                 const json = (res.status === 204) ? {} : await res.json();
-                
+
                 return json as U;
             }
-            throw new Error(`Fetched failed: ${res.statusText}`);
+            return res.json()
+            .then(json => json as U)
+            .catch(error => {
+                throw new Error(`Fetched failed: ${res.statusText}`);
+            });
         } catch (err) {
             throw err.name === "AbortError" ? new Error("Timeout") : err;
         } finally {

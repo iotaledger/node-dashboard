@@ -8,22 +8,20 @@ export interface IParticipationEventStatus {
      * The milestone that confirmed it.
      */
     milestoneIndex: string;
-    
+
     /**
      * The questions status of the voting event.
      */
-    questions?: Object[];
-    
+    questions?: { answers: {value: number; current: number; accumulated: number}[] }[];
+
     /**
      * The status of the staking event.
      */
-    staking?: Object;
-    
+    staking?: { staked: number; rewarded: number; symbol: string };
+
     /**
      * The cheksum of the event.
      */
      checksum: string;
-
-    
-    
 }
+
