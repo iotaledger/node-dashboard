@@ -6,6 +6,7 @@ import { AuthService } from "../../services/authService";
 import { ThemeService } from "../../services/themeService";
 import AsyncComponent from "../components/layout/AsyncComponent";
 import TabPanel from "../components/layout/TabPanel";
+import Participation from "../components/plugins/Participation";
 import Spammer from "../components/plugins/Spammer";
 import "./Settings.scss";
 import { SettingsState } from "./SettingsState";
@@ -58,9 +59,13 @@ class Settings extends AsyncComponent<unknown, SettingsState> {
         const plugins = [];
 
         if (this._authService.isLoggedIn()) {
-            const pluginDetails = Spammer.pluginDetails();
-            if (pluginDetails) {
-                plugins.push(pluginDetails);
+            const pluginDetailsSpammer = Spammer.pluginDetails();
+            if (pluginDetailsSpammer) {
+                plugins.push(pluginDetailsSpammer);
+            }
+            const pluginDetailsParticipation = Participation.pluginDetails();
+            if (pluginDetailsParticipation) {
+                plugins.push(pluginDetailsParticipation);
             }
         }
 
@@ -144,7 +149,7 @@ class Settings extends AsyncComponent<unknown, SettingsState> {
                             ))}
                         </div>
                         {this.state.activePluginIndex >= 0 && (
-                            <div className="card padding-l">
+                            <div>
                                 {this.state.plugins[this.state.activePluginIndex].settings}
                             </div>
                         )}
