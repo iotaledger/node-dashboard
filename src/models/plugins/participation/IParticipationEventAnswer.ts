@@ -1,6 +1,6 @@
 export interface IParticipationEventAnswer {
     /**
-     * The ID of the answer.
+     * The value that identifies this answer.
      */
     value: number;
 

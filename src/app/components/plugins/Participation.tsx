@@ -379,7 +379,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                                     <p>Please enter the details of the event to {this.state.dialogType}.</p>
 
                                     <div className="dialog--label">
-                                        Json Configuration or URL
+                                        JSON Configuration or URL
                                     </div>
                                     <div className="dialog--value">
                                         <textarea
@@ -665,7 +665,6 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
 
                     return (response.data) ? response.data : response as IParticipationEventInfo;
             } catch (err) {
-                console.log(err);
                 this.setState({
                     dialogBusy: false,
                     dialogStatus: `Failed to add event: ${err.message}`

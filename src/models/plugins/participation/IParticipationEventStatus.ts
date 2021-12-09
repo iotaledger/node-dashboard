@@ -1,6 +1,6 @@
 export interface IParticipationEventStatus {
     /**
-     * The status of the event.
+     * The status of the event. Valid options are: "upcoming", "commencing", "holding" and "ended".
      */
     status: string;
 
@@ -20,7 +20,7 @@ export interface IParticipationEventStatus {
     staking?: { staked: number; rewarded: number; symbol: string };
 
     /**
-     * The SHA256 checksum of all the question and answer status or the staking amount and rewards.
+     * The SHA256 checksum of all the question and answer status or the staking amount and rewards calculated for this MilestoneIndex.
      */
      checksum: string;
 }
