@@ -2,17 +2,17 @@ import { IParticipationEventAnswer } from "./IParticipationEventAnswer";
 
 export interface IParticipationEventQuestion {
     /**
-     * The text of the question
+     * The text of the question.
      */
     text: string;
 
     /**
-     * A possible answer for the question
+     * The possible answers to the question.
      */
     answers: IParticipationEventAnswer[];
 
     /**
-     * Additional information about the question
+     * The additional description text about the question.
      */
     additionalInfo: number;
 }

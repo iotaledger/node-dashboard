@@ -1,16 +1,16 @@
 export interface IParticipationEventAnswer {
     /**
-     * The value for this answer
+     * The ID of the answer.
      */
     value: number;
 
     /**
-     * The text of the answer
+     * The text of the answer.
      */
      text: string;
 
     /**
-     * Additional information about the Answer
+     * The additional description text about the answer.
      */
     additionalInfo: string;
 }

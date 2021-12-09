@@ -3,32 +3,32 @@ import { IParticipationEventStatus } from "./IParticipationEventStatus";
 
 export interface IParticipationEventInfo {
     /**
-     * The Event name
+     * The name of the event.
      */
     name: string;
 
     /**
-     * The milestone where the event commences.
+     * The milestone index the commencing period starts.
      */
     milestoneIndexCommence: string;
 
     /**
-     * The milestone where the event enters holding phase.
+     * The milestone index the holding period starts.
      */
     milestoneIndexStart: string;
 
     /**
-     * The milestone where the event ends.
+     * The milestone index the event ends.
      */
     milestoneIndexEnd: string;
 
     /**
-     * The event info payload.
+     * The payload of the event (ballot/staking).
      */
     payload: IParticipationEventPayload;
 
     /**
-     * Additional information.
+     * The additional description text about the event.
      */
     additionalInfo: string;
 

@@ -1,6 +1,6 @@
 export interface IParticipationEvent {
     /**
-     * Id of added event
+     * The hex encoded ID of the created participation event.
      */
     eventId: string;
 }

@@ -2,42 +2,42 @@ import { IParticipationEventQuestion } from "./IParticipationEventQuestion";
 
 export interface IParticipationEventPayload {
     /**
-     * type of payload
+     * // The type of the event.
      */
     type: number;
 
     /**
-     *  Ballot questions
+     *  The questions of the ballot and their possible answers.
      */
     questions?: IParticipationEventQuestion[];
 
     /**
-     * The description text of the staking event
+     * The description text of the participation event.
      */
     text?: string;
 
     /**
-     * The symbol in UTF-8 format
+     * The symbol of the rewarded token.
      */
     symbol?: string;
 
     /**
-     * The numerator used in the calculation of staking rewards.
+     * The numerator is used in combination with Denominator to calculate the rewards per milestone per staked tokens.
      */
     numerator?: number;
 
     /**
-     * The denominator used in the calculation of staking rewards.
+     * The denominator is used in combination with Numerator to calculate the rewards per milestone per staked tokens.
      */
     denominator?: number;
 
     /**
-     * The denominator used in the calculation of staking rewards.
+     * The minimum rewards required to be included in the staking results.
      */
     requiredMinimumRewards?: number;
 
     /**
-     * Additional information
+     * The additional description text about the participation event.
      */
      additionalInfo?: string;
 }

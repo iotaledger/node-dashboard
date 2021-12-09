@@ -1,26 +1,26 @@
 export interface IParticipationEventStatus {
     /**
-     * Status of the event
+     * The status of the event.
      */
     status: string;
 
     /**
-     * The milestone that confirmed it.
+     * The milestone index the status was calculated for.
      */
     milestoneIndex: string;
 
     /**
-     * The questions status of the voting event.
+     * The answer status of the different questions of the event.
      */
     questions?: { answers: {value: number; current: number; accumulated: number}[] }[];
 
     /**
-     * The status of the staking event.
+     * The staking status of the event.
      */
     staking?: { staked: number; rewarded: number; symbol: string };
 
     /**
-     * The cheksum of the event.
+     * The SHA256 checksum of all the question and answer status or the staking amount and rewards.
      */
      checksum: string;
 }
