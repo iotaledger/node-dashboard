@@ -59,13 +59,13 @@ class Settings extends AsyncComponent<unknown, SettingsState> {
         const plugins = [];
 
         if (this._authService.isLoggedIn()) {
-            const pluginDetails = Spammer.pluginDetails();
-            if (pluginDetails) {
-                plugins.push(pluginDetails);
+            const pluginDetailsSpammer = Spammer.pluginDetails();
+            if (pluginDetailsSpammer) {
+                plugins.push(pluginDetailsSpammer);
             }
-            const participationDetails = Participation.pluginDetails();
-            if (participationDetails) {
-                plugins.push(participationDetails);
+            const pluginDetailsParticipation = Participation.pluginDetails();
+            if (pluginDetailsParticipation) {
+                plugins.push(pluginDetailsParticipation);
             }
         }
 

@@ -7,7 +7,7 @@ export interface IParticipationEventStatus {
     /**
      * The milestone index the status was calculated for.
      */
-    milestoneIndex: string;
+    milestoneIndex: number;
 
     /**
      * The answer status of the different questions of the event.

@@ -379,7 +379,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                                     <p>Please enter the details of the event to {this.state.dialogType}.</p>
 
                                     <div className="dialog--label">
-                                        Json Config or URL
+                                        Json Configuration or URL
                                     </div>
                                     <div className="dialog--value">
                                         <textarea
@@ -392,7 +392,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                                             onChange={e => this.setState({ eventInfo: e.target.value })}
                                         />
                                         {this.state.eventInfo && !this.validateJsonOrUrl(this.state.eventInfo) && (
-                                        <span className="validation--error">Not a valid JSON or Url</span>
+                                        <span className="validation--error">Not a valid JSON or URL</span>
                                         )}
                                     </div>
                                 </React.Fragment>
@@ -521,15 +521,15 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
     private async submitEvent(): Promise<void> {
         if (this.state.eventInfo) {
             try {
-                const url = new URL(this.state.eventInfo);
-                const config = await this.fetchEventJsonConfig(url);
-
-                if (config) {
-                    await this.eventAdd(config);
-                }
+                await this.eventAdd(JSON.parse(this.state.eventInfo));
             } catch {
                 try {
-                    await this.eventAdd(JSON.parse(this.state.eventInfo));
+                    const url = new URL(this.state.eventInfo);
+                    const config = await this.fetchEventJsonConfig(url);
+
+                    if (config) {
+                        await this.eventAdd(config);
+                    }
                 } catch (error) {
                     this.setState({
                         dialogBusy: false,
@@ -665,7 +665,6 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
 
                     return (response.data) ? response.data : response as IParticipationEventInfo;
             } catch (err) {
-                console.log("Error fetch");
                 console.log(err);
                 this.setState({
                     dialogBusy: false,

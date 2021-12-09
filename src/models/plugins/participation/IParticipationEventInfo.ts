@@ -10,17 +10,17 @@ export interface IParticipationEventInfo {
     /**
      * The milestone index the commencing period starts.
      */
-    milestoneIndexCommence: string;
+    milestoneIndexCommence: number;
 
     /**
      * The milestone index the holding period starts.
      */
-    milestoneIndexStart: string;
+    milestoneIndexStart: number;
 
     /**
      * The milestone index the event ends.
      */
-    milestoneIndexEnd: string;
+    milestoneIndexEnd: number;
 
     /**
      * The payload of the event (ballot/staking).

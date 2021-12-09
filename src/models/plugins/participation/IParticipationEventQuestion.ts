@@ -14,5 +14,5 @@ export interface IParticipationEventQuestion {
     /**
      * The additional description text about the question.
      */
-    additionalInfo: number;
+    additionalInfo: string;
 }
