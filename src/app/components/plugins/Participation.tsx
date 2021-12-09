@@ -124,8 +124,6 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
     public async componentDidUpdate(prevProps: unknown, prevState: ParticipationState): Promise<void> {
         if (this.state.eventIds !== prevState.eventIds) {
             const difference = this.state.eventIds.filter(e => !prevState.eventIds.includes(e));
-            console.log("difference");
-            console.log(difference);
             for (const id of difference) {
                 await this.fetchEventInfo(id);
                 await this.fetchEventStatus(id);
@@ -527,8 +525,8 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                 const config = await this.fetchEventJsonConfig(url);
 
                 if (config) {
-await this.eventAdd(config);
-}
+                    await this.eventAdd(config);
+                }
             } catch {
                 try {
                     await this.eventAdd(JSON.parse(this.state.eventInfo));
@@ -622,7 +620,7 @@ await this.eventAdd(config);
                 } else {
                     this.setState({
                         dialogBusy: false,
-                        dialogStatus: `Failed to add event: ${response.error?.message}`
+                        dialogStatus: `Failed to delete event: ${response.error?.message}`
                     });
                     console.log(response.error);
                 }
@@ -653,8 +651,27 @@ await this.eventAdd(config);
                 "get");
 
                 return (response.data) ? response.data : response as IParticipationEventInfo;
-        } catch (err) {
-            console.log(err);
+        } catch {
+            try {
+                const response = await FetchHelper.text<unknown, {
+                    data?: IParticipationEventInfo;
+                    error?: {
+                        message: string;
+                    };
+                }>(
+                    url.origin,
+                    url.pathname,
+                    "get");
+
+                    return (response.data) ? response.data : response as IParticipationEventInfo;
+            } catch (err) {
+                console.log("Error fetch");
+                console.log(err);
+                this.setState({
+                    dialogBusy: false,
+                    dialogStatus: `Failed to add event: ${err.message}`
+                });
+            }
         }
     }
 
