@@ -344,7 +344,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                             this.props.history.replace(`/analytics/${tab.toLowerCase()}`);
                         }}
                     >
-                        <div className="fill">
+                        <div data-label="Tangle" className="fill">
                             {this.state.gossipMetrics && (
                                 <div className="card messages-graph-panel margin-t-s fill">
                                     <div className="row wrap gossip">
@@ -477,7 +477,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                             </div>
                         </div>
 
-                        <div className="fill">
+                        <div data-label="Node" className="fill">
                             <div className="card fill">
                                 <Graph
                                     caption="Database (MB)"
@@ -540,7 +540,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                             </div>
                         </div>
 
-                        <div className="fill">
+                        <div data-label="Memory" className="fill">
                             <div className="card fill">
                                 <Graph
                                     caption="Stack Alloc (MiB)"
@@ -633,7 +633,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                             </div>
                         </div>
 
-                        <div className="fill">
+                        <div data-label="Caches" className="fill">
                             <div className="card fill">
                                 <Graph
                                     caption="Request Queue"
@@ -712,7 +712,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                         </div>
 
                         {this.state.isSpammerAvailable && (
-                            <div className="fill">
+                            <div data-label="Spammer" className="fill">
                                 <div className="card fill">
                                     <Graph
                                         caption="Tip Selection Duration Micro-Seconds"

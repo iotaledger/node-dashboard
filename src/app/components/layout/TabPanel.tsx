@@ -47,7 +47,7 @@ class TabPanel extends Component<TabPanelProps, TabPanelState> {
                                 { "tab-panel--button__selected": l.toLowerCase() === this.state.activeTab }
                             )}
                             onClick={e => this.setState(
-                                { activeTab: l },
+                                { activeTab: l.toLowerCase() },
                                 () => {
                                     if (this.props.onTabChanged) {
                                         this.props.onTabChanged(this.state.activeTab);
@@ -59,9 +59,10 @@ class TabPanel extends Component<TabPanelProps, TabPanelState> {
                         </button>
                     ))}
                 </div>
-                {this.props.children?.map((c, idx) => (
+                {this.props.children?.flat().map((c, idx) => (
                     <React.Fragment key={idx}>
-                        {this.props.tabs[idx]?.toLowerCase() === this.state.activeTab && c}
+                        {React.isValidElement(c) && c.props["data-label"] &&
+                         c.props["data-label"].toLowerCase() === this.state.activeTab && c}
                     </React.Fragment>
                 ))}
             </div>
