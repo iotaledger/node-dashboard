@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter } from "react-router-dom";
 import App from "./app/App";
+import Participation from "./app/components/plugins/Participation";
 import Spammer from "./app/components/plugins/Spammer";
 import { ServiceFactory } from "./factories/serviceFactory";
 import "./index.scss";
@@ -67,6 +68,7 @@ async function initServices(): Promise<IBrandConfiguration | undefined> {
     EventAggregator.subscribe("auth-state", "init", async () => {
         webSocketService.resubscribe();
         await Spammer.initPlugin();
+        await Participation.initPlugin();
     });
 
     EventAggregator.subscribe("online", "init", async o => {
@@ -77,6 +79,7 @@ async function initServices(): Promise<IBrandConfiguration | undefined> {
     });
 
     await Spammer.initPlugin();
+    await Participation.initPlugin();
 
     settingsService.initialize();
 

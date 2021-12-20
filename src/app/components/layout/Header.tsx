@@ -120,7 +120,7 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
             WebSocketTopic.NodeStatus,
             data => {
                 if (data) {
-                    const memorySizeFormatted = FormatHelper.size(DataHelper.calculateMemoryUsage(data), 1);
+                    const memorySizeFormatted = FormatHelper.iSize(DataHelper.calculateMemoryUsage(data), 1);
 
                     if (memorySizeFormatted !== this.state.memorySizeFormatted) {
                         this.setState({ memorySizeFormatted });

@@ -136,7 +136,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
                     const nodeName = data.node_alias ? data.node_alias : BrandHelper.getConfiguration().name;
                     const nodeId = data.node_id || "No node Id.";
                     const uptime = FormatHelper.duration(data.uptime);
-                    const memory = FormatHelper.size(DataHelper.calculateMemoryUsage(data));
+                    const memory = FormatHelper.iSize(DataHelper.calculateMemoryUsage(data));
 
                     if (nodeName !== this.state.nodeName) {
                         this.setState({ nodeName });
