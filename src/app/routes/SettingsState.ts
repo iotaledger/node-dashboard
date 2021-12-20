@@ -25,9 +25,4 @@ export interface SettingsState {
         description: string;
         settings: ReactNode;
     }[];
-
-    /**
-     * Active plugin index;
-     */
-    activePluginIndex: number;
 }

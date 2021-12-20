@@ -45,8 +45,7 @@ class Settings extends AsyncComponent<unknown, SettingsState> {
             theme: this._themeService.get(),
             sections: this._standardSections,
             activeSection: this._standardSections[0],
-            plugins: [],
-            activePluginIndex: -1
+            plugins: []
         };
     }
 
@@ -91,20 +90,12 @@ class Settings extends AsyncComponent<unknown, SettingsState> {
                         tabs={this.state.sections}
                         activeTab={this.state.activeSection}
                         onTabChanged={activeTab => {
-                            const lastSection = this.state.activeSection;
                             this.setState({
                                 activeSection: activeTab
                             });
-                            if (this._standardSections.includes(activeTab) &&
-                                !this._standardSections.includes(lastSection)) {
-                                this.setState({
-                                    activePluginIndex: -1,
-                                    sections: this.state.sections.filter(section => section !== lastSection)
-                                });
-                            }
                         }}
                     >
-                        <div className="card padding-l">
+                        <div data-label="General" className="card padding-l">
                             <h2>General</h2>
                             <div className="card--label">
                                 Theme
@@ -124,7 +115,7 @@ class Settings extends AsyncComponent<unknown, SettingsState> {
                                 </div>
                             </div>
                         </div>
-                        <div className="plugins-container">
+                        <div data-label="Plugins" className="plugins-container">
                             {this.state.plugins.map((p, idx) => (
                                 <div className="card padding-l plugin" key={idx}>
                                     <div className="row middle spread">
@@ -135,11 +126,7 @@ class Settings extends AsyncComponent<unknown, SettingsState> {
                                         <button
                                             type="button"
                                             className="icon-button"
-                                            onClick={e => this.setState({
-                                                sections: [...this.state.sections, p.title],
-                                                activePluginIndex: idx,
-                                                activeSection: p.title
-                                            })}
+                                            onClick={() => this.addTab(p.title)}
                                         >
                                             <EllipsisIcon />
                                         </button>
@@ -148,15 +135,30 @@ class Settings extends AsyncComponent<unknown, SettingsState> {
                                 </div>
                             ))}
                         </div>
-                        {this.state.activePluginIndex >= 0 && (
-                            <div>
-                                {this.state.plugins[this.state.activePluginIndex].settings}
+                        {this.state.plugins.map((p, idx) => (
+                            <div data-label={p.title} key={idx}>
+                                {p.settings}
                             </div>
-                        )}
+                        ))}
                     </TabPanel>
                 </div>
             </div >
         );
+    }
+
+    /**
+     * Open new plugin tab
+     * @param title The title of the plugin.
+     */
+    private addTab(title: string): void {
+        if (!this.state.sections.includes(title)) {
+            this.setState({
+                sections: [...this.state.sections, title]
+            });
+        }
+        this.setState({
+            activeSection: title
+        });
     }
 }
 
