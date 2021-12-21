@@ -7,6 +7,7 @@ import { ReactComponent as HealthBadIcon } from "../../../assets/health-bad.svg"
 import { ReactComponent as HealthGoodIcon } from "../../../assets/health-good.svg";
 import { ReactComponent as HealthWarningIcon } from "../../../assets/health-warning.svg";
 import { ServiceFactory } from "../../../factories/serviceFactory";
+import { ISyncStatus } from "../../../models/websocket/ISyncStatus";
 import { WebSocketTopic } from "../../../models/websocket/webSocketTopic";
 import { MetricsService } from "../../../services/metricsService";
 import { SettingsService } from "../../../services/settingsService";
@@ -34,6 +35,11 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
     private _peerSubscription?: string;
 
     /**
+     * The sync status subscription id.
+     */
+    private _syncStatusSubscription?: string;
+
+    /**
      * Create a new instance of PeersSummaryPanel.
      * @param props The props.
      */
@@ -57,6 +63,23 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
             data => {
                 this.handleData(data);
             });
+
+        this._syncStatusSubscription = this._metricsService.subscribe<ISyncStatus>(
+            WebSocketTopic.SyncStatus,
+            data => {
+                if (data) {
+                    const cmi = data.cmi;
+                    const lmi = data.lmi;
+
+                    if (cmi && cmi !== this.state.cmi) {
+                        this.setState({ cmi });
+                    }
+
+                    if (lmi && lmi !== this.state.lmi) {
+                        this.setState({ lmi });
+                    }
+                }
+            });
     }
 
     /**
@@ -66,6 +89,11 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
         if (this._peerSubscription) {
             this._metricsService.unsubscribe(this._peerSubscription);
             this._peerSubscription = undefined;
+        }
+
+        if (this._syncStatusSubscription) {
+            this._metricsService.unsubscribe(this._syncStatusSubscription);
+            this._syncStatusSubscription = undefined;
         }
     }
 
@@ -125,12 +153,17 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
         let sortedPeers;
 
         if (data) {
-            sortedPeers = DataHelper.sortPeers(data.map(p => ({
-                id: p.id,
-                alias: p.alias,
-                health: DataHelper.calculateHealth(p),
-                address: DataHelper.formatPeerAddress(p)
-            })));
+            sortedPeers = DataHelper.sortPeers(data.map(p => {
+                const cmi = this.state.cmi ? this.state.cmi : 0;
+                const lmi = this.state.lmi ? this.state.lmi : 0;
+
+                return {
+                    id: p.id,
+                    alias: p.alias,
+                    health: DataHelper.calculateHealth(p, cmi, lmi),
+                    address: DataHelper.formatPeerAddress(p)
+                };
+            }));
         }
 
         this.setState({

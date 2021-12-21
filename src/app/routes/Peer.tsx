@@ -8,6 +8,7 @@ import { ReactComponent as EyeIcon } from "../../assets/eye.svg";
 import { ReactComponent as MilestoneIcon } from "../../assets/milestone.svg";
 import { ReactComponent as PruningIcon } from "../../assets/pruning.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
+import { ISyncStatus } from "../../models/websocket/ISyncStatus";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
 import { MetricsService } from "../../services/metricsService";
 import { SettingsService } from "../../services/settingsService";
@@ -38,6 +39,11 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
      * The peers subscription id.
      */
     private _peersSubscription?: string;
+
+    /**
+     * The sync status subscription id.
+     */
+    private _syncStatusSubscription?: string;
 
     /**
      * Create a new instance of Peers.
@@ -97,12 +103,13 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                 for (const allDataPeers of allData) {
                     if (allDataPeers) {
                         const peer = allDataPeers.find(p => p.id === this.props.match.params.id);
+                        const lmi = this.state.lmi ? this.state.lmi : 0;
 
                         if (peer) {
                             alias = peer.alias;
                             address = DataHelper.formatPeerAddress(peer) ?? "";
                             isConnected = peer.connected;
-                            isSynced = isConnected && DataHelper.calculateIsSynced(peer);
+                            isSynced = isConnected && DataHelper.calculateIsSynced(peer, lmi);
                             gossipMetrics = peer.gossip?.metrics;
                             relation = peer.relation;
 
@@ -157,6 +164,24 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                 });
             }
         );
+
+        this._syncStatusSubscription = this._metricsService.subscribe<ISyncStatus>(
+            WebSocketTopic.SyncStatus,
+            data => {
+                if (data) {
+                    const cmi = data.cmi;
+                    const lmi = data.lmi;
+
+                    if (cmi && cmi !== this.state.cmi) {
+                        this.setState({ cmi });
+                    }
+
+                    if (lmi && lmi !== this.state.lmi) {
+                        this.setState({ lmi });
+                    }
+                }
+            }
+        );
     }
 
     /**
@@ -168,6 +193,11 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
         if (this._peersSubscription) {
             this._metricsService.unsubscribe(this._peersSubscription);
             this._peersSubscription = undefined;
+        }
+
+        if (this._syncStatusSubscription) {
+            this._metricsService.unsubscribe(this._syncStatusSubscription);
+            this._syncStatusSubscription = undefined;
         }
     }
 
@@ -222,6 +252,13 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                                     Relation:&nbsp;
                                     {`${this.state.relation.slice(0, 1).toUpperCase()}${this.state.relation.slice(1)}`}
                                 </p>
+                                {this.state.isSynced && this.state.cmi &&
+                                Number(this.state.pruningIndex) > this.state.cmi && (
+                                    <p className="secondary warning margin-t-t">
+                                        Warning:&nbsp; History of peer not sufficient to sync from.
+                                        Consider using a newer snapshot if all peers have the same status.
+                                    </p>
+                                )}
                             </div>
                             <div className="health-indicators col tablet-down-only-row phone-down-column">
                                 <HealthIndicator

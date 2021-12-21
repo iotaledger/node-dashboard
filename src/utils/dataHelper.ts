@@ -111,13 +111,17 @@ export class DataHelper {
     /**
      * Calculate the health of the peer.
      * @param peer The peer to calculate the health of.
+     * @param confirmedMilestoneIndex Confirmed milestone index of the node.
+     * @param latestMilestoneIndex Latest milestone index of the node.
      * @returns The health.
      */
-    public static calculateHealth(peer: IPeer): number {
+    public static calculateHealth(peer: IPeer, confirmedMilestoneIndex: number, latestMilestoneIndex: number): number {
         let health = 0;
 
         if (peer.connected) {
-            health = DataHelper.calculateIsSynced(peer) ? 2 : 1;
+            health = (DataHelper.calculateIsSynced(peer, latestMilestoneIndex) &&
+                    peer.gossip?.heartbeat &&
+                    peer.gossip?.heartbeat?.prunedMilestoneIndex < confirmedMilestoneIndex) ? 2 : 1;
         }
 
         return health;
@@ -126,14 +130,19 @@ export class DataHelper {
     /**
      * Calculate the sync status of the peer.
      * @param peer The peer to calculate the sync status of.
+     * @param latestMilestoneIndex Latest milestone index of the node.
      * @returns The sync status.
      */
-    public static calculateIsSynced(peer: IPeer): boolean {
+    public static calculateIsSynced(peer: IPeer, latestMilestoneIndex: number): boolean {
         let isSynced = false;
 
-        if (peer.gossip?.heartbeat &&
-            peer.gossip.heartbeat.solidMilestoneIndex >= (peer.gossip.heartbeat.latestMilestoneIndex - 2)) {
-            isSynced = true;
+        if (peer.gossip?.heartbeat) {
+            const latestKnownMilestoneIndex = (latestMilestoneIndex < peer.gossip.heartbeat.latestMilestoneIndex)
+            ? peer.gossip.heartbeat.latestMilestoneIndex : latestMilestoneIndex;
+
+            if (peer.gossip.heartbeat.solidMilestoneIndex >= (latestKnownMilestoneIndex - 2)) {
+                isSynced = true;
+            }
         }
 
         return isSynced;
