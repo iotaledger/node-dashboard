@@ -252,7 +252,7 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                                     Relation:&nbsp;
                                     {`${this.state.relation.slice(0, 1).toUpperCase()}${this.state.relation.slice(1)}`}
                                 </p>
-                                {this.state.isSynced && this.state.nodeCmi &&
+                                {this.state.nodeCmi &&
                                 Number(this.state.pruningIndex) > this.state.nodeCmi && (
                                     <p className="secondary warning margin-t-t">
                                         Warning:&nbsp; History of peer not sufficient to sync from.
