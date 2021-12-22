@@ -60,4 +60,14 @@ export interface PeersState {
      * Hide any secure details.
      */
     blindMode: boolean;
+
+    /**
+     * Confirmed milestone index.
+     */
+    cmi?: number;
+
+    /**
+     * Latest milestone index.
+     */
+    lmi?: number;
 }

@@ -21,4 +21,14 @@ export interface PeerState {
      * Hide any secure details.
      */
     blindMode: boolean;
+
+    /**
+     * Confirmed milestone index of the node.
+     */
+    nodeCmi?: number;
+
+    /**
+     * Latest milestone index of the node.
+     */
+    nodeLmi?: number;
 }

@@ -9,6 +9,7 @@ import { ReactComponent as HealthBadIcon } from "../../assets/health-bad.svg";
 import { ReactComponent as HealthGoodIcon } from "../../assets/health-good.svg";
 import { ReactComponent as HealthWarningIcon } from "../../assets/health-warning.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
+import { ISyncStatus } from "../../models/websocket/ISyncStatus";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
 import { MetricsService } from "../../services/metricsService";
 import { SettingsService } from "../../services/settingsService";
@@ -39,6 +40,11 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
      * The peers subscription id.
      */
     private _peersSubscription?: string;
+
+    /**
+     * The sync status subscription id.
+     */
+    private _syncStatusSubscription?: string;
 
     /**
      * Create a new instance of Peers.
@@ -93,7 +99,9 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                             for (const peer of allDataPeers) {
                                 if (finalPeerIds.has(peer.id)) {
                                     const address = DataHelper.formatPeerAddress(peer);
-                                    const health = DataHelper.calculateHealth(peer);
+                                    const cmi = this.state.cmi ? this.state.cmi : 0;
+                                    const lmi = this.state.lmi ? this.state.lmi : 0;
+                                    const health = DataHelper.calculateHealth(peer, cmi, lmi);
 
                                     if (!peers[peer.id]) {
                                         peers[peer.id] = {
@@ -152,6 +160,23 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                 });
             }
         );
+
+        this._syncStatusSubscription = this._metricsService.subscribe<ISyncStatus>(
+            WebSocketTopic.SyncStatus,
+            data => {
+                if (data) {
+                    const cmi = data.cmi;
+                    const lmi = data.lmi;
+
+                    if (cmi && cmi !== this.state.cmi) {
+                        this.setState({ cmi });
+                    }
+
+                    if (lmi && lmi !== this.state.lmi) {
+                        this.setState({ lmi });
+                    }
+                }
+            });
     }
 
     /**
@@ -163,6 +188,11 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
         if (this._peersSubscription) {
             this._metricsService.unsubscribe(this._peersSubscription);
             this._peersSubscription = undefined;
+        }
+
+        if (this._syncStatusSubscription) {
+            this._metricsService.unsubscribe(this._syncStatusSubscription);
+            this._syncStatusSubscription = undefined;
         }
     }
 
