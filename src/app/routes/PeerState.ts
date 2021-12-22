@@ -23,12 +23,12 @@ export interface PeerState {
     blindMode: boolean;
 
     /**
-     * Nodes confirmed milestone index.
+     * Confirmed milestone index of the node.
      */
-    cmi?: number;
+    nodeCmi?: number;
 
     /**
-     * Nodes latest milestone index.
+     * Latest milestone index of the node.
      */
-    lmi?: number;
+    nodeLmi?: number;
 }

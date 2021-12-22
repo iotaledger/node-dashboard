@@ -103,7 +103,7 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                 for (const allDataPeers of allData) {
                     if (allDataPeers) {
                         const peer = allDataPeers.find(p => p.id === this.props.match.params.id);
-                        const lmi = this.state.lmi ? this.state.lmi : 0;
+                        const lmi = this.state.nodeLmi ? this.state.nodeLmi : 0;
 
                         if (peer) {
                             alias = peer.alias;
@@ -172,12 +172,12 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                     const cmi = data.cmi;
                     const lmi = data.lmi;
 
-                    if (cmi && cmi !== this.state.cmi) {
-                        this.setState({ cmi });
+                    if (cmi && cmi !== this.state.nodeCmi) {
+                        this.setState({ nodeCmi: cmi });
                     }
 
-                    if (lmi && lmi !== this.state.lmi) {
-                        this.setState({ lmi });
+                    if (lmi && lmi !== this.state.nodeLmi) {
+                        this.setState({ nodeLmi: lmi });
                     }
                 }
             }
@@ -252,8 +252,8 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                                     Relation:&nbsp;
                                     {`${this.state.relation.slice(0, 1).toUpperCase()}${this.state.relation.slice(1)}`}
                                 </p>
-                                {this.state.isSynced && this.state.cmi &&
-                                Number(this.state.pruningIndex) > this.state.cmi && (
+                                {this.state.isSynced && this.state.nodeCmi &&
+                                Number(this.state.pruningIndex) > this.state.nodeCmi && (
                                     <p className="secondary warning margin-t-t">
                                         Warning:&nbsp; History of peer not sufficient to sync from.
                                         Consider using a newer snapshot if all peers have the same status.
