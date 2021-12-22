@@ -2,7 +2,7 @@
 @import '../../scss/fonts';
 @import '../../scss/media-queries';
 
-.settings {
+.plugins {
   display: flex;
   flex: 1;
   justify-content: center;
@@ -35,6 +35,15 @@
           width: 100%;
         }
       }
+    }
+  }
+
+  a {
+    color: var(--accent-primary);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
     }
   }
 }
