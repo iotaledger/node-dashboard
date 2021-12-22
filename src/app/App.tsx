@@ -7,7 +7,7 @@ import { ReactComponent as MoonIcon } from "../assets/moon.svg";
 import { ReactComponent as PadlockUnlockedIcon } from "../assets/padlock-unlocked.svg";
 import { ReactComponent as PadlockIcon } from "../assets/padlock.svg";
 import { ReactComponent as PeersIcon } from "../assets/peers.svg";
-import { ReactComponent as SettingsIcon } from "../assets/settings.svg";
+import { ReactComponent as PluginsIcon } from "../assets/plugins.svg";
 import { ReactComponent as SunIcon } from "../assets/sun.svg";
 import { ReactComponent as VisualizerIcon } from "../assets/visualizer.svg";
 import { ServiceFactory } from "../factories/serviceFactory";
@@ -44,9 +44,9 @@ import Login from "./routes/Login";
 import Peer from "./routes/Peer";
 import { PeerRouteProps } from "./routes/PeerRouteProps";
 import Peers from "./routes/Peers";
+import Plugins from "./routes/Plugins";
 import Search from "./routes/Search";
 import { SearchRouteProps } from "./routes/SearchRouteProps";
-import Settings from "./routes/Settings";
 import Unavailable from "./routes/Unavailable";
 import Visualizer from "./routes/Visualizer";
 
@@ -267,9 +267,9 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                 route: "/visualizer"
             },
             {
-                label: "Settings",
-                icon: <SettingsIcon />,
-                route: "/settings",
+                label: "Plugins",
+                icon: <PluginsIcon />,
+                route: "/plugins",
                 hidden: !this.state.isLoggedIn
             },
             {
@@ -414,8 +414,8 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                                         component={(props: RouteComponentProps) => (<Visualizer {...props} />)}
                                     />
                                     <Route
-                                        path="/settings"
-                                        component={() => (<Settings />)}
+                                        path="/plugins"
+                                        component={() => (<Plugins />)}
                                     />
                                     <Route
                                         path="/login"

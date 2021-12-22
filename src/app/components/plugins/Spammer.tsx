@@ -1,5 +1,4 @@
 import React, { ReactNode } from "react";
-import { ReactComponent as SpammerIcon } from "../../../assets/plugins/spammer.svg";
 import { ServiceFactory } from "../../../factories/serviceFactory";
 import { ISpammerSettings } from "../../../models/plugins/ISpammerSettings";
 import { AuthService } from "../../../services/authService";
@@ -81,14 +80,12 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
      * @returns The plugin details if available.
      */
     public static pluginDetails(): {
-        icon: ReactNode;
         title: string;
         description: string;
         settings: ReactNode;
     } | undefined {
         if (Spammer._isAvailable) {
             return {
-                icon: <SpammerIcon />,
                 title: Spammer.PLUGIN_TITLE,
                 description: Spammer.PLUGIN_DESCRIPTION,
                 settings: <Spammer />

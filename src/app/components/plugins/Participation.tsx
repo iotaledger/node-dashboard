@@ -1,6 +1,5 @@
 import classNames from "classnames";
 import React, { ReactNode } from "react";
-import { ReactComponent as ParticipationIcon } from "../../../assets/plugins/spammer.svg";
 import { ServiceFactory } from "../../../factories/serviceFactory";
 import { IParticipationEvent } from "../../../models/plugins/participation/IParticipationEvent";
 import { IParticipationEventInfo } from "../../../models/plugins/participation/IParticipationEventInfo";
@@ -72,14 +71,12 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
      * @returns The plugin details if available.
      */
     public static pluginDetails(): {
-        icon: ReactNode;
         title: string;
         description: string;
         settings: ReactNode;
     } | undefined {
         if (Participation._isAvailable) {
             return {
-                icon: <ParticipationIcon />,
                 title: Participation.PLUGIN_TITLE,
                 description: Participation.PLUGIN_DESCRIPTION,
                 settings: <Participation />
@@ -139,21 +136,18 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
         return (
             <div className="participation">
                 <div className="content">
-                    <div className="row spread">
-                        <h2>{Participation.PLUGIN_TITLE}</h2>
-                        <div className="row">
-                            <button
-                                type="button"
-                                className="add-button"
-                                onClick={() => this.setState({
+                    <div className="row end">
+                        <button
+                            type="button"
+                            className="add-button"
+                            onClick={() => this.setState({
                                     dialogType: "add",
                                     dialogStatus: "",
                                     dialogBusy: false
                                 })}
-                            >
-                                Add Event
-                            </button>
-                        </div>
+                        >
+                            Add Event
+                        </button>
                     </div>
                     <div className="events-panel">
                         {this.state.eventIds.length === 0 && (
