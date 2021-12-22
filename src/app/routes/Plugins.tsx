@@ -71,7 +71,7 @@ class Plugins extends AsyncComponent<unknown, PluginsState> {
                 <div className="content">
                     {this.state.plugins.length === 0 && (
                         <p className="margin-t-s">
-                            No plugins supported by the dashboard are enabled.<br />
+                            No plugins enabled which are supported by the dashboard.<br />
                             More information about managing plugins can be found on the
                             {" "}
                             <a
