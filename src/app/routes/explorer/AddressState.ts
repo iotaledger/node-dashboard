@@ -7,6 +7,7 @@ export interface AddressState {
      * Address.
      */
     // address?: IAddressResponse;
+    address?: string;
 
     /**
      * The addres in bech 32 format.

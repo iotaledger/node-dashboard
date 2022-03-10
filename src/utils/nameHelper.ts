@@ -22,7 +22,7 @@ export class NameHelper {
      */
     public static getOutputTypeName(type: number): string {
         if (type === BASIC_OUTPUT_TYPE) {
-            return "Signature Locked Single Output";
+            return "Basic Output Type";
         } else if (type === TREASURY_OUTPUT_TYPE) {
             return "Treasury Output";
         }
