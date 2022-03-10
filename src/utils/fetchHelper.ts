@@ -55,7 +55,11 @@ export class FetchHelper {
 
                 return json as U;
         } catch (err) {
-            throw err.name === "AbortError" ? new Error("Timeout") : err;
+            if (err instanceof Error) {
+                throw err.name === "AbortError" ? new Error("Timeout") : err;
+            }else{
+                throw err as Error;
+            }
         } finally {
             if (timerId) {
                 clearTimeout(timerId);
@@ -115,7 +119,12 @@ export class FetchHelper {
 
                 return json as U;
         } catch (err) {
-            throw err.name === "AbortError" ? new Error("Timeout") : err;
+            if (err instanceof Error) {
+                throw err.name === "AbortError" ? new Error("Timeout") : err;
+            }else{
+                throw err as Error;
+            }
+
         } finally {
             if (timerId) {
                 clearTimeout(timerId);

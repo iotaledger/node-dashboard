@@ -1,4 +1,5 @@
-import { Converter, INDEXATION_PAYLOAD_TYPE, MILESTONE_PAYLOAD_TYPE, SIG_LOCKED_SINGLE_OUTPUT_TYPE, TRANSACTION_PAYLOAD_TYPE, UnitsHelper } from "@iota/iota.js";
+import { TAGGED_DATA_PAYLOAD_TYPE, MILESTONE_PAYLOAD_TYPE, BASIC_OUTPUT_TYPE, TRANSACTION_PAYLOAD_TYPE, UnitsHelper } from "@iota/iota.js";
+import { Converter } from "@iota/util.js";
 import classNames from "classnames";
 import React, { ReactNode } from "react";
 import { RouteComponentProps } from "react-router-dom";
@@ -371,18 +372,19 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                                         </React.Fragment>
                                     )}
                                 {this.state.selected.payload &&
-                                    this.state.selected.payload.type === INDEXATION_PAYLOAD_TYPE && (
+                                    this.state.selected.payload.type === TAGGED_DATA_PAYLOAD_TYPE &&
+                                    this.state.selected.payload.tag && (
                                         <React.Fragment>
                                             <div className="card--label">
                                                 Index UTF8
                                             </div>
                                             <div className="card--value">
                                                 <a
-                                                    href={this.calculateIndexedLink(this.state.selected.payload.index)}
+                                                    href={this.calculateIndexedLink(this.state.selected.payload.tag)}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                 >
-                                                    {Converter.hexToUtf8(this.state.selected.payload.index)}
+                                                    {Converter.hexToUtf8(this.state.selected.payload.tag)}
                                                 </a>
                                             </div>
                                             <div className="card--label">
@@ -390,11 +392,11 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                                             </div>
                                             <div className="card--value">
                                                 <a
-                                                    href={this.calculateIndexedLink(this.state.selected.payload.index)}
+                                                    href={this.calculateIndexedLink(this.state.selected.payload.tag)}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                 >
-                                                    {this.state.selected.payload.index}
+                                                    {this.state.selected.payload.tag}
                                                 </a>
                                             </div>
                                         </React.Fragment>
@@ -761,7 +763,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                                 payloadTitle = " - Transaction";
                             } else if (payload.type === MILESTONE_PAYLOAD_TYPE) {
                                 payloadTitle = "";
-                            } else if (payload.type === INDEXATION_PAYLOAD_TYPE) {
+                            } else if (payload.type === TAGGED_DATA_PAYLOAD_TYPE) {
                                 payloadTitle = " - Indexation";
                             }
                         } else if (node.data.isMilestone) {
@@ -875,8 +877,8 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
 
         if (this.state.selected?.payload?.type === TRANSACTION_PAYLOAD_TYPE) {
             for (const output of this.state.selected.payload.essence.outputs) {
-                if (output.type === SIG_LOCKED_SINGLE_OUTPUT_TYPE) {
-                    total += output.amount;
+                if (output.type === BASIC_OUTPUT_TYPE) {
+                    total += Number(output.amount);
                 }
             }
         }

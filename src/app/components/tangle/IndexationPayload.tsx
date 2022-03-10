@@ -1,25 +1,25 @@
-import { Converter } from "@iota/iota.js";
+import { Converter } from "@iota/util.js";
 import React, { Component, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
 import MessageButton from "../../components/layout/MessageButton";
-import { IndexationPayloadProps } from "./IndexationPayloadProps";
-import { IndexationPayloadState } from "./IndexationPayloadState";
+import { TaggedDataPayloadProps } from "./TaggedDataPayloadProps";
+import { TaggedDataPayloadState } from "./TaggedDataPayloadState";
 
 /**
  * Component which will display a indexation payload.
  */
-class IndexationPayload extends Component<IndexationPayloadProps, IndexationPayloadState> {
+class IndexationPayload extends Component<TaggedDataPayloadProps, TaggedDataPayloadState> {
     /**
      * Create a new instance of IndexationPayload.
      * @param props The props.
      */
-    constructor(props: IndexationPayloadProps) {
+    constructor(props: TaggedDataPayloadProps) {
         super(props);
 
-        const utf8Index = Converter.hexToUtf8(props.payload.index);
-        const matchHexIndex = props.payload.index.match(/.{1,2}/g);
-        const hexIndex = matchHexIndex ? matchHexIndex.join(" ") : props.payload.index;
+        const utf8Index =  props.payload.tag ? Converter.hexToUtf8(props.payload.tag) : "";
+        const matchHexIndex = props.payload.tag ? props.payload.tag.match(/.{1,2}/g) : "";
+        const hexIndex = matchHexIndex ? matchHexIndex.join(" ") : props.payload.tag ? props.payload.tag : "" ;
 
         let hexData;
         let utf8Data;
@@ -39,7 +39,7 @@ class IndexationPayload extends Component<IndexationPayloadProps, IndexationPayl
         this.state = {
             utf8Index,
             hexIndex,
-            indexLengthBytes: props.payload.index.length / 2,
+            indexLengthBytes: props.payload.tag ? props.payload.tag.length / 2 : 0,
             utf8Data,
             hexData,
             jsonData,
@@ -68,7 +68,7 @@ class IndexationPayload extends Component<IndexationPayloadProps, IndexationPayl
                 <div className="card--value row">
                     <Link
                         to={
-                            `/explorer/indexed/${this.props.payload.index}`
+                            `/explorer/indexed/${this.props.payload.tag}`
                         }
                     >
                         {this.state.utf8Index}

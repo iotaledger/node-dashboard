@@ -469,11 +469,13 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                     dialogPeerId: undefined,
                     dialogType: undefined
                 });
-            } catch (err) {
-                this.setState({
-                    dialogBusy: false,
-                    dialogStatus: `Failed to ${this.state.dialogType} peer: ${err.message}`
-                });
+            } catch (error) {
+                if (error instanceof Error) {
+                    this.setState({
+                        dialogBusy: false,
+                        dialogStatus: `Failed to ${this.state.dialogType} peer: ${error.message}`
+                    });
+                }
             }
         });
     }
@@ -498,11 +500,13 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                         dialogPeerId: undefined,
                         dialogType: undefined
                     });
-                } catch (err) {
-                    this.setState({
-                        dialogBusy: false,
-                        dialogStatus: `Failed to delete peer: ${err.message}`
-                    });
+                } catch (error) {
+                    if (error instanceof Error) {
+                        this.setState({
+                            dialogBusy: false,
+                            dialogStatus: `Failed to delete peer: ${error.message}`
+                        });
+                    }
                 }
             }
         });

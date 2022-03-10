@@ -1,4 +1,4 @@
-export interface IndexationPayloadState {
+export interface TaggedDataPayloadState {
     /**
      * Hex view of index.
      */

@@ -1,4 +1,4 @@
-import { IIndexationPayload, IMilestonePayload, ITransactionPayload } from "@iota/iota.js";
+import { ITaggedDataPayload, IMilestonePayload, ITransactionPayload } from "@iota/iota.js";
 import { IVisualizerVertex } from "../../models/visualizer/IVisualizerVertex";
 
 export interface VisualizerState {
@@ -59,7 +59,7 @@ export interface VisualizerState {
         /**
          * Select item payload.
          */
-        payload?: ITransactionPayload | IIndexationPayload | IMilestonePayload;
+        payload?: ITransactionPayload | ITaggedDataPayload | IMilestonePayload;
     };
 
     /**

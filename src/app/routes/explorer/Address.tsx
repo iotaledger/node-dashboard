@@ -53,48 +53,48 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
      */
     public async componentDidMount(): Promise<void> {
         super.componentDidMount();
+        //TODO:address
+        // const result = await this._tangleService.search(this.props.match.params.address);
 
-        const result = await this._tangleService.search(this.props.match.params.address);
+        // if (result?.address) {
+        //     this.setState({
+        //         address: result.address,
+        //         bech32AddressDetails: Bech32AddressHelper.buildAddress(result.address.address, this._bech32Hrp),
+        //         balance: result.address.balance,
+        //         outputIds: result.addressOutputIds
+        //     }, async () => {
+        //         const outputs: IOutputResponse[] = [];
 
-        if (result?.address) {
-            this.setState({
-                address: result.address,
-                bech32AddressDetails: Bech32AddressHelper.buildAddress(result.address.address, this._bech32Hrp),
-                balance: result.address.balance,
-                outputIds: result.addressOutputIds
-            }, async () => {
-                const outputs: IOutputResponse[] = [];
+        //         if (result.addressOutputIds) {
+        //             for (const outputId of result.addressOutputIds) {
+        //                 const outputResult = await this._tangleService.outputDetails(outputId);
 
-                if (result.addressOutputIds) {
-                    for (const outputId of result.addressOutputIds) {
-                        const outputResult = await this._tangleService.outputDetails(outputId);
+        //                 if (outputResult) {
+        //                     outputs.push(outputResult);
 
-                        if (outputResult) {
-                            outputs.push(outputResult);
+        //                     this.setState({
+        //                         outputs,
+        //                         status: `Loading outputs [${outputs.length}/${result.addressOutputIds.length}]`
+        //                     });
+        //                 }
 
-                            this.setState({
-                                outputs,
-                                status: `Loading outputs [${outputs.length}/${result.addressOutputIds.length}]`
-                            });
-                        }
+        //                 if (!this._isMounted) {
+        //                     break;
+        //                 }
+        //             }
+        //         }
 
-                        if (!this._isMounted) {
-                            break;
-                        }
-                    }
-                }
-
-                this.setState({
-                    outputs,
-                    status: "",
-                    statusBusy: false
-                });
-            });
-        } else if (result?.unavailable) {
-            this.props.history.replace("/explorer/unavailable");
-        } else {
-            this.props.history.replace(`/explorer/search/${this.props.match.params.address}`);
-        }
+        //         this.setState({
+        //             outputs,
+        //             status: "",
+        //             statusBusy: false
+        //         });
+        //     });
+        // } else if (result?.unavailable) {
+        //     this.props.history.replace("/explorer/unavailable");
+        // } else {
+        //     this.props.history.replace(`/explorer/search/${this.props.match.params.address}`);
+        // }
     }
 
     /**
@@ -144,6 +144,8 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                             <div className="middle row margin-t-m">
                                 {this.state.statusBusy && (<Spinner compact={true} />)}
                                 <p className="status margin-l-s">
+                                    {this.props.match.params.address}
+                                    <br />
                                     {this.state.status}
                                 </p>
                             </div>

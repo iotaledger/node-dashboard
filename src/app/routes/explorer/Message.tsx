@@ -1,4 +1,5 @@
-import { CONFLICT_REASON_STRINGS, IMessageMetadata, INDEXATION_PAYLOAD_TYPE, MILESTONE_PAYLOAD_TYPE, serializeMessage, TRANSACTION_PAYLOAD_TYPE, WriteStream } from "@iota/iota.js";
+import { CONFLICT_REASON_STRINGS, IMessageMetadata, TAGGED_DATA_PAYLOAD_TYPE, MILESTONE_PAYLOAD_TYPE, serializeMessage, TRANSACTION_PAYLOAD_TYPE } from "@iota/iota.js";
+import { WriteStream } from "@iota/util.js";
 import React, { ReactNode } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
 import { ReactComponent as ChevronDownIcon } from "../../../assets/chevron-down.svg";
@@ -61,15 +62,17 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
         const result = await this._tangleService.search(this.props.match.params.messageId);
 
         if (result?.message) {
+            //TODO: uncomment once hornet and iota.rs get updated to new version with correct payload types.
+            // iota.js currently ahead of hornet and opta.rs ex. TRANSACTION_PAYLOAD_TYPE = 6 while in hornet and iota.rs TRANSACTION_PAYLOAD_TYPE = 0 
             const writeStream = new WriteStream();
             serializeMessage(writeStream, result.message);
             const finalBytes = writeStream.finalBytes();
 
             const dataUrls = {
                 json: DownloadHelper.createJsonDataUrl(result.message),
-                bin: DownloadHelper.createBinaryDataUrl(finalBytes),
-                base64: DownloadHelper.createBase64DataUrl(finalBytes),
-                hex: DownloadHelper.createHexDataUrl(finalBytes)
+                // bin: DownloadHelper.createBinaryDataUrl(finalBytes),
+                // base64: DownloadHelper.createBase64DataUrl(finalBytes),
+                // hex: DownloadHelper.createHexDataUrl(finalBytes)
             };
 
             this.setState({
@@ -244,7 +247,7 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                                     )}
                                 </React.Fragment>
                             )}
-                            {this.state.message.payload.type === INDEXATION_PAYLOAD_TYPE && (
+                            {this.state.message.payload.type === TAGGED_DATA_PAYLOAD_TYPE && (
                                 <div className="card margin-t-m padding-l">
                                     <IndexationPayload payload={this.state.message.payload} />
                                 </div>

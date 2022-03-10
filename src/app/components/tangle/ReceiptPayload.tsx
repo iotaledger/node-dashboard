@@ -66,12 +66,13 @@ class ReceiptPayload extends Component<ReceiptPayloadProps, ReceiptPayloadState>
                             {f.tailTransactionHash}
                         </div>
                         <div className="card--value card--value__mono">
-                            <Bech32Address
+                            TODO:address
+                            {/* <Bech32Address
                                 activeLinks={true}
                                 addressDetails={
                                     Bech32AddressHelper.buildAddress(f.address.address, this._bech32Hrp)
                                 }
-                            />
+                            /> */}
                         </div>
                         <div className="card--label">
                             Deposit
@@ -86,8 +87,9 @@ class ReceiptPayload extends Component<ReceiptPayloadProps, ReceiptPayloadState>
                                     }
                                 )}
                             >
-                                {this.state.formatFull
-                                    ? `${f.deposit} i` : UnitsHelper.formatBest(f.deposit)}
+                                TODO:amount
+                                {/* {this.state.formatFull
+                                    ? `${f.deposit} i` : UnitsHelper.formatBest(f.deposit)} */}
                             </button>
                         </div>
                     </div>
@@ -111,9 +113,10 @@ class ReceiptPayload extends Component<ReceiptPayloadProps, ReceiptPayloadState>
                             }
                         )}
                     >
-                        {this.state.formatFull
+                        TODO:amount
+                        {/* {this.state.formatFull
                             ? `${this.props.payload.transaction.output.amount} i`
-                            : UnitsHelper.formatBest(this.props.payload.transaction.output.amount)}
+                            : UnitsHelper.formatBest(this.props.payload.transaction.output.amount)} */}
                     </button>
                 </div>
             </div>

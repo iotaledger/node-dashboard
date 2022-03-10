@@ -1,4 +1,5 @@
-import { Bech32Helper, ClientError, Converter, IClient, IIndexationPayload, IMessageMetadata, IMilestonePayload, IMilestoneResponse, INodeInfo, IOutputResponse, ITransactionPayload, SingleNodeClient } from "@iota/iota.js";
+import { Bech32Helper, ClientError, IClient, ITaggedDataPayload, IMessageMetadata, IMilestonePayload, IMilestoneResponse, INodeInfo, IOutputResponse, ITransactionPayload, SingleNodeClient, IBasicOutput, IndexerPluginClient, ED25519_ADDRESS_TYPE } from "@iota/iota.js";
+import { Converter } from "@iota/util.js";
 import { ServiceFactory } from "../factories/serviceFactory";
 import { ISearchResponse } from "../models/tangle/ISearchResponse";
 import { AuthService } from "./authService";
@@ -43,9 +44,40 @@ export class TangleService {
         const queryLower = query.toLowerCase();
         const client = this.buildClient();
 
+        console.log("tangelSearch")
+        console.log(queryLower)
+
+        
+        // try {
+        //     if (!this._nodeInfo) {
+        //         await this.info();
+               
+        //     }
+        //     // if (this._nodeInfo && Bech32Helper.matches(queryLower, this._nodeInfo.protocol.bech32HRP)) {
+        //     if (this._nodeInfo ) {
+        //         console.log("addressoutputs")
+        //         // const bech32 = Bech32Helper.toBech32(ED25519_ADDRESS_TYPE, Converter.hexToBytes(queryLower), this._nodeInfo.protocol.bech32HRP)
+        //         // console.log("matches bech32")
+        //         // console.log(Bech32Helper.matches(queryLower, this._nodeInfo.protocol.bech32HRP))
+        //         // console.log("bech32")
+        //         // console.log(bech32)
+        //         // console.log(bech32)
+        //         // const addressOutputs = await client.addressEd25519Outputs(queryLower);
+        //         const indexerPlugin = new IndexerPluginClient(client);
+        //         const addressOutputs = await indexerPlugin.outputs({addressBech32: queryLower});
+        //         // console.log("addressoutputs")
+        //         console.log(addressOutputs)
+        //     }
+        // } catch (error) {
+        //     if (error instanceof Error) {
+        //         console.log(error.message)
+        //     }
+        // }
+
         try {
             // If the query is an integer then lookup a milestone
             if (/^\d+$/.test(query)) {
+                console.log("tangelSearch milestone")
                 const milestone = await client.milestone(Number.parseInt(query, 10));
 
                 return {
@@ -53,7 +85,7 @@ export class TangleService {
                 };
             }
         } catch (err) {
-            if (this.checkForUnavailable(err)) {
+            if (err instanceof ClientError && this.checkForUnavailable(err)) {
                 return {
                     unavailable: true
                 };
@@ -64,20 +96,23 @@ export class TangleService {
             if (!this._nodeInfo) {
                 await this.info();
             }
-            if (this._nodeInfo && Bech32Helper.matches(queryLower, this._nodeInfo.bech32HRP)) {
-                const address = await client.address(queryLower);
+            if (this._nodeInfo && Bech32Helper.matches(queryLower, this._nodeInfo.protocol.bech32HRP)) {
 
-                if (address) {
-                    const addressOutputs = await client.addressOutputs(queryLower);
+                const indexerPlugin = new IndexerPluginClient(client);
+                const addressOutputs = await indexerPlugin.outputs({addressBech32: queryLower});
+                // const address = await client.address(queryLower);
+                // if (address) {
+                    // const addressOutputs = await client.addressOutputs(queryLower);
+                    // const addressOutputs = await client.pluginFetch<never, IBasicOutput>("indexer/v1/", "get", "outputs", [`address=${queryLower}`]);
 
                     return {
-                        address,
-                        addressOutputIds: addressOutputs.outputIds
+                        address: queryLower,
+                        addressOutputIds: addressOutputs.items
                     };
-                }
+                // }
             }
         } catch (err) {
-            if (this.checkForUnavailable(err)) {
+            if (err instanceof ClientError && this.checkForUnavailable(err)) {
                 return {
                     unavailable: true
                 };
@@ -86,6 +121,7 @@ export class TangleService {
 
         // If the query is 64 bytes hex, try and look for a message
         if (Converter.isHex(queryLower) && queryLower.length === 64) {
+            console.log("tangelSearch message")
             try {
                 const message = await client.message(queryLower);
 
@@ -93,7 +129,7 @@ export class TangleService {
                     message
                 };
             } catch (err) {
-                if (this.checkForUnavailable(err)) {
+                if (err instanceof ClientError && this.checkForUnavailable(err)) {
                     return {
                         unavailable: true
                     };
@@ -102,13 +138,14 @@ export class TangleService {
 
             // If the query is 64 bytes hex, try and look for a transaction included message
             try {
-                const message = await client.transactionIncludedMessage(queryLower);
+                console.log("tangelSearch transaction-included-message")
 
+                const message = await client.transactionIncludedMessage(queryLower);
                 return {
                     message
                 };
             } catch (err) {
-                if (this.checkForUnavailable(err)) {
+                if (err instanceof ClientError && this.checkForUnavailable(err)) {
                     return {
                         unavailable: true
                     };
@@ -119,6 +156,7 @@ export class TangleService {
         try {
             // If the query is 68 bytes hex, try and look for an output
             if (Converter.isHex(queryLower) && queryLower.length === 68) {
+                console.log("tangelSearch output")
                 const output = await client.output(queryLower);
 
                 return {
@@ -126,7 +164,7 @@ export class TangleService {
                 };
             }
         } catch (err) {
-            if (this.checkForUnavailable(err)) {
+            if (err instanceof ClientError && this.checkForUnavailable(err)) {
                 return {
                     unavailable: true
                 };
@@ -134,21 +172,29 @@ export class TangleService {
         }
 
         try {
-            if (Converter.isHex(queryLower) && queryLower.length === 64) {
+            if (!this._nodeInfo) {
+                await this.info();
+            }
+            if (this._nodeInfo && Converter.isHex(queryLower) && queryLower.length === 64) {
+                console.log("tangelSearch address ed25519")
                 // We have 64 characters hex so could possible be a raw ed25519 address
-                const address = await client.addressEd25519(queryLower);
+                // const address = await client.addressEd25519(queryLower);
+                // const addressOutputs = await client.addressEd25519Outputs(queryLower);
 
-                const addressOutputs = await client.addressEd25519Outputs(queryLower);
+                // convert back to bech32 to do the search
+                const bech32 = Bech32Helper.toBech32(ED25519_ADDRESS_TYPE, Converter.hexToBytes(queryLower), this._nodeInfo.protocol.bech32HRP)
+                const indexerPlugin = new IndexerPluginClient(client);
+                const addressOutputs = await indexerPlugin.outputs({addressBech32: bech32});
 
-                if (addressOutputs.count > 0) {
+                if (addressOutputs.items.length > 0) {
                     return {
-                        address,
-                        addressOutputIds: addressOutputs.outputIds
+                        address: queryLower,
+                        addressOutputIds: addressOutputs.items
                     };
                 }
             }
         } catch (err) {
-            if (this.checkForUnavailable(err)) {
+            if (err instanceof ClientError && this.checkForUnavailable(err)) {
                 return {
                     unavailable: true
                 };
@@ -159,33 +205,38 @@ export class TangleService {
             if (query.length > 0) {
                 let messages;
                 let indexMessageType: "utf8" | "hex" | undefined;
-
+                console.log("tangelSearch final message search")
                 // If the query is between 2 and 128 hex chars assume hex encoded bytes
                 if (query.length >= 2 && query.length <= 128 && Converter.isHex(queryLower)) {
-                    messages = await client.messagesFind(Converter.hexToBytes(queryLower));
-
-                    if (messages.count > 0) {
+                    console.log("1. try")
+                    console.log(queryLower)
+                    messages = await client.message(queryLower);
+                    console.log(messages)
+                    // if (messages.count > 0) {
                         indexMessageType = "hex";
-                    }
+                    // }
                 }
 
                 // If not already found and query less than 64 bytes assume its UTF8
                 if (!indexMessageType && query.length <= 64) {
-                    messages = await client.messagesFind(query);
-                    if (messages.count > 0) {
+                    console.log("2. try")
+                    messages = await client.message(query);
+                    console.log(messages)
+                    // if (messages.count > 0) {
                         indexMessageType = "utf8";
-                    }
+                    // }
                 }
 
-                if (messages && messages.count > 0) {
+                // if (messages && messages.count > 0) {
+                if (messages) {
                     return {
-                        indexMessageIds: messages.messageIds,
+                        indexMessageIds: messages.parentMessageIds,
                         indexMessageType
                     };
                 }
             }
         } catch (err) {
-            if (this.checkForUnavailable(err)) {
+            if (err instanceof ClientError && this.checkForUnavailable(err)) {
                 return {
                     unavailable: true
                 };
@@ -201,7 +252,7 @@ export class TangleService {
      * @returns The response data.
      */
     public async payload(
-        messageId: string): Promise<ITransactionPayload | IIndexationPayload | IMilestonePayload | undefined> {
+        messageId: string): Promise<ITransactionPayload | ITaggedDataPayload | IMilestonePayload | undefined> {
         try {
             const client = this.buildClient();
 
@@ -260,9 +311,11 @@ export class TangleService {
                 childrenIds: children ? children.childrenMessageIds : undefined
             };
         } catch (err) {
-            return {
-                unavailable: this.checkForUnavailable(err)
-            };
+            if (err instanceof ClientError && this.checkForUnavailable(err)) {
+                return {
+                    unavailable: true
+                };
+            }
         }
     }
 
@@ -307,7 +360,7 @@ export class TangleService {
         return new SingleNodeClient(
             `${window.location.protocol}//${window.location.host}`,
             {
-                basePath: "/api/v1/",
+                basePath: "/api/v2/",
                 headers
             });
     }

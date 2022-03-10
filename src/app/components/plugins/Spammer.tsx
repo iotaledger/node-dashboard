@@ -2,6 +2,7 @@ import React, { ReactNode } from "react";
 import { ServiceFactory } from "../../../factories/serviceFactory";
 import { ISpammerSettings } from "../../../models/plugins/ISpammerSettings";
 import { AuthService } from "../../../services/authService";
+import { TangleService } from "../../../services/tangleService";
 import { FetchHelper } from "../../../utils/fetchHelper";
 import AsyncComponent from "../../components/layout/AsyncComponent";
 import ToggleButton from "../layout/ToggleButton";
@@ -48,27 +49,12 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
      */
     public static async initPlugin(): Promise<void> {
         Spammer._isAvailable = false;
+        const tangleService = ServiceFactory.get<TangleService>("tangle");
 
         try {
-            const authHeaders = Spammer.buildAuthHeaders();
-
-            if (authHeaders.Authorization) {
-                const res = await FetchHelper.json<unknown, {
-                    data?: ISpammerSettings;
-                    error?: {
-                        message: string;
-                    };
-                }>(
-                    `${window.location.protocol}//${window.location.host}`,
-                    "/api/plugins/spammer/status",
-                    "get",
-                    undefined,
-                    authHeaders);
-
-
-                if (res.data) {
-                    Spammer._isAvailable = true;
-                }
+            const info = await tangleService.info();
+            if (info.plugins.includes("spammer/v1")) {
+                Spammer._isAvailable = true;
             }
         } catch (err) {
             console.log(err);
@@ -84,6 +70,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
         description: string;
         settings: ReactNode;
     } | undefined {
+        
         if (Spammer._isAvailable) {
             return {
                 title: Spammer.PLUGIN_TITLE,
@@ -212,7 +199,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                 };
             }>(
                 `${window.location.protocol}//${window.location.host}`,
-                "/api/plugins/spammer/status",
+                "/api/plugins/spammer/v1/status",
                 "get",
                 undefined,
                 Spammer.buildAuthHeaders());

@@ -32,8 +32,8 @@ export class NodeConfigService {
 
             try {
                 const info = await tangleService.info();
-                this._bech32Hrp = info.bech32HRP;
-                this._networkId = info.networkId;
+                this._bech32Hrp = info.protocol.bech32HRP;
+                this._networkId = info.protocol.networkName;
             } catch {}
         }
     }

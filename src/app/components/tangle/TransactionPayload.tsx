@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
-import { Converter, Ed25519Address, IReferenceUnlockBlock, ISignatureUnlockBlock, REFERENCE_UNLOCK_BLOCK_TYPE, SIGNATURE_UNLOCK_BLOCK_TYPE, SIG_LOCKED_DUST_ALLOWANCE_OUTPUT_TYPE, SIG_LOCKED_SINGLE_OUTPUT_TYPE, UnitsHelper, UTXO_INPUT_TYPE } from "@iota/iota.js";
+import { Ed25519Address, IReferenceUnlockBlock, ISignatureUnlockBlock, REFERENCE_UNLOCK_BLOCK_TYPE, SIGNATURE_UNLOCK_BLOCK_TYPE, BASIC_OUTPUT_TYPE, ADDRESS_UNLOCK_CONDITION_TYPE, UnitsHelper, UTXO_INPUT_TYPE } from "@iota/iota.js";
+import { Converter } from "@iota/util.js";
 import React, { Component, ReactNode } from "react";
 import { ServiceFactory } from "../../../factories/serviceFactory";
 import { IBech32AddressDetails } from "../../../models/IBech32AddressDetails";
@@ -103,42 +104,55 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
 
                 <div className="card margin-t-m padding-l">
                     <h2 className="margin-b-s">Outputs</h2>
-                    {this.props.payload.essence.outputs.map((output, idx) => (
+                    {this.props.payload.essence.outputs.map((output, idx) => {
+                        
+                        return (
+                        
                         <div
                             key={idx}
                             className="margin-b-s"
                         >
                             <h3 className="margin-b-t">{NameHelper.getOutputTypeName(output.type)} {idx}</h3>
-                            {(output.type === SIG_LOCKED_SINGLE_OUTPUT_TYPE ||
-                                output.type === SIG_LOCKED_DUST_ALLOWANCE_OUTPUT_TYPE) && (
-                                    <React.Fragment>
-                                        <Bech32Address
-                                            activeLinks={true}
-                                            addressDetails={Bech32AddressHelper.buildAddress(output.address.address, this._bech32Hrp)}
-                                        />
+                            {(() => {
+                                if(output.type === BASIC_OUTPUT_TYPE ) {
+                                    const addressUnlockCondition = output.unlockConditions
+                                        .find(u => u.type === ADDRESS_UNLOCK_CONDITION_TYPE);
+                                    if (addressUnlockCondition &&
+                                            addressUnlockCondition.type === ADDRESS_UNLOCK_CONDITION_TYPE) {
 
-                                        <div className="card--label">
-                                            Amount
-                                        </div>
-                                        <div className="card--value card--value__mono">
-                                            <button
-                                                className="card--value--button"
-                                                type="button"
-                                                onClick={() => this.setState(
-                                                    {
-                                                        formatFull: !this.state.formatFull
-                                                    }
-                                                )}
-                                            >
-                                                {this.state.formatFull
-                                                    ? `${output.amount} i`
-                                                    : UnitsHelper.formatBest(output.amount)}
-                                            </button>
-                                        </div>
-                                    </React.Fragment>
-                                )}
+                                            return ( <React.Fragment>
+                                                    {/* <Bech32Address
+                                                        activeLinks={true}
+                                                        addressDetails={Bech32AddressHelper.buildAddress(addressUnlockCondition.address, this._bech32Hrp)}
+                                                    /> */}
+
+                                                    <div className="card--label">
+                                                        Amount
+                                                    </div>
+                                                    <div className="card--value card--value__mono">
+                                                        <button
+                                                            className="card--value--button"
+                                                            type="button"
+                                                            onClick={() => this.setState(
+                                                                {
+                                                                    formatFull: !this.state.formatFull
+                                                                }
+                                                            )}
+                                                        >
+                                                            {`${output.amount} i`}
+                                                            TODO:amount
+                                                            {/* {this.state.formatFull
+                                                                ? `${output.amount} i`
+                                                                : UnitsHelper.formatBest(output.amount)} */}
+                                                        </button>
+                                                    </div>
+                                                </React.Fragment>)
+                                    }    
+                                }
+                            })()}     
                         </div>
-                    ))}
+                    )}
+                    )}
                 </div>
 
                 <div className="card margin-t-m padding-l">

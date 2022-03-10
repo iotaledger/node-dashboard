@@ -58,7 +58,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
 
         try {
             const info = await tangleService.info();
-            if (info.features.includes("Participation")) {
+            if (info.plugins.includes("participation/v1")) {
                 Participation._isAvailable = true;
             }
         } catch (err) {
@@ -420,12 +420,12 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                 };
             }>(
                 `${window.location.protocol}//${window.location.host}`,
-                "/api/plugins/participation/events",
+                "/api/plugins/participation/v1/events",
                 "get",
                 undefined,
                 Participation.buildAuthHeaders());
 
-            if (response.data) {
+            if (response.data && response.data.eventIds) {
                 this.setState({
                     eventIds: response.data.eventIds
                 });
@@ -450,7 +450,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                 };
             }>(
                 `${window.location.protocol}//${window.location.host}`,
-                `/api/plugins/participation/events/${id}`,
+                `/api/plugins/participation/v1/events/${id}`,
                 "get",
                 undefined,
                 Participation.buildAuthHeaders());
@@ -483,7 +483,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                 };
             }>(
                 `${window.location.protocol}//${window.location.host}`,
-                `/api/plugins/participation/events/${id}/status`,
+                `/api/plugins/participation/v1/events/${id}/status`,
                 "get",
                 undefined,
                 Participation.buildAuthHeaders());
@@ -525,10 +525,13 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                         await this.eventAdd(config);
                     }
                 } catch (error) {
-                    this.setState({
-                        dialogBusy: false,
-                        dialogStatus: `Failed to add event: ${error.message}`
-                    });
+                    if (error instanceof Error) {
+                        this.setState({
+                            dialogBusy: false,
+                            dialogStatus: `Failed to add event: ${error.message}`
+                        });
+                    }
+                  
                 }
             }
         }
@@ -551,7 +554,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                     };
                 }>(
                     `${window.location.protocol}//${window.location.host}`,
-                    "/api/plugins/participation/admin/events",
+                    "/api/plugins/participation/v1/admin/events",
                     "post",
                     eventInfo,
                     Participation.buildAuthHeaders());
@@ -574,11 +577,14 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                         dialogStatus: `Failed to add event: ${response.error?.message}`
                     });
                 }
-            } catch (err) {
-                this.setState({
-                    dialogBusy: false,
-                    dialogStatus: `Failed to add event: ${err.message}`
-                });
+            } catch (error) {
+                if (error instanceof Error) {
+                    this.setState({
+                        dialogBusy: false,
+                        dialogStatus: `Failed to add event: ${error.message}`
+                    });
+                }
+                
             }
         });
     }
@@ -599,7 +605,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                     };
                 }>(
                     `${window.location.protocol}//${window.location.host}`,
-                    `/api/plugins/participation/admin/events/${eventId}`,
+                    `/api/plugins/participation/v1/admin/events/${eventId}`,
                     "delete",
                     undefined,
                     Participation.buildAuthHeaders());
@@ -618,11 +624,13 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                     });
                     console.log(response.error);
                 }
-            } catch (err) {
-                this.setState({
-                    dialogBusy: false,
-                    dialogStatus: `Failed to delete event: ${err.message}`
-                });
+            } catch (error) {
+                if (error instanceof Error) {
+                    this.setState({
+                        dialogBusy: false,
+                        dialogStatus: `Failed to delete event: ${error.message}`
+                    });
+                }
             }
         });
     }
@@ -658,11 +666,13 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                     "get");
 
                     return (response.data) ? response.data : response as IParticipationEventInfo;
-            } catch (err) {
-                this.setState({
-                    dialogBusy: false,
-                    dialogStatus: `Failed to add event: ${err.message}`
-                });
+            } catch (error) {
+                if (error instanceof Error) {
+                    this.setState({
+                        dialogBusy: false,
+                        dialogStatus: `Failed to add event: ${error.message}`
+                    });
+                }
             }
         }
     }

@@ -1,4 +1,4 @@
-import { REFERENCE_UNLOCK_BLOCK_TYPE, SIGNATURE_UNLOCK_BLOCK_TYPE, SIG_LOCKED_DUST_ALLOWANCE_OUTPUT_TYPE, SIG_LOCKED_SINGLE_OUTPUT_TYPE, TREASURY_INPUT_TYPE, TREASURY_OUTPUT_TYPE, UTXO_INPUT_TYPE } from "@iota/iota.js";
+import { REFERENCE_UNLOCK_BLOCK_TYPE, SIGNATURE_UNLOCK_BLOCK_TYPE, BASIC_OUTPUT_TYPE, TREASURY_INPUT_TYPE, TREASURY_OUTPUT_TYPE, UTXO_INPUT_TYPE } from "@iota/iota.js";
 
 export class NameHelper {
     /**
@@ -21,10 +21,8 @@ export class NameHelper {
      * @returns The output type name.
      */
     public static getOutputTypeName(type: number): string {
-        if (type === SIG_LOCKED_SINGLE_OUTPUT_TYPE) {
+        if (type === BASIC_OUTPUT_TYPE) {
             return "Signature Locked Single Output";
-        } else if (type === SIG_LOCKED_DUST_ALLOWANCE_OUTPUT_TYPE) {
-            return "Signature Locked Dust Allowance Output";
         } else if (type === TREASURY_OUTPUT_TYPE) {
             return "Treasury Output";
         }
