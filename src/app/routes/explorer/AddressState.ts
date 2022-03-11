@@ -1,13 +1,12 @@
-// import { IAddressResponse, IOutputResponse } from "@iota/iota.js";
 import { IOutputResponse } from "@iota/iota.js";
+import { IAddressDetails } from "../../../models/IAddressDetails";
 import { IBech32AddressDetails } from "../../../models/IBech32AddressDetails";
 
 export interface AddressState {
     /**
      * Address.
      */
-    // address?: IAddressResponse;
-    address?: string;
+    address?: IAddressDetails;
 
     /**
      * The addres in bech 32 format.

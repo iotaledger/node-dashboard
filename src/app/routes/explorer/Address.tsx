@@ -1,4 +1,4 @@
-import { IOutputResponse, UnitsHelper } from "@iota/iota.js";
+import { IOutputResponse, UnitsHelper, addressBalance } from "@iota/iota.js";
 import React, { ReactNode } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
 import { ReactComponent as ChevronLeftIcon } from "../../../assets/chevron-left.svg";
@@ -53,14 +53,14 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
      */
     public async componentDidMount(): Promise<void> {
         super.componentDidMount();
-        //TODO:address
-        const result = await this._tangleService.search(this.props.match.params.address);
 
-        if (result?.address) {
+        const result = await this._tangleService.search(this.props.match.params.address);
+        
+        if (result?.address?.address) {
             this.setState({
                 address: result.address,
-                bech32AddressDetails: Bech32AddressHelper.buildAddress(result.address, this._bech32Hrp),
-                // balance: result.address.balance,
+                bech32AddressDetails: Bech32AddressHelper.buildAddress(result.address.address, this._bech32Hrp),
+                balance: result.address.balance,
                 outputIds: result.addressOutputIds
             }, async () => {
                 const outputs: IOutputResponse[] = [];
@@ -135,7 +135,7 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                                     >
                                         {this.state.formatFull
                                             ? `${this.state.balance} i`
-                                            : UnitsHelper.formatBest(this.state.balance)}
+                                            : UnitsHelper.formatBest(Number(this.state.balance))}
                                     </button>
                                 </div>
                             </div>

@@ -1,9 +1,9 @@
-import { Bech32Helper, ClientError, IClient, ITaggedDataPayload, IMessageMetadata, IMilestonePayload, IMilestoneResponse, INodeInfo, IOutputResponse, ITransactionPayload, SingleNodeClient, IBasicOutput, IndexerPluginClient, ED25519_ADDRESS_TYPE } from "@iota/iota.js";
+import { addressBalance,Bech32Helper, ClientError, IClient, ITaggedDataPayload, IMessageMetadata, IMilestonePayload, IMilestoneResponse, INodeInfo, IOutputResponse, ITransactionPayload, SingleNodeClient, IBasicOutput, IndexerPluginClient, ED25519_ADDRESS_TYPE } from "@iota/iota.js";
 import { Converter } from "@iota/util.js";
 import { ServiceFactory } from "../factories/serviceFactory";
 import { ISearchResponse } from "../models/tangle/ISearchResponse";
 import { AuthService } from "./authService";
-
+import { IAddressDetails } from "../models/IAddressDetails";
 /**
  * Service to handle api requests.
  */
@@ -47,33 +47,6 @@ export class TangleService {
         console.log("tangelSearch")
         console.log(queryLower)
 
-        
-        // try {
-        //     if (!this._nodeInfo) {
-        //         await this.info();
-               
-        //     }
-        //     // if (this._nodeInfo && Bech32Helper.matches(queryLower, this._nodeInfo.protocol.bech32HRP)) {
-        //     if (this._nodeInfo ) {
-        //         console.log("addressoutputs")
-        //         // const bech32 = Bech32Helper.toBech32(ED25519_ADDRESS_TYPE, Converter.hexToBytes(queryLower), this._nodeInfo.protocol.bech32HRP)
-        //         // console.log("matches bech32")
-        //         // console.log(Bech32Helper.matches(queryLower, this._nodeInfo.protocol.bech32HRP))
-        //         // console.log("bech32")
-        //         // console.log(bech32)
-        //         // console.log(bech32)
-        //         // const addressOutputs = await client.addressEd25519Outputs(queryLower);
-        //         const indexerPlugin = new IndexerPluginClient(client);
-        //         const addressOutputs = await indexerPlugin.outputs({addressBech32: queryLower});
-        //         // console.log("addressoutputs")
-        //         console.log(addressOutputs)
-        //     }
-        // } catch (error) {
-        //     if (error instanceof Error) {
-        //         console.log(error.message)
-        //     }
-        // }
-
         try {
             // If the query is an integer then lookup a milestone
             if (/^\d+$/.test(query)) {
@@ -97,19 +70,17 @@ export class TangleService {
                 await this.info();
             }
             if (this._nodeInfo && Bech32Helper.matches(queryLower, this._nodeInfo.protocol.bech32HRP)) {
-
-                const indexerPlugin = new IndexerPluginClient(client);
-                const addressOutputs = await indexerPlugin.outputs({addressBech32: queryLower});
-                // const address = await client.address(queryLower);
-                // if (address) {
-                    // const addressOutputs = await client.addressOutputs(queryLower);
-                    // const addressOutputs = await client.pluginFetch<never, IBasicOutput>("indexer/v1/", "get", "outputs", [`address=${queryLower}`]);
+                const address = await this.addressBalance(queryLower);
+                
+                if (address) {
+                    const indexerPlugin = new IndexerPluginClient(client);
+                    const addressOutputs = await indexerPlugin.outputs({addressBech32: queryLower});
 
                     return {
-                        address: queryLower,
+                        address,
                         addressOutputIds: addressOutputs.items
                     };
-                // }
+                }
             }
         } catch (err) {
             if (err instanceof ClientError && this.checkForUnavailable(err)) {
@@ -183,12 +154,13 @@ export class TangleService {
 
                 // convert back to bech32 to do the search
                 const bech32 = Bech32Helper.toBech32(ED25519_ADDRESS_TYPE, Converter.hexToBytes(queryLower), this._nodeInfo.protocol.bech32HRP)
-                const indexerPlugin = new IndexerPluginClient(client);
-                const addressOutputs = await indexerPlugin.outputs({addressBech32: bech32});
-
-                if (addressOutputs.items.length > 0) {
+                const address = await this.addressBalance(bech32);
+                
+                if (address) {
+                    const indexerPlugin = new IndexerPluginClient(client);
+                    const addressOutputs = await indexerPlugin.outputs({addressBech32: bech32});
                     return {
-                        address: queryLower,
+                        address,
                         addressOutputIds: addressOutputs.items
                     };
                 }
@@ -277,6 +249,23 @@ export class TangleService {
     }
 
     /**
+     * Get the balance for an address.
+     * @param addressBech32 The address to get the balances for.
+     * @returns The balance.
+     */
+    public async addressBalance(
+        addressBech32: string): Promise<IAddressDetails | undefined> {
+        try {
+            const client = this.buildClient();
+            let address = await addressBalance(client, addressBech32) as unknown as IAddressDetails;
+
+            address.address = addressBech32;
+
+            return address;
+        } catch {}
+    }
+
+    /**
      * Get the miletsone details.
      * @param milestoneIndex The miletsone to get the details for.
      * @returns The details response.
@@ -339,6 +328,7 @@ export class TangleService {
 
         await client.peerDelete(peerId);
     }
+
 
     /**
      * Build a client with auth header.

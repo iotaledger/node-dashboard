@@ -1,4 +1,7 @@
-import { REFERENCE_UNLOCK_BLOCK_TYPE, SIGNATURE_UNLOCK_BLOCK_TYPE, BASIC_OUTPUT_TYPE, TREASURY_INPUT_TYPE, TREASURY_OUTPUT_TYPE, UTXO_INPUT_TYPE } from "@iota/iota.js";
+import { 
+    SIGNATURE_UNLOCK_BLOCK_TYPE, REFERENCE_UNLOCK_BLOCK_TYPE, ALIAS_UNLOCK_BLOCK_TYPE, NFT_UNLOCK_BLOCK_TYPE,
+    UTXO_INPUT_TYPE, TREASURY_INPUT_TYPE,
+    BASIC_OUTPUT_TYPE, ALIAS_OUTPUT_TYPE, NFT_OUTPUT_TYPE, FOUNDRY_OUTPUT_TYPE, TREASURY_OUTPUT_TYPE } from "@iota/iota.js";
 
 export class NameHelper {
     /**
@@ -22,7 +25,13 @@ export class NameHelper {
      */
     public static getOutputTypeName(type: number): string {
         if (type === BASIC_OUTPUT_TYPE) {
-            return "Basic Output Type";
+            return "Basic Output";
+        } else if (type === ALIAS_OUTPUT_TYPE) {
+            return "Alias Output";
+        } else if (type === NFT_OUTPUT_TYPE) {
+            return "Nft Output";
+        } else if (type === FOUNDRY_OUTPUT_TYPE) {
+            return "Foundry Output";
         } else if (type === TREASURY_OUTPUT_TYPE) {
             return "Treasury Output";
         }
@@ -39,6 +48,10 @@ export class NameHelper {
             return "Signature Unlock Block";
         } else if (type === REFERENCE_UNLOCK_BLOCK_TYPE) {
             return "Reference Unlock Block";
+        } else if (type === ALIAS_UNLOCK_BLOCK_TYPE) {
+            return "Alias Unlock Block";
+        } else if (type === NFT_UNLOCK_BLOCK_TYPE) {
+            return "Nft Unlock Block";
         }
         return "Unknown Unlock Block";
     }

@@ -108,10 +108,9 @@ class Output extends Component<OutputProps, OutputState> {
                                         }
                                     )}
                                 >
-                                    TODO:address display output
-                                    {/* {this.state.formatFull
+                                    {this.state.formatFull
                                         ? `${this.props.output.output.amount} i`
-                                        : UnitsHelper.formatBest(this.props.output.output.amount)} */}
+                                        : UnitsHelper.formatBest(Number(this.props.output.output.amount))}
                                 </button>
                             </div>
                         </React.Fragment>

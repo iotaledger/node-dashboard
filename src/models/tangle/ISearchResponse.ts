@@ -1,5 +1,5 @@
 import {  IMessage, IMilestoneResponse, IOutputResponse } from "@iota/iota.js";
-// import { IMessage, IMilestoneResponse, IOutputResponse } from "@iota/iota.js";
+import { IAddressDetails } from "../IAddressDetails";
 
 export interface ISearchResponse {
     /**
@@ -20,8 +20,7 @@ export interface ISearchResponse {
     /**
      * Address if it was found.
      */
-    // address?: IAddressResponse;
-    address?: string;
+    address?: IAddressDetails;
 
     /**
      * Output ids when address was found.
