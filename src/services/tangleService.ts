@@ -50,7 +50,7 @@ export class TangleService {
         try {
             // If the query is an integer then lookup a milestone
             if (/^\d+$/.test(query)) {
-                console.log("tangelSearch milestone")
+                console.log("tangelSearch: milestone")
                 const milestone = await client.milestone(Number.parseInt(query, 10));
 
                 return {
@@ -70,6 +70,7 @@ export class TangleService {
                 await this.info();
             }
             if (this._nodeInfo && Bech32Helper.matches(queryLower, this._nodeInfo.protocol.bech32HRP)) {
+                console.log("tangelSearch: address bech32")
                 const address = await this.addressBalance(queryLower);
                 
                 if (address) {
@@ -92,8 +93,9 @@ export class TangleService {
 
         // If the query is 64 bytes hex, try and look for a message
         if (Converter.isHex(queryLower) && queryLower.length === 64) {
-            console.log("tangelSearch message")
+            
             try {
+                console.log("tangelSearch: message")
                 const message = await client.message(queryLower);
 
                 return {
@@ -109,8 +111,7 @@ export class TangleService {
 
             // If the query is 64 bytes hex, try and look for a transaction included message
             try {
-                console.log("tangelSearch transaction-included-message")
-
+                console.log("tangelSearch: transaction-included-message")
                 const message = await client.transactionIncludedMessage(queryLower);
                 return {
                     message
@@ -127,7 +128,7 @@ export class TangleService {
         try {
             // If the query is 68 bytes hex, try and look for an output
             if (Converter.isHex(queryLower) && queryLower.length === 68) {
-                console.log("tangelSearch output")
+                console.log("tangelSearch: output")
                 const output = await client.output(queryLower);
 
                 return {
@@ -147,7 +148,7 @@ export class TangleService {
                 await this.info();
             }
             if (this._nodeInfo && Converter.isHex(queryLower) && queryLower.length === 64) {
-                console.log("tangelSearch address ed25519")
+                console.log("tangelSearch: address ed25519")
                 // We have 64 characters hex so could possible be a raw ed25519 address
                 // const address = await client.addressEd25519(queryLower);
                 // const addressOutputs = await client.addressEd25519Outputs(queryLower);
@@ -156,54 +157,13 @@ export class TangleService {
                 const bech32 = Bech32Helper.toBech32(ED25519_ADDRESS_TYPE, Converter.hexToBytes(queryLower), this._nodeInfo.protocol.bech32HRP)
                 const address = await this.addressBalance(bech32);
                 
-                if (address) {
+                // TODO: confirm address.ledgerIndex > 0 condition is valid way to decide if address exists? Address object will always be retrieved even for bech32 addresses that dont exist.
+                if (address && address.ledgerIndex > 0) {
                     const indexerPlugin = new IndexerPluginClient(client);
                     const addressOutputs = await indexerPlugin.outputs({addressBech32: bech32});
                     return {
                         address,
                         addressOutputIds: addressOutputs.items
-                    };
-                }
-            }
-        } catch (err) {
-            if (err instanceof ClientError && this.checkForUnavailable(err)) {
-                return {
-                    unavailable: true
-                };
-            }
-        }
-
-        try {
-            if (query.length > 0) {
-                let messages;
-                let indexMessageType: "utf8" | "hex" | undefined;
-                console.log("tangelSearch final message search")
-                // If the query is between 2 and 128 hex chars assume hex encoded bytes
-                if (query.length >= 2 && query.length <= 128 && Converter.isHex(queryLower)) {
-                    console.log("1. try")
-                    console.log(queryLower)
-                    messages = await client.message(queryLower);
-                    console.log(messages)
-                    // if (messages.count > 0) {
-                        indexMessageType = "hex";
-                    // }
-                }
-
-                // If not already found and query less than 64 bytes assume its UTF8
-                if (!indexMessageType && query.length <= 64) {
-                    console.log("2. try")
-                    messages = await client.message(query);
-                    console.log(messages)
-                    // if (messages.count > 0) {
-                        indexMessageType = "utf8";
-                    // }
-                }
-
-                // if (messages && messages.count > 0) {
-                if (messages) {
-                    return {
-                        indexMessageIds: messages.parentMessageIds,
-                        indexMessageType
                     };
                 }
             }

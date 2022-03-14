@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { Ed25519Address, IReferenceUnlockBlock, ISignatureUnlockBlock, REFERENCE_UNLOCK_BLOCK_TYPE, SIGNATURE_UNLOCK_BLOCK_TYPE, BASIC_OUTPUT_TYPE, ADDRESS_UNLOCK_CONDITION_TYPE, UnitsHelper, UTXO_INPUT_TYPE } from "@iota/iota.js";
+import { Ed25519Address, IReferenceUnlockBlock, ISignatureUnlockBlock, REFERENCE_UNLOCK_BLOCK_TYPE, SIGNATURE_UNLOCK_BLOCK_TYPE, BASIC_OUTPUT_TYPE, ADDRESS_UNLOCK_CONDITION_TYPE, UnitsHelper, UTXO_INPUT_TYPE, TREASURY_INPUT_TYPE } from "@iota/iota.js";
 import { Converter } from "@iota/util.js";
 import React, { Component, ReactNode } from "react";
 import { ServiceFactory } from "../../../factories/serviceFactory";
@@ -98,6 +98,17 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
                                     </div>
                                 </React.Fragment>
                             )}
+                            {input.type === TREASURY_INPUT_TYPE && (
+                                <React.Fragment>
+                                    <div className="card--label">
+                                        Treasury Input
+                                    </div>
+                                    <div className="card--value card--value__mono">
+                                        {input}
+                                    </div>
+    
+                                </React.Fragment>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -114,41 +125,46 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
                         >
                             <h3 className="margin-b-t">{NameHelper.getOutputTypeName(output.type)} {idx}</h3>
                             {(() => {
+                                
                                 if(output.type === BASIC_OUTPUT_TYPE ) {
                                     const addressUnlockCondition = output.unlockConditions
-                                        .find(u => u.type === ADDRESS_UNLOCK_CONDITION_TYPE);
-                                    if (addressUnlockCondition &&
-                                            addressUnlockCondition.type === ADDRESS_UNLOCK_CONDITION_TYPE) {
+                                    .find(u => u.type === ADDRESS_UNLOCK_CONDITION_TYPE);
 
-                                            return ( <React.Fragment>
-                                                    {/* <Bech32Address
-                                                        activeLinks={true}
-                                                        addressDetails={Bech32AddressHelper.buildAddress(addressUnlockCondition.address, this._bech32Hrp)}
-                                                    /> */}
-
-                                                    <div className="card--label">
-                                                        Amount
+                                    return ( <React.Fragment>
+                                            <div className="card--label">
+                                                Amount
+                                            </div>
+                                            <div className="card--value card--value__mono">
+                                                <button
+                                                    className="card--value--button"
+                                                    type="button"
+                                                    onClick={() => this.setState(
+                                                        {
+                                                            formatFull: !this.state.formatFull
+                                                        }
+                                                    )}
+                                                >
+                                                    {`${output.amount} i`}
+                                                    {this.state.formatFull
+                                                        ? `${output.amount} i`
+                                                        : UnitsHelper.formatBest(Number(output.amount))}
+                                                </button>
+                                            </div>
+                                            { addressUnlockCondition &&
+                                                addressUnlockCondition.type === ADDRESS_UNLOCK_CONDITION_TYPE && (
+                                                    <div>
+                                                        <div className="card--label">
+                                                            Address unlock condition:
+                                                        </div>
+                                                        <div>
+                                                            {addressUnlockCondition}
+                                                        </div>
                                                     </div>
-                                                    <div className="card--value card--value__mono">
-                                                        <button
-                                                            className="card--value--button"
-                                                            type="button"
-                                                            onClick={() => this.setState(
-                                                                {
-                                                                    formatFull: !this.state.formatFull
-                                                                }
-                                                            )}
-                                                        >
-                                                            {`${output.amount} i`}
-                                                            TODO:amount
-                                                            {/* {this.state.formatFull
-                                                                ? `${output.amount} i`
-                                                                : UnitsHelper.formatBest(output.amount)} */}
-                                                        </button>
-                                                    </div>
-                                                </React.Fragment>)
-                                    }    
-                                }
+                                                )
+                                            }    
+  
+                                        </React.Fragment>)
+                                    }
                             })()}     
                         </div>
                     )}

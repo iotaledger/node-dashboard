@@ -62,11 +62,11 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
         const result = await this._tangleService.search(this.props.match.params.messageId);
 
         if (result?.message) {
-            //TODO: uncomment once hornet and iota.rs get updated to new version with correct payload types.
-            // iota.js currently ahead of hornet and opta.rs ex. TRANSACTION_PAYLOAD_TYPE = 6 while in hornet and iota.rs TRANSACTION_PAYLOAD_TYPE = 0 
-            const writeStream = new WriteStream();
-            serializeMessage(writeStream, result.message);
-            const finalBytes = writeStream.finalBytes();
+            // TODO: uncomment once HORNET gets updated to new version with correct payload types.
+            // iota.js currently ahead of hornet ex. TRANSACTION_PAYLOAD_TYPE = 6 while in hornet and iota.rs TRANSACTION_PAYLOAD_TYPE = 0 
+            // const writeStream = new WriteStream();
+            // serializeMessage(writeStream, result.message);
+            // const finalBytes = writeStream.finalBytes();
 
             const dataUrls = {
                 json: DownloadHelper.createJsonDataUrl(result.message),
@@ -322,6 +322,9 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
      * Update the message details.
      */
     private async updateMessageDetails(): Promise<void> {
+        // TODO: remove comments once HORNET gets updated 
+        // Getting message details dosent work for message that was retrieverd by searching for transaction id, also known as the Transaction Included Message look up.
+        // Will work once HORNET gets updated to new version with correct payload types.  
         const details = await this._tangleService.messageDetails(this.props.match.params.messageId);
 
         this.setState({
