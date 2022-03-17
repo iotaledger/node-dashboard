@@ -1,4 +1,4 @@
-import {  IMessage, IMilestoneResponse, IOutputResponse } from "@iota/iota.js";
+import { IMessage, IMilestoneResponse, IOutputResponse } from "@iota/iota.js";
 import { IAddressDetails } from "../IAddressDetails";
 
 export interface ISearchResponse {

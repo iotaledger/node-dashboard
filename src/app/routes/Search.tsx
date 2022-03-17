@@ -1,6 +1,6 @@
+import { Blake2b } from "@iota/crypto.js";
 import { serializeMessage } from "@iota/iota.js";
 import { Converter, WriteStream } from "@iota/util.js";
-import { Blake2b } from "@iota/crypto.js";
 import React, { ReactNode } from "react";
 import { Link, Redirect, RouteComponentProps } from "react-router-dom";
 import { ReactComponent as ChevronLeftIcon } from "../../assets/chevron-left.svg";
@@ -133,11 +133,11 @@ class Search extends AsyncComponent<RouteComponentProps<SearchRouteProps>, Searc
                     } else {
                         let objType;
                         let objParam = query;
-                        console.log("Search response:")
-                        console.log(response)
+                        console.log("Search response:");
+                        console.log(response);
                         if (response.message) {
                             objType = "message";
-                            console.log("objType message")
+                            console.log("objType message");
                             // console.log(JSON.stringify(response))
                             // Recalculate the message id from the content, in case
                             // the lookup was a response to a transaction id lookup
@@ -153,12 +153,11 @@ class Search extends AsyncComponent<RouteComponentProps<SearchRouteProps>, Searc
                             // serializeMessage(writeStream, response.message);
                             // objParam = Converter.bytesToHex(Blake2b.sum256(writeStream.finalBytes()));
                             objParam = query;
-                        } 
-                        //TODO:address
+                        }
+                        // TODO:address
                         else if (response?.address) {
                             objType = "address";
-                        }
-                         else if (response.indexMessageIds) {
+                        } else if (response.indexMessageIds) {
                             objType = "indexed";
                         } else if (response.output) {
                             objType = "message";

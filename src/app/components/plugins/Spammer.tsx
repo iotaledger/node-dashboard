@@ -70,7 +70,6 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
         description: string;
         settings: ReactNode;
     } | undefined {
-        
         if (Spammer._isAvailable) {
             return {
                 title: Spammer.PLUGIN_TITLE,

@@ -425,7 +425,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                 undefined,
                 Participation.buildAuthHeaders());
 
-            if (response.data && response.data.eventIds) {
+            if (response?.data?.eventIds) {
                 this.setState({
                     eventIds: response.data.eventIds
                 });
@@ -531,7 +531,6 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                             dialogStatus: `Failed to add event: ${error.message}`
                         });
                     }
-                  
                 }
             }
         }
@@ -584,7 +583,6 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                         dialogStatus: `Failed to add event: ${error.message}`
                     });
                 }
-                
             }
         });
     }

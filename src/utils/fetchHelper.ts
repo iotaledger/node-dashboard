@@ -57,7 +57,7 @@ export class FetchHelper {
         } catch (err) {
             if (err instanceof Error) {
                 throw err.name === "AbortError" ? new Error("Timeout") : err;
-            }else{
+            } else {
                 throw err as Error;
             }
         } finally {
@@ -121,10 +121,9 @@ export class FetchHelper {
         } catch (err) {
             if (err instanceof Error) {
                 throw err.name === "AbortError" ? new Error("Timeout") : err;
-            }else{
+            } else {
                 throw err as Error;
             }
-
         } finally {
             if (timerId) {
                 clearTimeout(timerId);

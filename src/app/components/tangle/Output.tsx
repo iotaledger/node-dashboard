@@ -1,11 +1,13 @@
-import { BASIC_OUTPUT_TYPE, UnitsHelper } from "@iota/iota.js";
+import { ALIAS_OUTPUT_TYPE, FOUNDRY_OUTPUT_TYPE, NFT_OUTPUT_TYPE, TREASURY_OUTPUT_TYPE, UnitsHelper, IOutputResponse } from "@iota/iota.js";
 import React, { Component, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
 import { NameHelper } from "../../../utils/nameHelper";
 import MessageButton from "../layout/MessageButton";
+import FeatureBlock from "./FeatureBlock";
 import { OutputProps } from "./OutputProps";
 import { OutputState } from "./OutputState";
+import UnlockCondition from "./UnlockCondition";
 
 /**
  * Component which will display an output.
@@ -20,7 +22,8 @@ class Output extends Component<OutputProps, OutputState> {
 
         this.state = {
             formatFull: false,
-            isGenesis: props.output.messageId === "0".repeat(64)
+            isGenesis: (this.isOutputResponse(props.output)) ? props.output.messageId === "0".repeat(64) : false,
+            output: (this.isOutputResponse(props.output)) ? props.output.output : props.output
         };
     }
 
@@ -31,92 +34,240 @@ class Output extends Component<OutputProps, OutputState> {
     public render(): ReactNode {
         return (
             <div className="output">
-                <h2>{NameHelper.getOutputTypeName(this.props.output.output.type)} {this.props.index}</h2>
-                <div className="card--label">
-                    Message Id
-                </div>
-                <div className="card--value row">
-                    {this.state.isGenesis && (
-                        <span>Genesis</span>
-                    )}
-                    {!this.state.isGenesis && (
-                        <React.Fragment>
-                            <Link
-                                to={
-                                    `/explorer/message/${this.props.output.messageId}`
-                                }
-                                className="margin-r-t"
-                            >
-                                {this.props.output.messageId}
-                            </Link>
-                            <MessageButton
-                                onClick={() => ClipboardHelper.copy(
-                                    this.props.output.messageId
-                                )}
-                                buttonType="copy"
-                                labelPosition="top"
-                            />
-                        </React.Fragment>
-                    )}
-                </div>
-                <div className="card--label">
-                    Transaction Id
-                </div>
-                <div className="card--value row">
-                    {this.state.isGenesis && (
-                        <span>Genesis</span>
-                    )}
-                    {!this.state.isGenesis && (
-                        <React.Fragment>
-                            <span className="margin-r-t">
-                                {this.props.output.transactionId}
-                            </span>
-                            <MessageButton
-                                onClick={() => ClipboardHelper.copy(
-                                    this.props.output.transactionId
-                                )}
-                                buttonType="copy"
-                                labelPosition="top"
-                            />
-                        </React.Fragment>
-                    )}
-                </div>
-                <div className="card--label">
-                    Index
-                </div>
-                <div className="card--value">
-                    {this.props.output.outputIndex}
-                </div>
-                <div className="card--label">
-                    Is Spent
-                </div>
-                <div className="card--value">
-                    {this.props.output.isSpent ? "Yes" : "No"}
-                </div>
-                {this.props.output.output.type === BASIC_OUTPUT_TYPE && (
-                        <React.Fragment>
-                            <div className="card--label">
-                                Amount
-                            </div>
-                            <div className="card--value card--value__mono">
-                                <button
-                                    className="card--value--button"
-                                    type="button"
-                                    onClick={() => this.setState(
-                                        {
-                                            formatFull: !this.state.formatFull
+                <h2>{NameHelper.getOutputTypeName(this.state.output.type)} {this.props.index}</h2>
+                {this.isOutputResponse(this.props.output) && (
+                    <React.Fragment>
+                        <div className="card--label">
+                            Message Id
+                        </div>
+                        <div className="card--value row">
+                            {this.state.isGenesis && (
+                                <span>Genesis</span>
+                            )}
+                            {!this.state.isGenesis && (
+                                <React.Fragment>
+                                    <Link
+                                        to={
+                                            `/explorer/message/${this.props.output.messageId}`
                                         }
-                                    )}
-                                >
-                                    {this.state.formatFull
-                                        ? `${this.props.output.output.amount} i`
-                                        : UnitsHelper.formatBest(Number(this.props.output.output.amount))}
-                                </button>
-                            </div>
-                        </React.Fragment>
-                    )}
+                                        className="margin-r-t"
+                                    >
+                                        {this.props.output.messageId}
+                                    </Link>
+                                    <MessageButton
+                                        onClick={() => {
+                                            if (this.isOutputResponse(this.props.output)) {
+                                                ClipboardHelper.copy(this.props.output.messageId);
+                                            }
+                                        }}
+                                        buttonType="copy"
+                                        labelPosition="top"
+                                    />
+                                </React.Fragment>
+                            )}
+                        </div>
+                        <div className="card--label">
+                            Transaction Id
+                        </div>
+                        <div className="card--value row">
+                            {this.state.isGenesis && (
+                                <span>Genesis</span>
+                            )}
+                            {!this.state.isGenesis && (
+                                <React.Fragment>
+                                    <span className="margin-r-t">
+                                        {this.props.output.transactionId}
+                                    </span>
+                                    <MessageButton
+                                        onClick={() => {
+                                            if (this.isOutputResponse(this.props.output)) {
+                                                ClipboardHelper.copy(this.props.output.transactionId);
+                                            }
+                                        }}
+                                        buttonType="copy"
+                                        labelPosition="top"
+                                    />
+                                </React.Fragment>
+                            )}
+                        </div>
+                        <div className="card--label">
+                            Index
+                        </div>
+                        <div className="card--value">
+                            {this.props.output.outputIndex}
+                        </div>
+                        <div className="card--label">
+                            Is Spent
+                        </div>
+                        <div className="card--value">
+                            {this.props.output.isSpent ? "Yes" : "No"}
+                        </div>
+                    </React.Fragment>
+                )}
+                <div className="card--label">
+                    Amount
+                </div>
+                <div className="card--value card--value__mono">
+                    <button
+                        className="card--value--button"
+                        type="button"
+                        onClick={() => this.setState(
+                            {
+                                formatFull: !this.state.formatFull
+                            }
+                        )}
+                    >
+                        {this.state.formatFull
+                            ? `${this.state.output.amount} i`
+                            : UnitsHelper.formatBest(Number(this.state.output.amount))}
+                    </button>
+                </div>
+                {this.state.output.type === ALIAS_OUTPUT_TYPE && (
+                    <React.Fragment>
+                        <div className="card--label">
+                            Alias id:
+                        </div>
+                        <div className="card--value row">
+                            {this.state.output.aliasId}
+                        </div>
+                        <div className="card--label">
+                            State index:
+                        </div>
+                        <div className="card--value row">
+                            {this.state.output.stateIndex}
+                        </div>
+                        <div className="card--label">
+                            State metadata:
+                        </div>
+                        <div className="card--value row">
+                            {this.state.output.stateMetadata}
+                        </div>
+                        <div className="card--label">
+                            Foundry counter:
+                        </div>
+                        <div className="card--value row">
+                            {this.state.output.foundryCounter}
+                        </div>
+                    </React.Fragment>
+                )}
+
+                {this.state.output.type === NFT_OUTPUT_TYPE && (
+                    <React.Fragment>
+                        <div className="card--label">
+                            Nft id:
+                        </div>
+                        <div className="card--value row">
+                            {this.state.output.nftId}
+                        </div>
+                    </React.Fragment>
+                )}
+
+                {this.state.output.type === FOUNDRY_OUTPUT_TYPE && (
+                    <React.Fragment>
+                        <div className="card--label">
+                            Serial number:
+                        </div>
+                        <div className="card--value row">
+                            {this.state.output.serialNumber}
+                        </div>
+                        <div className="card--label">
+                            Token tag:
+                        </div>
+                        <div className="card--value row">
+                            {this.state.output.tokenTag}
+                        </div>
+                        <div className="card--label">
+                            Minted tokens:
+                        </div>
+                        <div className="card--value row">
+                            {this.state.output.mintedTokens}
+                        </div>
+                        <div className="card--label">
+                            Melted tokens:
+                        </div>
+                        <div className="card--value row">
+                            {this.state.output.meltedTokens}
+                        </div>
+                        <div className="card--label">
+                            Maximum supply:
+                        </div>
+                        <div className="card--value row">
+                            {this.state.output.maximumSupply}
+                        </div>
+                        <div className="card--label">
+                            Token scheme type:
+                        </div>
+                        <div className="card--value row">
+                            {this.state.output.tokenScheme.type}
+                        </div>
+                    </React.Fragment>
+                )}
+                {(this.state.output.type === ALIAS_OUTPUT_TYPE ||
+                this.state.output.type === NFT_OUTPUT_TYPE ||
+                this.state.output.type === FOUNDRY_OUTPUT_TYPE) &&
+                this.state.output.immutableBlocks && (
+                    <React.Fragment>
+                        <div className="card--label">
+                            Immutable Blocks:
+                        </div>
+                        <div className="card--value row">
+                            {this.state.output.immutableBlocks.map((immutableFeatureBlock, idx) => (
+                                <FeatureBlock
+                                    key={idx}
+                                    featureBlock={immutableFeatureBlock}
+                                />
+                                ))}
+                        </div>
+                    </React.Fragment>
+                )}
+
+                {/* all output types except Treasury have commonn output conditions */}
+                {this.state.output.type !== TREASURY_OUTPUT_TYPE && (
+                    <React.Fragment>
+                        {this.state.output.unlockConditions.map((unlockCondition, idx) => (
+                            <UnlockCondition
+                                key={idx}
+                                unlockCondition={unlockCondition}
+                            />
+                            ))}
+                        {this.state.output.featureBlocks.map((featureBlock, idx) => (
+                            <FeatureBlock
+                                key={idx}
+                                featureBlock={featureBlock}
+                            />
+                            ))}
+                        {this.state.output.nativeTokens.map((token, idx) => (
+                            <React.Fragment key={idx}>
+                                <h3>Native token</h3>
+                                <div className="card--label">
+                                    Token id:
+                                </div>
+                                <div className="card--value row">
+                                    {token.id}
+                                </div>
+                                <div className="card--label">
+                                    Amount:
+                                </div>
+                                <div className="card--value row">
+                                    {token.amount}
+                                </div>
+                            </React.Fragment>
+                            ))}
+                    </React.Fragment>
+                )}
+
+
             </div>
         );
+    }
+
+    /**
+     * Check if object is type of IOutputResponse.
+     * @param object The object to check.
+     * @returns True of object is IOutputResponse.
+     */
+    private isOutputResponse(object: unknown): object is IOutputResponse {
+        return Object.prototype.hasOwnProperty.call(object, "messageId")
     }
 }
 

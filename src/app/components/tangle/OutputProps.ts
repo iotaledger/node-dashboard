@@ -1,10 +1,10 @@
-import { IOutputResponse } from "@iota/iota.js";
+import { IOutputResponse, OutputTypes } from "@iota/iota.js";
 
 export interface OutputProps {
     /**
      * The output id.
      */
-    id: string;
+    id?: string;
 
     /**
      * The index within the parent.
@@ -14,5 +14,5 @@ export interface OutputProps {
     /**
      * The output to display.
      */
-    output: IOutputResponse;
+    output: IOutputResponse | OutputTypes;
 }

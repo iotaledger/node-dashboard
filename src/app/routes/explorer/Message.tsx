@@ -1,4 +1,4 @@
-import { CONFLICT_REASON_STRINGS, IMessageMetadata, TAGGED_DATA_PAYLOAD_TYPE, MILESTONE_PAYLOAD_TYPE, serializeMessage, TRANSACTION_PAYLOAD_TYPE } from "@iota/iota.js";
+import { CONFLICT_REASON_STRINGS, IMessageMetadata, TAGGED_DATA_PAYLOAD_TYPE, MILESTONE_PAYLOAD_TYPE, serializeMessage, TRANSACTION_PAYLOAD_TYPE, ITransactionPayload } from "@iota/iota.js";
 import { WriteStream } from "@iota/util.js";
 import React, { ReactNode } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
@@ -63,13 +63,13 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
 
         if (result?.message) {
             // TODO: uncomment once HORNET gets updated to new version with correct payload types.
-            // iota.js currently ahead of hornet ex. TRANSACTION_PAYLOAD_TYPE = 6 while in hornet and iota.rs TRANSACTION_PAYLOAD_TYPE = 0 
+            // iota.js currently ahead of hornet ex. TRANSACTION_PAYLOAD_TYPE = 6 while in hornet and iota.rs TRANSACTION_PAYLOAD_TYPE = 0
             // const writeStream = new WriteStream();
             // serializeMessage(writeStream, result.message);
             // const finalBytes = writeStream.finalBytes();
 
             const dataUrls = {
-                json: DownloadHelper.createJsonDataUrl(result.message),
+                json: DownloadHelper.createJsonDataUrl(result.message)
                 // bin: DownloadHelper.createBinaryDataUrl(finalBytes),
                 // base64: DownloadHelper.createBase64DataUrl(finalBytes),
                 // hex: DownloadHelper.createHexDataUrl(finalBytes)
@@ -222,10 +222,14 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                     </div>
                     {this.state.message?.payload && (
                         <React.Fragment>
-                            {this.state.message.payload.type === TRANSACTION_PAYLOAD_TYPE && (
+                            {/* TODO: change when HORNET node gets updated to new version
+                            1. if condition to: this.state.message.payload.type === TRANSACTION_PAYLOAD_TYPE
+                            2. remove as ITransactionPayload
+                            3. remove isTsxPayload check*/}
+                            {this.state.message.payload.type !== MILESTONE_PAYLOAD_TYPE && this.state.message.payload.type !== TAGGED_DATA_PAYLOAD_TYPE && (
                                 <React.Fragment>
                                     <TransactionPayload payload={this.state.message.payload} />
-                                    {this.state.message.payload.essence.payload && (
+                                    {this.isTsxPayload(this.state.message.payload) && this.state.message.payload.essence.payload && (
                                         <div className="card margin-t-m padding-l">
                                             <IndexationPayload
                                                 payload={this.state.message.payload.essence.payload}
@@ -233,7 +237,6 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                                         </div>
                                     )}
                                 </React.Fragment>
-
                             )}
                             {this.state.message.payload.type === MILESTONE_PAYLOAD_TYPE && (
                                 <React.Fragment>
@@ -318,13 +321,23 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
         );
     }
 
+    // TODO: remove when HORNET node gets updated to new version
+    /**
+     * Check if object is type of ITransactionPayload.
+     * @param object The object to check.
+     * @returns True of object is ITransactionPayload.
+     */
+    private isTsxPayload(object: unknown): object is ITransactionPayload {
+        return Object.prototype.hasOwnProperty.call(object, "essence")
+    }
+
     /**
      * Update the message details.
      */
     private async updateMessageDetails(): Promise<void> {
-        // TODO: remove comments once HORNET gets updated 
+        // TODO: remove comments once HORNET gets updated
         // Getting message details dosent work for message that was retrieverd by searching for transaction id, also known as the Transaction Included Message look up.
-        // Will work once HORNET gets updated to new version with correct payload types.  
+        // Will work once HORNET gets updated to new version with correct payload types.
         const details = await this._tangleService.messageDetails(this.props.match.params.messageId);
 
         this.setState({

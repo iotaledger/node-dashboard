@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { Ed25519Address, IReferenceUnlockBlock, ISignatureUnlockBlock, REFERENCE_UNLOCK_BLOCK_TYPE, SIGNATURE_UNLOCK_BLOCK_TYPE, BASIC_OUTPUT_TYPE, ADDRESS_UNLOCK_CONDITION_TYPE, UnitsHelper, UTXO_INPUT_TYPE, TREASURY_INPUT_TYPE } from "@iota/iota.js";
+import { Ed25519Address, IReferenceUnlockBlock, ISignatureUnlockBlock, REFERENCE_UNLOCK_BLOCK_TYPE, SIGNATURE_UNLOCK_BLOCK_TYPE, UTXO_INPUT_TYPE, TREASURY_INPUT_TYPE } from "@iota/iota.js";
 import { Converter } from "@iota/util.js";
 import React, { Component, ReactNode } from "react";
 import { ServiceFactory } from "../../../factories/serviceFactory";
@@ -8,6 +8,7 @@ import { NodeConfigService } from "../../../services/nodeConfigService";
 import { Bech32AddressHelper } from "../../../utils/bech32AddressHelper";
 import { NameHelper } from "../../../utils/nameHelper";
 import Bech32Address from "./Bech32Address";
+import Output from "./Output";
 import { TransactionPayloadProps } from "./TransactionPayloadProps";
 import { TransactionPayloadState } from "./TransactionPayloadState";
 
@@ -106,7 +107,7 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
                                     <div className="card--value card--value__mono">
                                         {input}
                                     </div>
-    
+
                                 </React.Fragment>
                             )}
                         </div>
@@ -115,59 +116,15 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
 
                 <div className="card margin-t-m padding-l">
                     <h2 className="margin-b-s">Outputs</h2>
-                    {this.props.payload.essence.outputs.map((output, idx) => {
-                        
-                        return (
-                        
-                        <div
-                            key={idx}
-                            className="margin-b-s"
-                        >
-                            <h3 className="margin-b-t">{NameHelper.getOutputTypeName(output.type)} {idx}</h3>
-                            {(() => {
-                                
-                                if(output.type === BASIC_OUTPUT_TYPE ) {
-                                    const addressUnlockCondition = output.unlockConditions
-                                    .find(u => u.type === ADDRESS_UNLOCK_CONDITION_TYPE);
-
-                                    return ( <React.Fragment>
-                                            <div className="card--label">
-                                                Amount
-                                            </div>
-                                            <div className="card--value card--value__mono">
-                                                <button
-                                                    className="card--value--button"
-                                                    type="button"
-                                                    onClick={() => this.setState(
-                                                        {
-                                                            formatFull: !this.state.formatFull
-                                                        }
-                                                    )}
-                                                >
-                                                    {`${output.amount} i`}
-                                                    {this.state.formatFull
-                                                        ? `${output.amount} i`
-                                                        : UnitsHelper.formatBest(Number(output.amount))}
-                                                </button>
-                                            </div>
-                                            { addressUnlockCondition &&
-                                                addressUnlockCondition.type === ADDRESS_UNLOCK_CONDITION_TYPE && (
-                                                    <div>
-                                                        <div className="card--label">
-                                                            Address unlock condition:
-                                                        </div>
-                                                        <div>
-                                                            {addressUnlockCondition}
-                                                        </div>
-                                                    </div>
-                                                )
-                                            }    
-  
-                                        </React.Fragment>)
-                                    }
-                            })()}     
+                    {this.props.payload.essence.outputs.map((output, idx) => (
+                        <div className="card margin-t-m padding-l" key={idx}>
+                            <Output
+                                key={idx}
+                                index={idx + 1}
+                                output={output}
+                            />
                         </div>
-                    )}
+                        )
                     )}
                 </div>
 

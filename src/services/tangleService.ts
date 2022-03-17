@@ -1,9 +1,9 @@
-import { addressBalance,Bech32Helper, ClientError, IClient, ITaggedDataPayload, IMessageMetadata, IMilestonePayload, IMilestoneResponse, INodeInfo, IOutputResponse, ITransactionPayload, SingleNodeClient, IBasicOutput, IndexerPluginClient, ED25519_ADDRESS_TYPE } from "@iota/iota.js";
+import { addressBalance, Bech32Helper, ClientError, IClient, ITaggedDataPayload, IMessageMetadata, IMilestonePayload, IMilestoneResponse, INodeInfo, IOutputResponse, ITransactionPayload, SingleNodeClient, IBasicOutput, IndexerPluginClient, ED25519_ADDRESS_TYPE } from "@iota/iota.js";
 import { Converter } from "@iota/util.js";
 import { ServiceFactory } from "../factories/serviceFactory";
+import { IAddressDetails } from "../models/IAddressDetails";
 import { ISearchResponse } from "../models/tangle/ISearchResponse";
 import { AuthService } from "./authService";
-import { IAddressDetails } from "../models/IAddressDetails";
 /**
  * Service to handle api requests.
  */
@@ -44,13 +44,13 @@ export class TangleService {
         const queryLower = query.toLowerCase();
         const client = this.buildClient();
 
-        console.log("tangelSearch")
-        console.log(queryLower)
+        console.log("tangelSearch");
+        console.log(queryLower);
 
         try {
             // If the query is an integer then lookup a milestone
             if (/^\d+$/.test(query)) {
-                console.log("tangelSearch: milestone")
+                console.log("tangelSearch: milestone");
                 const milestone = await client.milestone(Number.parseInt(query, 10));
 
                 return {
@@ -70,12 +70,12 @@ export class TangleService {
                 await this.info();
             }
             if (this._nodeInfo && Bech32Helper.matches(queryLower, this._nodeInfo.protocol.bech32HRP)) {
-                console.log("tangelSearch: address bech32")
+                console.log("tangelSearch: address bech32");
                 const address = await this.addressBalance(queryLower);
-                
+
                 if (address) {
                     const indexerPlugin = new IndexerPluginClient(client);
-                    const addressOutputs = await indexerPlugin.outputs({addressBech32: queryLower});
+                    const addressOutputs = await indexerPlugin.outputs({ addressBech32: queryLower });
 
                     return {
                         address,
@@ -93,9 +93,8 @@ export class TangleService {
 
         // If the query is 64 bytes hex, try and look for a message
         if (Converter.isHex(queryLower) && queryLower.length === 64) {
-            
             try {
-                console.log("tangelSearch: message")
+                console.log("tangelSearch: message");
                 const message = await client.message(queryLower);
 
                 return {
@@ -111,7 +110,7 @@ export class TangleService {
 
             // If the query is 64 bytes hex, try and look for a transaction included message
             try {
-                console.log("tangelSearch: transaction-included-message")
+                console.log("tangelSearch: transaction-included-message");
                 const message = await client.transactionIncludedMessage(queryLower);
                 return {
                     message
@@ -128,7 +127,7 @@ export class TangleService {
         try {
             // If the query is 68 bytes hex, try and look for an output
             if (Converter.isHex(queryLower) && queryLower.length === 68) {
-                console.log("tangelSearch: output")
+                console.log("tangelSearch: output");
                 const output = await client.output(queryLower);
 
                 return {
@@ -148,19 +147,19 @@ export class TangleService {
                 await this.info();
             }
             if (this._nodeInfo && Converter.isHex(queryLower) && queryLower.length === 64) {
-                console.log("tangelSearch: address ed25519")
+                console.log("tangelSearch: address ed25519");
                 // We have 64 characters hex so could possible be a raw ed25519 address
                 // const address = await client.addressEd25519(queryLower);
                 // const addressOutputs = await client.addressEd25519Outputs(queryLower);
 
                 // convert back to bech32 to do the search
-                const bech32 = Bech32Helper.toBech32(ED25519_ADDRESS_TYPE, Converter.hexToBytes(queryLower), this._nodeInfo.protocol.bech32HRP)
+                const bech32 = Bech32Helper.toBech32(ED25519_ADDRESS_TYPE, Converter.hexToBytes(queryLower), this._nodeInfo.protocol.bech32HRP);
                 const address = await this.addressBalance(bech32);
-                
+
                 // TODO: confirm address.ledgerIndex > 0 condition is valid way to decide if address exists? Address object will always be retrieved even for bech32 addresses that dont exist.
                 if (address && address.ledgerIndex > 0) {
                     const indexerPlugin = new IndexerPluginClient(client);
-                    const addressOutputs = await indexerPlugin.outputs({addressBech32: bech32});
+                    const addressOutputs = await indexerPlugin.outputs({ addressBech32: bech32 });
                     return {
                         address,
                         addressOutputIds: addressOutputs.items
@@ -217,7 +216,7 @@ export class TangleService {
         addressBech32: string): Promise<IAddressDetails | undefined> {
         try {
             const client = this.buildClient();
-            let address = await addressBalance(client, addressBech32) as unknown as IAddressDetails;
+            const address = await addressBalance(client, addressBech32) as unknown as IAddressDetails;
 
             address.address = addressBech32;
 

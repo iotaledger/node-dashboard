@@ -1,4 +1,4 @@
-import { IOutputResponse, UnitsHelper, addressBalance } from "@iota/iota.js";
+import { IOutputResponse, UnitsHelper } from "@iota/iota.js";
 import React, { ReactNode } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
 import { ReactComponent as ChevronLeftIcon } from "../../../assets/chevron-left.svg";
@@ -55,7 +55,7 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
         super.componentDidMount();
 
         const result = await this._tangleService.search(this.props.match.params.address);
-        
+
         if (result?.address?.address) {
             this.setState({
                 address: result.address,

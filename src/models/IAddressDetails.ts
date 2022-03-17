@@ -16,7 +16,7 @@ import { BigInteger } from "big-integer";
     /**
      * Nativ tokens.
      */
-    nativeTokens:  {
+    nativeTokens: {
         [id: string]: BigInteger;
     };
 
