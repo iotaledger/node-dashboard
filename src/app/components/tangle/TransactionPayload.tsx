@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { Ed25519Address, IReferenceUnlockBlock, ISignatureUnlockBlock, REFERENCE_UNLOCK_BLOCK_TYPE, SIGNATURE_UNLOCK_BLOCK_TYPE, UTXO_INPUT_TYPE, TREASURY_INPUT_TYPE } from "@iota/iota.js";
+import { Ed25519Address, IReferenceUnlockBlock, ISignatureUnlockBlock, UTXO_INPUT_TYPE, REFERENCE_UNLOCK_BLOCK_TYPE, SIGNATURE_UNLOCK_BLOCK_TYPE, ALIAS_UNLOCK_BLOCK_TYPE, NFT_UNLOCK_BLOCK_TYPE } from "@iota/iota.js";
 import { Converter } from "@iota/util.js";
 import React, { Component, ReactNode } from "react";
 import { ServiceFactory } from "../../../factories/serviceFactory";
@@ -56,7 +56,6 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
         }
 
         this.state = {
-            formatFull: false,
             unlockAddresses
         };
     }
@@ -97,17 +96,6 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
                                     <div className="card--value">
                                         {input.transactionOutputIndex}
                                     </div>
-                                </React.Fragment>
-                            )}
-                            {input.type === TREASURY_INPUT_TYPE && (
-                                <React.Fragment>
-                                    <div className="card--label">
-                                        Treasury Input
-                                    </div>
-                                    <div className="card--value card--value__mono">
-                                        {input}
-                                    </div>
-
                                 </React.Fragment>
                             )}
                         </div>
@@ -153,6 +141,26 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
                                 </React.Fragment>
                             )}
                             {unlockBlock.type === REFERENCE_UNLOCK_BLOCK_TYPE && (
+                                <React.Fragment>
+                                    <div className="card--label">
+                                        Reference
+                                    </div>
+                                    <div className="card--value">
+                                        {unlockBlock.reference}
+                                    </div>
+                                </React.Fragment>
+                            )}
+                            {unlockBlock.type === ALIAS_UNLOCK_BLOCK_TYPE && (
+                                <React.Fragment>
+                                    <div className="card--label">
+                                        Reference
+                                    </div>
+                                    <div className="card--value">
+                                        {unlockBlock.reference}
+                                    </div>
+                                </React.Fragment>
+                            )}
+                            {unlockBlock.type === NFT_UNLOCK_BLOCK_TYPE && (
                                 <React.Fragment>
                                     <div className="card--label">
                                         Reference

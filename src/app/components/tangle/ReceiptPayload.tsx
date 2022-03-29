@@ -1,4 +1,4 @@
-import { UnitsHelper } from "@iota/iota.js";
+import { ED25519_ADDRESS_TYPE, UnitsHelper } from "@iota/iota.js";
 import React, { Component, ReactNode } from "react";
 import { ServiceFactory } from "../../../factories/serviceFactory";
 import { NodeConfigService } from "../../../services/nodeConfigService";
@@ -66,13 +66,14 @@ class ReceiptPayload extends Component<ReceiptPayloadProps, ReceiptPayloadState>
                             {f.tailTransactionHash}
                         </div>
                         <div className="card--value card--value__mono">
-                            TODO:address
-                            {/* <Bech32Address
-                                activeLinks={true}
-                                addressDetails={
-                                    Bech32AddressHelper.buildAddress(f.address.address, this._bech32Hrp)
-                                }
-                            /> */}
+                            {f.address.type === ED25519_ADDRESS_TYPE && (
+                                <Bech32Address
+                                    activeLinks={true}
+                                    addressDetails={
+                                        Bech32AddressHelper.buildAddress(f.address.pubKeyHash, this._bech32Hrp)
+                                    }
+                                />
+                            )}
                         </div>
                         <div className="card--label">
                             Deposit
@@ -87,9 +88,8 @@ class ReceiptPayload extends Component<ReceiptPayloadProps, ReceiptPayloadState>
                                     }
                                 )}
                             >
-                                TODO:amount
-                                {/* {this.state.formatFull
-                                    ? `${f.deposit} i` : UnitsHelper.formatBest(f.deposit)} */}
+                                {this.state.formatFull
+                                    ? `${f.deposit} i` : UnitsHelper.formatBest(Number(f.deposit))}
                             </button>
                         </div>
                     </div>
@@ -113,10 +113,9 @@ class ReceiptPayload extends Component<ReceiptPayloadProps, ReceiptPayloadState>
                             }
                         )}
                     >
-                        TODO:amount
-                        {/* {this.state.formatFull
+                        {this.state.formatFull
                             ? `${this.props.payload.transaction.output.amount} i`
-                            : UnitsHelper.formatBest(this.props.payload.transaction.output.amount)} */}
+                            : UnitsHelper.formatBest(Number(this.props.payload.transaction.output.amount))}
                     </button>
                 </div>
             </div>

@@ -6,7 +6,6 @@ import { AddressProps } from "./AddressProps";
  * Component which will display an address.
  */
 class Address extends Component<AddressProps> {
-
     /**
      * Render the component.
      * @returns The node to render.

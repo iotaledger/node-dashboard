@@ -1,5 +1,4 @@
-import { ISSUER_FEATURE_BLOCK_TYPE, METADATA_FEATURE_BLOCK_TYPE, SENDER_FEATURE_BLOCK_TYPE, serializeMessage, TAG_FEATURE_BLOCK_TYPE } from "@iota/iota.js";
-import { Converter } from "@iota/util.js";
+import { ISSUER_FEATURE_BLOCK_TYPE, METADATA_FEATURE_BLOCK_TYPE, SENDER_FEATURE_BLOCK_TYPE, TAG_FEATURE_BLOCK_TYPE } from "@iota/iota.js";
 import React, { Component, ReactNode } from "react";
 import { NameHelper } from "../../../utils/nameHelper";
 import Address from "./Address";
@@ -10,20 +9,12 @@ import { FeatureBlockProps } from "./FeatureBlockProps";
  */
 class FeatureBlock extends Component<FeatureBlockProps> {
     /**
-     * Create a new instance of Feature Block.
-     * @param props The props.
-     */
-    constructor(props: FeatureBlockProps) {
-        super(props);
-    }
-
-    /**
      * Render the component.
      * @returns The node to render.
      */
     public render(): ReactNode {
         return (
-            <div className="feature-block">
+            <div className="feature-block padding-t-s">
                 <h3>{NameHelper.getFeatureBlockTypeName(this.props.featureBlock.type)}</h3>
 
                 {this.props.featureBlock.type === SENDER_FEATURE_BLOCK_TYPE && (

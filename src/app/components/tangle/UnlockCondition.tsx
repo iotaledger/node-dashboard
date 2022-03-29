@@ -8,14 +8,13 @@ import { UnlockConditionProps } from "./UnlockConditionProps";
  * Component which will display an unlock condition.
  */
 class UnlockCondition extends Component<UnlockConditionProps> {
-
     /**
      * Render the component.
      * @returns The node to render.
      */
     public render(): ReactNode {
         return (
-            <div className="unlock-condition">
+            <div className="unlock-condition padding-t-s">
                 <h3>{NameHelper.getUnlockConditionTypeName(this.props.unlockCondition.type)}</h3>
 
                 {this.props.unlockCondition.type === ADDRESS_UNLOCK_CONDITION_TYPE && (
@@ -65,9 +64,6 @@ class UnlockCondition extends Component<UnlockConditionProps> {
                 )}
                 {this.props.unlockCondition.type === EXPIRATION_UNLOCK_CONDITION_TYPE && (
                     <React.Fragment>
-                        <div className="card--label">
-                            Return address:
-                        </div>
                         <Address
                             address={this.props.unlockCondition.returnAddress}
                         />

@@ -1,4 +1,4 @@
-import { ALIAS_OUTPUT_TYPE, FOUNDRY_OUTPUT_TYPE, NFT_OUTPUT_TYPE, TREASURY_OUTPUT_TYPE, UnitsHelper, IOutputResponse } from "@iota/iota.js";
+import { BASIC_OUTPUT_TYPE, ALIAS_OUTPUT_TYPE, FOUNDRY_OUTPUT_TYPE, NFT_OUTPUT_TYPE, TREASURY_OUTPUT_TYPE, UnitsHelper, IOutputResponse } from "@iota/iota.js";
 import React, { Component, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
@@ -35,6 +35,7 @@ class Output extends Component<OutputProps, OutputState> {
         return (
             <div className="output">
                 <h2>{NameHelper.getOutputTypeName(this.state.output.type)} {this.props.index}</h2>
+                {/* Diplay metadata for Output Response */}
                 {this.isOutputResponse(this.props.output) && (
                     <React.Fragment>
                         <div className="card--label">
@@ -202,26 +203,8 @@ class Output extends Component<OutputProps, OutputState> {
                         </div>
                     </React.Fragment>
                 )}
-                {(this.state.output.type === ALIAS_OUTPUT_TYPE ||
-                this.state.output.type === NFT_OUTPUT_TYPE ||
-                this.state.output.type === FOUNDRY_OUTPUT_TYPE) &&
-                this.state.output.immutableBlocks && (
-                    <React.Fragment>
-                        <div className="card--label">
-                            Immutable Blocks:
-                        </div>
-                        <div className="card--value row">
-                            {this.state.output.immutableBlocks.map((immutableFeatureBlock, idx) => (
-                                <FeatureBlock
-                                    key={idx}
-                                    featureBlock={immutableFeatureBlock}
-                                />
-                                ))}
-                        </div>
-                    </React.Fragment>
-                )}
 
-                {/* all output types except Treasury have commonn output conditions */}
+                {/* all output types except Treasury have common output conditions */}
                 {this.state.output.type !== TREASURY_OUTPUT_TYPE && (
                     <React.Fragment>
                         {this.state.output.unlockConditions.map((unlockCondition, idx) => (
@@ -229,30 +212,42 @@ class Output extends Component<OutputProps, OutputState> {
                                 key={idx}
                                 unlockCondition={unlockCondition}
                             />
-                            ))}
+                        ))}
                         {this.state.output.featureBlocks.map((featureBlock, idx) => (
                             <FeatureBlock
                                 key={idx}
                                 featureBlock={featureBlock}
                             />
-                            ))}
+                        ))}
+                        {this.state.output.type !== BASIC_OUTPUT_TYPE && this.state.output.immutableFeatureBlocks && (
+                            <React.Fragment>
+                                {this.state.output.immutableFeatureBlocks.map((immutableFeatureBlock, idx) => (
+                                    <FeatureBlock
+                                        key={idx}
+                                        featureBlock={immutableFeatureBlock}
+                                    />
+                                ))}
+                            </React.Fragment>
+                        )}
                         {this.state.output.nativeTokens.map((token, idx) => (
                             <React.Fragment key={idx}>
-                                <h3>Native token</h3>
-                                <div className="card--label">
-                                    Token id:
-                                </div>
-                                <div className="card--value row">
-                                    {token.id}
-                                </div>
-                                <div className="card--label">
-                                    Amount:
-                                </div>
-                                <div className="card--value row">
-                                    {token.amount}
+                                <div className="native-token padding-t-s">
+                                    <h3>Native token</h3>
+                                    <div className="card--label">
+                                        Token id:
+                                    </div>
+                                    <div className="card--value row">
+                                        {token.id}
+                                    </div>
+                                    <div className="card--label">
+                                        Amount:
+                                    </div>
+                                    <div className="card--value row">
+                                        {token.amount}
+                                    </div>
                                 </div>
                             </React.Fragment>
-                            ))}
+                        ))}
                     </React.Fragment>
                 )}
 
@@ -267,7 +262,7 @@ class Output extends Component<OutputProps, OutputState> {
      * @returns True of object is IOutputResponse.
      */
     private isOutputResponse(object: unknown): object is IOutputResponse {
-        return Object.prototype.hasOwnProperty.call(object, "messageId")
+        return Object.prototype.hasOwnProperty.call(object, "messageId");
     }
 }
 

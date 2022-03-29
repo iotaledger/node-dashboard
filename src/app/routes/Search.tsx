@@ -133,29 +133,22 @@ class Search extends AsyncComponent<RouteComponentProps<SearchRouteProps>, Searc
                     } else {
                         let objType;
                         let objParam = query;
-                        console.log("Search response:");
-                        console.log(response);
+
                         if (response.message) {
                             objType = "message";
-                            console.log("objType message");
-                            // console.log(JSON.stringify(response))
                             // Recalculate the message id from the content, in case
                             // the lookup was a response to a transaction id lookup
-                            // const writeStream = new WriteStream();
-                            // try {
-                            //     serializeMessage(writeStream, response.message);
-                            // } catch (error) {
-                            //     console.log("serializeMessage error");
-                            //     console.log(error);
+                            const writeStream = new WriteStream();
 
-                            //     if (error instanceof Error) {console.log(error.message)};
-                            // }
-                            // serializeMessage(writeStream, response.message);
-                            // objParam = Converter.bytesToHex(Blake2b.sum256(writeStream.finalBytes()));
-                            objParam = query;
-                        }
-                        // TODO:address
-                        else if (response?.address) {
+                            try {
+                                serializeMessage(writeStream, response.message);
+                            } catch (error) {
+                                if (error instanceof Error) {
+                                    console.log(error.message);
+                                }
+                            }
+                            objParam = Converter.bytesToHex(Blake2b.sum256(writeStream.finalBytes()), true);
+                        } else if (response?.address) {
                             objType = "address";
                         } else if (response.indexMessageIds) {
                             objType = "indexed";
