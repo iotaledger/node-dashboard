@@ -1,5 +1,5 @@
-import { addressBalance, Bech32Helper, ClientError, IClient, ITaggedDataPayload, IMessageMetadata, IMilestonePayload, IMilestoneResponse, INodeInfo, IOutputResponse, ITransactionPayload, SingleNodeClient, IndexerPluginClient, ED25519_ADDRESS_TYPE } from "@iota/iota.js";
-import { Converter } from "@iota/util.js";
+import { addressBalance, Bech32Helper, ClientError, IClient, ITaggedDataPayload, IMessageMetadata, IMilestonePayload, IMilestoneResponse, INodeInfo, IOutputResponse, ITransactionPayload, SingleNodeClient, IndexerPluginClient, ED25519_ADDRESS_TYPE, NFT_ADDRESS_TYPE, ALIAS_ADDRESS_TYPE } from "@iota/iota.js";
+import { Converter, HexHelper } from "@iota/util.js";
 import { ServiceFactory } from "../factories/serviceFactory";
 import { IAddressDetails } from "../models/IAddressDetails";
 import { ISearchResponse } from "../models/tangle/ISearchResponse";
@@ -61,35 +61,14 @@ export class TangleService {
             }
         }
 
-        try {
-            if (!this._nodeInfo) {
-                await this.info();
-            }
-            if (this._nodeInfo && Bech32Helper.matches(queryLower, this._nodeInfo.protocol.bech32HRP)) {
-                const address = await this.addressBalance(queryLower);
-
-                if (address) {
-                    const indexerPlugin = new IndexerPluginClient(client);
-                    const addressOutputs = await indexerPlugin.outputs({ addressBech32: queryLower });
-
-                    return {
-                        address,
-                        addressOutputIds: addressOutputs.items
-                    };
-                }
-            }
-        } catch (err) {
-            if (err instanceof ClientError && this.checkForUnavailable(err)) {
-                return {
-                    unavailable: true
-                };
-            }
-        }
 
         // If the query is 64 bytes hex, try and look for a message
-        if (Converter.isHex(queryLower, true) && queryLower.length === 66) {
+        if (Converter.isHex(queryLower, true) && (queryLower.length === 64 || queryLower.length === 66)) {
+
             try {
-                const message = await client.message(queryLower);
+
+                //todo: append prefix to querylower if length is 64 and search
+                const message = await client.message(HexHelper.hasPrefix(queryLower) ? queryLower : HexHelper.addPrefix(queryLower));
 
                 return {
                     message
@@ -104,7 +83,7 @@ export class TangleService {
 
             // If the query is 64 bytes hex, try and look for a transaction included message
             try {
-                const message = await client.transactionIncludedMessage(queryLower);
+                const message = await client.transactionIncludedMessage(HexHelper.hasPrefix(queryLower) ? queryLower : HexHelper.addPrefix(queryLower));
                 return {
                     message
                 };
@@ -118,10 +97,86 @@ export class TangleService {
         }
 
         try {
-            // If the query is 68 bytes hex, try and look for an output
-            if (Converter.isHex(queryLower) && queryLower.length === 68) {
-                const output = await client.output(queryLower);
+            if (!this._nodeInfo) {
+                await this.info();
+            }
+            if (this._nodeInfo && (Bech32Helper.matches(queryLower, this._nodeInfo.protocol.bech32HRP) ||
+                    (Converter.isHex(queryLower, true) && 
+                        queryLower.length === 40 || // Aliasid w/o prefix 6457f5f1bc2c3ec696889309cee0665c298f6394
+                        queryLower.length === 42 || // Aliasid with 0x6457f5f1bc2c3ec696889309cee0665c298f6394 or Serialized AliasId w/o prefix 086457f5f1bc2c3ec696889309cee0665c298f6394
+                        queryLower.length === 44 || // Serialized AliasId with prefix 0x086457f5f1bc2c3ec696889309cee0665c298f6394
+                        queryLower.length === 64 || // ed25519 without prefix efdc112efe262b304bcf379b26c31bad029f616ee3ec4aa6345a366e4c9e43a3
+                        queryLower.length === 66 || // ed25519 with prefix 0xefdc112efe262b304bcf379b26c31bad029f616ee3ec4aa6345a366e4c9e43a3
+                        queryLower.length === 68  // ed25519 with prefix 0x00efdc112efe262b304bcf379b26c31bad029f616ee3ec4aa6345a366e4c9e43a3
+                    )
+                )) {
 
+                let queryParam = queryLower;    
+                if (!Bech32Helper.matches(queryLower, this._nodeInfo.protocol.bech32HRP) && HexHelper.hasPrefix(queryLower) ){
+                    queryParam = HexHelper.stripPrefix(queryLower); // strip prefix
+                }
+                
+                let addressBech32 = "";
+                if (Bech32Helper.matches(queryLower, this._nodeInfo.protocol.bech32HRP)){
+                    addressBech32 = queryLower;
+                }else if(queryParam.length === 40){
+                    // AliasId/NftId without prefix 6457f5f1bc2c3ec696889309cee0665c298f6394
+                    addressBech32 = Bech32Helper.toBech32(
+                            parseInt(queryParam.substring(0,2), 16) % 2 === 0 ? ALIAS_ADDRESS_TYPE : NFT_ADDRESS_TYPE, // if first byte is even than aliasId else nftId
+                            Converter.hexToBytes(queryParam),
+                            this._nodeInfo.protocol.bech32HRP
+                        );
+                } else if(queryParam.length === 42) {
+                    // Serialized AliasId/nftId w/o prefix 086457f5f1bc2c3ec696889309cee0665c298f6394
+                    addressBech32 = Bech32Helper.toBech32(
+                            parseInt(queryParam.substring(0,2), 16) === 8 ? ALIAS_ADDRESS_TYPE : NFT_ADDRESS_TYPE, // if first byte is 8 than aliasId else 16 is nft
+                            Converter.hexToBytes(queryParam.substring(2, queryParam.length)), //remove address type
+                            this._nodeInfo.protocol.bech32HRP
+                        );
+                } else {
+                    console.log("ed address")
+                    // ED25519 address search: convert back to bech32 to do the search
+                    addressBech32 = Bech32Helper.toBech32( 
+                            ED25519_ADDRESS_TYPE,
+                            Converter.hexToBytes(queryParam.length === 66 ? queryParam.substring(2, queryParam.length) : queryParam),
+                            this._nodeInfo.protocol.bech32HRP
+                        );
+                }
+                    
+                console.log("search address")
+                const address = await this.addressBalance(addressBech32);
+
+                if (address) {
+                // if (address  && address.ledgerIndex > 0) {
+                    const indexerPlugin = new IndexerPluginClient(client);
+                    const addressType = addressBech32.charAt(this._nodeInfo.protocol.bech32HRP.length + 1)
+                    console.log("addressType")
+                    console.log(addressType)
+                    const addressOutputs = 
+                        addressType === "q" ? await indexerPlugin.outputs({ addressBech32 }) :
+                        (addressType === "p" ?  await indexerPlugin.aliases({ stateControllerBech32: addressBech32 }) :
+                                                await indexerPlugin.nfts({ addressBech32 }) );
+
+                    return {
+                        address,
+                        addressOutputIds: addressOutputs.items
+                    };
+                }
+            }
+        } catch (err) {
+            if (err instanceof ClientError && this.checkForUnavailable(err)) {
+                return {
+                    unavailable: true
+                };
+            }
+        }
+
+        try {
+            // If the query is 68 bytes hex, try and look for an output
+            if (Converter.isHex(queryLower, true) && (queryLower.length === 66 || queryLower.length === 68)) {
+                console.log("search output")
+
+                const output = await client.output(HexHelper.hasPrefix(queryLower) ? queryLower : HexHelper.addPrefix(queryLower));
                 return {
                     output
                 };
@@ -135,26 +190,56 @@ export class TangleService {
         }
 
         try {
-            if (!this._nodeInfo) {
-                await this.info();
-            }
-            if (this._nodeInfo && Converter.isHex(queryLower) && queryLower.length === 64) {
-                // convert back to bech32 to do the search
-                const addressBech32 = Bech32Helper.toBech32(
-                        ED25519_ADDRESS_TYPE,
-                        Converter.hexToBytes(queryLower),
-                        this._nodeInfo.protocol.bech32HRP
-                    );
-                const address = await this.addressBalance(addressBech32);
+            // Foundry lookup by foundry id or token id
+            if (Converter.isHex(queryLower, true) &&
+                queryLower.length === 52 ||
+                queryLower.length === 54 ||
+                queryLower.length === 76 ||
+                queryLower.length === 78
+                ) {
+                console.log("search foundry")
+                let foundryId = queryLower;
+                if (!HexHelper.hasPrefix(queryLower)) {
+                   foundryId = HexHelper.addPrefix(queryLower)
+                }
+                if (foundryId.length > 54){
+                    foundryId = foundryId.substring(0,54)
+                }
+                const indexerPlugin = new IndexerPluginClient(client);
+                const foundryOutputs = await indexerPlugin.foundry(foundryId);
 
-                if (address && address.ledgerIndex > 0) {
-                    const indexerPlugin = new IndexerPluginClient(client);
-                    const addressOutputs = await indexerPlugin.outputs({ addressBech32 });
+                if(foundryOutputs.items.length > 0){
+                    const output = await client.output(foundryOutputs.items[0]);
                     return {
-                        address,
-                        addressOutputIds: addressOutputs.items
+                        output
                     };
                 }
+                
+            }
+        } catch (err) {
+            if (err instanceof ClientError && this.checkForUnavailable(err)) {
+                return {
+                    unavailable: true
+                };
+            }
+        }
+
+        try {
+            // search outputs by tag
+            if (Converter.isHex(queryLower, true)) {
+                console.log("search tag")
+                const tagHex = HexHelper.hasPrefix(queryLower) ? queryLower : HexHelper.addPrefix(queryLower);
+
+                const indexerPlugin = new IndexerPluginClient(client);
+                const foundryOutputs = await indexerPlugin.outputs({ tagHex });
+
+                if(foundryOutputs.items.length > 0){
+                    const output = await client.output(foundryOutputs.items[0]);
+                    return {
+                        output
+                    };
+                }
+                
             }
         } catch (err) {
             if (err instanceof ClientError && this.checkForUnavailable(err)) {

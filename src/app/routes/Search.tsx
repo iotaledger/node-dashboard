@@ -1,6 +1,6 @@
 import { Blake2b } from "@iota/crypto.js";
-import { serializeMessage } from "@iota/iota.js";
-import { Converter, WriteStream } from "@iota/util.js";
+import { serializeMessage, deserializeMessage, IMessage, ADDRESS_UNLOCK_CONDITION_TYPE } from "@iota/iota.js";
+import { Converter, WriteStream, ReadStream } from "@iota/util.js";
 import React, { ReactNode } from "react";
 import { Link, Redirect, RouteComponentProps } from "react-router-dom";
 import { ReactComponent as ChevronLeftIcon } from "../../assets/chevron-left.svg";
@@ -136,6 +136,8 @@ class Search extends AsyncComponent<RouteComponentProps<SearchRouteProps>, Searc
 
                         if (response.message) {
                             objType = "message";
+                            console.log("message");
+                            console.log(response.message);
                             // Recalculate the message id from the content, in case
                             // the lookup was a response to a transaction id lookup
                             const writeStream = new WriteStream();
@@ -147,7 +149,17 @@ class Search extends AsyncComponent<RouteComponentProps<SearchRouteProps>, Searc
                                     console.log(error.message);
                                 }
                             }
+                            // console.log("writeStream.finalHex()")
+                            // console.log(writeStream.finalHex())
                             objParam = Converter.bytesToHex(Blake2b.sum256(writeStream.finalBytes()), true);
+                            // console.log(objParam);
+                            // let rs = new ReadStream(writeStream.finalBytes())
+            //                 const hex =
+            // "020239210d349a33c361bf98ada707663f3f7da71ffff1531c58c1c5c770a60c4223c2f5cc3f1161b74e84a5afc9f4739ab51d0d01c3786334a1877436a3c2cc9ebda101000007000000300401000dad4e62000000000239210d349a33c361bf98ada707663f3f7da71ffff1531c58c1c5c770a60c4223c2f5cc3f1161b74e84a5afc9f4739ab51d0d01c3786334a1877436a3c2cc9ebd0e5751c026e543b2e8ab2eb06099daa1d1e5df47778f7787faab45cdf12fe3a80000000000000000000000000300d85e5b1590d898d1e0cdebb2e3b5337c8b76270142663d78811683ba47c17c9815188080d5ef2f8a8fd08498243a30b2a8eb08e0910573101632bb244c9e27db26121c8af619d90de6cb5e5c407e4edd709e0e06702170e311a1668e0a12480d00d9922819a39e94ddf3907f4b9c8df93f39f026244fcb609205b9a879022599f248afb8e21fbba0ba473b6798ecad3a33e10d1575fd5e3822e2922db4cc24b0808fd6792ee6eaaade15cdc14e43da16883962d15358dc064ba5bb2726cf07790a00f9d9656a60049083eef61487632187b351294c1fa23d118060d813db6d03e8b6105c244d6cd7d831d7f661e985fed1461cdda0ef48e9b973015aa1e28ff1cdd1089f910789cccaeeb24c74b17a36d9777199056d54fea8d28c1e16abee4b710c8038aeaaaaaaaaaa";
+            //                 let rs = new ReadStream(Converter.hexToBytes(hex))
+            //                 let de = deserializeMessage(rs)
+            //                 console.log("deserialize")
+            //                 console.log(JSON.stringify(de))
                         } else if (response?.address) {
                             objType = "address";
                         } else if (response.indexMessageIds) {

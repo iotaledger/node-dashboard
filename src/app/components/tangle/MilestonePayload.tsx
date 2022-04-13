@@ -85,17 +85,13 @@ class MilestonePayload extends Component<MilestonePayloadProps> {
                         </div>
                     </React.Fragment>
                 )}
-                {this.props.payload.publicKeys && (
+                {this.props.payload.metadata && (
                     <React.Fragment>
                         <div className="card--label">
-                            Public Keys
+                            Metadata
                         </div>
                         <div className="card--value card--value__mono">
-                            {this.props.payload.publicKeys?.map(pubKey => (
-                                <div key={pubKey} className="margin-b-s">
-                                    {pubKey}
-                                </div>
-                            ))}
+                            {this.props.payload.metadata}
                         </div>
                     </React.Fragment>
                 )}
@@ -103,9 +99,20 @@ class MilestonePayload extends Component<MilestonePayloadProps> {
                     Signatures
                 </div>
                 <div className="card--value card--value__mono">
-                    {this.props.payload.signatures.map(sig => (
-                        <div key={sig} className="margin-b-s">
-                            {sig}
+                    {this.props.payload.signatures.map((sig, i) => (
+                        <div key={i} className="margin-b-s">
+                            <div className="card--label">
+                                Public Key
+                            </div>
+                            <div className="card--value card--value__mono">
+                                {sig.publicKey}
+                            </div>
+                            <div className="card--label">
+                                Signature
+                            </div>
+                            <div className="card--value card--value__mono">
+                                {sig.signature}
+                            </div>
                         </div>
                     ))}
                 </div>

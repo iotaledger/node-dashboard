@@ -2,16 +2,16 @@ import { Converter } from "@iota/util.js";
 import React, { Component, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
-import MessageButton from "../../components/layout/MessageButton";
+import MessageButton from "../layout/MessageButton";
 import { TaggedDataPayloadProps } from "./TaggedDataPayloadProps";
 import { TaggedDataPayloadState } from "./TaggedDataPayloadState";
 
 /**
- * Component which will display a indexation payload.
+ * Component which will display a Tagged data payload.
  */
-class IndexationPayload extends Component<TaggedDataPayloadProps, TaggedDataPayloadState> {
+class TaggedDataPayload extends Component<TaggedDataPayloadProps, TaggedDataPayloadState> {
     /**
-     * Create a new instance of IndexationPayload.
+     * Create a new instance of TaggedDataPayload.
      * @param props The props.
      */
     constructor(props: TaggedDataPayloadProps) {
@@ -54,7 +54,7 @@ class IndexationPayload extends Component<TaggedDataPayloadProps, TaggedDataPayl
     public render(): ReactNode {
         return (
             <div className="indexation-payload">
-                <h2>Indexation Payload</h2>
+                <h2>Tagged Data Payload</h2>
                 <div className="card--label row middle">
                     <span className="margin-r-t">Index UTF8 [{this.state.indexLengthBytes}]</span>
                     <MessageButton
@@ -143,4 +143,4 @@ class IndexationPayload extends Component<TaggedDataPayloadProps, TaggedDataPayl
     }
 }
 
-export default IndexationPayload;
+export default TaggedDataPayload;

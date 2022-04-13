@@ -93,9 +93,6 @@ class UnlockCondition extends Component<UnlockConditionProps> {
                 )}
                 {this.props.unlockCondition.type === IMMUTABLE_ALIAS_UNLOCK_CONDITION_TYPE && (
                     <React.Fragment>
-                        <div className="card--label">
-                            Immutable address:
-                        </div>
                         <Address
                             address={this.props.unlockCondition.address}
                         />

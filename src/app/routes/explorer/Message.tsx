@@ -14,7 +14,7 @@ import AsyncComponent from "../../components/layout/AsyncComponent";
 import MessageButton from "../../components/layout/MessageButton";
 import Spinner from "../../components/layout/Spinner";
 import InclusionState from "../../components/tangle/InclusionState";
-import IndexationPayload from "../../components/tangle/IndexationPayload";
+import TaggedDataPayload from "../../components/tangle/TaggedDataPayload";
 import MessageTangleState from "../../components/tangle/MessageTangleState";
 import MilestonePayload from "../../components/tangle/MilestonePayload";
 import ReceiptPayload from "../../components/tangle/ReceiptPayload";
@@ -225,7 +225,7 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                                     <TransactionPayload payload={this.state.message.payload} />
                                     {this.state.message.payload.essence.payload && (
                                         <div className="card margin-t-m padding-l">
-                                            <IndexationPayload
+                                            <TaggedDataPayload
                                                 payload={this.state.message.payload.essence.payload}
                                             />
                                         </div>
@@ -246,7 +246,7 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                             )}
                             {this.state.message.payload.type === TAGGED_DATA_PAYLOAD_TYPE && (
                                 <div className="card margin-t-m padding-l">
-                                    <IndexationPayload payload={this.state.message.payload} />
+                                    <TaggedDataPayload payload={this.state.message.payload} />
                                 </div>
                             )}
                         </React.Fragment>
