@@ -1,4 +1,4 @@
-import { Bech32Helper, ED25519_ADDRESS_TYPE } from "@iota/iota.js";
+import { Bech32Helper, ALIAS_ADDRESS_TYPE, ED25519_ADDRESS_TYPE, NFT_ADDRESS_TYPE } from "@iota/iota.js";
 import { Converter } from "@iota/util.js";
 import { IBech32AddressDetails } from "../models/IBech32AddressDetails";
 
@@ -48,6 +48,11 @@ export class Bech32AddressHelper {
     public static typeLabel(addressType?: number): string | undefined {
         if (addressType === ED25519_ADDRESS_TYPE) {
             return "Ed25519";
+        } else if (addressType === ALIAS_ADDRESS_TYPE) {
+            return "Alias";
+        } else if (addressType === NFT_ADDRESS_TYPE) {
+            return "Nft";
         }
+            return "Unknown address type";
     }
 }

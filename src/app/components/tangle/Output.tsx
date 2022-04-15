@@ -1,4 +1,4 @@
-import { BASIC_OUTPUT_TYPE, ALIAS_OUTPUT_TYPE, FOUNDRY_OUTPUT_TYPE, NFT_OUTPUT_TYPE, TREASURY_OUTPUT_TYPE, UnitsHelper, IOutputResponse } from "@iota/iota.js";
+import { BASIC_OUTPUT_TYPE, ALIAS_OUTPUT_TYPE, FOUNDRY_OUTPUT_TYPE, NFT_OUTPUT_TYPE, TREASURY_OUTPUT_TYPE, UnitsHelper, IOutputResponse, SIMPLE_TOKEN_SCHEME_TYPE } from "@iota/iota.js";
 import React, { Component, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
@@ -34,7 +34,7 @@ class Output extends Component<OutputProps, OutputState> {
     public render(): ReactNode {
         return (
             <div className="output">
-                <h2>{NameHelper.getOutputTypeName(this.state.output.type)} {this.props.index}</h2>
+                <h2>{this.props.index}. {NameHelper.getOutputTypeName(this.state.output.type)}</h2>
                 {/* Diplay metadata for Output Response */}
                 {this.isOutputResponse(this.props.output) && (
                     <React.Fragment>
@@ -178,29 +178,33 @@ class Output extends Component<OutputProps, OutputState> {
                             {this.state.output.tokenTag}
                         </div>
                         <div className="card--label">
-                            Minted tokens:
-                        </div>
-                        <div className="card--value row">
-                            {this.state.output.mintedTokens}
-                        </div>
-                        <div className="card--label">
-                            Melted tokens:
-                        </div>
-                        <div className="card--value row">
-                            {this.state.output.meltedTokens}
-                        </div>
-                        <div className="card--label">
-                            Maximum supply:
-                        </div>
-                        <div className="card--value row">
-                            {this.state.output.maximumSupply}
-                        </div>
-                        <div className="card--label">
                             Token scheme type:
                         </div>
                         <div className="card--value row">
                             {this.state.output.tokenScheme.type}
                         </div>
+                        {this.state.output.tokenScheme.type === SIMPLE_TOKEN_SCHEME_TYPE && (
+                            <React.Fragment>
+                                <div className="card--label">
+                                    Minted tokens:
+                                </div>
+                                <div className="card--value row">
+                                    {this.state.output.tokenScheme.mintedTokens}
+                                </div>
+                                <div className="card--label">
+                                    Melted tokens:
+                                </div>
+                                <div className="card--value row">
+                                    {this.state.output.tokenScheme.meltedTokens}
+                                </div>
+                                <div className="card--label">
+                                    Maximum supply:
+                                </div>
+                                <div className="card--value row">
+                                    {this.state.output.tokenScheme.maximumSupply}
+                                </div>
+                            </React.Fragment>
+                        )}
                     </React.Fragment>
                 )}
 
