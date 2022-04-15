@@ -34,7 +34,7 @@ class Output extends Component<OutputProps, OutputState> {
     public render(): ReactNode {
         return (
             <div className="output">
-                <h2>{NameHelper.getOutputTypeName(this.state.output.type)} {this.props.index}</h2>
+                <h2>{this.props.index}. {NameHelper.getOutputTypeName(this.state.output.type)}</h2>
                 {/* Diplay metadata for Output Response */}
                 {this.isOutputResponse(this.props.output) && (
                     <React.Fragment>

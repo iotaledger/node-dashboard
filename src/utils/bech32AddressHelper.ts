@@ -52,8 +52,7 @@ export class Bech32AddressHelper {
             return "Alias";
         } else if (addressType === NFT_ADDRESS_TYPE) {
             return "Nft";
-        } else {
-            return "Unknown address type"
         }
+            return "Unknown address type";
     }
 }
