@@ -154,17 +154,26 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
 
                     {this.state.outputs &&
                         this.state.outputIds &&
-                        this.state.outputs.length > 0 &&
-                        this.state.outputs.map((output, idx) => (
-                            <div className="card margin-t-m padding-l" key={idx}>
-                                <Output
-                                    key={idx}
-                                    index={idx + 1}
-                                    id={this.state.outputIds ? this.state.outputIds[idx] : ""}
-                                    output={output}
-                                />
-                            </div>
-                        ))}
+                        this.state.outputs.length > 0 && (
+                            <React.Fragment>
+                                <div className="card margin-t-m padding-l">
+                                    <div className="card--header">
+                                        <h2 className="card--header__title">Outputs</h2>
+                                        <span className="dot-separator">•</span>
+                                        <span>{this.state.outputs.length}</span>
+                                    </div>
+                                    {this.state.outputs.map((output, idx) => (
+                                        <Output
+                                            key={idx}
+                                            index={idx + 1}
+                                            id={this.state.outputIds ? this.state.outputIds[idx] : ""}
+                                            output={output}
+                                        />
+                                    ))}
+                                </div>
+                            </React.Fragment>
+                        )}
+                        
 
                     {this.state.outputs && this.state.outputs.length === 0 && (
                         <div className="card margin-t-m padding-l">

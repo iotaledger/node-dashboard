@@ -1,0 +1,26 @@
+@import '../../../scss/card';
+@import '../../../scss/fonts';
+@import '../../../scss/variables';
+@import '../../../scss/media-queries';
+
+$gray-5: #909fbe;
+$blue-5: #108cff;
+
+.output {
+    
+    .output__amount {
+      margin-left: auto;
+    }
+    .output__details,
+    .unlock-condition__details,
+    .feature-block__details {
+      padding-left: 16px;
+      border-left: 1px solid var(--text-color-primary);
+    }
+
+    .input__details {
+      padding-left: 16px;
+      border-left: 1px solid var(--text-color-primary);
+    }
+  }
+  

@@ -1,5 +1,6 @@
 @import './fonts';
 @import './variables';
+@import './media-queries';
 
 .card {
   padding: 10px;
@@ -10,6 +11,28 @@
 
   &.card__flat {
     border-radius: 0;
+  }
+
+  
+  .card--header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    color: var(--text-color-primary);
+
+    .card--header__title {
+
+      & + .dot-separator {
+        margin: 0 6px;
+        color: #677695;
+        font-size: 20px;
+        font-size: 1.25rem;
+        & + span {
+          @include font-size(14px, 14px);
+          font-family: $inter;
+        }
+      }
+    }
   }
 
   .card--header-count {
@@ -95,6 +118,38 @@
 
       &.card--value-textarea__fit {
         min-height: auto;
+      }
+    }
+  }
+
+  .card--content {
+    padding: 0 30px 20px;
+
+    @include phone-down {
+      padding: 15px 20px;
+    }
+
+    input {
+      padding: 0 20px;
+    }
+
+    .card--content__input {
+      display: flex;
+
+      .card--content__input--dropdown {
+        cursor: pointer;
+
+        svg {
+          transition: transform 0.25s ease;
+
+          path {
+            fill: var(--text-color-primary);
+          }
+        }
+
+        &.opened > svg {
+          transform: rotate(90deg);
+        }
       }
     }
   }

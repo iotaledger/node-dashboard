@@ -1,6 +1,32 @@
 @import './fonts/dm-sans';
 @import './fonts/ibm-plex-mono';
 
+// stylelint-disable-next-line value-keyword-case
+$fallback-fonts: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+  'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+
+$metropolis: 'Metropolis Regular', $fallback-fonts;
+$metropolis-italic: 'Metropolis Regular Italic', $fallback-fonts;
+$metropolis-extra-light: 'Metropolis Extra Light', $fallback-fonts;
+$metropolis-extra-light-italic: 'Metropolis Extra Light Italic', $fallback-fonts;
+$metropolis-light: 'Metropolis Light', $fallback-fonts;
+$metropolis-light-italic: 'Metropolis Light Italic', $fallback-fonts;
+$metropolis-thin: 'Metropolis Thin', $fallback-fonts;
+$metropolis-thin-italic: 'Metropolis Thin Italic', $fallback-fonts;
+$metropolis-medium: 'Metropolis Medium', $fallback-fonts;
+$metropolis-medium-italic: 'Metropolis Medium Italic', $fallback-fonts;
+$metropolis-semi-bold: 'Metropolis Semi Bold', $fallback-fonts;
+$metropolis-semi-bold-italic: 'Metropolis Semi Bold Italic', $fallback-fonts;
+$metropolis-bold: 'Metropolis Bold', $fallback-fonts;
+$metropolis-bold-italic: 'Metropolis Bold Italic', $fallback-fonts;
+$metropolis-extra-bold: 'Metropolis Extra Bold', $fallback-fonts;
+$metropolis-extra-bold-italic: 'Metropolis Extra Bold Italic', $fallback-fonts;
+$metropolis-black: 'Metropolis Black', $fallback-fonts;
+$metropolis-black-italic: 'Metropolis Black Italic', $fallback-fonts;
+$ibm-plex-mono: 'IBM Plex Mono', 'monospace', $fallback-fonts;
+
+$inter: 'Inter', $fallback-fonts;
+
 $font-sans: 'DM Sans', sans-serif;
 $font-mono: 'IBM Plex Mono', monospace;
 
@@ -15,3 +41,5 @@ $rem-base-font: 16px !default;
     line-height: $line-height / $rem-base-font * 1rem;
   }
 }
+
+
