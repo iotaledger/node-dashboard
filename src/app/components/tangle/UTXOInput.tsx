@@ -2,20 +2,19 @@ import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
 import { NameHelper } from "../../../utils/nameHelper";
 import { ReactComponent as DropdownIcon } from "./../../../assets/dropdown-arrow.svg";
-import "./Output.scss";
-import { InputProps } from "./InputProps";
-import { InputState } from "./InputState";
 import Bech32Address from "./Bech32Address";
+import { UTXOInputProps } from "./UTXOInputProps";
+import { UTXOInputState } from "./UTXOInputState";
 
 /**
- * Component which will display an output.
+ * Component which will display an UTXO Iput.
  */
-class Input extends Component<InputProps, InputState> {
+class UTXOInput extends Component<UTXOInputProps, UTXOInputState> {
     /**
-     * Create a new instance of Output.
+     * Create a new instance of UTXO Iput.
      * @param props The props.
      */
-    constructor(props: InputProps) {
+    constructor(props: UTXOInputProps) {
         super(props);
 
         this.state = {
@@ -29,20 +28,26 @@ class Input extends Component<InputProps, InputState> {
      */
     public render(): ReactNode {
         return (
-            <div className="input margin-t-m">
+            <div className="utxo-input margin-t-m">
                 <div className="card--content padding-0">
                     <div
                         className="card--content__input"
-                        onClick={() => this.setState({ showDetails: !this.state.showDetails })} >
+                        onClick={() => this.setState({ showDetails: !this.state.showDetails })}
+                    >
 
-                        <div className={classNames("margin-r-t", "card--content__input--dropdown", { opened: this.state.showDetails })}>
+                        <div className={classNames(
+                                "margin-r-t",
+                                "card--content__input--dropdown",
+                                { "opened": this.state.showDetails }
+                            )}
+                        >
                             <DropdownIcon />
                         </div>
-                        <h2>{NameHelper.getInputTypeName(this.props.input.type)} {this.props.index}</h2>
+                        <h3>{NameHelper.getInputTypeName(this.props.input.type)} {this.props.index}</h3>
                     </div>
 
                     {this.state.showDetails && (
-                        <div className="input__details">
+                        <div className="card--content--border-l">
                             <Bech32Address
                                 activeLinks={true}
                                 addressDetails={this.props.unlockAddress}
@@ -64,12 +69,10 @@ class Input extends Component<InputProps, InputState> {
                             </div>
                         </div>
                     )}
-                    
                 </div>
-        </div>
+            </div>
         );
     }
-
 }
 
-export default Input;
+export default UTXOInput;

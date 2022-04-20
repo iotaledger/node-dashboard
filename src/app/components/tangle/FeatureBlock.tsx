@@ -2,10 +2,10 @@ import { ISSUER_FEATURE_BLOCK_TYPE, METADATA_FEATURE_BLOCK_TYPE, SENDER_FEATURE_
 import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
 import { NameHelper } from "../../../utils/nameHelper";
+import { ReactComponent as DropdownIcon } from "./../../../assets/dropdown-arrow.svg";
 import Address from "./Address";
 import { FeatureBlockProps } from "./FeatureBlockProps";
 import { FeatureBlockState } from "./FeatureBlockState";
-import { ReactComponent as DropdownIcon } from "./../../../assets/dropdown-arrow.svg";
 
 /**
  * Component which will display an Feature Block.
@@ -22,6 +22,7 @@ class FeatureBlock extends Component<FeatureBlockProps, FeatureBlockState> {
             showDetails: false
         };
     }
+
     /**
      * Render the component.
      * @returns The node to render.
@@ -31,16 +32,22 @@ class FeatureBlock extends Component<FeatureBlockProps, FeatureBlockState> {
             <div className="feature-block padding-t-s">
                 <div
                     className="card--content__input"
-                    onClick={() => this.setState({ showDetails: !this.state.showDetails })} >
-                
-                    <div className={classNames("margin-r-t", "card--content__input--dropdown", { opened: this.state.showDetails })}>
+                    onClick={() => this.setState({ showDetails: !this.state.showDetails })}
+                >
+
+                    <div className={classNames(
+                            "margin-r-t",
+                            "card--content__input--dropdown",
+                            { "opened": this.state.showDetails }
+                        )}
+                    >
                         <DropdownIcon />
                     </div>
                     <h3>{NameHelper.getFeatureBlockTypeName(this.props.featureBlock.type)}</h3>
                 </div>
 
                 {this.state.showDetails && (
-                    <div className="feature-block__details">
+                    <div className="card--content--border-l">
                         {(this.props.featureBlock.type === SENDER_FEATURE_BLOCK_TYPE ||
                         this.props.featureBlock.type === ISSUER_FEATURE_BLOCK_TYPE) && (
                             <Address
@@ -69,7 +76,7 @@ class FeatureBlock extends Component<FeatureBlockProps, FeatureBlockState> {
                         )}
                     </div>
                 )}
-              
+
             </div>
         );
     }

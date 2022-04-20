@@ -13,26 +13,11 @@
     border-radius: 0;
   }
 
-  
   .card--header {
     display: flex;
     flex-direction: row;
     align-items: center;
     color: var(--text-color-primary);
-
-    .card--header__title {
-
-      & + .dot-separator {
-        margin: 0 6px;
-        color: #677695;
-        font-size: 20px;
-        font-size: 1.25rem;
-        & + span {
-          @include font-size(14px, 14px);
-          font-family: $inter;
-        }
-      }
-    }
   }
 
   .card--header-count {
@@ -133,10 +118,17 @@
       padding: 0 20px;
     }
 
+    .card--content--border-l {
+      padding-left: 16px;
+      border-left: 1px solid var(--text-color-primary);
+    }
+
     .card--content__input {
       display: flex;
+      align-items: center;
 
       .card--content__input--dropdown {
+        margin-left: -2px;
         cursor: pointer;
 
         svg {

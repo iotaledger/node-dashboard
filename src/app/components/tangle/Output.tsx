@@ -1,16 +1,15 @@
-import classNames from "classnames";
 import { BASIC_OUTPUT_TYPE, ALIAS_OUTPUT_TYPE, FOUNDRY_OUTPUT_TYPE, NFT_OUTPUT_TYPE, TREASURY_OUTPUT_TYPE, UnitsHelper, IOutputResponse, SIMPLE_TOKEN_SCHEME_TYPE } from "@iota/iota.js";
+import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
 import { NameHelper } from "../../../utils/nameHelper";
 import MessageButton from "../layout/MessageButton";
+import { ReactComponent as DropdownIcon } from "./../../../assets/dropdown-arrow.svg";
 import FeatureBlock from "./FeatureBlock";
 import { OutputProps } from "./OutputProps";
 import { OutputState } from "./OutputState";
 import UnlockCondition from "./UnlockCondition";
-import { ReactComponent as DropdownIcon } from "./../../../assets/dropdown-arrow.svg";
-import "./Output.scss";
 
 /**
  * Component which will display an output.
@@ -39,16 +38,22 @@ class Output extends Component<OutputProps, OutputState> {
         return (
             <div className="output margin-t-m">
                 <div className="card--content padding-0">
-                    <div
-                        className="card--content__input"
-                        onClick={() => this.setState({ showDetails: !this.state.showDetails })} >
-
-                        <div className={classNames("margin-r-t", "card--content__input--dropdown", { opened: this.state.showDetails })}>
-                            <DropdownIcon />
+                    <div className="card--header row spread">
+                        <div
+                            className="card--content__input"
+                            onClick={() => this.setState({ showDetails: !this.state.showDetails })}
+                        >
+                            <div className={classNames(
+                                    "margin-r-t",
+                                    "card--content__input--dropdown",
+                                    { "opened": this.state.showDetails }
+                                )}
+                            >
+                                <DropdownIcon />
+                            </div>
+                            <h3>{NameHelper.getOutputTypeName(this.state.output.type)} {this.props.index}</h3>
                         </div>
-                        <h2>{NameHelper.getOutputTypeName(this.state.output.type)} {this.props.index}</h2>
-
-                        <div className="output__amount card--value card--value__mono">
+                        <div className="card--value card--value__mono">
                             <button
                                 className="card--value--button"
                                 type="button"
@@ -66,7 +71,7 @@ class Output extends Component<OutputProps, OutputState> {
                     </div>
 
                     {this.state.showDetails && (
-                        <div className="output__details">
+                        <div className="card--content--border-l">
                             {/* Diplay metadata for Output Response */}
                             {this.isOutputResponse(this.props.output) && (
                                 <React.Fragment>
@@ -238,13 +243,15 @@ class Output extends Component<OutputProps, OutputState> {
                                             featureBlock={featureBlock}
                                         />
                                     ))}
-                                    {this.state.output.type !== BASIC_OUTPUT_TYPE && this.state.output.immutableFeatureBlocks && (
+                                    {this.state.output.type !== BASIC_OUTPUT_TYPE &&
+                                    this.state.output.immutableFeatureBlocks && (
                                         <React.Fragment>
-                                            {this.state.output.immutableFeatureBlocks.map((immutableFeatureBlock, idx) => (
-                                                <FeatureBlock
-                                                    key={idx}
-                                                    featureBlock={immutableFeatureBlock}
-                                                />
+                                            {this.state.output.immutableFeatureBlocks
+                                                .map((immutableFeatureBlock, idx) => (
+                                                    <FeatureBlock
+                                                        key={idx}
+                                                        featureBlock={immutableFeatureBlock}
+                                                    />
                                             ))}
                                         </React.Fragment>
                                     )}
@@ -272,7 +279,7 @@ class Output extends Component<OutputProps, OutputState> {
 
                         </div>
                     )}
-                    
+
                 </div>
             </div>
         );

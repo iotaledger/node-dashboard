@@ -6,10 +6,10 @@ import { ServiceFactory } from "../../../factories/serviceFactory";
 import { IBech32AddressDetails } from "../../../models/IBech32AddressDetails";
 import { NodeConfigService } from "../../../services/nodeConfigService";
 import { Bech32AddressHelper } from "../../../utils/bech32AddressHelper";
-import Input from "./Input";
 import Output from "./Output";
 import { TransactionPayloadProps } from "./TransactionPayloadProps";
 import { TransactionPayloadState } from "./TransactionPayloadState";
+import UTXOInput from "./UTXOInput";
 
 /**
  * Component which will display a transaction payload.
@@ -37,7 +37,7 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
                 signatureBlocks.push(sigUnlockBlock);
             } else if (
                 props.payload.unlockBlocks[i].type === REFERENCE_UNLOCK_BLOCK_TYPE ||
-                props.payload.unlockBlocks[i].type === ALIAS_UNLOCK_BLOCK_TYPE||
+                props.payload.unlockBlocks[i].type === ALIAS_UNLOCK_BLOCK_TYPE ||
                 props.payload.unlockBlocks[i].type === NFT_UNLOCK_BLOCK_TYPE) {
                     const refUnlockBlock = props.payload.unlockBlocks[i] as IReferenceUnlockBlock;
                     signatureBlocks.push(props.payload.unlockBlocks[refUnlockBlock.reference] as ISignatureUnlockBlock);
@@ -72,13 +72,14 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
                 <div className="card margin-t-m padding-l">
                     <div className="card--header">
                         <h2 className="card--header__title">Inputs</h2>
-                        <span className="dot-separator">•</span>
-                        <span>{this.props.payload.essence.inputs.length}</span>
+                        <span className="card--header-count">
+                            {this.props.payload.essence.inputs.length}
+                        </span>
                     </div>
                     {this.props.payload.essence.inputs.map((input, idx) => (
                         <React.Fragment key={idx}>
                             {input.type === UTXO_INPUT_TYPE && (
-                                <Input
+                                <UTXOInput
                                     key={idx}
                                     index={idx}
                                     unlockAddress={this.state.unlockAddresses[idx]}
@@ -92,15 +93,16 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
                 <div className="card margin-t-m padding-l">
                     <div className="card--header">
                         <h2 className="card--header__title">Outputs</h2>
-                        <span className="dot-separator">•</span>
-                        <span>{this.props.payload.essence.outputs.length}</span>
+                        <span className="card--header-count">
+                            {this.props.payload.essence.outputs.length}
+                        </span>
                     </div>
                     {this.props.payload.essence.outputs.map((output, idx) => (
-                            <Output
-                                key={idx}
-                                index={idx + 1}
-                                output={output}
-                            />
+                        <Output
+                            key={idx}
+                            index={idx + 1}
+                            output={output}
+                        />
                         )
                     )}
                 </div>

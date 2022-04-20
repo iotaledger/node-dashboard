@@ -2,10 +2,10 @@ import { ADDRESS_UNLOCK_CONDITION_TYPE, EXPIRATION_UNLOCK_CONDITION_TYPE, STATE_
 import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
 import { NameHelper } from "../../../utils/nameHelper";
+import { ReactComponent as DropdownIcon } from "./../../../assets/dropdown-arrow.svg";
 import Address from "./Address";
 import { UnlockConditionProps } from "./UnlockConditionProps";
 import { UnlockCondtionState } from "./UnlockConditionState";
-import { ReactComponent as DropdownIcon } from "./../../../assets/dropdown-arrow.svg";
 
 /**
  * Component which will display an unlock condition.
@@ -22,6 +22,7 @@ class UnlockCondition extends Component<UnlockConditionProps, UnlockCondtionStat
             showDetails: false
         };
     }
+
     /**
      * Render the component.
      * @returns The node to render.
@@ -31,17 +32,23 @@ class UnlockCondition extends Component<UnlockConditionProps, UnlockCondtionStat
             <div className="unlock-condition padding-t-s">
                 <div
                     className="card--content__input"
-                    onClick={() => this.setState({ showDetails: !this.state.showDetails })} >
-                        
-                
-                    <div className={classNames("margin-r-t", "card--content__input--dropdown", { opened: this.state.showDetails })}>
+                    onClick={() => this.setState({ showDetails: !this.state.showDetails })}
+                >
+
+
+                    <div className={classNames(
+                            "margin-r-t",
+                            "card--content__input--dropdown",
+                            { "opened": this.state.showDetails }
+                        )}
+                    >
                         <DropdownIcon />
                     </div>
                     <h3>{NameHelper.getUnlockConditionTypeName(this.props.unlockCondition.type)}</h3>
                 </div>
 
                 {this.state.showDetails && (
-                    <div className="unlock-condition__details">
+                    <div className="card--content--border-l">
                         {(this.props.unlockCondition.type === ADDRESS_UNLOCK_CONDITION_TYPE ||
                         this.props.unlockCondition.type === STATE_CONTROLLER_ADDRESS_UNLOCK_CONDITION_TYPE ||
                         this.props.unlockCondition.type === GOVERNOR_ADDRESS_UNLOCK_CONDITION_TYPE ||

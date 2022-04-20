@@ -155,13 +155,13 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                     {this.state.outputs &&
                         this.state.outputIds &&
                         this.state.outputs.length > 0 && (
-                            <React.Fragment>
-                                <div className="card margin-t-m padding-l">
-                                    <div className="card--header">
-                                        <h2 className="card--header__title">Outputs</h2>
-                                        <span className="dot-separator">•</span>
-                                        <span>{this.state.outputs.length}</span>
-                                    </div>
+                            <div className="card margin-t-m padding-l">
+                                <div className="card--header">
+                                    <h2 className="card--header__title">Outputs</h2>
+                                    <span className="card--header-count">
+                                        {this.state.outputs.length}
+                                    </span>
+                                </div>
                                     {this.state.outputs.map((output, idx) => (
                                         <Output
                                             key={idx}
@@ -170,10 +170,8 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                                             output={output}
                                         />
                                     ))}
-                                </div>
-                            </React.Fragment>
+                            </div>
                         )}
-                        
 
                     {this.state.outputs && this.state.outputs.length === 0 && (
                         <div className="card margin-t-m padding-l">
