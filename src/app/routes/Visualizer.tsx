@@ -376,28 +376,16 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                                     this.state.selected.payload.tag && (
                                         <React.Fragment>
                                             <div className="card--label">
-                                                Index UTF8
+                                                Tag UTF8
                                             </div>
                                             <div className="card--value">
-                                                <a
-                                                    href={this.calculateIndexedLink(this.state.selected.payload.tag)}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                >
-                                                    {Converter.hexToUtf8(this.state.selected.payload.tag)}
-                                                </a>
+                                                {Converter.hexToUtf8(this.state.selected.payload.tag)}
                                             </div>
                                             <div className="card--label">
-                                                Index Hex
+                                                Tag Hex
                                             </div>
                                             <div className="card--value">
-                                                <a
-                                                    href={this.calculateIndexedLink(this.state.selected.payload.tag)}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                >
-                                                    {this.state.selected.payload.tag}
-                                                </a>
+                                                {this.state.selected.payload.tag}
                                             </div>
                                         </React.Fragment>
                                     )}
@@ -764,7 +752,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                             } else if (payload.type === MILESTONE_PAYLOAD_TYPE) {
                                 payloadTitle = "";
                             } else if (payload.type === TAGGED_DATA_PAYLOAD_TYPE) {
-                                payloadTitle = " - Indexation";
+                                payloadTitle = " - Tagged data";
                             }
                         } else if (node.data.isMilestone) {
                             payloadTitle = " - Checkpoint";
@@ -794,15 +782,6 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
         return vertex?.fullId
             ? `${window.location.protocol}//${window.location.host}/explorer/message/${vertex.fullId}`
             : "";
-    }
-
-    /**
-     * Calculate the link for the index.
-     * @param index The payload index.
-     * @returns The url for the index.
-     */
-    private calculateIndexedLink(index: string): string {
-        return `${window.location.protocol}//${window.location.host}/explorer/indexed/${index}`;
     }
 
     /**

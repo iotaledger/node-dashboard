@@ -33,8 +33,6 @@ import { AnalyticsRouteProps } from "./routes/AnalyticsRouteProps";
 import Explorer from "./routes/Explorer";
 import Address from "./routes/explorer/Address";
 import { AddressRouteProps } from "./routes/explorer/AddressRouteProps";
-import Indexed from "./routes/explorer/Indexed";
-import { IndexedRouteProps } from "./routes/explorer/IndexedRouteProps";
 import Message from "./routes/explorer/Message";
 import { MessageRouteProps } from "./routes/explorer/MessageRouteProps";
 import Milestone from "./routes/explorer/Milestone";
@@ -398,11 +396,6 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                                         path="/explorer/milestone/:milestoneIndex"
                                         component={(props: RouteComponentProps<MilestoneRouteProps>) =>
                                             (<Milestone {...props} />)}
-                                    />
-                                    <Route
-                                        path="/explorer/indexed/:index"
-                                        component={(props: RouteComponentProps<IndexedRouteProps>) =>
-                                            (<Indexed {...props} />)}
                                     />
                                     <Route
                                         path="/explorer/address/:address"

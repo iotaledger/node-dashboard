@@ -1,6 +1,5 @@
 import { Converter } from "@iota/util.js";
 import React, { Component, ReactNode } from "react";
-import { Link } from "react-router-dom";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
 import MessageButton from "../layout/MessageButton";
 import { TaggedDataPayloadProps } from "./TaggedDataPayloadProps";
@@ -53,10 +52,10 @@ class TaggedDataPayload extends Component<TaggedDataPayloadProps, TaggedDataPayl
      */
     public render(): ReactNode {
         return (
-            <div className="indexation-payload">
+            <div className="tagged-data-payload">
                 <h2>Tagged Data Payload</h2>
                 <div className="card--label row middle">
-                    <span className="margin-r-t">Index UTF8 [{this.state.indexLengthBytes}]</span>
+                    <span className="margin-r-t">Tag UTF8 [{this.state.indexLengthBytes}]</span>
                     <MessageButton
                         onClick={() => ClipboardHelper.copy(
                             this.state.utf8Index
@@ -66,16 +65,10 @@ class TaggedDataPayload extends Component<TaggedDataPayloadProps, TaggedDataPayl
                     />
                 </div>
                 <div className="card--value row">
-                    <Link
-                        to={
-                            `/explorer/indexed/${this.props.payload.tag}`
-                        }
-                    >
-                        {this.state.utf8Index}
-                    </Link>
+                    {this.state.utf8Index}
                 </div>
                 <div className="card--label row middle">
-                    <span className="margin-r-t">Index Hex [{this.state.indexLengthBytes}]</span>
+                    <span className="margin-r-t">Tag Hex [{this.state.indexLengthBytes}]</span>
                     <MessageButton
                         onClick={() => ClipboardHelper.copy(
                             this.state.hexIndex.replace(/ /g, "")
