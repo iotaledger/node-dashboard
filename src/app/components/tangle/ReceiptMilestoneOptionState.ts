@@ -1,4 +1,4 @@
-export interface ReceiptPayloadState {
+export interface ReceiptMilestoneOptionState {
     /**
      * Format the amount in full.
      */
