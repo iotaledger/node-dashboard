@@ -9,7 +9,8 @@
     },
     "license": "MIT",
     "dependencies": {
-        "@iota/iota.js": "^1.9.0-stardust.6",
+        "@iota/mqtt.js": "^1.9.0-stardust.4",
+        "@iota/util.js": "^1.9.0-stardust.4",
         "classnames": "^2.3.1",
         "humanize-duration": "^3.25.2",
         "moment": "^2.29.1",

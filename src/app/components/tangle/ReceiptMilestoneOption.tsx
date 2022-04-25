@@ -4,13 +4,13 @@ import { ServiceFactory } from "../../../factories/serviceFactory";
 import { NodeConfigService } from "../../../services/nodeConfigService";
 import { Bech32AddressHelper } from "../../../utils/bech32AddressHelper";
 import Bech32Address from "./Bech32Address";
-import { ReceiptPayloadProps } from "./ReceiptPayloadProps";
-import { ReceiptPayloadState } from "./ReceiptPayloadState";
+import { ReceiptMilestoneOptionProps } from "./ReceiptMilestoneOptionProps";
+import { ReceiptMilestoneOptionState } from "./ReceiptMilestoneOptionState";
 
 /**
  * Component which will display a receipt payload.
  */
-class ReceiptPayload extends Component<ReceiptPayloadProps, ReceiptPayloadState> {
+class ReceiptMilestoneOption extends Component<ReceiptMilestoneOptionProps, ReceiptMilestoneOptionState> {
     /**
      * The bech32 hrp from the node.
      */
@@ -20,7 +20,7 @@ class ReceiptPayload extends Component<ReceiptPayloadProps, ReceiptPayloadState>
      * Create a new instance of ReceiptPayload.
      * @param props The props.
      */
-    constructor(props: ReceiptPayloadProps) {
+    constructor(props: ReceiptMilestoneOptionProps) {
         super(props);
 
         const nodeConfigService = ServiceFactory.get<NodeConfigService>("node-config");
@@ -43,17 +43,17 @@ class ReceiptPayload extends Component<ReceiptPayloadProps, ReceiptPayloadState>
                     Migrated At
                 </div>
                 <div className="card--value row">
-                    {this.props.payload.migratedAt}
+                    {this.props.option.migratedAt}
                 </div>
                 <div className="card--label">
                     Final
                 </div>
                 <div className="card--value row">
                     <div className="margin-b-m">
-                        {this.props.payload.final ? "Yes" : "No"}
+                        {this.props.option.final ? "Yes" : "No"}
                     </div>
                 </div>
-                {this.props.payload.funds.map((f, idx) => (
+                {this.props.option.funds.map((f, idx) => (
                     <div
                         key={idx}
                         className="margin-b-s"
@@ -98,7 +98,7 @@ class ReceiptPayload extends Component<ReceiptPayloadProps, ReceiptPayloadState>
                     Input Transaction Milestone Id
                 </div>
                 <div className="card--value card--value__mono">
-                    {this.props.payload.transaction.input.milestoneId}
+                    {this.props.option.transaction.input.milestoneId}
                 </div>
                 <div className="card--label">
                     Output Transaction Amount to Treasury
@@ -114,8 +114,8 @@ class ReceiptPayload extends Component<ReceiptPayloadProps, ReceiptPayloadState>
                         )}
                     >
                         {this.state.formatFull
-                            ? `${this.props.payload.transaction.output.amount} i`
-                            : UnitsHelper.formatBest(Number(this.props.payload.transaction.output.amount))}
+                            ? `${this.props.option.transaction.output.amount} i`
+                            : UnitsHelper.formatBest(Number(this.props.option.transaction.output.amount))}
                     </button>
                 </div>
             </div>
@@ -123,4 +123,4 @@ class ReceiptPayload extends Component<ReceiptPayloadProps, ReceiptPayloadState>
     }
 }
 
-export default ReceiptPayload;
+export default ReceiptMilestoneOption;

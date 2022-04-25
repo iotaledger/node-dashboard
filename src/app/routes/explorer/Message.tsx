@@ -16,7 +16,7 @@ import Spinner from "../../components/layout/Spinner";
 import InclusionState from "../../components/tangle/InclusionState";
 import MessageTangleState from "../../components/tangle/MessageTangleState";
 import MilestonePayload from "../../components/tangle/MilestonePayload";
-import ReceiptPayload from "../../components/tangle/ReceiptPayload";
+import ReceiptMilestoneOption from "../../components/tangle/ReceiptMilestoneOption";
 import TaggedDataPayload from "../../components/tangle/TaggedDataPayload";
 import TransactionPayload from "../../components/tangle/TransactionPayload";
 import "./Message.scss";
@@ -65,7 +65,7 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
             const writeStream = new WriteStream();
             serializeMessage(writeStream, result.message);
             const finalBytes = writeStream.finalBytes();
-
+            
             const dataUrls = {
                 json: DownloadHelper.createJsonDataUrl(result.message),
                 bin: DownloadHelper.createBinaryDataUrl(finalBytes),
@@ -237,11 +237,11 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                                     <div className="card margin-t-m padding-l">
                                         <MilestonePayload payload={this.state.message.payload} />
                                     </div>
-                                    {this.state.message.payload.receipt && (
+                                    {/* {this.state.message.payload.receipt && (
                                         <div className="card margin-t-m padding-l">
-                                            <ReceiptPayload payload={this.state.message.payload.receipt} />
+                                            <ReceiptMilestoneOption payload={this.state.message.payload.receipt} />
                                         </div>
-                                    )}
+                                    )} */}
                                 </React.Fragment>
                             )}
                             {this.state.message.payload.type === TAGGED_DATA_PAYLOAD_TYPE && (
