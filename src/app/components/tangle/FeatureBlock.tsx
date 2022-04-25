@@ -12,7 +12,7 @@ import { FeatureBlockState } from "./FeatureBlockState";
  */
 class FeatureBlock extends Component<FeatureBlockProps, FeatureBlockState> {
     /**
-     * Create a new instance of Output.
+     * Create a new instance of Feature Block.
      * @param props The props.
      */
      constructor(props: FeatureBlockProps) {

@@ -2,7 +2,7 @@ import { IReceiptMilestoneOption } from "@iota/iota.js";
 
 export interface ReceiptMilestoneOptionProps {
     /**
-     * The receipt mileston option.
+     * The receipt milestone option.
      */
     option: IReceiptMilestoneOption;
 }

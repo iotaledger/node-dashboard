@@ -1,6 +1,6 @@
 import { Blake2b } from "@iota/crypto.js";
-import { deserializeMessage, serializeMessage } from "@iota/iota.js";
-import { Converter, HexHelper, ReadStream, WriteStream } from "@iota/util.js";
+import { serializeMessage } from "@iota/iota.js";
+import { Converter, WriteStream } from "@iota/util.js";
 import React, { ReactNode } from "react";
 import { Link, Redirect, RouteComponentProps } from "react-router-dom";
 import { ReactComponent as ChevronLeftIcon } from "../../assets/chevron-left.svg";
@@ -155,7 +155,6 @@ class Search extends AsyncComponent<RouteComponentProps<SearchRouteProps>, Searc
                                     console.log(error.message);
                                 }
                             }
-                            console.log(Converter.bytesToHex(writeStream.finalBytes()).toString());
                             objParam = Converter.bytesToHex(Blake2b.sum256(writeStream.finalBytes()), true);
                         } else if (response?.address) {
                             objType = "address";

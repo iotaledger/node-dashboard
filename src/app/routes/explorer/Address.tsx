@@ -166,7 +166,6 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                                         <Output
                                             key={idx}
                                             index={idx + 1}
-                                            id={this.state.outputIds ? this.state.outputIds[idx] : ""}
                                             output={output}
                                         />
                                     ))}
