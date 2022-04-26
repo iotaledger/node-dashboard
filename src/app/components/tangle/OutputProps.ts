@@ -2,11 +2,6 @@ import { IOutputResponse, OutputTypes } from "@iota/iota.js";
 
 export interface OutputProps {
     /**
-     * The output id.
-     */
-    id?: string;
-
-    /**
      * The index within the parent.
      */
     index: number;

@@ -15,4 +15,9 @@ export interface OutputState {
      * Is genesis output.
      */
     output: OutputTypes;
+
+    /**
+     * Shows details of the specified output
+     */
+    showDetails: boolean;
 }
