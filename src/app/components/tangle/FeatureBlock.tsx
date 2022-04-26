@@ -43,7 +43,9 @@ class FeatureBlock extends Component<FeatureBlockProps, FeatureBlockState> {
                     >
                         <DropdownIcon />
                     </div>
-                    <h3>{NameHelper.getFeatureBlockTypeName(this.props.featureBlock.type)}</h3>
+                    <h3 className="card--content__input--label">
+                        {NameHelper.getFeatureBlockTypeName(this.props.featureBlock.type)}
+                    </h3>
                 </div>
 
                 {this.state.showDetails && (

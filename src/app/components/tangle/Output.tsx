@@ -51,7 +51,9 @@ class Output extends Component<OutputProps, OutputState> {
                             >
                                 <DropdownIcon />
                             </div>
-                            <h3>{NameHelper.getOutputTypeName(this.state.output.type)} {this.props.index}</h3>
+                            <h3 className="card--content__input--label">
+                                {NameHelper.getOutputTypeName(this.state.output.type)} {this.props.index}
+                            </h3>
                         </div>
                         <div className="card--value card--value__mono">
                             <button

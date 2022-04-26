@@ -54,7 +54,9 @@ class MigratedFund extends Component<MigratedFundProps, MigratedFundState> {
                     >
                         <DropdownIcon />
                     </div>
-                    <h3>Migrated Fund {this.props.index}</h3>
+                    <h3 className="card--content__input--label">
+                        Migrated Fund {this.props.index}
+                    </h3>
                 </div>
                 {this.state.showDetails && (
                     <div className="card--content--border-l">

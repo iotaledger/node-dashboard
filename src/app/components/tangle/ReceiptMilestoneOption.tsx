@@ -43,7 +43,9 @@ class ReceiptMilestoneOption extends Component<ReceiptMilestoneOptionProps, Rece
                     >
                         <DropdownIcon />
                     </div>
-                    <h3>Receipt</h3>
+                    <h3 className="card--content__input--label">
+                        Receipt
+                    </h3>
                 </div>
                 {this.state.showReceiptDetails && (
                     <div className="card--content--border-l">

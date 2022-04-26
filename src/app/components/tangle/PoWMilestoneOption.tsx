@@ -40,7 +40,9 @@ class PoWMilestoneOption extends Component<PoWMilestoneOptionProps, PoWMilestone
                     >
                         <DropdownIcon />
                     </div>
-                    <h3>PoW</h3>
+                    <h3 className="card--content__input--label">
+                        PoW
+                    </h3>
                 </div>
                 {this.state.showDetails && (
                     <div className="card--content--border-l">

@@ -44,7 +44,9 @@ class UnlockCondition extends Component<UnlockConditionProps, UnlockCondtionStat
                     >
                         <DropdownIcon />
                     </div>
-                    <h3>{NameHelper.getUnlockConditionTypeName(this.props.unlockCondition.type)}</h3>
+                    <h3 className="card--content__input--label">
+                        {NameHelper.getUnlockConditionTypeName(this.props.unlockCondition.type)}
+                    </h3>
                 </div>
 
                 {this.state.showDetails && (

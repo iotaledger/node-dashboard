@@ -126,7 +126,9 @@ class MilestonePayload extends Component<MilestonePayloadProps, MilestonePayload
                             >
                                 <DropdownIcon />
                             </div>
-                            <h3>Options</h3>
+                            <h3 className="card--content__input--label">
+                                Options
+                            </h3>
                         </div>
                     </div>
                     {this.state.showOptions && (
@@ -158,7 +160,9 @@ class MilestonePayload extends Component<MilestonePayloadProps, MilestonePayload
                         >
                             <DropdownIcon />
                         </div>
-                        <h3>Signatures</h3>
+                        <h3 className="card--content__input--label">
+                            Signatures
+                        </h3>
                     </div>
                 </div>
                 {this.state.showSignatures && (

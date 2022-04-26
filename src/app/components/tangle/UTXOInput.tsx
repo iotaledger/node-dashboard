@@ -43,7 +43,9 @@ class UTXOInput extends Component<UTXOInputProps, UTXOInputState> {
                         >
                             <DropdownIcon />
                         </div>
-                        <h3>{NameHelper.getInputTypeName(this.props.input.type)} {this.props.index}</h3>
+                        <h3 className="card--content__input--label">
+                            {NameHelper.getInputTypeName(this.props.input.type)} {this.props.index}
+                        </h3>
                     </div>
 
                     {this.state.showDetails && (
