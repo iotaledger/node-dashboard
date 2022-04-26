@@ -6,11 +6,10 @@ import { ServiceFactory } from "../../../factories/serviceFactory";
 import { IBech32AddressDetails } from "../../../models/IBech32AddressDetails";
 import { NodeConfigService } from "../../../services/nodeConfigService";
 import { Bech32AddressHelper } from "../../../utils/bech32AddressHelper";
-import { NameHelper } from "../../../utils/nameHelper";
-import Bech32Address from "./Bech32Address";
 import Output from "./Output";
 import { TransactionPayloadProps } from "./TransactionPayloadProps";
 import { TransactionPayloadState } from "./TransactionPayloadState";
+import UTXOInput from "./UTXOInput";
 
 /**
  * Component which will display a transaction payload.
@@ -36,9 +35,12 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
             if (props.payload.unlockBlocks[i].type === SIGNATURE_UNLOCK_BLOCK_TYPE) {
                 const sigUnlockBlock = props.payload.unlockBlocks[i] as ISignatureUnlockBlock;
                 signatureBlocks.push(sigUnlockBlock);
-            } else if (props.payload.unlockBlocks[i].type === REFERENCE_UNLOCK_BLOCK_TYPE) {
-                const refUnlockBlock = props.payload.unlockBlocks[i] as IReferenceUnlockBlock;
-                signatureBlocks.push(props.payload.unlockBlocks[refUnlockBlock.reference] as ISignatureUnlockBlock);
+            } else if (
+                props.payload.unlockBlocks[i].type === REFERENCE_UNLOCK_BLOCK_TYPE ||
+                props.payload.unlockBlocks[i].type === ALIAS_UNLOCK_BLOCK_TYPE ||
+                props.payload.unlockBlocks[i].type === NFT_UNLOCK_BLOCK_TYPE) {
+                    const refUnlockBlock = props.payload.unlockBlocks[i] as IReferenceUnlockBlock;
+                    signatureBlocks.push(props.payload.unlockBlocks[refUnlockBlock.reference] as ISignatureUnlockBlock);
             }
         }
 
@@ -68,110 +70,41 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
         return (
             <div className="transaction-payload">
                 <div className="card margin-t-m padding-l">
-                    <h2 className="margin-b-s">Inputs</h2>
+                    <div className="card--header">
+                        <h2 className="card--header__title">Inputs</h2>
+                        <span className="card--header-count">
+                            {this.props.payload.essence.inputs.length}
+                        </span>
+                    </div>
                     {this.props.payload.essence.inputs.map((input, idx) => (
-                        <div
-                            key={idx}
-                            className="margin-b-s"
-                        >
-                            <h3 className="margin-b-t">{NameHelper.getInputTypeName(input.type)} {idx}</h3>
+                        <React.Fragment key={idx}>
                             {input.type === UTXO_INPUT_TYPE && (
-                                <React.Fragment>
-                                    <Bech32Address
-                                        activeLinks={true}
-                                        addressDetails={this.state.unlockAddresses[idx]}
-                                    />
-                                    <div className="card--label">
-                                        Transaction Id
-                                    </div>
-                                    <div className="card--value card--value__mono">
-                                        {input.transactionId === "0".repeat(64) && (
-                                            <span>Genesis</span>
-                                        )}
-                                        {input.transactionId !== "0".repeat(64) && input.transactionId}
-                                    </div>
-                                    <div className="card--label">
-                                        Transaction Output Index
-                                    </div>
-                                    <div className="card--value">
-                                        {input.transactionOutputIndex}
-                                    </div>
-                                </React.Fragment>
+                                <UTXOInput
+                                    key={idx}
+                                    index={idx}
+                                    unlockAddress={this.state.unlockAddresses[idx]}
+                                    input={input}
+                                />
                             )}
-                        </div>
+                        </React.Fragment>
                     ))}
                 </div>
 
                 <div className="card margin-t-m padding-l">
-                    <h2 className="margin-b-s">Outputs</h2>
+                    <div className="card--header">
+                        <h2 className="card--header__title">Outputs</h2>
+                        <span className="card--header-count">
+                            {this.props.payload.essence.outputs.length}
+                        </span>
+                    </div>
                     {this.props.payload.essence.outputs.map((output, idx) => (
-                        <div className="card margin-t-m padding-l" key={idx}>
-                            <Output
-                                key={idx}
-                                index={idx + 1}
-                                output={output}
-                            />
-                        </div>
+                        <Output
+                            key={idx}
+                            index={idx + 1}
+                            output={output}
+                        />
                         )
                     )}
-                </div>
-
-                <div className="card margin-t-m padding-l">
-                    <h2 className="margin-b-s">Unlock Blocks</h2>
-                    {this.props.payload.unlockBlocks.map((unlockBlock, idx) => (
-                        <div
-                            key={idx}
-                            className="margin-b-s"
-                        >
-                            <h3 className="margin-b-t">{NameHelper.getUnlockBlockTypeName(unlockBlock.type)} {idx}</h3>
-                            {unlockBlock.type === SIGNATURE_UNLOCK_BLOCK_TYPE && (
-                                <React.Fragment>
-                                    <div className="card--label">
-                                        Public Key
-                                    </div>
-                                    <div className="card--value card--value__mono">
-                                        {unlockBlock.signature.publicKey}
-                                    </div>
-                                    <div className="card--label">
-                                        Signature
-                                    </div>
-                                    <div className="card--value card--value__mono">
-                                        {unlockBlock.signature.signature}
-                                    </div>
-                                </React.Fragment>
-                            )}
-                            {unlockBlock.type === REFERENCE_UNLOCK_BLOCK_TYPE && (
-                                <React.Fragment>
-                                    <div className="card--label">
-                                        Reference
-                                    </div>
-                                    <div className="card--value">
-                                        {unlockBlock.reference}
-                                    </div>
-                                </React.Fragment>
-                            )}
-                            {unlockBlock.type === ALIAS_UNLOCK_BLOCK_TYPE && (
-                                <React.Fragment>
-                                    <div className="card--label">
-                                        Reference
-                                    </div>
-                                    <div className="card--value">
-                                        {unlockBlock.reference}
-                                    </div>
-                                </React.Fragment>
-                            )}
-                            {unlockBlock.type === NFT_UNLOCK_BLOCK_TYPE && (
-                                <React.Fragment>
-                                    <div className="card--label">
-                                        Reference
-                                    </div>
-                                    <div className="card--value">
-                                        {unlockBlock.reference}
-                                    </div>
-                                </React.Fragment>
-                            )}
-                        </div>
-                    ))}
                 </div>
             </div>
         );

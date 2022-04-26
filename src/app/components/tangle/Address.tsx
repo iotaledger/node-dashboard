@@ -1,5 +1,6 @@
 import { ALIAS_ADDRESS_TYPE, ED25519_ADDRESS_TYPE, NFT_ADDRESS_TYPE } from "@iota/iota.js";
 import React, { Component, ReactNode } from "react";
+import { NameHelper } from "../../../utils/nameHelper";
 import { AddressProps } from "./AddressProps";
 
 /**
@@ -13,6 +14,12 @@ class Address extends Component<AddressProps> {
     public render(): ReactNode {
         return (
             <div className="address-type">
+                <div className="card--label">
+                    Name:
+                </div>
+                <div className="card--value row">
+                    {NameHelper.getAddressTypeName(this.props.address.type)}
+                </div>
                 {this.props.address.type === ED25519_ADDRESS_TYPE && (
                     <React.Fragment>
                         <div className="card--label">
