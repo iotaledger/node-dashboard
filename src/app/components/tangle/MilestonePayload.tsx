@@ -52,10 +52,10 @@ class MilestonePayload extends Component<MilestonePayloadProps, MilestonePayload
                     )}
                 </div>
                 <div className="card--label">
-                    Last Milestone Id
+                    Previous Milestone Id
                 </div>
                 <div className="card--value">
-                    {this.props.payload.lastMilestoneId}
+                    {this.props.payload.previousMilestoneId}
                 </div>
                 {this.props.payload.parentMessageIds?.map((parent, idx) => (
                     <React.Fragment key={idx}>
