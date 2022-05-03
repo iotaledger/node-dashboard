@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
 export interface IConfirmedInfo {
-    id: string;
+    ids: string[];
     excluded_ids?: string[];
 }

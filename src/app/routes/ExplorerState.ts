@@ -18,7 +18,7 @@ export interface ExplorerState {
      * The milestones.
      */
     milestones: {
+        milestoneId: string;
         index: number;
-        messageId: string;
     }[];
 }

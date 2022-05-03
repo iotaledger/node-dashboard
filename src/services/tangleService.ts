@@ -1,4 +1,4 @@
-import { addressBalance, Bech32Helper, ClientError, IClient, ITaggedDataPayload, IMessageMetadata, IMilestonePayload, IMilestoneResponse, INodeInfo, IOutputResponse, ITransactionPayload, SingleNodeClient, IndexerPluginClient, IOutputsResponse } from "@iota/iota.js";
+import { addressBalance, Bech32Helper, ClientError, IClient, ITaggedDataPayload, IMessageMetadata, IMilestonePayload, INodeInfo, IOutputResponse, ITransactionPayload, SingleNodeClient, IndexerPluginClient, IOutputsResponse } from "@iota/iota.js";
 import { Converter, HexHelper } from "@iota/util.js";
 import { ServiceFactory } from "../factories/serviceFactory";
 import { IAddressDetails } from "../models/IAddressDetails";
@@ -53,45 +53,14 @@ export class TangleService {
         }
         const bech32HRP = this._nodeInfo ? this._nodeInfo.protocol.bech32HRP : Bech32Helper.BECH32_DEFAULT_HRP_MAIN;
 
-        try {
-            // If the query is an integer then lookup a milestone
-            if (/^\d+$/.test(query)) {
-                const milestone = await client.milestone(Number.parseInt(query, 10));
+        // If the query is an integer then lookup a milestone
+        if (/^\d+$/.test(query)) {
+            try {
+                const milestone = await client.milestoneByIndex(Number.parseInt(query, 10));
 
                 return {
                     milestone
                 };
-            }
-        } catch (err) {
-            if (err instanceof ClientError && this.checkForUnavailable(err)) {
-                return {
-                    unavailable: true
-                };
-            }
-        }
-
-        // If the query is 64 bytes hex, try and look for a message
-        if (Converter.isHex(queryLowerNoPrefix) && queryLowerNoPrefix.length === 64) {
-            try {
-                const message = await client.message(HexHelper.addPrefix(queryLowerNoPrefix));
-
-                return {
-                    message
-                };
-            } catch (err) {
-                if (err instanceof ClientError && this.checkForUnavailable(err)) {
-                    return {
-                        unavailable: true
-                    };
-                }
-            }
-
-            // If the query is 64 bytes hex, try and look for a transaction included message
-            try {
-                const message = await client.transactionIncludedMessage(HexHelper.addPrefix(queryLowerNoPrefix));
-                return {
-                    message
-                };
             } catch (err) {
                 if (err instanceof ClientError && this.checkForUnavailable(err)) {
                     return {
@@ -100,37 +69,37 @@ export class TangleService {
                 }
             }
         }
+
         // Address bech32
         if (Bech32Helper.matches(queryLowerNoPrefix, bech32HRP)) {
             try {
-                if (queryLowerNoPrefix.length > 45) {
-                    // ed
-                    const address = await this.addressBalance(queryLowerNoPrefix);
+                const address = Bech32AddressHelper.buildAddress(queryLowerNoPrefix, bech32HRP);
 
-                    if (address && address.ledgerIndex > 0) {
+                if (address.type === 0) {
+                    // ed
+                    const addrBalance = await this.addressBalance(queryLowerNoPrefix);
+
+                    if (addrBalance && addrBalance.ledgerIndex > 0) {
                         const basicOutputs = await indexerPlugin.outputs({ addressBech32: queryLowerNoPrefix });
                         const aliasOutputs = await indexerPlugin.aliases({ stateControllerBech32: queryLowerNoPrefix });
                         const nftOutputs = await indexerPlugin.nfts({ addressBech32: queryLowerNoPrefix });
 
                         return {
-                            address,
+                            address: addrBalance,
                             addressOutputIds: basicOutputs.items.concat(aliasOutputs.items, nftOutputs.items)
                         };
                     }
-                } else {
+                } else if (address.hex) {
                     // nft/alias
-                    const address = Bech32AddressHelper.buildAddress(queryLowerNoPrefix, bech32HRP);
-                    if (address.hex) {
-                        const outputsResponse = address.type === 8
-                            ? await indexerPlugin.alias(HexHelper.addPrefix(address.hex))
-                            : await indexerPlugin.nft(HexHelper.addPrefix(address.hex));
+                    const outputsResponse = address.type === 8
+                        ? await indexerPlugin.alias(HexHelper.addPrefix(address.hex))
+                        : await indexerPlugin.nft(HexHelper.addPrefix(address.hex));
 
-                        if (outputsResponse.items.length > 0) {
-                            const output = await client.output(outputsResponse.items[0]);
-                            return {
-                                output
-                            };
-                        }
+                    if (outputsResponse.items.length > 0) {
+                        const output = await client.output(outputsResponse.items[0]);
+                        return {
+                            output
+                        };
                     }
                 }
             } catch (err) {
@@ -143,12 +112,84 @@ export class TangleService {
         }
 
         if (Converter.isHex(queryLowerNoPrefix)) {
-            // NftId/AliasId
-            if (queryLowerNoPrefix.length === 40 || queryLowerNoPrefix.length === 42) {
+            if (queryLowerNoPrefix.length === 64) {
+                // search for a milestone by id
                 try {
-                    // remove type byte
-                    const queryLowerNoType = queryLowerNoPrefix.length === 42
-                            ? queryLowerNoPrefix.slice(2) : queryLowerNoPrefix;
+                    const milestone = await client.milestoneById(HexHelper.addPrefix(queryLowerNoPrefix));
+
+                    return {
+                        milestone
+                    };
+                } catch (err) {
+                    if (err instanceof ClientError && this.checkForUnavailable(err)) {
+                        return {
+                            unavailable: true
+                        };
+                    }
+                }
+
+                // search for a message
+                try {
+                    const message = await client.message(HexHelper.addPrefix(queryLowerNoPrefix));
+
+                    return {
+                        message
+                    };
+                } catch (err) {
+                    if (err instanceof ClientError && this.checkForUnavailable(err)) {
+                        return {
+                            unavailable: true
+                        };
+                    }
+                }
+
+                // search for a transaction included message
+                try {
+                    const message = await client.transactionIncludedMessage(HexHelper.addPrefix(queryLowerNoPrefix));
+                    return {
+                        message
+                    };
+                } catch (err) {
+                    if (err instanceof ClientError && this.checkForUnavailable(err)) {
+                        return {
+                            unavailable: true
+                        };
+                    }
+                }
+            }
+
+           // Address ed25519/NftId/AliasId
+            if (queryLowerNoPrefix.length === 64 || queryLowerNoPrefix.length === 66) {
+                 // remove type byte
+                 const queryLowerNoType = queryLowerNoPrefix.length === 66
+                 ? queryLowerNoPrefix.slice(2) : queryLowerNoPrefix;
+
+                // Address ed25519
+                try {
+                    const address = Bech32AddressHelper.buildAddress(queryLowerNoType, bech32HRP);
+
+                    if (address.bech32) {
+                        const addrBalance = await this.addressBalance(address.bech32);
+                        if (addrBalance && addrBalance.ledgerIndex > 0) {
+                            const basicOutputs = await indexerPlugin.outputs({ addressBech32: address.bech32 });
+                            const aliasOutputs = await indexerPlugin.aliases({ stateControllerBech32: address.bech32 });
+                            const nftOutputs = await indexerPlugin.nfts({ addressBech32: address.bech32 });
+
+                            return {
+                                address: addrBalance,
+                                addressOutputIds: basicOutputs.items.concat(aliasOutputs.items, nftOutputs.items)
+                            };
+                        }
+                    }
+                } catch (err) {
+                    if (err instanceof ClientError && this.checkForUnavailable(err)) {
+                        return {
+                            unavailable: true
+                        };
+                    }
+                }
+                // Address nft/alias
+                try {
                     let outputsResponse: IOutputsResponse = {} as IOutputsResponse;
                     try {
                         outputsResponse = await indexerPlugin.alias(HexHelper.addPrefix(queryLowerNoType));
@@ -170,38 +211,6 @@ export class TangleService {
                 }
             }
 
-            // Address ed25519
-            if (queryLowerNoPrefix.length === 64 || queryLowerNoPrefix.length === 66) {
-                try {
-                    // remove type byte
-                    const queryLowerNoType = queryLowerNoPrefix.length === 66
-                            ? queryLowerNoPrefix.slice(2) : queryLowerNoPrefix;
-                    const address = Bech32AddressHelper.buildAddress(queryLowerNoType, bech32HRP);
-
-                    if (address.bech32) {
-                        const addrBalance = await this.addressBalance(address.bech32);
-
-                        if (addrBalance && addrBalance.ledgerIndex > 0) {
-                            const basicOutputs = await indexerPlugin.outputs({ addressBech32: address.bech32 });
-                            const aliasOutputs = await indexerPlugin.aliases({ stateControllerBech32: address.bech32 });
-                            const nftOutputs = await indexerPlugin.nfts({ addressBech32: address.bech32 });
-
-                            return {
-                                address: addrBalance,
-                                addressOutputIds: basicOutputs.items.concat(aliasOutputs.items, nftOutputs.items)
-                            };
-                        }
-                    }
-                } catch (err) {
-                    if (err instanceof ClientError && this.checkForUnavailable(err)) {
-                        return {
-                            unavailable: true
-                        };
-                    }
-                }
-            }
-
-
             // If the query is 68 bytes hex, try and look for an output
             if (queryLowerNoPrefix.length === 68) {
                 try {
@@ -218,11 +227,11 @@ export class TangleService {
                 }
             }
 
-            if (queryLowerNoPrefix.length === 52 || queryLowerNoPrefix.length === 76) {
+            if (queryLowerNoPrefix.length === 76 || queryLowerNoPrefix.length === 100) {
                 try {
                     // Foundry lookup by foundry id or token id
-                    const foundryId = queryLowerNoPrefix.length === 76
-                            ? queryLowerNoPrefix.slice(0, 52) : queryLowerNoPrefix;
+                    const foundryId = queryLowerNoPrefix.length === 100
+                            ? queryLowerNoPrefix.slice(0, 76) : queryLowerNoPrefix;
                     const foundryOutputs = await indexerPlugin.foundry(HexHelper.addPrefix(foundryId));
 
                     if (foundryOutputs.items.length > 0) {
@@ -316,11 +325,11 @@ export class TangleService {
      * @returns The details response.
      */
     public async milestoneDetails(
-        milestoneIndex: number): Promise<IMilestoneResponse | undefined> {
+        milestoneIndex: number): Promise<IMilestonePayload | undefined> {
         try {
             const client = this.buildClient();
 
-            return await client.milestone(milestoneIndex);
+            return await client.milestoneByIndex(milestoneIndex);
         } catch {}
     }
 

@@ -304,14 +304,16 @@ export class VisualizerService {
      */
     private updateConfirmedInfo(data?: IConfirmedInfo) {
         if (data) {
-            const vertex = this._vertices[data.id];
-            if (vertex && !vertex.isReferenced) {
-                if (this._referencedCallback) {
-                    this._referencedCallback(data.id, data.excluded_ids ?? [], this._counts);
-                }
+            for (const id of data.ids) {
+                const vertex = this._vertices[id];
+                if (vertex && !vertex.isReferenced) {
+                    if (this._referencedCallback) {
+                        this._referencedCallback(id, data.excluded_ids ?? [], this._counts);
+                    }
 
-                if (this._countsCallback) {
-                    this._countsCallback(this._counts);
+                    if (this._countsCallback) {
+                        this._countsCallback(this._counts);
+                    }
                 }
             }
         }

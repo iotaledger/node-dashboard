@@ -163,6 +163,7 @@ class Search extends AsyncComponent<RouteComponentProps<SearchRouteProps>, Searc
                             objParam = response.output.messageId;
                         } else if (response.milestone) {
                             objType = "milestone";
+                            objParam = response.milestone.index.toString();
                         }
                         if (objType) {
                             redirect = `/explorer/${objType}/${objParam}`;

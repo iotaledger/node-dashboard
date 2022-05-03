@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
 export interface IMs {
-    messageID: string;
+    milestoneId: string;
     index: number;
 }
