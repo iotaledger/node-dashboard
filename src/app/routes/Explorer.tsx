@@ -64,7 +64,7 @@ class Peers extends AsyncComponent<RouteComponentProps, ExplorerState> {
 
                 this.setState({
                     milestones: nonNull
-                        .map(m => ({ index: m.index, messageId: m.messageID }))
+                        .map(m => ({ index: m.index, milestoneId: m.milestoneId }))
                         .sort((m1, m2) => m2.index - m1.index)
                         .slice(0, 10)
                 });
@@ -147,9 +147,9 @@ class Peers extends AsyncComponent<RouteComponentProps, ExplorerState> {
                             <div key={idx} className="milestones-panel--milestone">
                                 <div className="index">{ms.index}</div>
                                 <Link
-                                    to={`/explorer/message/${ms.messageId}`}
+                                    to={`/explorer/milestone/${ms.index}`}
                                 >
-                                    {ms.messageId}
+                                    {ms.milestoneId}
                                 </Link>
                             </div>
                         ))}

@@ -1,4 +1,4 @@
-import { IMessage, IMilestoneResponse, IOutputResponse } from "@iota/iota.js";
+import { IMilestonePayload, IMessage, IOutputResponse } from "@iota/iota.js";
 import { IAddressDetails } from "../IAddressDetails";
 
 export interface ISearchResponse {
@@ -35,5 +35,5 @@ export interface ISearchResponse {
     /**
      * Milestone if it was found.
      */
-    milestone?: IMilestoneResponse;
+    milestone?: IMilestonePayload;
 }

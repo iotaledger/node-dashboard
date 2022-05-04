@@ -1,3 +1,4 @@
+import { messageIdFromMilestonePayload } from "@iota/iota.js";
 import React, { ReactNode } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
 import { ReactComponent as ChevronLeftIcon } from "../../../assets/chevron-left.svg";
@@ -76,16 +77,16 @@ class Milestone extends AsyncComponent<RouteComponentProps<MilestoneRouteProps>,
                         <div className="card--value card--value__mono row">
                             <span className="margin-r-t">
                                 <Link
-                                    to={`/explorer/message/${this.state.milestone?.messageId}`}
+                                    to={`/explorer/message/${this.state.messageId}`}
                                     className="info-box--title linked"
                                 >
-                                    {this.state.milestone?.messageId}
+                                    {this.state.messageId}
                                 </Link>
 
                             </span>
                             <MessageButton
                                 onClick={() => ClipboardHelper.copy(
-                                    this.state.milestone?.messageId
+                                    this.state.messageId
                                 )}
                                 buttonType="copy"
                                 labelPosition="top"
@@ -141,6 +142,19 @@ class Milestone extends AsyncComponent<RouteComponentProps<MilestoneRouteProps>,
         const result = await this._tangleService.milestoneDetails(Number.parseInt(index, 10));
 
         if (result) {
+            try {
+                const tangleService = ServiceFactory.get<TangleService>("tangle");
+                const info = await tangleService.info();
+
+                this.setState({
+                    messageId: messageIdFromMilestonePayload(info.protocol.protocolVersion, result)
+                });
+            } catch (error) {
+                if (error instanceof Error) {
+                    console.log(error.message);
+                }
+            }
+
             this.setState({
                 milestone: result
             }, async () => this.checkForAdjacentMilestones());
