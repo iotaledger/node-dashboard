@@ -20,7 +20,7 @@ export class SettingsService {
      * Create a new instance of SettingsService.
      */
     constructor() {
-        this._storageService = ServiceFactory.get<LocalStorageService>("storage");
+        this._storageService = ServiceFactory.get<LocalStorageService>("local-storage");
         this._blindMode = false;
     }
 

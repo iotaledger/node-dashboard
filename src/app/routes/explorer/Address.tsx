@@ -1,4 +1,5 @@
-import { IOutputResponse, UnitsHelper } from "@iota/iota.js";
+import { IOutputResponse } from "@iota/iota.js";
+import classNames from "classnames";
 import React, { ReactNode } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
 import { ReactComponent as ChevronLeftIcon } from "../../../assets/chevron-left.svg";
@@ -6,10 +7,12 @@ import { ServiceFactory } from "../../../factories/serviceFactory";
 import { NodeConfigService } from "../../../services/nodeConfigService";
 import { TangleService } from "../../../services/tangleService";
 import { Bech32AddressHelper } from "../../../utils/bech32AddressHelper";
+import { FormatHelper } from "../../../utils/formatHelper";
 import AsyncComponent from "../../components/layout/AsyncComponent";
 import Spinner from "../../components/layout/Spinner";
 import Bech32Address from "../../components/tangle/Bech32Address";
 import Output from "../../components/tangle/Output";
+import { ReactComponent as DropdownIcon } from "./../../../assets/dropdown-arrow.svg";
 import "./Address.scss";
 import { AddressRouteProps } from "./AddressRouteProps";
 import { AddressState } from "./AddressState";
@@ -44,6 +47,7 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
             ...Bech32AddressHelper.buildAddress(props.match.params.address, this._bech32Hrp),
             formatFull: false,
             statusBusy: true,
+            showTokens: false,
             status: "Loading outputs..."
         };
     }
@@ -113,43 +117,83 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                         <h3 className="secondary margin-l-s">Back to Explorer</h3>
                     </Link>
                     <div className="card margin-t-m padding-l">
-                        <h2>Address</h2>
-                        <Bech32Address
-                            activeLinks={false}
-                            addressDetails={this.state.bech32AddressDetails}
-                        />
-                        {this.state.balance !== undefined && (
-                            <div>
-                                <div className="card--label">
-                                    Balance
+                        <div className="card--content padding-0">
+                            <h2>Address</h2>
+                            <Bech32Address
+                                activeLinks={false}
+                                addressDetails={this.state.bech32AddressDetails}
+                            />
+                            {this.state.balance !== undefined && (
+                                <div>
+                                    <div className="card--label">
+                                        Balance
+                                    </div>
+                                    <div className="card--value card--value__mono">
+                                        <button
+                                            className="card--value--button"
+                                            type="button"
+                                            onClick={() => this.setState(
+                                                {
+                                                    formatFull: !this.state.formatFull
+                                                }
+                                            )}
+                                        >
+                                            {FormatHelper.getInstance().amount(
+                                                Number(this.state.balance),
+                                                this.state.formatFull
+                                            )}
+                                        </button>
+                                    </div>
+                                    {this.state.address?.nativeTokens && (
+                                        <React.Fragment>
+                                            <div
+                                                className="card--content__input margin-t-s"
+                                                onClick={() => this.setState({ showTokens: !this.state.showTokens })}
+                                            >
+                                                <div className={classNames(
+                                                        "margin-r-t",
+                                                        "card--content__input--dropdown",
+                                                        { "opened": this.state.showTokens }
+                                                    )}
+                                                >
+                                                    <DropdownIcon />
+                                                </div>
+                                                <h3 className="card--content__input--label">
+                                                    Native Tokens
+                                                </h3>
+                                            </div>
+                                            {this.state.showTokens &&
+                                                Object.keys(this.state.address?.nativeTokens).map((key, idx) => (
+                                                    <div className="card--content--border-l" key={idx}>
+                                                        <div className="card--label">
+                                                            Token Id
+                                                        </div>
+                                                        <div className="card--value card--value__mono">
+                                                            {key}
+                                                        </div>
+                                                        <div className="card--label">
+                                                            Amount
+                                                        </div>
+                                                        <div className="card--value card--value__mono">
+                                                            {this.state.address?.nativeTokens[key].toString()}
+                                                        </div>
+                                                    </div>
+                                            ))}
+                                        </React.Fragment>
+                                    )}
                                 </div>
-                                <div className="card--value card--value__mono">
-                                    <button
-                                        className="card--value--button"
-                                        type="button"
-                                        onClick={() => this.setState(
-                                            {
-                                                formatFull: !this.state.formatFull
-                                            }
-                                        )}
-                                    >
-                                        {this.state.formatFull
-                                            ? `${this.state.balance} i`
-                                            : UnitsHelper.formatBest(Number(this.state.balance))}
-                                    </button>
+                            )}
+                            {this.state.status && (
+                                <div className="middle row margin-t-m">
+                                    {this.state.statusBusy && (<Spinner compact={true} />)}
+                                    <p className="status margin-l-s">
+                                        {this.props.match.params.address}
+                                        <br />
+                                        {this.state.status}
+                                    </p>
                                 </div>
-                            </div>
-                        )}
-                        {this.state.status && (
-                            <div className="middle row margin-t-m">
-                                {this.state.statusBusy && (<Spinner compact={true} />)}
-                                <p className="status margin-l-s">
-                                    {this.props.match.params.address}
-                                    <br />
-                                    {this.state.status}
-                                </p>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
 
                     {this.state.outputs &&

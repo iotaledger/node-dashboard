@@ -1,8 +1,9 @@
-import { BASIC_OUTPUT_TYPE, ALIAS_OUTPUT_TYPE, FOUNDRY_OUTPUT_TYPE, NFT_OUTPUT_TYPE, TREASURY_OUTPUT_TYPE, UnitsHelper, IOutputResponse, SIMPLE_TOKEN_SCHEME_TYPE } from "@iota/iota.js";
+import { BASIC_OUTPUT_TYPE, ALIAS_OUTPUT_TYPE, FOUNDRY_OUTPUT_TYPE, NFT_OUTPUT_TYPE, TREASURY_OUTPUT_TYPE, IOutputResponse, SIMPLE_TOKEN_SCHEME_TYPE } from "@iota/iota.js";
 import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
+import { FormatHelper } from "../../../utils/formatHelper";
 import { NameHelper } from "../../../utils/nameHelper";
 import MessageButton from "../layout/MessageButton";
 import { ReactComponent as DropdownIcon } from "./../../../assets/dropdown-arrow.svg";
@@ -65,9 +66,10 @@ class Output extends Component<OutputProps, OutputState> {
                                     }
                                 )}
                             >
-                                {this.state.formatFull
-                                    ? `${this.state.output.amount} i`
-                                    : UnitsHelper.formatBest(Number(this.state.output.amount))}
+                                {FormatHelper.getInstance().amount(
+                                    Number(this.state.output.amount),
+                                    this.state.formatFull
+                                )}
                             </button>
                         </div>
                     </div>

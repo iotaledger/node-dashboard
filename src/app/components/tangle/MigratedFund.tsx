@@ -1,9 +1,10 @@
-import { ED25519_ADDRESS_TYPE, UnitsHelper } from "@iota/iota.js";
+import { ED25519_ADDRESS_TYPE } from "@iota/iota.js";
 import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
 import { ServiceFactory } from "../../../factories/serviceFactory";
 import { NodeConfigService } from "../../../services/nodeConfigService";
 import { Bech32AddressHelper } from "../../../utils/bech32AddressHelper";
+import { FormatHelper } from "../../../utils/formatHelper";
 import { ReactComponent as DropdownIcon } from "./../../../assets/dropdown-arrow.svg";
 import Bech32Address from "./Bech32Address";
 import { MigratedFundProps } from "./MigratedFundProps";
@@ -90,9 +91,10 @@ class MigratedFund extends Component<MigratedFundProps, MigratedFundState> {
                                     }
                                 )}
                             >
-                                {this.state.formatFull
-                                    ? `${this.props.fund.deposit} i`
-                                    : UnitsHelper.formatBest(Number(this.props.fund.deposit))}
+                                {FormatHelper.getInstance().amount(
+                                    Number(this.props.fund.deposit),
+                                    this.state.formatFull
+                                )}
                             </button>
                         </div>
                     </div>
