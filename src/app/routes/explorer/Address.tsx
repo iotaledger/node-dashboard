@@ -138,7 +138,10 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                                                 }
                                             )}
                                         >
-                                            {FormatHelper.amount(Number(this.state.balance), this.state.formatFull)}
+                                            {FormatHelper.getInstance().amount(
+                                                Number(this.state.balance),
+                                                this.state.formatFull
+                                            )}
                                         </button>
                                     </div>
                                     {this.state.address?.nativeTokens && (

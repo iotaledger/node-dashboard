@@ -66,7 +66,10 @@ class Output extends Component<OutputProps, OutputState> {
                                     }
                                 )}
                             >
-                                {FormatHelper.amount(Number(this.state.output.amount), this.state.formatFull)}
+                                {FormatHelper.getInstance().amount(
+                                    Number(this.state.output.amount),
+                                    this.state.formatFull
+                                )}
                             </button>
                         </div>
                     </div>

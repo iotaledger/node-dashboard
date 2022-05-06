@@ -83,7 +83,7 @@ class ReceiptMilestoneOption extends Component<ReceiptMilestoneOptionProps, Rece
                                     }
                                 )}
                             >
-                                {FormatHelper.amount(
+                                {FormatHelper.getInstance().amount(
                                     Number(this.props.option.transaction.output.amount),
                                     this.state.formatFull
                                 )}

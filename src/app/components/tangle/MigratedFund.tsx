@@ -91,7 +91,10 @@ class MigratedFund extends Component<MigratedFundProps, MigratedFundState> {
                                     }
                                 )}
                             >
-                                {FormatHelper.amount(Number(this.props.fund.deposit), this.state.formatFull)}
+                                {FormatHelper.getInstance().amount(
+                                    Number(this.props.fund.deposit),
+                                    this.state.formatFull
+                                )}
                             </button>
                         </div>
                     </div>

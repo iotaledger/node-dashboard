@@ -1,4 +1,4 @@
-import { UnitsHelper } from "@iota/iota.js";
+import { INodeInfoBaseToken, UnitsHelper } from "@iota/iota.js";
 import humanize from "humanize-duration";
 import moment from "moment";
 import { ServiceFactory } from "../factories/serviceFactory";
@@ -8,6 +8,35 @@ import { NodeConfigService } from "../services/nodeConfigService";
  * Class to help formatting values.
  */
 export class FormatHelper {
+    /**
+     * The singleton instance.
+     */
+    private static instance: FormatHelper;
+
+    /**
+     * The base token of the node.
+     */
+    private readonly _baseToken: INodeInfoBaseToken;
+
+    /**
+     * Create a new instance FormatHelper.
+     */
+    private constructor() {
+        const nodeConfigService = ServiceFactory.get<NodeConfigService>("node-config");
+        this._baseToken = nodeConfigService.getBaseToken();
+    }
+
+    /**
+     * Get the FormatHelper singleton instance.
+     */
+    public static getInstance(): FormatHelper {
+        if (!FormatHelper.instance) {
+            FormatHelper.instance = new FormatHelper();
+        }
+
+        return FormatHelper.instance;
+    }
+
     /**
      * Format the duration as human readable.
      * @param milliseconds The milliseconds total for the duration.
@@ -129,17 +158,15 @@ export class FormatHelper {
      * @param decimalPlaces The number of decimal places.
      * @returns The formatted amount.
      */
-    public static amount(value: number, formatFull: boolean, decimalPlaces: number = 2): string {
-        const nodeConfigService = ServiceFactory.get<NodeConfigService>("node-config");
-        const baseToken = nodeConfigService.getBaseToken();
-
+    public amount(value: number, formatFull: boolean, decimalPlaces: number = 2): string {
         if (formatFull) {
-            return `${value} ${baseToken.subunit ? baseToken.subunit : baseToken.unit}`;
+            return `${value} ${this._baseToken.subunit ? this._baseToken.subunit : this._baseToken.unit}`;
         }
+        const baseTokeValue = value / Math.pow(10, this._baseToken.decimals);
+        const amount = this._baseToken.useMetricPrefix
+                    ? UnitsHelper.formatBest(baseTokeValue)
+                    : `${Number.parseFloat(baseTokeValue.toFixed(decimalPlaces))} `;
 
-        const amount = baseToken.useMetricPrefix
-                    ? UnitsHelper.formatBest(value / Math.pow(10, baseToken.decimals))
-                    : `${Number.parseFloat((value / Math.pow(10, baseToken.decimals)).toFixed(decimalPlaces))} `;
-        return `${amount}${baseToken.unit}`;
+        return `${amount}${this._baseToken.unit}`;
     }
 }
