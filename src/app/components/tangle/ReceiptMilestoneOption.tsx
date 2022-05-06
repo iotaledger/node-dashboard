@@ -1,6 +1,6 @@
-import { UnitsHelper } from "@iota/iota.js";
 import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
+import { FormatHelper } from "../../../utils/formatHelper";
 import { ReactComponent as DropdownIcon } from "./../../../assets/dropdown-arrow.svg";
 import MigratedFund from "./MigratedFund";
 import { ReceiptMilestoneOptionProps } from "./ReceiptMilestoneOptionProps";
@@ -83,9 +83,10 @@ class ReceiptMilestoneOption extends Component<ReceiptMilestoneOptionProps, Rece
                                     }
                                 )}
                             >
-                                {this.state.formatFull
-                                    ? `${this.props.option.transaction.output.amount} i`
-                                    : UnitsHelper.formatBest(Number(this.props.option.transaction.output.amount))}
+                                {FormatHelper.amount(
+                                    Number(this.props.option.transaction.output.amount),
+                                    this.state.formatFull
+                                )}
                             </button>
                         </div>
                     </div>

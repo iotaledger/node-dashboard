@@ -42,4 +42,9 @@ export interface AddressState {
      * Format the amount in full.
      */
     formatFull: boolean;
+
+    /**
+     * Show native tokens.
+     */
+    showTokens: boolean;
 }

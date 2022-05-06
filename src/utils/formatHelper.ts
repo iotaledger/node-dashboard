@@ -1,5 +1,8 @@
+import { UnitsHelper } from "@iota/iota.js";
 import humanize from "humanize-duration";
 import moment from "moment";
+import { ServiceFactory } from "../factories/serviceFactory";
+import { NodeConfigService } from "../services/nodeConfigService";
 
 /**
  * Class to help formatting values.
@@ -117,5 +120,26 @@ export class FormatHelper {
             return valueInMs * 1000;
         }
         return valueInMs;
+    }
+
+    /**
+     * Format amount.
+     * @param value The value to format.
+     * @param formatFull Return full format.
+     * @param decimalPlaces The number of decimal places.
+     * @returns The formatted amount.
+     */
+    public static amount(value: number, formatFull: boolean, decimalPlaces: number = 2): string {
+        const nodeConfigService = ServiceFactory.get<NodeConfigService>("node-config");
+        const baseToken = nodeConfigService.getBaseToken();
+
+        if (formatFull) {
+            return `${value} ${baseToken.subunit ? baseToken.subunit : baseToken.unit}`;
+        }
+
+        const amount = baseToken.useMetricPrefix
+                    ? UnitsHelper.formatBest(value / Math.pow(10, baseToken.decimals))
+                    : `${Number.parseFloat((value / Math.pow(10, baseToken.decimals)).toFixed(decimalPlaces))} `;
+        return `${amount}${baseToken.unit}`;
     }
 }

@@ -12,6 +12,7 @@ import { EventAggregator } from "./services/eventAggregator";
 import { LocalStorageService } from "./services/localStorageService";
 import { MetricsService } from "./services/metricsService";
 import { NodeConfigService } from "./services/nodeConfigService";
+import { SessionStorageService } from "./services/sessionStorageService";
 import { SettingsService } from "./services/settingsService";
 import { TangleService } from "./services/tangleService";
 import { ThemeService } from "./services/themeService";
@@ -39,7 +40,8 @@ initServices()
  * @returns The brand configuration.
  */
 async function initServices(): Promise<IBrandConfiguration | undefined> {
-    ServiceFactory.register("storage", () => new LocalStorageService());
+    ServiceFactory.register("local-storage", () => new LocalStorageService());
+    ServiceFactory.register("session-storage", () => new SessionStorageService());
     const settingsService = new SettingsService();
     ServiceFactory.register("settings", () => settingsService);
 
