@@ -9,6 +9,7 @@ import { TangleService } from "../../../services/tangleService";
 import { Bech32AddressHelper } from "../../../utils/bech32AddressHelper";
 import { FormatHelper } from "../../../utils/formatHelper";
 import AsyncComponent from "../../components/layout/AsyncComponent";
+import Pagination from "../../components/layout/Pagination";
 import Spinner from "../../components/layout/Spinner";
 import Bech32Address from "../../components/tangle/Bech32Address";
 import Output from "../../components/tangle/Output";
@@ -48,6 +49,8 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
             formatFull: false,
             statusBusy: true,
             showTokens: false,
+            currentPage: 1,
+            pageSize: 10,
             status: "Loading outputs..."
         };
     }
@@ -197,24 +200,33 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                     </div>
 
                     {this.state.outputs &&
-                        this.state.outputIds &&
-                        this.state.outputs.length > 0 && (
-                            <div className="card margin-t-m padding-l">
-                                <div className="card--header">
-                                    <h2 className="card--header__title">Outputs</h2>
-                                    <span className="card--header-count">
-                                        {this.state.outputs.length}
-                                    </span>
-                                </div>
-                                    {this.state.outputs.map((output, idx) => (
-                                        <Output
-                                            key={idx}
-                                            index={idx + 1}
-                                            output={output}
-                                        />
-                                    ))}
+                    this.state.outputIds &&
+                    this.state.outputs.length > 0 && (
+                        <div className="card margin-t-m padding-l">
+                            <div className="card--header">
+                                <h2 className="card--header__title">Outputs</h2>
+                                <span className="card--header-count">
+                                    {this.state.outputs.length}
+                                </span>
                             </div>
-                        )}
+                            {this.currentPageOutputs.map((output, idx) => (
+                                <Output
+                                    key={idx}
+                                    index={idx + 1}
+                                    output={output}
+                                />
+                            ))}
+
+                            <Pagination
+                                currentPage={this.state.currentPage}
+                                totalCount={this.state.outputs.length}
+                                pageSize={this.state.pageSize}
+                                extraPageRangeLimit={20}
+                                siblingsCount={1}
+                                onPageChange={page => this.setState({ currentPage: page })}
+                            />
+                        </div>
+                    )}
 
                     {this.state.outputs && this.state.outputs.length === 0 && (
                         <div className="card margin-t-m padding-l">
@@ -229,6 +241,20 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                 </div>
             </div>
         );
+    }
+
+    private get currentPageOutputs() {
+        if (this.state.outputs && this.state.outputs.length > 0) {
+            const firstPageIndex = (this.state.currentPage - 1) * this.state.pageSize;
+            const lastPageIndex =
+                (this.state.currentPage === Math.ceil(this.state.outputs.length / this.state.pageSize))
+                ? this.state.outputs.length
+                : firstPageIndex + this.state.pageSize;
+
+            return this.state.outputs.slice(firstPageIndex, lastPageIndex);
+        }
+
+        return [];
     }
 }
 
