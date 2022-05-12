@@ -1,11 +1,10 @@
 /* eslint-disable max-len */
-import { Ed25519Address, IReferenceUnlockBlock, ISignatureUnlockBlock, UTXO_INPUT_TYPE, REFERENCE_UNLOCK_BLOCK_TYPE, SIGNATURE_UNLOCK_BLOCK_TYPE, ALIAS_UNLOCK_BLOCK_TYPE, NFT_UNLOCK_BLOCK_TYPE } from "@iota/iota.js";
-import { Converter } from "@iota/util.js";
+import { Blake2b } from "@iota/crypto.js";
+import { Ed25519Address, IReferenceUnlockBlock, ISignatureUnlockBlock, UTXO_INPUT_TYPE, REFERENCE_UNLOCK_BLOCK_TYPE, SIGNATURE_UNLOCK_BLOCK_TYPE, ALIAS_UNLOCK_BLOCK_TYPE, NFT_UNLOCK_BLOCK_TYPE, serializeTransactionPayload, AddressTypes, IEd25519Address, ED25519_ADDRESS_TYPE } from "@iota/iota.js";
+import { Converter, WriteStream } from "@iota/util.js";
 import React, { Component, ReactNode } from "react";
 import { ServiceFactory } from "../../../factories/serviceFactory";
-import { IBech32AddressDetails } from "../../../models/IBech32AddressDetails";
 import { NodeConfigService } from "../../../services/nodeConfigService";
-import { Bech32AddressHelper } from "../../../utils/bech32AddressHelper";
 import Output from "./Output";
 import { TransactionPayloadProps } from "./TransactionPayloadProps";
 import { TransactionPayloadState } from "./TransactionPayloadState";
@@ -44,21 +43,28 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
             }
         }
 
-        const unlockAddresses: IBech32AddressDetails[] = [];
+        const unlockAddresses: AddressTypes[] = [];
         for (let i = 0; i < signatureBlocks.length; i++) {
-            unlockAddresses.push(
-                Bech32AddressHelper.buildAddress(
-                    Converter.bytesToHex(
-                        new Ed25519Address(Converter.hexToBytes(signatureBlocks[i].signature.publicKey))
-                            .toAddress()
-                    ),
-                    this._bech32Hrp
-                )
-            );
+            unlockAddresses.push({ pubKeyHash: Converter.bytesToHex(
+                new Ed25519Address(Converter.hexToBytes(signatureBlocks[i].signature.publicKey))
+                    .toAddress()
+            ), type: ED25519_ADDRESS_TYPE } as IEd25519Address);
+        }
+        const writeStream = new WriteStream();
+
+        try {
+            serializeTransactionPayload(writeStream, this.props.payload);
+        } catch (error) {
+            if (error instanceof Error) {
+                console.log(error.message);
+            }
         }
 
+        const transactionId = Converter.bytesToHex(Blake2b.sum256(writeStream.finalBytes()), true);
+
         this.state = {
-            unlockAddresses
+            unlockAddresses,
+            transactionId
         };
     }
 
@@ -102,6 +108,9 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
                             key={idx}
                             index={idx + 1}
                             output={output}
+                            outputId={this.state.transactionId +
+                                    String(idx).padStart(2, "0")
+                                            .padEnd(4, "0")}
                         />
                         )
                     )}

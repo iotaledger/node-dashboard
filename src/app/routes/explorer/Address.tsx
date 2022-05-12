@@ -12,6 +12,7 @@ import AsyncComponent from "../../components/layout/AsyncComponent";
 import Spinner from "../../components/layout/Spinner";
 import Bech32Address from "../../components/tangle/Bech32Address";
 import Output from "../../components/tangle/Output";
+import Token from "../../components/tangle/Token";
 import { ReactComponent as DropdownIcon } from "./../../../assets/dropdown-arrow.svg";
 import "./Address.scss";
 import { AddressRouteProps } from "./AddressRouteProps";
@@ -119,10 +120,13 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                     <div className="card margin-t-m padding-l">
                         <div className="card--content padding-0">
                             <h2>Address</h2>
-                            <Bech32Address
-                                activeLinks={false}
-                                addressDetails={this.state.bech32AddressDetails}
-                            />
+                            {this.state.bech32AddressDetails && (
+                                <Bech32Address
+                                    activeLinks={false}
+                                    showHexAddress={true}
+                                    addressDetails={this.state.bech32AddressDetails}
+                                />
+                            )}
                             {this.state.balance !== undefined && (
                                 <div>
                                     <div className="card--label">
@@ -162,23 +166,23 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                                                     Native Tokens
                                                 </h3>
                                             </div>
-                                            {this.state.showTokens &&
-                                                Object.keys(this.state.address?.nativeTokens).map((key, idx) => (
-                                                    <div className="card--content--border-l" key={idx}>
-                                                        <div className="card--label">
-                                                            Token Id
-                                                        </div>
-                                                        <div className="card--value card--value__mono">
-                                                            {key}
-                                                        </div>
-                                                        <div className="card--label">
-                                                            Amount
-                                                        </div>
-                                                        <div className="card--value card--value__mono">
-                                                            {this.state.address?.nativeTokens[key].toString()}
-                                                        </div>
-                                                    </div>
-                                            ))}
+                                            {this.state.showTokens && (
+                                                <div className="card--content--border-l">
+                                                    {Object.keys(this.state.address?.nativeTokens).map((key, idx) => (
+                                                        <Token
+                                                            key={idx}
+                                                            index={idx}
+                                                            token={{
+                                                                id: key,
+                                                                amount: this.state.address
+                                                                        ? this.state.address?.nativeTokens[key]
+                                                                            .toString()
+                                                                        : "0"
+                                                            }}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            )}
                                         </React.Fragment>
                                     )}
                                 </div>
@@ -211,6 +215,9 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                                             key={idx}
                                             index={idx + 1}
                                             output={output}
+                                            outputId={this.state.outputIds
+                                                    ? this.state.outputIds[output.outputIndex]
+                                                    : ""}
                                         />
                                     ))}
                             </div>

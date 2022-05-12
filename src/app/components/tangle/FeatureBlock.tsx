@@ -3,7 +3,7 @@ import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
 import { NameHelper } from "../../../utils/nameHelper";
 import { ReactComponent as DropdownIcon } from "./../../../assets/dropdown-arrow.svg";
-import Address from "./Address";
+import Bech32Address from "./Bech32Address";
 import { FeatureBlockProps } from "./FeatureBlockProps";
 import { FeatureBlockState } from "./FeatureBlockState";
 
@@ -52,7 +52,9 @@ class FeatureBlock extends Component<FeatureBlockProps, FeatureBlockState> {
                     <div className="card--content--border-l">
                         {(this.props.featureBlock.type === SENDER_FEATURE_BLOCK_TYPE ||
                         this.props.featureBlock.type === ISSUER_FEATURE_BLOCK_TYPE) && (
-                            <Address
+                            <Bech32Address
+                                activeLinks={false}
+                                showHexAddress={false}
                                 address={this.props.featureBlock.address}
                             />
                         )}

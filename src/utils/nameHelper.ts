@@ -17,7 +17,7 @@ export class NameHelper {
      */
      public static getAddressTypeName(type: number): string {
         if (type === ED25519_ADDRESS_TYPE) {
-            return "Ed25519 address";
+            return "Address";
         } else if (type === ALIAS_ADDRESS_TYPE) {
             return "Alias address";
         } else if (type === NFT_ADDRESS_TYPE) {
