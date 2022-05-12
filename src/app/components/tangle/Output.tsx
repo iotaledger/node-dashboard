@@ -205,12 +205,12 @@ class Output extends Component<OutputProps, OutputState> {
                                     <div className="card--value row">
                                         {this.state.output.serialNumber}
                                     </div>
-                                    {/* <div className="card--label">
+                                    <div className="card--label">
                                         Token tag:
                                     </div>
                                     <div className="card--value row">
                                         {this.state.output.tokenTag}
-                                    </div> */}
+                                    </div>
                                     <div className="card--label">
                                         Token scheme type:
                                     </div>
