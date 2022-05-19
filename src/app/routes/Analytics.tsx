@@ -3,9 +3,9 @@ import React, { ReactNode } from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { ServiceFactory } from "../../factories/serviceFactory";
 import { IAvgSpamMetrics } from "../../models/websocket/IAvgSpamMetrics";
+import { IBpsMetrics } from "../../models/websocket/IBpsMetrics";
 import { IConfirmedMsMetrics } from "../../models/websocket/IConfirmedMsMetrics";
 import { IDBSizeMetric } from "../../models/websocket/IDBSizeMetric";
-import { IMpsMetrics } from "../../models/websocket/IMpsMetrics";
 import { INodeStatus } from "../../models/websocket/INodeStatus";
 import { ISpamMetrics } from "../../models/websocket/ISpamMetrics";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
@@ -40,9 +40,9 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
     private readonly _metricsService: MetricsService;
 
     /**
-     * The mps metrics subscription id.
+     * The bps metrics subscription id.
      */
-    private _mpsMetricsSubscription?: string;
+    private _bpsMetricsSubscription?: string;
 
     /**
      * The confirmed ms subscription id.
@@ -89,14 +89,14 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
         this.state = {
             tabs: this.calculateTabs(isSpammerAvailable),
             activeTab: this.props.match.params.section ?? "tangle",
-            mpsIncoming: [],
-            mpsOutgoing: [],
-            lastReceivedMpsTime: 0,
+            bpsIncoming: [],
+            bpsOutgoing: [],
+            lastReceivedBpsTime: 0,
             averageMilestoneTime: 0,
             lastMsReceivedTime: 0,
             milestoneTiming: [],
-            mps: [],
-            rmps: [],
+            bps: [],
+            rbps: [],
             lastStatusReceivedTime: 0,
             lastDbInterval: 1000,
             memorySize: [],
@@ -105,8 +105,8 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
             databaseSize: [],
             isSpammerAvailable,
             lastSpamAvgReceivedTime: 0,
-            spamNewMsgs: [],
-            spamAvgMsgs: [],
+            spamNewBlocks: [],
+            spamAvgBlocks: [],
             lastSpamReceivedTime: 0,
             lastSpamInterval: 0,
             lastSpamIntervals: [],
@@ -142,15 +142,15 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
     public async componentDidMount(): Promise<void> {
         super.componentDidMount();
 
-        this._mpsMetricsSubscription = this._metricsService.subscribe<IMpsMetrics>(
-            WebSocketTopic.MPSMetrics,
+        this._bpsMetricsSubscription = this._metricsService.subscribe<IBpsMetrics>(
+            WebSocketTopic.BPSMetrics,
             undefined,
             allData => {
                 const nonNull = allData.filter(d => d !== undefined && d !== null);
                 this.setState({
-                    lastReceivedMpsTime: Date.now(),
-                    mpsIncoming: nonNull.map(m => m.incoming),
-                    mpsOutgoing: nonNull.map(m => m.outgoing)
+                    lastReceivedBpsTime: Date.now(),
+                    bpsIncoming: nonNull.map(m => m.incoming),
+                    bpsOutgoing: nonNull.map(m => m.outgoing)
                 });
             }
         );
@@ -168,8 +168,8 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                     averageMilestoneTime: ts / nonNull.length * 1000,
                     lastMsReceivedTime: Date.now(),
                     milestoneTiming: nonNull.map(m => m.time_since_last_ms),
-                    mps: nonNull.map(m => m.mps * m.time_since_last_ms),
-                    rmps: nonNull.map(m => m.rmps * m.time_since_last_ms)
+                    bps: nonNull.map(m => m.bps * m.time_since_last_ms),
+                    rbps: nonNull.map(m => m.rbps * m.time_since_last_ms)
                 });
             }
         );
@@ -190,17 +190,17 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                 if (nonNull.length > 0) {
                     const data = nonNull[nonNull.length - 1];
                     const gossipMetrics: IGossipMetrics = {
-                        newMessages: data.server_metrics.new_msgs,
-                        knownMessages: data.server_metrics.known_msgs,
-                        receivedMessages: data.server_metrics.known_msgs + data.server_metrics.new_msgs,
-                        receivedMessageRequests: data.server_metrics.rec_msg_req,
-                        receivedMilestoneRequests: data.server_metrics.rec_ms_req,
-                        receivedHeartbeats: data.server_metrics.rec_heartbeat,
-                        sentMessages: data.server_metrics.sent_msgs,
-                        sentMessageRequests: data.server_metrics.sent_msg_req,
-                        sentMilestoneRequests: data.server_metrics.sent_ms_req,
-                        sentHeartbeats: data.server_metrics.sent_heartbeat,
-                        droppedPackets: data.server_metrics.dropped_sent_packets
+                        newBlocks: data.serverMetrics.newBlocks,
+                        knownBlocks: data.serverMetrics.knownBlocks,
+                        receivedBlocks: data.serverMetrics.knownBlocks + data.serverMetrics.newBlocks,
+                        receivedBlockRequests: data.serverMetrics.receivedBlockRequests,
+                        receivedMilestoneRequests: data.serverMetrics.receivedMilestoneRequests,
+                        receivedHeartbeats: data.serverMetrics.receivedHeartbeats,
+                        sentBlocks: data.serverMetrics.sentBlocks,
+                        sentBlockRequests: data.serverMetrics.sentBlockRequests,
+                        sentMilestoneRequests: data.serverMetrics.sentMilestoneRequests,
+                        sentHeartbeats: data.serverMetrics.sentHeartbeats,
+                        droppedPackets: data.serverMetrics.droppedSentPackets
                     };
 
                     this.setState({ gossipMetrics });
@@ -208,31 +208,31 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
 
                 this.setState({
                     requestQueue: {
-                        queued: nonNull.map(d => d.request_queue_queued),
-                        pending: nonNull.map(d => d.request_queue_pending),
-                        processing: nonNull.map(d => d.request_queue_processing),
-                        averageLatency: nonNull.map(d => d.request_queue_avg_latency)
+                        queued: nonNull.map(d => d.requestQueueQueued),
+                        pending: nonNull.map(d => d.requestQueuePending),
+                        processing: nonNull.map(d => d.requestQueueProcessing),
+                        averageLatency: nonNull.map(d => d.requestQueueAvgLatency)
                     }
                 });
 
                 this.setState({
                     memory: {
-                        stackAlloc: nonNull.map(d => d.mem.stack_sys / Analytics.BYTES_PER_MIB),
-                        heapReleased: nonNull.map(d => d.mem.heap_released / Analytics.BYTES_PER_MIB),
-                        heapInUse: nonNull.map(d => d.mem.heap_inuse / Analytics.BYTES_PER_MIB),
-                        heapIdle: nonNull.map(d => d.mem.heap_idle / Analytics.BYTES_PER_MIB),
-                        heapSys: nonNull.map(d => d.mem.heap_sys / Analytics.BYTES_PER_MIB),
+                        stackAlloc: nonNull.map(d => d.mem.stackSys / Analytics.BYTES_PER_MIB),
+                        heapReleased: nonNull.map(d => d.mem.heapReleased / Analytics.BYTES_PER_MIB),
+                        heapInUse: nonNull.map(d => d.mem.heapInUse / Analytics.BYTES_PER_MIB),
+                        heapIdle: nonNull.map(d => d.mem.heapIdle / Analytics.BYTES_PER_MIB),
+                        heapSys: nonNull.map(d => d.mem.heapSys / Analytics.BYTES_PER_MIB),
                         totalAlloc: nonNull.map(d => d.mem.sys / Analytics.BYTES_PER_MIB)
                     }
                 });
 
                 this.setState({
                     caches: {
-                        requestQueue: nonNull.map(d => d.caches.request_queue.size),
+                        requestQueue: nonNull.map(d => d.caches.requestQueue.size),
                         children: nonNull.map(d => d.caches.children.size),
                         milestones: nonNull.map(d => d.caches.milestones.size),
-                        messages: nonNull.map(d => d.caches.messages.size),
-                        incomingMessageWorkUnits: nonNull.map(d => d.caches.incoming_message_work_units.size)
+                        messages: nonNull.map(d => d.caches.blocks.size),
+                        incomingMessageWorkUnits: nonNull.map(d => d.caches.incomingBlocksWorkUnits.size)
                     }
                 });
             });
@@ -285,8 +285,8 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                 const nonNull = allData.filter(d => d !== undefined && d !== null);
 
                 this.setState({
-                    spamNewMsgs: nonNull.map(d => d.newMsgs),
-                    spamAvgMsgs: nonNull.map(d => d.avgMsgs),
+                    spamNewBlocks: nonNull.map(d => d.newBlocks),
+                    spamAvgBlocks: nonNull.map(d => d.avgBlocks),
                     lastSpamAvgReceivedTime: Date.now()
                 });
             });
@@ -298,9 +298,9 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
     public componentWillUnmount(): void {
         super.componentWillUnmount();
 
-        if (this._mpsMetricsSubscription) {
-            this._metricsService.unsubscribe(this._mpsMetricsSubscription);
-            this._mpsMetricsSubscription = undefined;
+        if (this._bpsMetricsSubscription) {
+            this._metricsService.unsubscribe(this._bpsMetricsSubscription);
+            this._bpsMetricsSubscription = undefined;
         }
 
         if (this._confirmedMsMetricsSubscription) {
@@ -349,39 +349,39 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                                 <div className="card messages-graph-panel margin-t-s fill">
                                     <div className="row wrap gossip">
                                         <div className="gossip-item">
-                                            <h4>Known Messages</h4>
+                                            <h4>Known Blocks</h4>
                                             <div className="gossip-value">
-                                                {this.state.gossipMetrics?.knownMessages ?? "-"}
+                                                {this.state.gossipMetrics?.knownBlocks ?? "-"}
                                             </div>
                                         </div>
                                         <div className="gossip-item">
-                                            <h4>New Messages</h4>
+                                            <h4>New Blocks</h4>
                                             <div className="gossip-value">
-                                                {this.state.gossipMetrics?.newMessages ?? "-"}
+                                                {this.state.gossipMetrics?.newBlocks ?? "-"}
                                             </div>
                                         </div>
                                         <div className="gossip-item">
-                                            <h4>Received Messages</h4>
+                                            <h4>Received Blocks</h4>
                                             <div className="gossip-value">
-                                                {this.state.gossipMetrics?.receivedMessages ?? "-"}
+                                                {this.state.gossipMetrics?.receivedBlocks ?? "-"}
                                             </div>
                                         </div>
                                         <div className="gossip-item">
-                                            <h4>Sent Messages</h4>
+                                            <h4>Sent Blocks</h4>
                                             <div className="gossip-value">
-                                                {this.state.gossipMetrics?.sentMessages ?? "-"}
+                                                {this.state.gossipMetrics?.sentBlocks ?? "-"}
                                             </div>
                                         </div>
                                         <div className="gossip-item">
-                                            <h4>Received Message Requests</h4>
+                                            <h4>Received Block Requests</h4>
                                             <div className="gossip-value">
-                                                {this.state.gossipMetrics?.receivedMessageRequests ?? "-"}
+                                                {this.state.gossipMetrics?.receivedBlockRequests ?? "-"}
                                             </div>
                                         </div>
                                         <div className="gossip-item">
-                                            <h4>Sent Message Requests</h4>
+                                            <h4>Sent Block Requests</h4>
                                             <div className="gossip-value">
-                                                {this.state.gossipMetrics?.sentMessageRequests ?? "-"}
+                                                {this.state.gossipMetrics?.sentBlockRequests ?? "-"}
                                             </div>
                                         </div>
 
@@ -422,40 +422,40 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
 
                             <div className="card fill margin-t-s">
                                 <Graph
-                                    caption="Messages Per Second"
+                                    caption="Blocks Per Second"
                                     seriesMaxLength={30}
                                     timeInterval={1000}
-                                    endTime={this.state.lastReceivedMpsTime}
+                                    endTime={this.state.lastReceivedBpsTime}
                                     series={[
                                         {
                                             className: "bar-color-1",
                                             label: "Incoming",
-                                            values: this.state.mpsIncoming
+                                            values: this.state.bpsIncoming
                                         },
                                         {
                                             className: "bar-color-2",
                                             label: "Outgoing",
-                                            values: this.state.mpsOutgoing
+                                            values: this.state.bpsOutgoing
                                         }
                                     ]}
                                 />
                             </div>
                             <div className="card fill margin-t-s">
                                 <Graph
-                                    caption="Messages Per Milestone"
+                                    caption="Blocks Per Milestone"
                                     seriesMaxLength={30}
                                     timeInterval={this.state.averageMilestoneTime}
                                     endTime={this.state.lastMsReceivedTime}
                                     series={[
                                         {
                                             className: "bar-color-1",
-                                            label: "Messages",
-                                            values: this.state.mps
+                                            label: "Blocks",
+                                            values: this.state.bps
                                         },
                                         {
                                             className: "bar-color-2",
-                                            label: "Referenced Messages",
-                                            values: this.state.rmps
+                                            label: "Referenced Blocks",
+                                            values: this.state.rbps
                                         }
                                     ]}
                                 />
@@ -681,14 +681,14 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                             </div>
                             <div className="card fill margin-t-s">
                                 <Graph
-                                    caption="Messages"
+                                    caption="Blocks"
                                     seriesMaxLength={60}
                                     endTime={this.state.lastStatusReceivedTime}
                                     timeInterval={this.state.lastStatusInterval}
                                     series={[
                                         {
                                             className: "bar-color-4",
-                                            label: "Messages",
+                                            label: "Blocks",
                                             values: this.state.caches.messages
                                         }
                                     ]}
@@ -696,14 +696,14 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                             </div>
                             <div className="card fill margin-t-s">
                                 <Graph
-                                    caption="Incoming Message Work Units"
+                                    caption="Incoming Block Work Units"
                                     seriesMaxLength={60}
                                     endTime={this.state.lastStatusReceivedTime}
                                     timeInterval={this.state.lastStatusInterval}
                                     series={[
                                         {
                                             className: "bar-color-1",
-                                            label: "Incoming Message Work Units",
+                                            label: "Incoming Block Work Units",
                                             values: this.state.caches.incomingMessageWorkUnits
                                         }
                                     ]}
@@ -747,20 +747,20 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
 
                                 <div className="card fill margin-t-s">
                                     <Graph
-                                        caption="Spam Messages"
+                                        caption="Spam Blocks"
                                         seriesMaxLength={30}
                                         endTime={this.state.lastSpamAvgReceivedTime}
                                         timeInterval={1000}
                                         series={[
                                             {
                                                 className: "bar-color-1",
-                                                label: "New Messages",
-                                                values: this.state.spamNewMsgs
+                                                label: "New Blocks",
+                                                values: this.state.spamNewBlocks
                                             },
                                             {
                                                 className: "bar-color-2",
-                                                label: "Average Messages",
-                                                values: this.state.spamAvgMsgs
+                                                label: "Average Blocks",
+                                                values: this.state.spamAvgBlocks
                                             }
                                         ]}
                                     />

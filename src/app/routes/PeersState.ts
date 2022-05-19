@@ -9,10 +9,10 @@ export interface PeersState {
         originalAddress?: string;
         health: number;
         relation: string;
-        newMessagesTotal: number[];
-        sentMessagesTotal: number[];
-        newMessagesDiff: number[];
-        sentMessagesDiff: number[];
+        newBlocksTotal: number[];
+        sentBlocksTotal: number[];
+        newBlocksDiff: number[];
+        sentBlocksDiff: number[];
         lastUpdateTime: number;
     }[];
 

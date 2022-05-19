@@ -1,4 +1,4 @@
-export interface MessageButtonProps {
+export interface BlockButtonProps {
     /**
      * The type of button to show.
      */

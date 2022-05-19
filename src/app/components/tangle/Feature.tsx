@@ -1,21 +1,21 @@
-import { ISSUER_FEATURE_BLOCK_TYPE, METADATA_FEATURE_BLOCK_TYPE, SENDER_FEATURE_BLOCK_TYPE, TAG_FEATURE_BLOCK_TYPE } from "@iota/iota.js";
+import { ISSUER_FEATURE_TYPE, METADATA_FEATURE_TYPE, SENDER_FEATURE_TYPE, TAG_FEATURE_TYPE } from "@iota/iota.js";
 import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
 import { NameHelper } from "../../../utils/nameHelper";
 import { ReactComponent as DropdownIcon } from "./../../../assets/dropdown-arrow.svg";
 import Address from "./Address";
-import { FeatureBlockProps } from "./FeatureBlockProps";
-import { FeatureBlockState } from "./FeatureBlockState";
+import { FeatureProps } from "./FeatureProps";
+import { FeatureState } from "./FeatureState";
 
 /**
- * Component which will display an Feature Block.
+ * Component which will display an Feature.
  */
-class FeatureBlock extends Component<FeatureBlockProps, FeatureBlockState> {
+class FeatureBlock extends Component<FeatureProps, FeatureState> {
     /**
-     * Create a new instance of Feature Block.
+     * Create a new instance of Feature.
      * @param props The props.
      */
-     constructor(props: FeatureBlockProps) {
+     constructor(props: FeatureProps) {
         super(props);
 
         this.state = {
@@ -29,7 +29,7 @@ class FeatureBlock extends Component<FeatureBlockProps, FeatureBlockState> {
      */
     public render(): ReactNode {
         return (
-            <div className="feature-block padding-t-s">
+            <div className="feature padding-t-s">
                 <div
                     className="card--content__input"
                     onClick={() => this.setState({ showDetails: !this.state.showDetails })}
@@ -44,35 +44,35 @@ class FeatureBlock extends Component<FeatureBlockProps, FeatureBlockState> {
                         <DropdownIcon />
                     </div>
                     <h3 className="card--content__input--label">
-                        {NameHelper.getFeatureBlockTypeName(this.props.featureBlock.type)}
+                        {NameHelper.getFeatureBlockTypeName(this.props.feature.type)}
                     </h3>
                 </div>
 
                 {this.state.showDetails && (
                     <div className="card--content--border-l">
-                        {(this.props.featureBlock.type === SENDER_FEATURE_BLOCK_TYPE ||
-                        this.props.featureBlock.type === ISSUER_FEATURE_BLOCK_TYPE) && (
+                        {(this.props.feature.type === SENDER_FEATURE_TYPE ||
+                        this.props.feature.type === ISSUER_FEATURE_TYPE) && (
                             <Address
-                                address={this.props.featureBlock.address}
+                                address={this.props.feature.address}
                             />
                         )}
-                        {this.props.featureBlock.type === METADATA_FEATURE_BLOCK_TYPE && (
+                        {this.props.feature.type === METADATA_FEATURE_TYPE && (
                             <React.Fragment>
                                 <div className="card--label">
                                     Data:
                                 </div>
                                 <div className="card--value row">
-                                    {this.props.featureBlock.data}
+                                    {this.props.feature.data}
                                 </div>
                             </React.Fragment>
                         )}
-                        {this.props.featureBlock.type === TAG_FEATURE_BLOCK_TYPE && (
+                        {this.props.feature.type === TAG_FEATURE_TYPE && (
                             <React.Fragment>
                                 <div className="card--label">
                                     Tag:
                                 </div>
                                 <div className="card--value row">
-                                    {this.props.featureBlock.tag}
+                                    {this.props.feature.tag}
                                 </div>
                             </React.Fragment>
                         )}

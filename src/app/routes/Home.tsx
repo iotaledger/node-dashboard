@@ -5,7 +5,7 @@ import { ReactComponent as MilestoneIcon } from "../../assets/milestone.svg";
 import { ReactComponent as PruningIcon } from "../../assets/pruning.svg";
 import { ReactComponent as UptimeIcon } from "../../assets/uptime.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
-import { IMpsMetrics } from "../../models/websocket/IMpsMetrics";
+import { IBpsMetrics } from "../../models/websocket/IBpsMetrics";
 import { INodeStatus } from "../../models/websocket/INodeStatus";
 import { IPublicNodeStatus } from "../../models/websocket/IPublicNodeStatus";
 import { ISyncStatus } from "../../models/websocket/ISyncStatus";
@@ -60,9 +60,9 @@ class Home extends AsyncComponent<unknown, HomeState> {
     private _syncStatusSubscription?: string;
 
     /**
-     * The mps metrics subscription id.
+     * The bps metrics subscription id.
      */
-    private _mpsMetricsSubscription?: string;
+    private _bpsMetricsSubscription?: string;
 
     /**
      * The network id.
@@ -93,9 +93,9 @@ class Home extends AsyncComponent<unknown, HomeState> {
             pruningIndex: "-",
             memory: "-",
             uptime: "-",
-            lastReceivedMpsTime: 0,
-            mpsIncoming: [],
-            mpsOutgoing: [],
+            lastReceivedBpsTime: 0,
+            bpsIncoming: [],
+            bpsOutgoing: [],
             bannerSrc: "",
             blindMode: this._settingsService.getBlindMode()
         };
@@ -133,8 +133,8 @@ class Home extends AsyncComponent<unknown, HomeState> {
             WebSocketTopic.NodeStatus,
             data => {
                 if (data) {
-                    const nodeName = data.node_alias ? data.node_alias : BrandHelper.getConfiguration().name;
-                    const nodeId = data.node_id || "No node Id.";
+                    const nodeName = data.nodeAlias ? data.nodeAlias : BrandHelper.getConfiguration().name;
+                    const nodeId = data.nodeId || "No node Id.";
                     const uptime = FormatHelper.duration(data.uptime);
                     const memory = FormatHelper.iSize(DataHelper.calculateMemoryUsage(data));
 
@@ -154,7 +154,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
                         this.setState({ memory });
                     }
 
-                    this.checkVersion(data.version, data.latest_version);
+                    this.checkVersion(data.version, data.latestVersion);
                 }
             });
 
@@ -175,16 +175,16 @@ class Home extends AsyncComponent<unknown, HomeState> {
                 }
             });
 
-        this._mpsMetricsSubscription = this._metricsService.subscribe<IMpsMetrics>(
-            WebSocketTopic.MPSMetrics,
+        this._bpsMetricsSubscription = this._metricsService.subscribe<IBpsMetrics>(
+            WebSocketTopic.BPSMetrics,
             undefined,
             allData => {
                 const nonNull = allData.filter(d => d !== undefined && d !== null);
 
-                const mpsIncoming = nonNull.map(m => m.incoming);
-                const mpsOutgoing = nonNull.map(m => m.outgoing);
+                const bpsIncoming = nonNull.map(m => m.incoming);
+                const bpsOutgoing = nonNull.map(m => m.outgoing);
 
-                this.setState({ mpsIncoming, mpsOutgoing, lastReceivedMpsTime: Date.now() });
+                this.setState({ bpsIncoming, bpsOutgoing, lastReceivedBpsTime: Date.now() });
             }
         );
 
@@ -216,9 +216,9 @@ class Home extends AsyncComponent<unknown, HomeState> {
             this._syncStatusSubscription = undefined;
         }
 
-        if (this._mpsMetricsSubscription) {
-            this._metricsService.unsubscribe(this._mpsMetricsSubscription);
-            this._mpsMetricsSubscription = undefined;
+        if (this._bpsMetricsSubscription) {
+            this._metricsService.unsubscribe(this._bpsMetricsSubscription);
+            this._bpsMetricsSubscription = undefined;
         }
 
         EventAggregator.unsubscribe("settings.blindMode", "home");
@@ -287,22 +287,22 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                 />
                             </div>
                             <div className="row margin-t-s">
-                                <div className="card fill messages-graph-panel">
+                                <div className="card fill blocks-graph-panel">
                                     <Graph
-                                        caption="Messages Per Second"
+                                        caption="Blocks Per Second"
                                         seriesMaxLength={20}
                                         timeInterval={1000}
-                                        endTime={this.state.lastReceivedMpsTime}
+                                        endTime={this.state.lastReceivedBpsTime}
                                         series={[
                                             {
                                                 className: "bar-color-1",
                                                 label: "Incoming",
-                                                values: this.state.mpsIncoming
+                                                values: this.state.bpsIncoming
                                             },
                                             {
                                                 className: "bar-color-2",
                                                 label: "Outgoing",
-                                                values: this.state.mpsOutgoing
+                                                values: this.state.bpsOutgoing
                                             }
                                         ]}
                                     />

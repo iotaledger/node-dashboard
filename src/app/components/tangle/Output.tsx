@@ -5,9 +5,9 @@ import { Link } from "react-router-dom";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
 import { FormatHelper } from "../../../utils/formatHelper";
 import { NameHelper } from "../../../utils/nameHelper";
-import MessageButton from "../layout/MessageButton";
+import BlockButton from "../layout/BlockButton";
 import { ReactComponent as DropdownIcon } from "./../../../assets/dropdown-arrow.svg";
-import FeatureBlock from "./FeatureBlock";
+import Feature from "./Feature";
 import { OutputProps } from "./OutputProps";
 import { OutputState } from "./OutputState";
 import UnlockCondition from "./UnlockCondition";
@@ -25,7 +25,7 @@ class Output extends Component<OutputProps, OutputState> {
 
         this.state = {
             formatFull: false,
-            isGenesis: (this.isOutputResponse(props.output)) ? props.output.messageId === "0".repeat(64) : false,
+            isGenesis: (this.isOutputResponse(props.output)) ? props.output.metadata.blockId === "0".repeat(64) : false,
             output: (this.isOutputResponse(props.output)) ? props.output.output : props.output,
             showDetails: false
         };
@@ -80,7 +80,7 @@ class Output extends Component<OutputProps, OutputState> {
                             {this.isOutputResponse(this.props.output) && (
                                 <React.Fragment>
                                     <div className="card--label">
-                                        Message Id
+                                        Block Id
                                     </div>
                                     <div className="card--value row">
                                         {this.state.isGenesis && (
@@ -90,16 +90,16 @@ class Output extends Component<OutputProps, OutputState> {
                                             <React.Fragment>
                                                 <Link
                                                     to={
-                                                        `/explorer/message/${this.props.output.messageId}`
+                                                        `/explorer/block/${this.props.output.metadata.blockId}`
                                                     }
                                                     className="margin-r-t"
                                                 >
-                                                    {this.props.output.messageId}
+                                                    {this.props.output.metadata.blockId}
                                                 </Link>
-                                                <MessageButton
+                                                <BlockButton
                                                     onClick={() => {
                                                         if (this.isOutputResponse(this.props.output)) {
-                                                            ClipboardHelper.copy(this.props.output.messageId);
+                                                            ClipboardHelper.copy(this.props.output.metadata.blockId);
                                                         }
                                                     }}
                                                     buttonType="copy"
@@ -118,12 +118,14 @@ class Output extends Component<OutputProps, OutputState> {
                                         {!this.state.isGenesis && (
                                             <React.Fragment>
                                                 <span className="margin-r-t">
-                                                    {this.props.output.transactionId}
+                                                    {this.props.output.metadata.transactionId}
                                                 </span>
-                                                <MessageButton
+                                                <BlockButton
                                                     onClick={() => {
                                                         if (this.isOutputResponse(this.props.output)) {
-                                                            ClipboardHelper.copy(this.props.output.transactionId);
+                                                            ClipboardHelper.copy(
+                                                                this.props.output.metadata.transactionId
+                                                            );
                                                         }
                                                     }}
                                                     buttonType="copy"
@@ -136,13 +138,13 @@ class Output extends Component<OutputProps, OutputState> {
                                         Index
                                     </div>
                                     <div className="card--value">
-                                        {this.props.output.outputIndex}
+                                        {this.props.output.metadata.outputIndex}
                                     </div>
                                     <div className="card--label">
                                         Is Spent
                                     </div>
                                     <div className="card--value">
-                                        {this.props.output.isSpent ? "Yes" : "No"}
+                                        {this.props.output.metadata.isSpent ? "Yes" : "No"}
                                     </div>
                                 </React.Fragment>
                             )}
@@ -196,12 +198,6 @@ class Output extends Component<OutputProps, OutputState> {
                                         {this.state.output.serialNumber}
                                     </div>
                                     <div className="card--label">
-                                        Token tag:
-                                    </div>
-                                    <div className="card--value row">
-                                        {this.state.output.tokenTag}
-                                    </div>
-                                    <div className="card--label">
                                         Token scheme type:
                                     </div>
                                     <div className="card--value row">
@@ -241,20 +237,20 @@ class Output extends Component<OutputProps, OutputState> {
                                             unlockCondition={unlockCondition}
                                         />
                                     ))}
-                                    {this.state.output.featureBlocks.map((featureBlock, idx) => (
-                                        <FeatureBlock
+                                    {this.state.output.features.map((feature, idx) => (
+                                        <Feature
                                             key={idx}
-                                            featureBlock={featureBlock}
+                                            feature={feature}
                                         />
                                     ))}
                                     {this.state.output.type !== BASIC_OUTPUT_TYPE &&
-                                    this.state.output.immutableFeatureBlocks && (
+                                    this.state.output.immutableFeatures && (
                                         <React.Fragment>
-                                            {this.state.output.immutableFeatureBlocks
-                                                .map((immutableFeatureBlock, idx) => (
-                                                    <FeatureBlock
+                                            {this.state.output.immutableFeatures
+                                                .map((immutableFeature, idx) => (
+                                                    <Feature
                                                         key={idx}
-                                                        featureBlock={immutableFeatureBlock}
+                                                        feature={immutableFeature}
                                                     />
                                             ))}
                                         </React.Fragment>
@@ -295,7 +291,7 @@ class Output extends Component<OutputProps, OutputState> {
      * @returns True of object is IOutputResponse.
      */
     private isOutputResponse(object: unknown): object is IOutputResponse {
-        return Object.prototype.hasOwnProperty.call(object, "messageId");
+        return Object.prototype.hasOwnProperty.call(object, "blockId");
     }
 }
 

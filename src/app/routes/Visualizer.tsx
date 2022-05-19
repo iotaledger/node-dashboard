@@ -10,7 +10,7 @@ import { ReactComponent as PlayIcon } from "../../assets/play.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
 import { IVisualizerCounts } from "../../models/visualizer/IVisualizerCounts";
 import { IVisualizerVertex } from "../../models/visualizer/IVisualizerVertex";
-import { IMpsMetrics } from "../../models/websocket/IMpsMetrics";
+import { IBpsMetrics } from "../../models/websocket/IBpsMetrics";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
 import { EventAggregator } from "../../services/eventAggregator";
 import { MetricsService } from "../../services/metricsService";
@@ -98,9 +98,9 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
     private readonly _themeService: ThemeService;
 
     /**
-     * The mps metrics subscription id.
+     * The bps metrics subscription id.
      */
-    private _mpsMetricsSubscription?: string;
+    private _bpsMetricsSubscription?: string;
 
     /**
      * The resize method
@@ -127,7 +127,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
         this._themeService = ServiceFactory.get<ThemeService>("theme");
 
         this.state = {
-            mps: "-",
+            bps: "-",
             total: "-",
             tips: "-",
             referenced: "-",
@@ -172,10 +172,10 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
             (referencedId, excludedIds, counts) => this.referenceVertex(referencedId, excludedIds, counts)
         );
 
-        this._mpsMetricsSubscription = this._metricsService.subscribe<IMpsMetrics>(
-            WebSocketTopic.MPSMetrics, data => {
+        this._bpsMetricsSubscription = this._metricsService.subscribe<IBpsMetrics>(
+            WebSocketTopic.BPSMetrics, data => {
                 if (data && this.state.isActive) {
-                    this.setState({ mps: data.new.toString() });
+                    this.setState({ bps: data.new.toString() });
                 }
             });
 
@@ -192,9 +192,9 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
     public componentWillUnmount(): void {
         super.componentWillUnmount();
 
-        if (this._mpsMetricsSubscription) {
-            this._metricsService.unsubscribe(this._mpsMetricsSubscription);
-            this._mpsMetricsSubscription = undefined;
+        if (this._bpsMetricsSubscription) {
+            this._metricsService.unsubscribe(this._bpsMetricsSubscription);
+            this._bpsMetricsSubscription = undefined;
         }
 
         this._vizualizerService.unsubscribe();
@@ -233,16 +233,16 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                 <div className="stats-panel-container">
                     <div className="card stats-panel">
                         <div className="card--label">
-                            Messages
+                            Blocks
                         </div>
                         <div className="card--value">
                             {this.state.total}
                         </div>
                         <div className="card--label">
-                            MPS
+                            BPS
                         </div>
                         <div className="card--value">
-                            {this.state.mps}
+                            {this.state.bps}
                         </div>
                         <div className="card--label">
                             Tips
@@ -330,11 +330,11 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                                 {this.state.selected.vertex.fullId && (
                                     <React.Fragment>
                                         <div className="card--label">
-                                            Message Id
+                                            Block Id
                                         </div>
                                         <div className="card--value">
                                             <a
-                                                href={this.calculateMessageLink(this.state.selected.vertex)}
+                                                href={this.calculateBlockLink(this.state.selected.vertex)}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                             >
@@ -440,7 +440,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
             events.dblClick(node => {
                 this.selectNode();
                 window.open(
-                    this.calculateMessageLink(node.data),
+                    this.calculateBlockLink(node.data),
                     "_blank"
                 );
             });
@@ -774,13 +774,13 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
     }
 
     /**
-     * Calculate the link for the message.
+     * Calculate the link for the block.
      * @param vertex The vertex id.
-     * @returns The url for the message.
+     * @returns The url for the block.
      */
-    private calculateMessageLink(vertex?: IVisualizerVertex): string {
+    private calculateBlockLink(vertex?: IVisualizerVertex): string {
         return vertex?.fullId
-            ? `${window.location.protocol}//${window.location.host}/explorer/message/${vertex.fullId}`
+            ? `${window.location.protocol}//${window.location.host}/explorer/block/${vertex.fullId}`
             : "";
     }
 

@@ -33,8 +33,8 @@ import { AnalyticsRouteProps } from "./routes/AnalyticsRouteProps";
 import Explorer from "./routes/Explorer";
 import Address from "./routes/explorer/Address";
 import { AddressRouteProps } from "./routes/explorer/AddressRouteProps";
-import Message from "./routes/explorer/Message";
-import { MessageRouteProps } from "./routes/explorer/MessageRouteProps";
+import Block from "./routes/explorer/Block";
+import { BlockRouteProps } from "./routes/explorer/BlockRouteProps";
 import Milestone from "./routes/explorer/Milestone";
 import { MilestoneRouteProps } from "./routes/explorer/MilestoneRouteProps";
 import Home from "./routes/Home";
@@ -148,8 +148,8 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
         this._statusSubscription = this._metricsService.subscribe<INodeStatus>(
             WebSocketTopic.NodeStatus,
             data => {
-                if (data && data.node_alias !== this._alias) {
-                    this._alias = data.node_alias;
+                if (data && data.nodeAlias !== this._alias) {
+                    this._alias = data.nodeAlias;
                     this.updateTitle();
                 }
             });
@@ -388,9 +388,9 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                                         component={(props: RouteComponentProps<never>) => (<Unavailable {...props} />)}
                                     />
                                     <Route
-                                        path="/explorer/message/:messageId"
-                                        component={(props: RouteComponentProps<MessageRouteProps>) =>
-                                            (<Message {...props} />)}
+                                        path="/explorer/block/:blockId"
+                                        component={(props: RouteComponentProps<BlockRouteProps>) =>
+                                            (<Block {...props} />)}
                                     />
                                     <Route
                                         path="/explorer/milestone/:milestoneIndex"

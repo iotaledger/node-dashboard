@@ -17,19 +17,19 @@ export interface AnalyticsState {
     gossipMetrics?: IGossipMetrics;
 
     /**
-     * Last received mps time.
+     * Last received bps time.
      */
-    lastReceivedMpsTime: number;
+    lastReceivedBpsTime: number;
 
     /**
      * The messages per second incoming.
      */
-    mpsIncoming: number[];
+    bpsIncoming: number[];
 
     /**
      * The messages per second outgoing.
      */
-    mpsOutgoing: number[];
+    bpsOutgoing: number[];
 
     /**
      * First milestone received time.
@@ -49,12 +49,12 @@ export interface AnalyticsState {
     /**
      * Messages per milestone.
      */
-    mps: number[];
+    bps: number[];
 
     /**
      * Referenced messages per milestone.
      */
-    rmps: number[];
+    rbps: number[];
 
     /**
      * Last db size received time.
@@ -97,14 +97,14 @@ export interface AnalyticsState {
     lastSpamAvgReceivedTime: number;
 
     /**
-     * Spam new messages.
+     * Spam new blocks.
      */
-    spamNewMsgs: number[];
+    spamNewBlocks: number[];
 
     /**
-     * Spam average messages.
+     * Spam average blocks.
      */
-    spamAvgMsgs: number[];
+    spamAvgBlocks: number[];
 
     /**
      * Last spam received time.

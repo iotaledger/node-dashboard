@@ -1,8 +1,8 @@
 import React, { ReactNode } from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { ServiceFactory } from "../../../factories/serviceFactory";
+import { IBpsMetrics } from "../../../models/websocket/IBpsMetrics";
 import { IDBSizeMetric } from "../../../models/websocket/IDBSizeMetric";
-import { IMpsMetrics } from "../../../models/websocket/IMpsMetrics";
 import { INodeStatus } from "../../../models/websocket/INodeStatus";
 import { IPublicNodeStatus } from "../../../models/websocket/IPublicNodeStatus";
 import { WebSocketTopic } from "../../../models/websocket/webSocketTopic";
@@ -50,9 +50,9 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
     private _databaseSizeSubscription?: string;
 
     /**
-     * The mps metrics subscription id.
+     * The bps metrics subscription id.
      */
-    private _mpsMetricsSubscription?: string;
+    private _bpsMetricsSubscription?: string;
 
     /**
      * Create a new instance of Header.
@@ -67,8 +67,8 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
         this.state = {
             syncHealth: false,
             nodeHealth: false,
-            mps: "-",
-            mpsValues: [],
+            bps: "-",
+            bpsValues: [],
             memorySizeFormatted: "-",
             memorySize: [],
             databaseSizeFormatted: "-",
@@ -155,19 +155,19 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
                 this.setState({ databaseSize: databaseSizeValues });
             });
 
-        this._mpsMetricsSubscription = this._metricsService.subscribe<IMpsMetrics>(
-            WebSocketTopic.MPSMetrics,
+        this._bpsMetricsSubscription = this._metricsService.subscribe<IBpsMetrics>(
+            WebSocketTopic.BPSMetrics,
             data => {
                 if (data) {
-                    const mpsValues = this.state.mpsValues.slice(-40);
-                    mpsValues.push(data.new);
+                    const bpsValues = this.state.bpsValues.slice(-40);
+                    bpsValues.push(data.new);
 
-                    const mpsFormatted = mpsValues[mpsValues.length - 1].toString();
+                    const bpsFormatted = bpsValues[bpsValues.length - 1].toString();
 
-                    if (mpsFormatted !== this.state.mps) {
-                        this.setState({ mps: mpsFormatted });
+                    if (bpsFormatted !== this.state.bps) {
+                        this.setState({ bps: bpsFormatted });
                     }
-                    this.setState({ mpsValues });
+                    this.setState({ bpsValues });
                 }
             });
     }
@@ -196,9 +196,9 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
             this._databaseSizeSubscription = undefined;
         }
 
-        if (this._mpsMetricsSubscription) {
-            this._metricsService.unsubscribe(this._mpsMetricsSubscription);
-            this._mpsMetricsSubscription = undefined;
+        if (this._bpsMetricsSubscription) {
+            this._metricsService.unsubscribe(this._bpsMetricsSubscription);
+            this._bpsMetricsSubscription = undefined;
         }
     }
 
@@ -232,9 +232,9 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
                             </Breakpoint>
                             <Breakpoint size="desktop" aboveBelow="above">
                                 <MicroGraph
-                                    label="MPS"
-                                    value={this.state.mps}
-                                    values={this.state.mpsValues}
+                                    label="BPS"
+                                    value={this.state.bps}
+                                    values={this.state.bpsValues}
                                     className="child"
                                 />
                                 {this.state.isLoggedIn && (

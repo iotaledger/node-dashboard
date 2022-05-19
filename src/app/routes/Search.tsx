@@ -1,5 +1,5 @@
 import { Blake2b } from "@iota/crypto.js";
-import { serializeMessage } from "@iota/iota.js";
+import { serializeBlock } from "@iota/iota.js";
 import { Converter, WriteStream } from "@iota/util.js";
 import React, { ReactNode } from "react";
 import { Link, Redirect, RouteComponentProps } from "react-router-dom";
@@ -82,11 +82,11 @@ class Search extends AsyncComponent<RouteComponentProps<SearchRouteProps>, Searc
                                     <br />
                                     <ul>
                                         <li>
-                                            <span>Messages</span>
+                                            <span>Blocks</span>
                                             <span>64 Hex characters</span>
                                         </li>
                                         <li>
-                                            <span>Message using Transaction Id</span>
+                                            <span>Block using Transaction Id</span>
                                             <span>64 Hex characters</span>
                                         </li>
                                         <li>
@@ -142,14 +142,14 @@ class Search extends AsyncComponent<RouteComponentProps<SearchRouteProps>, Searc
                         let objType;
                         let objParam = query;
 
-                        if (response.message) {
-                            objType = "message";
-                            // Recalculate the message id from the content, in case
+                        if (response.block) {
+                            objType = "block";
+                            // Recalculate the block id from the content, in case
                             // the lookup was a response to a transaction id lookup
                             const writeStream = new WriteStream();
 
                             try {
-                                serializeMessage(writeStream, response.message);
+                                serializeBlock(writeStream, response.block);
                             } catch (error) {
                                 if (error instanceof Error) {
                                     console.log(error.message);
@@ -159,8 +159,8 @@ class Search extends AsyncComponent<RouteComponentProps<SearchRouteProps>, Searc
                         } else if (response?.address) {
                             objType = "address";
                         } else if (response.output) {
-                            objType = "message";
-                            objParam = response.output.messageId;
+                            objType = "block";
+                            objParam = response.output.metadata.blockId;
                         } else if (response.milestone) {
                             objType = "milestone";
                             objParam = response.milestone.index.toString();

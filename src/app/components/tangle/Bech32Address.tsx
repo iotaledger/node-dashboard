@@ -1,7 +1,7 @@
 import React, { Component, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
-import MessageButton from "../layout/MessageButton";
+import BlockButton from "../layout/BlockButton";
 import { Bech32AddressProps } from "./Bech32AddressProps";
 
 /**
@@ -32,7 +32,7 @@ class Bech32Address extends Component<Bech32AddressProps> {
                             {!this.props.activeLinks && (
                                 <span className="margin-r-t">{this.props.addressDetails.bech32}</span>
                             )}
-                            <MessageButton
+                            <BlockButton
                                 onClick={() => ClipboardHelper.copy(this.props.addressDetails?.bech32)}
                                 buttonType="copy"
                                 labelPosition="top"
@@ -57,7 +57,7 @@ class Bech32Address extends Component<Bech32AddressProps> {
                             {!this.props.activeLinks && (
                                 <span className="margin-r-t">{this.props.addressDetails?.hex}</span>
                             )}
-                            <MessageButton
+                            <BlockButton
                                 onClick={() => ClipboardHelper.copy(this.props.addressDetails?.hex)}
                                 buttonType="copy"
                                 labelPosition="top"

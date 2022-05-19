@@ -21,7 +21,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
     /**
      * The description of the plugin.
      */
-    private static readonly PLUGIN_DESCRIPTION = "Spam the IOTA network with data messages.";
+    private static readonly PLUGIN_DESCRIPTION = "Spam the IOTA network with data blocks.";
 
     /**
      * Is the spammer plugin available.
@@ -37,7 +37,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
 
         this.state = {
             isRunning: false,
-            mps: "1",
+            bps: "1",
             cpu: "80",
             workers: "0",
             workersMax: 0
@@ -138,9 +138,9 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                     <div className="card--value row">
                         <input
                             type="text"
-                            value={this.state.mps}
+                            value={this.state.bps}
                             disabled={!this.state.isRunning}
-                            onChange={e => this.setState({ mps: e.target.value })}
+                            onChange={e => this.setState({ bps: e.target.value })}
                             onBlur={e => this.validateSettings()}
                         />
                     </div>
@@ -206,7 +206,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
             if (response.data) {
                 this.setState({
                     isRunning: response.data.running,
-                    mps: response.data.mpsRateLimit.toString(),
+                    bps: response.data.bpsRateLimit.toString(),
                     cpu: (response.data.cpuMaxUsage * 100).toString(),
                     workers: response.data.spammerWorkers.toString(),
                     workersMax: response.data.spammerWorkersMax
@@ -223,9 +223,9 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
      * Validate the settings for the plugin.
      */
     private validateSettings(): void {
-        const mps = Number.parseFloat(this.state.mps);
-        if (Number.isNaN(mps)) {
-            this.setState({ mps: "1" });
+        const bps = Number.parseFloat(this.state.bps);
+        if (Number.isNaN(bps)) {
+            this.setState({ bps: "1" });
         }
 
         const cpu = Number.parseFloat(this.state.cpu);
@@ -258,7 +258,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                 "/api/plugins/spammer/start",
                 "post",
                 {
-                    mpsRateLimit: Number.parseFloat(this.state.mps),
+                    bpsRateLimit: Number.parseFloat(this.state.bps),
                     cpuMaxUsage: Number.parseFloat(this.state.cpu) / 100,
                     spammerWorkers: Number.parseInt(this.state.workers, 10)
                 },

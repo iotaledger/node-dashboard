@@ -1,4 +1,4 @@
-export type MessageTangleStatus =
+export type BlockTangleStatus =
     "unknown" |
     "pending" |
     "referenced" |

@@ -1,19 +1,19 @@
 import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
 import { ReactComponent as CopyIcon } from "../../../assets/copy.svg";
-import "./MessageButton.scss";
-import { MessageButtonProps } from "./MessageButtonProps";
-import { MessageButtonState } from "./MessageButtonState";
+import "./BlockButton.scss";
+import { BlockButtonProps } from "./BlockButtonProps";
+import { BlockButtonState } from "./BlockButtonState";
 
 /**
- * Component which will display a message button.
+ * Component which will display a block button.
  */
-class MessageButton extends Component<MessageButtonProps, MessageButtonState> {
+class BlockButton extends Component<BlockButtonProps, BlockButtonState> {
     /**
-     * Create a new instance of MessageButton.
+     * Create a new instance of BlockButton.
      * @param props The props.
      */
-    constructor(props: MessageButtonProps) {
+    constructor(props: BlockButtonProps) {
         super(props);
 
         this.state = {
@@ -28,12 +28,12 @@ class MessageButton extends Component<MessageButtonProps, MessageButtonState> {
      */
     public render(): ReactNode {
         return (
-            <div className="message-button">
+            <div className="block-button">
                 <button
                     type="button"
                     className={classNames(
-                        "message-button-btn",
-                        { "message-button-btn--active": this.state.active }
+                        "block-button-btn",
+                        { "block-button-btn--active": this.state.active }
                     )}
                     onClick={() => this.activate()}
                 >
@@ -44,9 +44,9 @@ class MessageButton extends Component<MessageButtonProps, MessageButtonState> {
                 {this.state.active && this.state.message && (
                     <span
                         className={classNames(
-                            "message-button--message",
-                            { "message-button--message--right": this.props.labelPosition === "right" },
-                            { "message-button--message--top": this.props.labelPosition === "top" }
+                            "block-button--message",
+                            { "block-button--message--right": this.props.labelPosition === "right" },
+                            { "block-button--message--top": this.props.labelPosition === "top" }
                         )}
                     >
                         {this.state.message}
@@ -71,4 +71,4 @@ class MessageButton extends Component<MessageButtonProps, MessageButtonState> {
     }
 }
 
-export default MessageButton;
+export default BlockButton;

@@ -1,10 +1,10 @@
 @import '../../../scss/fonts';
 @import '../../../scss/variables';
 
-.message-button {
+.block-button {
   position: relative;
 
-  .message-button-btn {
+  .block-button-btn {
     border: 0;
     outline: none;
     background: none;
@@ -27,7 +27,7 @@
     }
   }
 
-  .message-button--message {
+  .block-button--message {
     @include font-size(10px);
 
     position: absolute;
@@ -40,12 +40,12 @@
     font-weight: bold;
     text-transform: uppercase;
 
-    &.message-button--message--right {
+    &.block-button--message--right {
       top: 3px;
       margin-left: 10px;
     }
 
-    &.message-button--message--top {
+    &.block-button--message--top {
       top: -15px;
       left: -10px;
     }

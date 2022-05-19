@@ -2,7 +2,7 @@ export enum WebSocketTopic {
     SyncStatus = 0,
     PublicNodeStatus = 1,
     NodeStatus = 2,
-    MPSMetrics = 3,
+    BPSMetrics = 3,
     TipSelMetric = 4,
     Ms = 5,
     PeerMetric = 6,

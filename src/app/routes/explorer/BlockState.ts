@@ -1,16 +1,16 @@
-import { IMessage, IMessageMetadata } from "@iota/iota.js";
-import { MessageTangleStatus } from "../../../models/messageTangleStatus";
+import { IBlock, IBlockMetadata } from "@iota/iota.js";
+import { BlockTangleStatus } from "../../../models/blockTangleStatus";
 
-export interface MessageState {
+export interface BlockState {
     /**
-     * Message.
+     * Block.
      */
-    message?: IMessage;
+    block?: IBlock;
 
     /**
      * Metadata.
      */
-    metadata?: IMessageMetadata;
+    metadata?: IBlockMetadata;
 
     /**
      * Metadata status.
@@ -33,9 +33,9 @@ export interface MessageState {
     childrenIds?: string[];
 
     /**
-     * The message tangle status.
+     * The block tangle status.
      */
-    messageTangleStatus?: MessageTangleStatus;
+    blockTangleStatus?: BlockTangleStatus;
 
     /**
      * The data urls.
