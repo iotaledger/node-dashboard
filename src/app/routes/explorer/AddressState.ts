@@ -47,4 +47,14 @@ export interface AddressState {
      * Show native tokens.
      */
     showTokens: boolean;
+
+    /**
+     * The current page.
+     */
+    currentPage: number;
+
+    /**
+     * The page size.
+     */
+    pageSize: number;
 }
