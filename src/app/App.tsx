@@ -180,11 +180,11 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                             online: true
                         });
                     }
-                    if (data.is_healthy !== this.state.nodeHealth) {
-                        this.setState({ nodeHealth: data.is_healthy });
+                    if (data.isHealthy !== this.state.nodeHealth) {
+                        this.setState({ nodeHealth: data.isHealthy });
                     }
-                    if (data.is_synced !== this.state.syncHealth) {
-                        this.setState({ syncHealth: data.is_synced });
+                    if (data.isSynced !== this.state.syncHealth) {
+                        this.setState({ syncHealth: data.isSynced });
                     }
                 }
             });

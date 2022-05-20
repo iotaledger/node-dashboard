@@ -121,7 +121,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
             WebSocketTopic.PublicNodeStatus,
             data => {
                 if (data) {
-                    const pruningIndex = data.pruning_index.toString();
+                    const pruningIndex = data.pruningIndex.toString();
 
                     if (pruningIndex !== this.state.pruningIndex) {
                         this.setState({ pruningIndex });
