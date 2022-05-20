@@ -111,7 +111,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
             bannerSrc: await BrandHelper.getBanner(this._themeService.get())
         });
 
-        EventAggregator.subscribe("theme", "home", async theme => {
+        EventAggregator.subscribe("theme", "home", async (theme: string) => {
             this.setState({
                 bannerSrc: await BrandHelper.getBanner(theme)
             });

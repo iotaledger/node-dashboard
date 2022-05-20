@@ -515,7 +515,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
     private async submitEvent(): Promise<void> {
         if (this.state.eventInfo) {
             try {
-                await this.eventAdd(JSON.parse(this.state.eventInfo));
+                await this.eventAdd(JSON.parse(this.state.eventInfo) as IParticipationEventInfo);
             } catch {
                 try {
                     const url = new URL(this.state.eventInfo);

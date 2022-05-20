@@ -40,7 +40,7 @@ class NavPanel extends Component<RouteComponentProps & NavPanelProps, NavPanelSt
             logoSrc: await BrandHelper.getLogoNavigation(this._themeService.get())
         });
 
-        EventAggregator.subscribe("theme", "navpanel", async theme => {
+        EventAggregator.subscribe("theme", "navpanel", async (theme: string) => {
             this.setState({
                 logoSrc: await BrandHelper.getLogoNavigation(theme)
             });

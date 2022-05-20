@@ -40,7 +40,7 @@ class NavMenu extends Component<RouteComponentProps & NavMenuProps, NavMenuState
             logoSrc: await BrandHelper.getLogoNavigation(this._themeService.get())
         });
 
-        EventAggregator.subscribe("theme", "navmenu", async theme => {
+        EventAggregator.subscribe("theme", "navmenu", async (theme: string) => {
             this.setState({
                 logoSrc: await BrandHelper.getLogoNavigation(theme)
             });
