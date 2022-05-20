@@ -25,7 +25,8 @@ class Output extends Component<OutputProps, OutputState> {
 
         this.state = {
             formatFull: false,
-            isGenesis: (this.isOutputResponse(props.output)) ? props.output.messageId === "0".repeat(64) : false,
+            isGenesis: (this.isOutputResponse(props.output))
+                    ? props.output.metadata.messageId === "0".repeat(64) : false,
             output: (this.isOutputResponse(props.output)) ? props.output.output : props.output,
             showDetails: false
         };
@@ -90,16 +91,16 @@ class Output extends Component<OutputProps, OutputState> {
                                             <React.Fragment>
                                                 <Link
                                                     to={
-                                                        `/explorer/message/${this.props.output.messageId}`
+                                                        `/explorer/message/${this.props.output.metadata.messageId}`
                                                     }
                                                     className="margin-r-t"
                                                 >
-                                                    {this.props.output.messageId}
+                                                    {this.props.output.metadata.messageId}
                                                 </Link>
                                                 <MessageButton
                                                     onClick={() => {
                                                         if (this.isOutputResponse(this.props.output)) {
-                                                            ClipboardHelper.copy(this.props.output.messageId);
+                                                            ClipboardHelper.copy(this.props.output.metadata.messageId);
                                                         }
                                                     }}
                                                     buttonType="copy"
@@ -118,12 +119,14 @@ class Output extends Component<OutputProps, OutputState> {
                                         {!this.state.isGenesis && (
                                             <React.Fragment>
                                                 <span className="margin-r-t">
-                                                    {this.props.output.transactionId}
+                                                    {this.props.output.metadata.transactionId}
                                                 </span>
                                                 <MessageButton
                                                     onClick={() => {
                                                         if (this.isOutputResponse(this.props.output)) {
-                                                            ClipboardHelper.copy(this.props.output.transactionId);
+                                                            ClipboardHelper.copy(
+                                                                this.props.output.metadata.transactionId
+                                                            );
                                                         }
                                                     }}
                                                     buttonType="copy"
@@ -136,13 +139,13 @@ class Output extends Component<OutputProps, OutputState> {
                                         Index
                                     </div>
                                     <div className="card--value">
-                                        {this.props.output.outputIndex}
+                                        {this.props.output.metadata.outputIndex}
                                     </div>
                                     <div className="card--label">
                                         Is Spent
                                     </div>
                                     <div className="card--value">
-                                        {this.props.output.isSpent ? "Yes" : "No"}
+                                        {this.props.output.metadata.isSpent ? "Yes" : "No"}
                                     </div>
                                 </React.Fragment>
                             )}
@@ -195,12 +198,6 @@ class Output extends Component<OutputProps, OutputState> {
                                     <div className="card--value row">
                                         {this.state.output.serialNumber}
                                     </div>
-                                    {/* <div className="card--label">
-                                        Token tag:
-                                    </div>
-                                    <div className="card--value row">
-                                        {this.state.output.tokenTag}
-                                    </div> */}
                                     <div className="card--label">
                                         Token scheme type:
                                     </div>
