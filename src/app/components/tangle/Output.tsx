@@ -1,4 +1,7 @@
-import { BASIC_OUTPUT_TYPE, ALIAS_OUTPUT_TYPE, FOUNDRY_OUTPUT_TYPE, NFT_OUTPUT_TYPE, TREASURY_OUTPUT_TYPE, IOutputResponse, SIMPLE_TOKEN_SCHEME_TYPE } from "@iota/iota.js";
+import { Blake2b } from "@iota/crypto.js";
+import { BASIC_OUTPUT_TYPE, ALIAS_OUTPUT_TYPE, FOUNDRY_OUTPUT_TYPE, NFT_OUTPUT_TYPE, TREASURY_OUTPUT_TYPE, IOutputResponse, SIMPLE_TOKEN_SCHEME_TYPE, ALIAS_ADDRESS_TYPE, NFT_ADDRESS_TYPE } from "@iota/iota.js";
+import { Converter, HexHelper } from "@iota/util.js";
+import bigInt from "big-integer";
 import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
 import { Link } from "react-router-dom";
@@ -7,6 +10,7 @@ import { FormatHelper } from "../../../utils/formatHelper";
 import { NameHelper } from "../../../utils/nameHelper";
 import MessageButton from "../layout/MessageButton";
 import { ReactComponent as DropdownIcon } from "./../../../assets/dropdown-arrow.svg";
+import Bech32Address from "./Bech32Address";
 import FeatureBlock from "./FeatureBlock";
 import { OutputProps } from "./OutputProps";
 import { OutputState } from "./OutputState";
@@ -152,12 +156,16 @@ class Output extends Component<OutputProps, OutputState> {
 
                             {this.state.output.type === ALIAS_OUTPUT_TYPE && (
                                 <React.Fragment>
-                                    <div className="card--label">
-                                        Alias id:
-                                    </div>
-                                    <div className="card--value row">
-                                        {this.state.output.aliasId}
-                                    </div>
+                                    <Bech32Address
+                                        activeLinks={true}
+                                        showHexAddress={false}
+                                        address={
+                                            {
+                                                aliasId: this.resolveId(this.state.output.aliasId),
+                                                type: ALIAS_ADDRESS_TYPE
+                                            }
+                                        }
+                                    />
                                     <div className="card--label">
                                         State index:
                                     </div>
@@ -180,14 +188,16 @@ class Output extends Component<OutputProps, OutputState> {
                             )}
 
                             {this.state.output.type === NFT_OUTPUT_TYPE && (
-                                <React.Fragment>
-                                    <div className="card--label">
-                                        Nft id:
-                                    </div>
-                                    <div className="card--value row">
-                                        {this.state.output.nftId}
-                                    </div>
-                                </React.Fragment>
+                                <Bech32Address
+                                    activeLinks={true}
+                                    showHexAddress={false}
+                                    address={
+                                            {
+                                                nftId: this.resolveId(this.state.output.nftId),
+                                                type: NFT_ADDRESS_TYPE
+                                            }
+                                        }
+                                />
                             )}
 
                             {this.state.output.type === FOUNDRY_OUTPUT_TYPE && (
@@ -293,6 +303,19 @@ class Output extends Component<OutputProps, OutputState> {
      */
     private isOutputResponse(object: unknown): object is IOutputResponse {
         return Object.prototype.hasOwnProperty.call(object, "messageId");
+    }
+
+    /**
+     * Check if id is all 0 because it hasn't moved and compute it as a hash of the outputId.
+     * @param id The id to resolve.
+     * @returns The correct id.
+     */
+    private resolveId(id: string): string {
+        return !HexHelper.toBigInt256(id).eq(bigInt.zero)
+            ? id
+            : HexHelper.addPrefix(Converter.bytesToHex(
+                Blake2b.sum256(Converter.hexToBytes(HexHelper.stripPrefix(this.props.outputId)))
+            ));
     }
 }
 

@@ -1,9 +1,10 @@
 import { ADDRESS_UNLOCK_CONDITION_TYPE, EXPIRATION_UNLOCK_CONDITION_TYPE, STATE_CONTROLLER_ADDRESS_UNLOCK_CONDITION_TYPE, GOVERNOR_ADDRESS_UNLOCK_CONDITION_TYPE, IMMUTABLE_ALIAS_UNLOCK_CONDITION_TYPE, STORAGE_DEPOSIT_RETURN_UNLOCK_CONDITION_TYPE, TIMELOCK_UNLOCK_CONDITION_TYPE } from "@iota/iota.js";
 import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
+import { FormatHelper } from "../../../utils/formatHelper";
 import { NameHelper } from "../../../utils/nameHelper";
 import { ReactComponent as DropdownIcon } from "./../../../assets/dropdown-arrow.svg";
-import Address from "./Address";
+import Bech32Address from "./Bech32Address";
 import { UnlockConditionProps } from "./UnlockConditionProps";
 import { UnlockCondtionState } from "./UnlockConditionState";
 
@@ -55,13 +56,17 @@ class UnlockCondition extends Component<UnlockConditionProps, UnlockCondtionStat
                         this.props.unlockCondition.type === STATE_CONTROLLER_ADDRESS_UNLOCK_CONDITION_TYPE ||
                         this.props.unlockCondition.type === GOVERNOR_ADDRESS_UNLOCK_CONDITION_TYPE ||
                         this.props.unlockCondition.type === IMMUTABLE_ALIAS_UNLOCK_CONDITION_TYPE) && (
-                            <Address
+                            <Bech32Address
+                                activeLinks={true}
+                                showHexAddress={false}
                                 address={this.props.unlockCondition.address}
                             />
                         )}
                         {this.props.unlockCondition.type === STORAGE_DEPOSIT_RETURN_UNLOCK_CONDITION_TYPE && (
                             <React.Fragment>
-                                <Address
+                                <Bech32Address
+                                    activeLinks={false}
+                                    showHexAddress={false}
                                     address={this.props.unlockCondition.returnAddress}
                                 />
                                 <div className="card--label">
@@ -84,13 +89,15 @@ class UnlockCondition extends Component<UnlockConditionProps, UnlockCondtionStat
                                     Unix time
                                 </div>
                                 <div className="card--value row">
-                                    {this.props.unlockCondition.unixTime}
+                                    {FormatHelper.date(this.props.unlockCondition.unixTime * 1000)}
                                 </div>
                             </React.Fragment>
                         )}
                         {this.props.unlockCondition.type === EXPIRATION_UNLOCK_CONDITION_TYPE && (
                             <React.Fragment>
-                                <Address
+                                <Bech32Address
+                                    activeLinks={false}
+                                    showHexAddress={false}
                                     address={this.props.unlockCondition.returnAddress}
                                 />
                                 <div className="card--label">
@@ -103,7 +110,7 @@ class UnlockCondition extends Component<UnlockConditionProps, UnlockCondtionStat
                                     Unix time
                                 </div>
                                 <div className="card--value row">
-                                    {this.props.unlockCondition.unixTime}
+                                    {FormatHelper.date(this.props.unlockCondition.unixTime * 1000)}
                                 </div>
                             </React.Fragment>
                         )}

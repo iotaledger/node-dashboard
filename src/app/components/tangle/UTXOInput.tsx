@@ -52,7 +52,8 @@ class UTXOInput extends Component<UTXOInputProps, UTXOInputState> {
                         <div className="card--content--border-l">
                             <Bech32Address
                                 activeLinks={true}
-                                addressDetails={this.props.unlockAddress}
+                                showHexAddress={true}
+                                address={this.props.unlockAddress}
                             />
                             <div className="card--label">
                                 Transaction Id

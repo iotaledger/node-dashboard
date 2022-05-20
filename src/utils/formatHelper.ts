@@ -28,7 +28,7 @@ export class FormatHelper {
 
     /**
      * Get the FormatHelper singleton instance.
-     * @returns FormatHelper instance.
+     * @returns The FormatHelper instance.
      */
     public static getInstance(): FormatHelper {
         if (!FormatHelper.instance) {

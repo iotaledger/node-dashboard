@@ -1,5 +1,4 @@
-import { IUTXOInput } from "@iota/iota.js";
-import { IBech32AddressDetails } from "../../../models/IBech32AddressDetails";
+import { AddressTypes, IUTXOInput } from "@iota/iota.js";
 
 export interface UTXOInputProps {
     /**
@@ -10,7 +9,7 @@ export interface UTXOInputProps {
     /**
      * The unlock address for the transactions.
      */
-    unlockAddress: IBech32AddressDetails;
+    unlockAddress: AddressTypes;
 
     /**
      * The input to display.
