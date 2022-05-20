@@ -1,4 +1,4 @@
-import { addressBalance, Bech32Helper, ClientError, IClient, ITaggedDataPayload, IBlockMetadata, IMilestonePayload, INodeInfo, IOutputResponse, ITransactionPayload, SingleNodeClient, IndexerPluginClient, IOutputsResponse } from "@iota/iota.js";
+import { addressBalance, Bech32Helper, ClientError, IClient, ITaggedDataPayload, IBlockMetadata, IMilestonePayload, INodeInfo, IOutputResponse, ITransactionPayload, SingleNodeClient, IndexerPluginClient, IOutputsResponse, ED25519_ADDRESS_TYPE } from "@iota/iota.js";
 import { Converter, HexHelper } from "@iota/util.js";
 import { ServiceFactory } from "../factories/serviceFactory";
 import { IAddressDetails } from "../models/IAddressDetails";
@@ -113,21 +113,6 @@ export class TangleService {
 
         if (Converter.isHex(queryLowerNoPrefix)) {
             if (queryLowerNoPrefix.length === 64) {
-                // search for a milestone by id
-                try {
-                    const milestone = await client.milestoneById(HexHelper.addPrefix(queryLowerNoPrefix));
-
-                    return {
-                        milestone
-                    };
-                } catch (err) {
-                    if (err instanceof ClientError && this.checkForUnavailable(err)) {
-                        return {
-                            unavailable: true
-                        };
-                    }
-                }
-
                 // search for a block
                 try {
                     const block = await client.block(HexHelper.addPrefix(queryLowerNoPrefix));
@@ -156,6 +141,21 @@ export class TangleService {
                         };
                     }
                 }
+
+                // search for a milestone by id
+                try {
+                    const milestone = await client.milestoneById(HexHelper.addPrefix(queryLowerNoPrefix));
+
+                    return {
+                        milestone
+                    };
+                } catch (err) {
+                    if (err instanceof ClientError && this.checkForUnavailable(err)) {
+                        return {
+                            unavailable: true
+                        };
+                    }
+                }
             }
 
            // Address ed25519/NftId/AliasId
@@ -166,7 +166,7 @@ export class TangleService {
 
                 // Address ed25519
                 try {
-                    const address = Bech32AddressHelper.buildAddress(queryLowerNoType, bech32HRP);
+                    const address = Bech32AddressHelper.buildAddress(queryLowerNoType, bech32HRP, ED25519_ADDRESS_TYPE);
 
                     if (address.bech32) {
                         const addrBalance = await this.addressBalance(address.bech32);

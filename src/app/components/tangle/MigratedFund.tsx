@@ -3,7 +3,6 @@ import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
 import { ServiceFactory } from "../../../factories/serviceFactory";
 import { NodeConfigService } from "../../../services/nodeConfigService";
-import { Bech32AddressHelper } from "../../../utils/bech32AddressHelper";
 import { FormatHelper } from "../../../utils/formatHelper";
 import { ReactComponent as DropdownIcon } from "./../../../assets/dropdown-arrow.svg";
 import Bech32Address from "./Bech32Address";
@@ -71,10 +70,8 @@ class MigratedFund extends Component<MigratedFundProps, MigratedFundState> {
                             {this.props.fund.address.type === ED25519_ADDRESS_TYPE && (
                                 <Bech32Address
                                     activeLinks={true}
-                                    addressDetails={Bech32AddressHelper.buildAddress(
-                                            this.props.fund.address.pubKeyHash,
-                                            this._bech32Hrp
-                                    )}
+                                    showHexAddress={true}
+                                    address={this.props.fund.address}
                                 />
                             )}
                         </div>

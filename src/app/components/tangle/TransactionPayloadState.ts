@@ -1,9 +1,14 @@
-import { IBech32AddressDetails } from "../../../models/IBech32AddressDetails";
+import { AddressTypes } from "@iota/iota.js";
 
 export interface TransactionPayloadState {
 
     /**
      * The unlock addresses for the transactions.
      */
-    unlockAddresses: IBech32AddressDetails[];
+    unlockAddresses: AddressTypes[];
+
+    /**
+     * The transaction id.
+     */
+    transactionId: string;
 }
