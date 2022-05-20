@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
-import { Ed25519Address, IReferenceUnlock, ISignatureUnlock, UTXO_INPUT_TYPE, REFERENCE_UNLOCK_TYPE, SIGNATURE_UNLOCK_TYPE, ALIAS_UNLOCK_TYPE, NFT_UNLOCK_TYPE, serializeTransactionPayload, AddressTypes, IEd25519Address, ED25519_ADDRESS_TYPE  } from "@iota/iota.js";
 import { Blake2b } from "@iota/crypto.js";
+import { Ed25519Address, IReferenceUnlock, ISignatureUnlock, UTXO_INPUT_TYPE, REFERENCE_UNLOCK_TYPE, SIGNATURE_UNLOCK_TYPE, ALIAS_UNLOCK_TYPE, NFT_UNLOCK_TYPE, serializeTransactionPayload, AddressTypes, IEd25519Address, ED25519_ADDRESS_TYPE } from "@iota/iota.js";
 import { Converter, WriteStream } from "@iota/util.js";
 import React, { Component, ReactNode } from "react";
 import { ServiceFactory } from "../../../factories/serviceFactory";
