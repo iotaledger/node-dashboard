@@ -28,7 +28,11 @@ export class FormatHelper {
 
     /**
      * Get the FormatHelper singleton instance.
+<<<<<<< HEAD
      * @returns The FormatHelper instance.
+=======
+     * @returns FormatHelper instance.
+>>>>>>> feat/stardust
      */
     public static getInstance(): FormatHelper {
         if (!FormatHelper.instance) {
