@@ -1,6 +1,5 @@
 import React, { ReactNode } from "react";
 import { Redirect, Route, RouteComponentProps, Switch, withRouter } from "react-router-dom";
-import { ReactComponent as AnalyticsIcon } from "../assets/analytics.svg";
 import { ReactComponent as ExplorerIcon } from "../assets/explorer.svg";
 import { ReactComponent as HomeIcon } from "../assets/home.svg";
 import { ReactComponent as MoonIcon } from "../assets/moon.svg";
@@ -28,8 +27,6 @@ import Header from "./components/layout/Header";
 import HealthIndicator from "./components/layout/HealthIndicator";
 import NavMenu from "./components/layout/NavMenu";
 import NavPanel from "./components/layout/NavPanel";
-import Analytics from "./routes/Analytics";
-import { AnalyticsRouteProps } from "./routes/AnalyticsRouteProps";
 import Explorer from "./routes/Explorer";
 import Address from "./routes/explorer/Address";
 import { AddressRouteProps } from "./routes/explorer/AddressRouteProps";
@@ -243,12 +240,6 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                 hidden: !this.state.isLoggedIn
             },
             {
-                label: "Analytics",
-                icon: <AnalyticsIcon />,
-                route: "/analytics",
-                hidden: !this.state.isLoggedIn
-            },
-            {
                 label: "Peers",
                 icon: <PeersIcon />,
                 route: "/peers",
@@ -347,11 +338,6 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                                             path="/"
                                             component={() => (<Home />)}
                                             key="home"
-                                        />,
-                                        <Route
-                                            path="/analytics/:section?"
-                                            component={(props: AnalyticsRouteProps) => (<Analytics {...props} />)}
-                                            key="analytics"
                                         />,
                                         <Route
                                             exact={true}
