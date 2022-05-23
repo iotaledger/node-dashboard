@@ -22,12 +22,12 @@ export interface AnalyticsState {
     lastReceivedBpsTime: number;
 
     /**
-     * The messages per second incoming.
+     * The blocks per second incoming.
      */
     bpsIncoming: number[];
 
     /**
-     * The messages per second outgoing.
+     * The blocks per second outgoing.
      */
     bpsOutgoing: number[];
 
@@ -47,12 +47,12 @@ export interface AnalyticsState {
     milestoneTiming: number[];
 
     /**
-     * Messages per milestone.
+     * Blocks per milestone.
      */
     bps: number[];
 
     /**
-     * Referenced messages per milestone.
+     * Referenced blocks per milestone.
      */
     rbps: number[];
 
@@ -160,7 +160,7 @@ export interface AnalyticsState {
         requestQueue: number[];
         children: number[];
         milestones: number[];
-        messages: number[];
-        incomingMessageWorkUnits: number[];
+        blocks: number[];
+        IncomingBlocksWorkUnits: number[];
     };
 }

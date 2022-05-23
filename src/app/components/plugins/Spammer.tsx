@@ -133,7 +133,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                     </div>
                     <h2 className="margin-t-s">Settings</h2>
                     <div className="card--label">
-                        Messages Per Second
+                        Blocks Per Second
                     </div>
                     <div className="card--value row">
                         <input

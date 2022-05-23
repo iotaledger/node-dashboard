@@ -130,8 +130,8 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                 requestQueue: [],
                 children: [],
                 milestones: [],
-                messages: [],
-                incomingMessageWorkUnits: []
+                blocks: [],
+                IncomingBlocksWorkUnits: []
             }
         };
     }
@@ -231,8 +231,8 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                         requestQueue: nonNull.map(d => d.caches.requestQueue.size),
                         children: nonNull.map(d => d.caches.children.size),
                         milestones: nonNull.map(d => d.caches.milestones.size),
-                        messages: nonNull.map(d => d.caches.blocks.size),
-                        incomingMessageWorkUnits: nonNull.map(d => d.caches.incomingBlocksWorkUnits.size)
+                        blocks: nonNull.map(d => d.caches.blocks.size),
+                        IncomingBlocksWorkUnits: nonNull.map(d => d.caches.incomingBlocksWorkUnits.size)
                     }
                 });
             });
@@ -346,7 +346,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                     >
                         <div data-label="Tangle" className="fill">
                             {this.state.gossipMetrics && (
-                                <div className="card messages-graph-panel margin-t-s fill">
+                                <div className="card blocks-graph-panel margin-t-s fill">
                                     <div className="row wrap gossip">
                                         <div className="gossip-item">
                                             <h4>Known Blocks</h4>
@@ -689,7 +689,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                                         {
                                             className: "bar-color-4",
                                             label: "Blocks",
-                                            values: this.state.caches.messages
+                                            values: this.state.caches.blocks
                                         }
                                     ]}
                                 />
@@ -704,7 +704,7 @@ class Analytics extends AsyncComponent<RouteComponentProps<AnalyticsRouteProps>,
                                         {
                                             className: "bar-color-1",
                                             label: "Incoming Block Work Units",
-                                            values: this.state.caches.incomingMessageWorkUnits
+                                            values: this.state.caches.IncomingBlocksWorkUnits
                                         }
                                     ]}
                                 />
