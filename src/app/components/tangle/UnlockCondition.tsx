@@ -89,7 +89,7 @@ class UnlockCondition extends Component<UnlockConditionProps, UnlockCondtionStat
                                     Unix time
                                 </div>
                                 <div className="card--value row">
-                                    {FormatHelper.date(this.props.unlockCondition.unixTime ?? 0 * 1000)}
+                                    {FormatHelper.date((this.props.unlockCondition.unixTime ?? 0) * 1000)}
                                 </div>
                             </React.Fragment>
                         )}
@@ -100,18 +100,26 @@ class UnlockCondition extends Component<UnlockConditionProps, UnlockCondtionStat
                                     showHexAddress={false}
                                     address={this.props.unlockCondition.returnAddress}
                                 />
-                                <div className="card--label">
-                                    Milestone index
-                                </div>
-                                <div className="card--value row">
-                                    {this.props.unlockCondition.milestoneIndex}
-                                </div>
-                                <div className="card--label">
-                                    Unix time
-                                </div>
-                                <div className="card--value row">
-                                    {FormatHelper.date(this.props.unlockCondition.unixTime ?? 0 * 1000)}
-                                </div>
+                                {this.props.unlockCondition.milestoneIndex && (
+                                    <React.Fragment>
+                                        <div className="card--label">
+                                            Milestone index
+                                        </div>
+                                        <div className="card--value row">
+                                            {this.props.unlockCondition.milestoneIndex}
+                                        </div>
+                                    </React.Fragment>
+                                )}
+                                {this.props.unlockCondition.unixTime && (
+                                    <React.Fragment>
+                                        <div className="card--label">
+                                            Unix time
+                                        </div>
+                                        <div className="card--value row">
+                                            {FormatHelper.date(this.props.unlockCondition.unixTime * 1000)}
+                                        </div>
+                                    </React.Fragment>
+                                )}
                             </React.Fragment>
                         )}
                         <div className="card--label">
