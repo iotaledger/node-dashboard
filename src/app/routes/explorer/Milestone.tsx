@@ -1,4 +1,4 @@
-import { messageIdFromMilestonePayload } from "@iota/iota.js";
+import { blockIdFromMilestonePayload } from "@iota/iota.js";
 import React, { ReactNode } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
 import { ReactComponent as ChevronLeftIcon } from "../../../assets/chevron-left.svg";
@@ -8,7 +8,7 @@ import { TangleService } from "../../../services/tangleService";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
 import { FormatHelper } from "../../../utils/formatHelper";
 import AsyncComponent from "../../components/layout/AsyncComponent";
-import MessageButton from "../../components/layout/MessageButton";
+import BlockButton from "../../components/layout/BlockButton";
 import "./Milestone.scss";
 import { MilestoneRouteProps } from "./MilestoneRouteProps";
 import { MilestoneState } from "./MilestoneState";
@@ -72,21 +72,21 @@ class Milestone extends AsyncComponent<RouteComponentProps<MilestoneRouteProps>,
                             {this.state.milestone?.index}
                         </div>
                         <div className="card--label">
-                            Message Id
+                            Block Id
                         </div>
                         <div className="card--value card--value__mono row">
                             <span className="margin-r-t">
                                 <Link
-                                    to={`/explorer/message/${this.state.messageId}`}
+                                    to={`/explorer/block/${this.state.blockId}`}
                                     className="info-box--title linked"
                                 >
-                                    {this.state.messageId}
+                                    {this.state.blockId}
                                 </Link>
 
                             </span>
-                            <MessageButton
+                            <BlockButton
                                 onClick={() => ClipboardHelper.copy(
-                                    this.state.messageId
+                                    this.state.blockId
                                 )}
                                 buttonType="copy"
                                 labelPosition="top"
@@ -147,7 +147,7 @@ class Milestone extends AsyncComponent<RouteComponentProps<MilestoneRouteProps>,
                 const info = await tangleService.info();
 
                 this.setState({
-                    messageId: messageIdFromMilestonePayload(info.protocol.protocolVersion, result)
+                    blockId: blockIdFromMilestonePayload(info.protocol.protocolVersion, result)
                 });
             } catch (error) {
                 if (error instanceof Error) {

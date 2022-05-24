@@ -56,19 +56,19 @@ export interface HomeState {
     memory?: string;
 
     /**
-     * Last received mps time.
+     * Last received bps time.
      */
-    lastReceivedMpsTime: number;
+    lastReceivedBpsTime: number;
 
     /**
-     * The messages per second incoming.
+     * The blocks per second incoming.
      */
-    mpsIncoming: number[];
+    bpsIncoming: number[];
 
     /**
-     * The messages per second outgoing.
+     * The blocks per second outgoing.
      */
-    mpsOutgoing: number[];
+    bpsOutgoing: number[];
 
     /**
      * The banner logo source.

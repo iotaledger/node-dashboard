@@ -65,8 +65,8 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
             pruningIndex: "-",
             syncedPeers: "-",
             connectedPeers: "-",
-            newMessagesDiff: [],
-            sentMessagesDiff: [],
+            newBlocksDiff: [],
+            sentBlocksDiff: [],
             relation: "-",
             lastUpdateTime: 0,
             blindMode: this._settingsService.getBlindMode()
@@ -93,10 +93,10 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                 let pruningIndex = "-";
                 let syncedPeers = "-";
                 let connectedPeers = "-";
-                const newMessagesTotal = [];
-                const sentMessagesTotal = [];
-                const newMessagesDiff = [];
-                const sentMessagesDiff = [];
+                const newBlocksTotal = [];
+                const sentBlocksTotal = [];
+                const newBlocksDiff = [];
+                const sentBlocksDiff = [];
                 let gossipMetrics;
                 let relation = "-";
 
@@ -114,8 +114,8 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                             relation = peer.relation;
 
                             if (peer.gossip?.heartbeat) {
-                                newMessagesTotal.push(peer.gossip.metrics.newMessages);
-                                sentMessagesTotal.push(peer.gossip.metrics.sentMessages);
+                                newBlocksTotal.push(peer.gossip.metrics.newBlocks);
+                                sentBlocksTotal.push(peer.gossip.metrics.sentBlocks);
 
                                 if (isConnected) {
                                     hasPeers = peer.gossip.heartbeat.connectedNeighbors > 0;
@@ -130,17 +130,17 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                     }
                 }
 
-                for (let i = 1; i < newMessagesTotal.length; i++) {
-                    newMessagesDiff.push(
+                for (let i = 1; i < newBlocksTotal.length; i++) {
+                    newBlocksDiff.push(
                         Math.max(
-                            newMessagesTotal[i] - newMessagesTotal[i - 1]
+                            newBlocksTotal[i] - newBlocksTotal[i - 1]
                             , 0)
                     );
                 }
-                for (let i = 1; i < sentMessagesTotal.length; i++) {
-                    sentMessagesDiff.push(
+                for (let i = 1; i < sentBlocksTotal.length; i++) {
+                    sentBlocksDiff.push(
                         Math.max(
-                            sentMessagesTotal[i] - sentMessagesTotal[i - 1]
+                            sentBlocksTotal[i] - sentBlocksTotal[i - 1]
                             , 0)
                     );
                 }
@@ -156,8 +156,8 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                     pruningIndex,
                     syncedPeers,
                     connectedPeers,
-                    newMessagesDiff,
-                    sentMessagesDiff,
+                    newBlocksDiff,
+                    sentBlocksDiff,
                     gossipMetrics,
                     relation,
                     lastUpdateTime: Date.now()
@@ -301,9 +301,9 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                         />
                     </div>
 
-                    <div className="card messages-graph-panel margin-t-s">
+                    <div className="card blocks-graph-panel margin-t-s">
                         <Graph
-                            caption="Messages per Second"
+                            caption="Blocks per Second"
                             endTime={this.state.lastUpdateTime}
                             timeInterval={1000}
                             seriesMaxLength={30}
@@ -311,51 +311,51 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                                 {
                                     className: "bar-color-1",
                                     label: "Incoming",
-                                    values: this.state.newMessagesDiff
+                                    values: this.state.newBlocksDiff
                                 },
                                 {
                                     className: "bar-color-2",
                                     label: "Outgoing",
-                                    values: this.state.sentMessagesDiff
+                                    values: this.state.sentBlocksDiff
                                 }
                             ]}
                         />
 
                         <div className="row wrap padding-s gossip">
                             <div className="gossip-item">
-                                <h4>Known Messages</h4>
+                                <h4>Known Blocks</h4>
                                 <div className="gossip-value">
-                                    {this.state.gossipMetrics?.knownMessages ?? "-"}
+                                    {this.state.gossipMetrics?.knownBlocks ?? "-"}
                                 </div>
                             </div>
                             <div className="gossip-item">
-                                <h4>New Messages</h4>
+                                <h4>New Blocks</h4>
                                 <div className="gossip-value">
-                                    {this.state.gossipMetrics?.newMessages ?? "-"}
+                                    {this.state.gossipMetrics?.newBlocks ?? "-"}
                                 </div>
                             </div>
                             <div className="gossip-item">
-                                <h4>Received Messages</h4>
+                                <h4>Received Blocks</h4>
                                 <div className="gossip-value">
-                                    {this.state.gossipMetrics?.receivedMessages ?? "-"}
+                                    {this.state.gossipMetrics?.receivedBlocks ?? "-"}
                                 </div>
                             </div>
                             <div className="gossip-item">
-                                <h4>Sent Messages</h4>
+                                <h4>Sent Blocks</h4>
                                 <div className="gossip-value">
-                                    {this.state.gossipMetrics?.sentMessages ?? "-"}
+                                    {this.state.gossipMetrics?.sentBlocks ?? "-"}
                                 </div>
                             </div>
                             <div className="gossip-item">
-                                <h4>Received Message Requests</h4>
+                                <h4>Received Block Requests</h4>
                                 <div className="gossip-value">
-                                    {this.state.gossipMetrics?.receivedMessageRequests ?? "-"}
+                                    {this.state.gossipMetrics?.receivedBlockRequests ?? "-"}
                                 </div>
                             </div>
                             <div className="gossip-item">
-                                <h4>Sent Message Requests</h4>
+                                <h4>Sent Block Requests</h4>
                                 <div className="gossip-value">
-                                    {this.state.gossipMetrics?.sentMessageRequests ?? "-"}
+                                    {this.state.gossipMetrics?.sentBlockRequests ?? "-"}
                                 </div>
                             </div>
 

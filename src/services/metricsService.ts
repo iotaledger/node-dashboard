@@ -55,7 +55,7 @@ export class MetricsService {
             { topic: WebSocketTopic.SyncStatus, isPublic: true },
             { topic: WebSocketTopic.NodeStatus, isPublic: false },
             { topic: WebSocketTopic.PublicNodeStatus, isPublic: true },
-            { topic: WebSocketTopic.MPSMetrics, isPublic: true },
+            { topic: WebSocketTopic.BPSMetrics, isPublic: true },
             { topic: WebSocketTopic.DBSizeMetric, isPublic: false },
             { topic: WebSocketTopic.PeerMetric, isPublic: false },
             { topic: WebSocketTopic.Ms, isPublic: true },

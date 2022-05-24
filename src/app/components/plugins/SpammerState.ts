@@ -6,9 +6,9 @@ export interface SpammerState {
     isRunning: boolean;
 
     /**
-     * Spam messages per second.
+     * Spam blocks per second.
      */
-    mps: string;
+    bps: string;
 
     /**
      * Spam CPU utilization.

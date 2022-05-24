@@ -56,6 +56,20 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
         };
     }
 
+    private get currentPageOutputs() {
+        if (this.state.outputs && this.state.outputs.length > 0) {
+            const firstPageIndex = (this.state.currentPage - 1) * this.state.pageSize;
+            const lastPageIndex =
+                (this.state.currentPage === Math.ceil(this.state.outputs.length / this.state.pageSize))
+                ? this.state.outputs.length
+                : firstPageIndex + this.state.pageSize;
+
+            return this.state.outputs.slice(firstPageIndex, lastPageIndex);
+        }
+
+        return [];
+    }
+
     /**
      * The component mounted.
      */
@@ -204,34 +218,34 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                     </div>
 
                     {this.state.outputs &&
-                        this.state.outputIds &&
-                        this.state.outputs.length > 0 && (
-                            <div className="card margin-t-m padding-l">
-                                <div className="card--header">
-                                    <h2 className="card--header__title">Outputs</h2>
-                                    <span className="card--header-count">
-                                        {this.state.outputs.length}
-                                    </span>
-                                </div>
-                                {this.currentPageOutputs.map((output, idx) => (
-                                    <Output
-                                        key={idx}
-                                        index={idx + 1}
-                                        output={output}
-                                        outputId={this.state.outputIds
-                                                ? this.state.outputIds[output.outputIndex]
-                                                : ""}
-                                    />
-                                ))}
-
-                                <Pagination
-                                    currentPage={this.state.currentPage}
-                                    totalCount={this.state.outputs.length}
-                                    pageSize={this.state.pageSize}
-                                    extraPageRangeLimit={20}
-                                    siblingsCount={1}
-                                    onPageChange={page => this.setState({ currentPage: page })}
+                    this.state.outputIds &&
+                    this.state.outputs.length > 0 && (
+                        <div className="card margin-t-m padding-l">
+                            <div className="card--header">
+                                <h2 className="card--header__title">Outputs</h2>
+                                <span className="card--header-count">
+                                    {this.state.outputs.length}
+                                </span>
+                            </div>
+                            {this.currentPageOutputs.map((output, idx) => (
+                                <Output
+                                    key={idx}
+                                    index={idx + 1}
+                                    output={output}
+                                    outputId={this.state.outputIds
+                                            ? this.state.outputIds[output.metadata.outputIndex]
+                                            : ""}
                                 />
+                            ))}
+
+                            <Pagination
+                                currentPage={this.state.currentPage}
+                                totalCount={this.state.outputs.length}
+                                pageSize={this.state.pageSize}
+                                extraPageRangeLimit={20}
+                                siblingsCount={1}
+                                onPageChange={page => this.setState({ currentPage: page })}
+                            />
                         </div>
                     )}
 
@@ -248,20 +262,6 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                 </div>
             </div>
         );
-    }
-
-    private get currentPageOutputs() {
-        if (this.state.outputs && this.state.outputs.length > 0) {
-            const firstPageIndex = (this.state.currentPage - 1) * this.state.pageSize;
-            const lastPageIndex =
-                (this.state.currentPage === Math.ceil(this.state.outputs.length / this.state.pageSize))
-                ? this.state.outputs.length
-                : firstPageIndex + this.state.pageSize;
-
-            return this.state.outputs.slice(firstPageIndex, lastPageIndex);
-        }
-
-        return [];
     }
 }
 

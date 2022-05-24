@@ -1,4 +1,4 @@
-export interface MessageTangleStateState {
+export interface BlockTangleStateState {
     /**
      * Timestamp of the milestone.
      */
