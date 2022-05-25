@@ -2,7 +2,7 @@
 @import '../../../scss/variables';
 @import '../../../scss/media-queries';
 
-.message-tangle-state {
+.block-tangle-state {
   @include font-size(12px);
 
   display: flex;
@@ -23,17 +23,17 @@
     margin-top: $spacing-small;
   }
 
-  &.message-tangle-state__referenced {
+  &.block-tangle-state__referenced {
     background-color: #12bf3f;
     color: #ffffff;
   }
 
-  &.message-tangle-state__milestone {
+  &.block-tangle-state__milestone {
     background-color: #12bf3f;
     color: #ffffff;
   }
 
-  &.message-tangle-state__pending {
+  &.block-tangle-state__pending {
     background-color: #9aadce;
     color: #ffffff;
   }

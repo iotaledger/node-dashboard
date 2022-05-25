@@ -168,7 +168,7 @@ export class WebSocketService {
 
         this._webSocket.onmessage = msg => {
             this._lastMessage = Date.now();
-            this.handleMessage(msg.data);
+            this.handleMessage(msg.data as string);
         };
 
         this._lastMessage = Date.now();

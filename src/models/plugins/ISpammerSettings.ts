@@ -5,9 +5,9 @@ export interface ISpammerSettings {
     running: boolean;
 
     /**
-     * The MPS Rate Limit.
+     * The BPS Rate Limit.
      */
-    mpsRateLimit: number;
+    bpsRateLimit: number;
 
     /**
      * Max cpu usage.

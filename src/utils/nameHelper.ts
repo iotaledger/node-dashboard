@@ -1,4 +1,4 @@
-import { SIGNATURE_UNLOCK_BLOCK_TYPE, REFERENCE_UNLOCK_BLOCK_TYPE, ALIAS_UNLOCK_BLOCK_TYPE, NFT_UNLOCK_BLOCK_TYPE,
+import { SIGNATURE_UNLOCK_TYPE, REFERENCE_UNLOCK_TYPE, ALIAS_UNLOCK_TYPE, NFT_UNLOCK_TYPE,
     UTXO_INPUT_TYPE, TREASURY_INPUT_TYPE,
     BASIC_OUTPUT_TYPE, ALIAS_OUTPUT_TYPE, NFT_OUTPUT_TYPE, FOUNDRY_OUTPUT_TYPE, TREASURY_OUTPUT_TYPE,
     ADDRESS_UNLOCK_CONDITION_TYPE, STORAGE_DEPOSIT_RETURN_UNLOCK_CONDITION_TYPE,
@@ -6,8 +6,8 @@ import { SIGNATURE_UNLOCK_BLOCK_TYPE, REFERENCE_UNLOCK_BLOCK_TYPE, ALIAS_UNLOCK_
     STATE_CONTROLLER_ADDRESS_UNLOCK_CONDITION_TYPE, GOVERNOR_ADDRESS_UNLOCK_CONDITION_TYPE,
     IMMUTABLE_ALIAS_UNLOCK_CONDITION_TYPE,
     ED25519_ADDRESS_TYPE, ALIAS_ADDRESS_TYPE, NFT_ADDRESS_TYPE,
-    ISSUER_FEATURE_BLOCK_TYPE, METADATA_FEATURE_BLOCK_TYPE,
-    SENDER_FEATURE_BLOCK_TYPE, TAG_FEATURE_BLOCK_TYPE } from "@iota/iota.js";
+    ISSUER_FEATURE_TYPE, METADATA_FEATURE_TYPE,
+    SENDER_FEATURE_TYPE, TAG_FEATURE_TYPE } from "@iota/iota.js";
 
 export class NameHelper {
     /**
@@ -66,13 +66,13 @@ export class NameHelper {
      * @returns The unlock block type name.
      */
     public static getUnlockBlockTypeName(type: number): string {
-        if (type === SIGNATURE_UNLOCK_BLOCK_TYPE) {
+        if (type === SIGNATURE_UNLOCK_TYPE) {
             return "Signature Unlock Block";
-        } else if (type === REFERENCE_UNLOCK_BLOCK_TYPE) {
+        } else if (type === REFERENCE_UNLOCK_TYPE) {
             return "Reference Unlock Block";
-        } else if (type === ALIAS_UNLOCK_BLOCK_TYPE) {
+        } else if (type === ALIAS_UNLOCK_TYPE) {
             return "Alias Unlock Block";
-        } else if (type === NFT_UNLOCK_BLOCK_TYPE) {
+        } else if (type === NFT_UNLOCK_TYPE) {
             return "Nft Unlock Block";
         }
         return "Unknown Unlock Block";
@@ -108,13 +108,13 @@ export class NameHelper {
      * @returns The feature block type name.
      */
     public static getFeatureBlockTypeName(type: number): string {
-        if (type === SENDER_FEATURE_BLOCK_TYPE) {
+        if (type === SENDER_FEATURE_TYPE) {
             return "Sender Feature Block";
-        } else if (type === ISSUER_FEATURE_BLOCK_TYPE) {
+        } else if (type === ISSUER_FEATURE_TYPE) {
             return "Issuer Feature Block";
-        } else if (type === METADATA_FEATURE_BLOCK_TYPE) {
+        } else if (type === METADATA_FEATURE_TYPE) {
             return "Metadata Feature Block";
-        } else if (type === TAG_FEATURE_BLOCK_TYPE) {
+        } else if (type === TAG_FEATURE_TYPE) {
             return "Tag Feature Block";
         }
         return "Unknown Feature Block";

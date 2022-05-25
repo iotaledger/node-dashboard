@@ -1,4 +1,4 @@
-import { addressBalance, Bech32Helper, ClientError, IClient, ITaggedDataPayload, IMessageMetadata, IMilestonePayload, INodeInfo, IOutputResponse, ITransactionPayload, SingleNodeClient, IndexerPluginClient, IOutputsResponse, ED25519_ADDRESS_TYPE } from "@iota/iota.js";
+import { addressBalance, Bech32Helper, ClientError, IClient, ITaggedDataPayload, IBlockMetadata, IMilestonePayload, INodeInfo, IOutputResponse, ITransactionPayload, SingleNodeClient, IndexerPluginClient, IOutputsResponse, ED25519_ADDRESS_TYPE } from "@iota/iota.js";
 import { Converter, HexHelper } from "@iota/util.js";
 import { ServiceFactory } from "../factories/serviceFactory";
 import { IAddressDetails } from "../models/IAddressDetails";
@@ -113,12 +113,12 @@ export class TangleService {
 
         if (Converter.isHex(queryLowerNoPrefix)) {
             if (queryLowerNoPrefix.length === 64) {
-                // search for a message
+                // search for a block
                 try {
-                    const message = await client.message(HexHelper.addPrefix(queryLowerNoPrefix));
+                    const block = await client.block(HexHelper.addPrefix(queryLowerNoPrefix));
 
                     return {
-                        message
+                        block
                     };
                 } catch (err) {
                     if (err instanceof ClientError && this.checkForUnavailable(err)) {
@@ -128,11 +128,11 @@ export class TangleService {
                     }
                 }
 
-                // search for a transaction included message
+                // search for a transaction included block
                 try {
-                    const message = await client.transactionIncludedMessage(HexHelper.addPrefix(queryLowerNoPrefix));
+                    const block = await client.transactionIncludedBlock(HexHelper.addPrefix(queryLowerNoPrefix));
                     return {
-                        message
+                        block
                     };
                 } catch (err) {
                     if (err instanceof ClientError && this.checkForUnavailable(err)) {
@@ -273,18 +273,18 @@ export class TangleService {
     }
 
     /**
-     * Get the message payload.
-     * @param messageId The message to get.
+     * Get the block payload.
+     * @param blockId The block to get.
      * @returns The response data.
      */
     public async payload(
-        messageId: string): Promise<ITransactionPayload | ITaggedDataPayload | IMilestonePayload | undefined> {
+        blockId: string): Promise<ITransactionPayload | ITaggedDataPayload | IMilestonePayload | undefined> {
         try {
             const client = this.buildClient();
 
-            const message = await client.message(messageId);
+            const block = await client.block(blockId);
 
-            return message?.payload;
+            return block?.payload;
         } catch {}
     }
 
@@ -334,24 +334,24 @@ export class TangleService {
     }
 
     /**
-     * Get the message metadata.
-     * @param messageId The message if to get the metadata for.
+     * Get the block metadata.
+     * @param blockId The block if to get the metadata for.
      * @returns The details response.
      */
-    public async messageDetails(messageId: string): Promise<{
-        metadata?: IMessageMetadata;
+    public async blockDetails(blockId: string): Promise<{
+        metadata?: IBlockMetadata;
         childrenIds?: string[];
         unavailable?: boolean;
     } | undefined> {
         try {
             const client = this.buildClient();
 
-            const metadata = await client.messageMetadata(messageId);
-            const children = await client.messageChildren(messageId);
+            const metadata = await client.blockMetadata(blockId);
+            const children = await client.blockChildren(blockId);
 
             return {
                 metadata,
-                childrenIds: children ? children.childrenMessageIds : undefined
+                childrenIds: children ? children.children : undefined
             };
         } catch (err) {
             if (err instanceof ClientError && this.checkForUnavailable(err)) {

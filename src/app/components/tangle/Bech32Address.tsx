@@ -6,7 +6,7 @@ import { NodeConfigService } from "../../../services/nodeConfigService";
 import { Bech32AddressHelper } from "../../../utils/bech32AddressHelper";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
 import { NameHelper } from "../../../utils/nameHelper";
-import MessageButton from "../layout/MessageButton";
+import BlockButton from "../layout/BlockButton";
 import { Bech32AddressProps } from "./Bech32AddressProps";
 import { Bech32AddressState } from "./Bech32AddressState";
 
@@ -70,8 +70,8 @@ class Bech32Address extends Component<Bech32AddressProps, Bech32AddressState> {
                             {!this.props.activeLinks && (
                                 <span className="margin-r-t">{this.state.addressDetails.bech32}</span>
                             )}
-                            <MessageButton
-                                onClick={() => ClipboardHelper.copy(this.state.addressDetails?.bech32)}
+                            <BlockButton
+                                onClick={() => ClipboardHelper.copy(this.props.addressDetails?.bech32)}
                                 buttonType="copy"
                                 labelPosition="top"
                             />
@@ -96,8 +96,8 @@ class Bech32Address extends Component<Bech32AddressProps, Bech32AddressState> {
                             {!this.props.activeLinks && (
                                 <span className="margin-r-t">{this.state.addressDetails?.hex}</span>
                             )}
-                            <MessageButton
-                                onClick={() => ClipboardHelper.copy(this.state.addressDetails?.hex)}
+                            <BlockButton
+                                onClick={() => ClipboardHelper.copy(this.props.addressDetails?.hex)}
                                 buttonType="copy"
                                 labelPosition="top"
                             />

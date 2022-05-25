@@ -10,14 +10,14 @@ export interface HeaderState {
     nodeHealth: boolean;
 
     /**
-     * Mps for micro graph.
+     * Bps for micro graph.
      */
-    mps: string;
+    bps: string;
 
     /**
-     * Mps values for micro graph.
+     * Bps values for micro graph.
      */
-    mpsValues: number[];
+    bpsValues: number[];
 
     /**
      * Database size for micro graph.

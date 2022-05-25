@@ -1,7 +1,7 @@
 import { Converter } from "@iota/util.js";
 import React, { Component, ReactNode } from "react";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
-import MessageButton from "../layout/MessageButton";
+import BlockButton from "../layout/BlockButton";
 import { TaggedDataPayloadProps } from "./TaggedDataPayloadProps";
 import { TaggedDataPayloadState } from "./TaggedDataPayloadState";
 
@@ -56,7 +56,7 @@ class TaggedDataPayload extends Component<TaggedDataPayloadProps, TaggedDataPayl
                 <h2>Tagged Data Payload</h2>
                 <div className="card--label row middle">
                     <span className="margin-r-t">Tag UTF8 [{this.state.indexLengthBytes}]</span>
-                    <MessageButton
+                    <BlockButton
                         onClick={() => ClipboardHelper.copy(
                             this.state.utf8Index
                         )}
@@ -69,7 +69,7 @@ class TaggedDataPayload extends Component<TaggedDataPayloadProps, TaggedDataPayl
                 </div>
                 <div className="card--label row middle">
                     <span className="margin-r-t">Tag Hex [{this.state.indexLengthBytes}]</span>
-                    <MessageButton
+                    <BlockButton
                         onClick={() => ClipboardHelper.copy(
                             this.state.hexIndex.replace(/ /g, "")
                         )}
@@ -84,7 +84,7 @@ class TaggedDataPayload extends Component<TaggedDataPayloadProps, TaggedDataPayl
                     <React.Fragment>
                         <div className="card--label row bottom spread">
                             <span className="margin-r-t">Data UTF8 [{this.state.dataLengthBytes}]</span>
-                            <MessageButton
+                            <BlockButton
                                 onClick={() => ClipboardHelper.copy(
                                     this.state.utf8Data
                                 )}
@@ -101,7 +101,7 @@ class TaggedDataPayload extends Component<TaggedDataPayloadProps, TaggedDataPayl
                     <React.Fragment>
                         <div className="card--label row bottom spread">
                             Data JSON
-                            <MessageButton
+                            <BlockButton
                                 onClick={() => ClipboardHelper.copy(
                                     this.state.jsonData
                                 )}
@@ -118,7 +118,7 @@ class TaggedDataPayload extends Component<TaggedDataPayloadProps, TaggedDataPayl
                     <React.Fragment>
                         <div className="card--label row middle">
                             <span className="margin-r-t">Data Hex [{this.state.dataLengthBytes}]</span>
-                            <MessageButton
+                            <BlockButton
                                 onClick={() => ClipboardHelper.copy(
                                     this.state.hexData?.replace(/ /g, "")
                                 )}

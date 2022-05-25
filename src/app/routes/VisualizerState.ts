@@ -3,14 +3,14 @@ import { IVisualizerVertex } from "../../models/visualizer/IVisualizerVertex";
 
 export interface VisualizerState {
     /**
-     * Messages.
+     * Blocks.
      */
     total: string;
 
     /**
-     * Messages per second.
+     * Blocks per second.
      */
-    mps: string;
+    bps: string;
 
     /**
      * Tips.

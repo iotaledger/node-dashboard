@@ -77,41 +77,36 @@ class UnlockCondition extends Component<UnlockConditionProps, UnlockCondtionStat
                                 </div>
                             </React.Fragment>
                         )}
-                        {this.props.unlockCondition.type === TIMELOCK_UNLOCK_CONDITION_TYPE && (
+                        {(this.props.unlockCondition.type === TIMELOCK_UNLOCK_CONDITION_TYPE ||
+                        this.props.unlockCondition.type === EXPIRATION_UNLOCK_CONDITION_TYPE) && (
                             <React.Fragment>
-                                <div className="card--label">
-                                    Milestone index
-                                </div>
-                                <div className="card--value row">
-                                    {this.props.unlockCondition.milestoneIndex}
-                                </div>
-                                <div className="card--label">
-                                    Unix time
-                                </div>
-                                <div className="card--value row">
-                                    {FormatHelper.date(this.props.unlockCondition.unixTime * 1000)}
-                                </div>
-                            </React.Fragment>
-                        )}
-                        {this.props.unlockCondition.type === EXPIRATION_UNLOCK_CONDITION_TYPE && (
-                            <React.Fragment>
-                                <Bech32Address
-                                    activeLinks={false}
-                                    showHexAddress={false}
-                                    address={this.props.unlockCondition.returnAddress}
-                                />
-                                <div className="card--label">
-                                    Milestone index
-                                </div>
-                                <div className="card--value row">
-                                    {this.props.unlockCondition.milestoneIndex}
-                                </div>
-                                <div className="card--label">
-                                    Unix time
-                                </div>
-                                <div className="card--value row">
-                                    {FormatHelper.date(this.props.unlockCondition.unixTime * 1000)}
-                                </div>
+                                {this.props.unlockCondition.type === EXPIRATION_UNLOCK_CONDITION_TYPE && (
+                                    <Bech32Address
+                                        activeLinks={false}
+                                        showHexAddress={false}
+                                        address={this.props.unlockCondition.returnAddress}
+                                    />
+                                )}
+                                {this.props.unlockCondition.milestoneIndex && (
+                                    <React.Fragment>
+                                        <div className="card--label">
+                                            Milestone index
+                                        </div>
+                                        <div className="card--value row">
+                                            {this.props.unlockCondition.milestoneIndex}
+                                        </div>
+                                    </React.Fragment>
+                                )}
+                                {this.props.unlockCondition.unixTime && (
+                                    <React.Fragment>
+                                        <div className="card--label">
+                                            Unix time
+                                        </div>
+                                        <div className="card--value row">
+                                            {FormatHelper.date(this.props.unlockCondition.unixTime * 1000)}
+                                        </div>
+                                    </React.Fragment>
+                                )}
                             </React.Fragment>
                         )}
                         <div className="card--label">

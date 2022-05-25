@@ -5,7 +5,7 @@ import React, { Component, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
 import { FormatHelper } from "../../../utils/formatHelper";
-import MessageButton from "../layout/MessageButton";
+import BlockButton from "../layout/BlockButton";
 import { ReactComponent as DropdownIcon } from "./../../../assets/dropdown-arrow.svg";
 import { MilestonePayloadProps } from "./MilestonePayloadProps";
 import { MilestonePayloadState } from "./MilestonePayloadState";
@@ -57,10 +57,10 @@ class MilestonePayload extends Component<MilestonePayloadProps, MilestonePayload
                 <div className="card--value">
                     {this.props.payload.previousMilestoneId}
                 </div>
-                {this.props.payload.parentMessageIds?.map((parent, idx) => (
+                {this.props.payload.parents?.map((parent, idx) => (
                     <React.Fragment key={idx}>
                         <div className="card--label">
-                            Parent Message {idx + 1}
+                            Parent Block {idx + 1}
                         </div>
                         <div className="card--value card--value__mono row">
                             {parent !== "0".repeat(64) && (
@@ -68,12 +68,12 @@ class MilestonePayload extends Component<MilestonePayloadProps, MilestonePayload
                                     <Link
                                         className="margin-r-t"
                                         to={
-                                            `/explorer/message/${parent}`
+                                            `/explorer/block/${parent}`
                                         }
                                     >
                                         {parent}
                                     </Link>
-                                    <MessageButton
+                                    <BlockButton
                                         onClick={() => ClipboardHelper.copy(
                                             parent
                                         )}
@@ -92,7 +92,7 @@ class MilestonePayload extends Component<MilestonePayloadProps, MilestonePayload
                     Confirmed Merkle Proof
                 </div>
                 <div className="card--value card--value__mono">
-                    {this.props.payload.confirmedMerkleRoot}
+                    {this.props.payload.inclusionMerkleRoot}
                 </div>
                 <div className="card--label">
                     Applied Merkle Proof

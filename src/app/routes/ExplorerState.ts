@@ -1,13 +1,13 @@
 export interface ExplorerState {
     /**
-     * Message per second.
+     * Blocks per second.
      */
-    mps: string;
+    bps: string;
 
     /**
-     * Referenced messages per second.
+     * Referenced blocks per second.
      */
-    rmps: string;
+    rbps: string;
 
     /**
      * Referenced rate.

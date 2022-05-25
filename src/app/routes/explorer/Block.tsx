@@ -1,4 +1,4 @@
-import { CONFLICT_REASON_STRINGS, IMessageMetadata, TAGGED_DATA_PAYLOAD_TYPE, MILESTONE_PAYLOAD_TYPE, serializeMessage, TRANSACTION_PAYLOAD_TYPE } from "@iota/iota.js";
+import { serializeBlock, CONFLICT_REASON_STRINGS, IBlockMetadata, TAGGED_DATA_PAYLOAD_TYPE, MILESTONE_PAYLOAD_TYPE, TRANSACTION_PAYLOAD_TYPE } from "@iota/iota.js";
 import { WriteStream } from "@iota/util.js";
 import React, { ReactNode } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
@@ -6,26 +6,26 @@ import { ReactComponent as ChevronDownIcon } from "../../../assets/chevron-down.
 import { ReactComponent as ChevronLeftIcon } from "../../../assets/chevron-left.svg";
 import { ReactComponent as DownloadIcon } from "../../../assets/download.svg";
 import { ServiceFactory } from "../../../factories/serviceFactory";
-import { MessageTangleStatus } from "../../../models/messageTangleStatus";
+import { BlockTangleStatus } from "../../../models/blockTangleStatus";
 import { TangleService } from "../../../services/tangleService";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
 import { DownloadHelper } from "../../../utils/downloadHelper";
 import AsyncComponent from "../../components/layout/AsyncComponent";
-import MessageButton from "../../components/layout/MessageButton";
+import BlockButton from "../../components/layout/BlockButton";
 import Spinner from "../../components/layout/Spinner";
+import BlockTangleState from "../../components/tangle/BlockTangleState";
 import InclusionState from "../../components/tangle/InclusionState";
-import MessageTangleState from "../../components/tangle/MessageTangleState";
 import MilestonePayload from "../../components/tangle/MilestonePayload";
 import TaggedDataPayload from "../../components/tangle/TaggedDataPayload";
 import TransactionPayload from "../../components/tangle/TransactionPayload";
-import "./Message.scss";
-import { MessageRouteProps } from "./MessageRouteProps";
-import { MessageState } from "./MessageState";
+import "./Block.scss";
+import { BlockRouteProps } from "./BlockRouteProps";
+import { BlockState } from "./BlockState";
 
 /**
- * Component which will show the message page.
+ * Component which will show the block page.
  */
-class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, MessageState> {
+class Block extends AsyncComponent<RouteComponentProps<BlockRouteProps>, BlockState> {
     /**
      * Service for tangle requests.
      */
@@ -37,10 +37,10 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
     private _timerId?: NodeJS.Timer;
 
     /**
-     * Create a new instance of Message.
+     * Create a new instance of Block.
      * @param props The props.
      */
-    constructor(props: RouteComponentProps<MessageRouteProps>) {
+    constructor(props: RouteComponentProps<BlockRouteProps>) {
         super(props);
 
         this._tangleService = ServiceFactory.get<TangleService>("tangle");
@@ -58,30 +58,30 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
     public async componentDidMount(): Promise<void> {
         super.componentDidMount();
 
-        const result = await this._tangleService.search(this.props.match.params.messageId);
+        const result = await this._tangleService.search(this.props.match.params.blockId);
 
-        if (result?.message) {
+        if (result?.block) {
             const writeStream = new WriteStream();
-            serializeMessage(writeStream, result.message);
+            serializeBlock(writeStream, result.block);
             const finalBytes = writeStream.finalBytes();
 
             const dataUrls = {
-                json: DownloadHelper.createJsonDataUrl(result.message),
+                json: DownloadHelper.createJsonDataUrl(result.block),
                 bin: DownloadHelper.createBinaryDataUrl(finalBytes),
                 base64: DownloadHelper.createBase64DataUrl(finalBytes),
                 hex: DownloadHelper.createHexDataUrl(finalBytes)
             };
 
             this.setState({
-                message: result.message,
+                block: result.block,
                 dataUrls
             }, async () => {
-                await this.updateMessageDetails();
+                await this.updateBlockDetails();
             });
         } else if (result?.unavailable) {
             this.props.history.replace("/explorer/unavailable");
         } else {
-            this.props.history.replace(`/explorer/search/${this.props.match.params.messageId}`);
+            this.props.history.replace(`/explorer/search/${this.props.match.params.blockId}`);
         }
     }
 
@@ -102,7 +102,7 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
      */
     public render(): ReactNode {
         return (
-            <div className="message">
+            <div className="block">
                 <div className="content">
                     <Link
                         to="/explorer"
@@ -114,11 +114,11 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                     <div className="card margin-t-m padding-l">
                         <div className="row phone-down-column start">
                             <h2 className="margin-r-l">
-                                Message
+                                Block
                             </h2>
-                            {this.state.messageTangleStatus && (
-                                <MessageTangleState
-                                    status={this.state.messageTangleStatus}
+                            {this.state.blockTangleStatus && (
+                                <BlockTangleState
+                                    status={this.state.blockTangleStatus}
                                     milestoneIndex={this.state.metadata?.referencedByMilestoneIndex}
                                     onClick={this.state.metadata?.referencedByMilestoneIndex
                                         ? () => this.props.history.push(
@@ -131,19 +131,19 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                             Id
                         </div>
                         <div className="card--value card--value__mono row">
-                            <span className="margin-r-t">{this.props.match.params.messageId}</span>
-                            <MessageButton
+                            <span className="margin-r-t">{this.props.match.params.blockId}</span>
+                            <BlockButton
                                 onClick={() => ClipboardHelper.copy(
-                                    this.props.match.params.messageId
+                                    this.props.match.params.blockId
                                 )}
                                 buttonType="copy"
                                 labelPosition="top"
                             />
                         </div>
-                        {this.state.message?.parentMessageIds?.map((parent, idx) => (
+                        {this.state.block?.parents?.map((parent, idx) => (
                             <React.Fragment key={idx}>
                                 <div className="card--label">
-                                    Parent Message {idx + 1}
+                                    Parent Block {idx + 1}
                                 </div>
                                 <div className="card--value card--value__mono row">
                                     {parent !== "0".repeat(64) && (
@@ -151,12 +151,12 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                                             <Link
                                                 className="margin-r-t"
                                                 to={
-                                                    `/explorer/message/${parent}`
+                                                    `/explorer/block/${parent}`
                                                 }
                                             >
                                                 {parent}
                                             </Link>
-                                            <MessageButton
+                                            <BlockButton
                                                 onClick={() => ClipboardHelper.copy(
                                                     parent
                                                 )}
@@ -175,7 +175,7 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                             Nonce
                         </div>
                         <div className="card--value row">
-                            <span className="margin-r-t">{this.state.message?.nonce}</span>
+                            <span className="margin-r-t">{this.state.block?.nonce}</span>
                         </div>
                     </div>
                     <div className="card margin-t-m padding-l">
@@ -217,28 +217,28 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                             </React.Fragment>
                         )}
                     </div>
-                    {this.state.message?.payload && (
+                    {this.state.block?.payload && (
                         <React.Fragment>
-                            {this.state.message.payload.type === TRANSACTION_PAYLOAD_TYPE && (
+                            {this.state.block.payload.type === TRANSACTION_PAYLOAD_TYPE && (
                                 <React.Fragment>
-                                    <TransactionPayload payload={this.state.message.payload} />
-                                    {this.state.message.payload.essence.payload && (
+                                    <TransactionPayload payload={this.state.block.payload} />
+                                    {this.state.block.payload.essence.payload && (
                                         <div className="card margin-t-m padding-l">
                                             <TaggedDataPayload
-                                                payload={this.state.message.payload.essence.payload}
+                                                payload={this.state.block.payload.essence.payload}
                                             />
                                         </div>
                                     )}
                                 </React.Fragment>
                             )}
-                            {this.state.message.payload.type === MILESTONE_PAYLOAD_TYPE && (
+                            {this.state.block.payload.type === MILESTONE_PAYLOAD_TYPE && (
                                 <div className="card margin-t-m padding-l">
-                                    <MilestonePayload payload={this.state.message.payload} />
+                                    <MilestonePayload payload={this.state.block.payload} />
                                 </div>
                             )}
-                            {this.state.message.payload.type === TAGGED_DATA_PAYLOAD_TYPE && (
+                            {this.state.block.payload.type === TAGGED_DATA_PAYLOAD_TYPE && (
                                 <div className="card margin-t-m padding-l">
-                                    <TaggedDataPayload payload={this.state.message.payload} />
+                                    <TaggedDataPayload payload={this.state.block.payload} />
                                 </div>
                             )}
                         </React.Fragment>
@@ -248,7 +248,7 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                             <h2>Tools</h2>
                         </div>
                         <div className="card--label">
-                            Export Message
+                            Export Block
                         </div>
                         <div className="card--value row">
                             <div className="select-wrapper">
@@ -268,7 +268,7 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                                 className="card--action card--action-plain"
                                 href={this.state.dataUrls[this.state.selectedDataUrl]}
                                 download={DownloadHelper.filename(
-                                    this.props.match.params.messageId, this.state.selectedDataUrl)}
+                                    this.props.match.params.blockId, this.state.selectedDataUrl)}
                                 role="button"
                             >
                                 <DownloadIcon />
@@ -277,7 +277,7 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                     </div>
                     <div className="card margin-t-s padding-l">
                         <div className="row margin-b-s">
-                            <h2>Child Messages</h2>
+                            <h2>Child Blocks</h2>
                             {this.state.childrenIds !== undefined && (
                                 <span className="card--header-count">
                                     {this.state.childrenIds.length}
@@ -289,7 +289,7 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                             <div className="card--value card--value__mono margin-b-s" key={childId}>
                                 <Link
                                     to={
-                                        `/explorer/message/${childId}`
+                                        `/explorer/block/${childId}`
                                     }
                                 >
                                     {childId}
@@ -299,7 +299,7 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                         {!this.state.childrenBusy &&
                             this.state.childrenIds &&
                             this.state.childrenIds.length === 0 && (
-                                <p>There are no children for this message.</p>
+                                <p>There are no children for this block.</p>
                             )}
                     </div>
                 </div>
@@ -308,17 +308,17 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
     }
 
     /**
-     * Update the message details.
+     * Update the block details.
      */
-    private async updateMessageDetails(): Promise<void> {
-        const details = await this._tangleService.messageDetails(this.props.match.params.messageId);
+    private async updateBlockDetails(): Promise<void> {
+        const details = await this._tangleService.blockDetails(this.props.match.params.blockId);
 
         this.setState({
             metadata: details?.metadata,
             conflictReason: this.calculateConflictReason(details?.metadata),
             childrenIds: details?.childrenIds && details?.childrenIds.length > 0
                 ? details?.childrenIds : (this.state.childrenIds ?? []),
-            messageTangleStatus: this.calculateStatus(details?.metadata),
+            blockTangleStatus: this.calculateStatus(details?.metadata),
             childrenBusy: false,
             metadataStatus: details?.unavailable ? "The node is currently unavailable or is not synced" : undefined
         });
@@ -326,38 +326,38 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
         if (!details?.unavailable &&
             (!details?.metadata?.referencedByMilestoneIndex || !details?.metadata?.milestoneIndex)) {
             this._timerId = setTimeout(async () => {
-                await this.updateMessageDetails();
+                await this.updateBlockDetails();
             }, 10000);
         }
     }
 
     /**
-     * Calculate the status for the message.
+     * Calculate the status for the block.
      * @param metadata The metadata to calculate the status from.
-     * @returns The message status.
+     * @returns The block status.
      */
-    private calculateStatus(metadata?: IMessageMetadata): MessageTangleStatus {
-        let messageTangleStatus: MessageTangleStatus = "unknown";
+    private calculateStatus(metadata?: IBlockMetadata): BlockTangleStatus {
+        let blockTangleStatus: BlockTangleStatus = "unknown";
 
         if (metadata) {
             if (metadata.milestoneIndex) {
-                messageTangleStatus = "milestone";
+                blockTangleStatus = "milestone";
             } else if (metadata.referencedByMilestoneIndex) {
-                messageTangleStatus = "referenced";
+                blockTangleStatus = "referenced";
             } else {
-                messageTangleStatus = "pending";
+                blockTangleStatus = "pending";
             }
         }
 
-        return messageTangleStatus;
+        return blockTangleStatus;
     }
 
     /**
-     * Calculate the conflict reason for the message.
+     * Calculate the conflict reason for the block.
      * @param metadata The metadata to calculate the conflict reason from.
      * @returns The conflict reason.
      */
-    private calculateConflictReason(metadata?: IMessageMetadata): string {
+    private calculateConflictReason(metadata?: IBlockMetadata): string {
         let conflictReason: string = "";
 
         if (metadata?.ledgerInclusionState === "conflicting") {
@@ -370,4 +370,4 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
     }
 }
 
-export default Message;
+export default Block;

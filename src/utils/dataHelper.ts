@@ -11,11 +11,11 @@ export class DataHelper {
      * @returns The calculate memory usage.
      */
     public static calculateMemoryUsage(status: INodeStatus): number {
-        return status.mem.heap_inuse +
-            (status.mem.heap_idle - status.mem.heap_released) +
-            status.mem.m_span_inuse +
-            status.mem.m_cache_inuse +
-            status.mem.stack_sys;
+        return status.mem.heapInUse +
+            (status.mem.heapIdle - status.mem.heapReleased) +
+            status.mem.mSpanInUse +
+            status.mem.mCacheInUse +
+            status.mem.stackSys;
     }
 
     /**

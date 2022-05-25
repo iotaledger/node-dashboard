@@ -1,4 +1,4 @@
-export interface MessageButtonState {
+export interface BlockButtonState {
     /**
      * Is the message active.
      */

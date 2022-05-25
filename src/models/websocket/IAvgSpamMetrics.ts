@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
 export interface IAvgSpamMetrics {
-    newMsgs: number;
-    avgMsgs: number;
+    newBlocks: number;
+    avgBlocks: number;
 }

@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import { Blake2b } from "@iota/crypto.js";
-import { Ed25519Address, IReferenceUnlockBlock, ISignatureUnlockBlock, UTXO_INPUT_TYPE, REFERENCE_UNLOCK_BLOCK_TYPE, SIGNATURE_UNLOCK_BLOCK_TYPE, ALIAS_UNLOCK_BLOCK_TYPE, NFT_UNLOCK_BLOCK_TYPE, serializeTransactionPayload, AddressTypes, IEd25519Address, ED25519_ADDRESS_TYPE } from "@iota/iota.js";
+import { Ed25519Address, IReferenceUnlock, ISignatureUnlock, UTXO_INPUT_TYPE, REFERENCE_UNLOCK_TYPE, SIGNATURE_UNLOCK_TYPE, ALIAS_UNLOCK_TYPE, NFT_UNLOCK_TYPE, serializeTransactionPayload, AddressTypes, IEd25519Address, ED25519_ADDRESS_TYPE } from "@iota/iota.js";
 import { Converter, WriteStream } from "@iota/util.js";
 import React, { Component, ReactNode } from "react";
 import { ServiceFactory } from "../../../factories/serviceFactory";
@@ -29,17 +29,17 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
         const nodeConfigService = ServiceFactory.get<NodeConfigService>("node-config");
         this._bech32Hrp = nodeConfigService.getBech32Hrp();
 
-        const signatureBlocks: ISignatureUnlockBlock[] = [];
-        for (let i = 0; i < props.payload.unlockBlocks.length; i++) {
-            if (props.payload.unlockBlocks[i].type === SIGNATURE_UNLOCK_BLOCK_TYPE) {
-                const sigUnlockBlock = props.payload.unlockBlocks[i] as ISignatureUnlockBlock;
+        const signatureBlocks: ISignatureUnlock[] = [];
+        for (let i = 0; i < props.payload.unlocks.length; i++) {
+            if (props.payload.unlocks[i].type === SIGNATURE_UNLOCK_TYPE) {
+                const sigUnlockBlock = props.payload.unlocks[i] as ISignatureUnlock;
                 signatureBlocks.push(sigUnlockBlock);
             } else if (
-                props.payload.unlockBlocks[i].type === REFERENCE_UNLOCK_BLOCK_TYPE ||
-                props.payload.unlockBlocks[i].type === ALIAS_UNLOCK_BLOCK_TYPE ||
-                props.payload.unlockBlocks[i].type === NFT_UNLOCK_BLOCK_TYPE) {
-                    const refUnlockBlock = props.payload.unlockBlocks[i] as IReferenceUnlockBlock;
-                    signatureBlocks.push(props.payload.unlockBlocks[refUnlockBlock.reference] as ISignatureUnlockBlock);
+                props.payload.unlocks[i].type === REFERENCE_UNLOCK_TYPE ||
+                props.payload.unlocks[i].type === ALIAS_UNLOCK_TYPE ||
+                props.payload.unlocks[i].type === NFT_UNLOCK_TYPE) {
+                    const refUnlockBlock = props.payload.unlocks[i] as IReferenceUnlock;
+                    signatureBlocks.push(props.payload.unlocks[refUnlockBlock.reference] as ISignatureUnlock);
             }
         }
 

@@ -7,9 +7,9 @@ export interface MilestoneState {
     milestone?: IMilestonePayload;
 
     /**
-     * The message id of the milestone.
+     * The block id of the milestone.
      */
-    messageId?: string;
+    blockId?: string;
 
     /**
      * The previous milestone is available.
