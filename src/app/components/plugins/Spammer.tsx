@@ -255,7 +255,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                 };
             }>(
                 `${window.location.protocol}//${window.location.host}`,
-                "/api/plugins/spammer/start",
+                "/api/plugins/spammer/v1/start",
                 "post",
                 {
                     bpsRateLimit: Number.parseFloat(this.state.bps),
@@ -282,7 +282,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                 };
             }>(
                 `${window.location.protocol}//${window.location.host}`,
-                "/api/plugins/spammer/stop",
+                "/api/plugins/spammer/v1/stop",
                 "post",
                 undefined,
                 Spammer.buildAuthHeaders());
