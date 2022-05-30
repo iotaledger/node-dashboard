@@ -191,28 +191,24 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
      */
     private async pluginStatus(): Promise<void> {
         try {
-            const response = await FetchHelper.json<unknown, {
-                data?: ISpammerSettings;
-                error?: {
-                    message: string;
-                };
-            }>(
-                `${window.location.protocol}//${window.location.host}`,
-                "/api/plugins/spammer/v1/status",
-                "get",
-                undefined,
-                Spammer.buildAuthHeaders());
+            const response = await FetchHelper.json<unknown, ISpammerSettings>(
+                    `${window.location.protocol}//${window.location.host}`,
+                    "/api/plugins/spammer/v1/status",
+                    "get",
+                    undefined,
+                    Spammer.buildAuthHeaders()
+                );
 
-            if (response.data) {
+            if (!response?.error) {
                 this.setState({
-                    isRunning: response.data.running,
-                    bps: response.data.bpsRateLimit.toString(),
-                    cpu: (response.data.cpuMaxUsage * 100).toString(),
-                    workers: response.data.spammerWorkers.toString(),
-                    workersMax: response.data.spammerWorkersMax
+                    isRunning: response.running,
+                    bps: response.bpsRateLimit.toString(),
+                    cpu: (response.cpuMaxUsage * 100).toString(),
+                    workers: response.spammerWorkers.toString(),
+                    workersMax: response.spammerWorkersMax
                 });
             } else {
-                console.log(response.error);
+                console.log("loging eror", response.error);
             }
         } catch (err) {
             console.log(err);
@@ -248,12 +244,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
      */
     private async pluginStart(): Promise<void> {
         try {
-            await FetchHelper.json<unknown, {
-                data?: ISpammerSettings;
-                error?: {
-                    message: string;
-                };
-            }>(
+            await FetchHelper.json<unknown, ISpammerSettings>(
                 `${window.location.protocol}//${window.location.host}`,
                 "/api/plugins/spammer/v1/start",
                 "post",
@@ -275,12 +266,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
      */
     private async pluginStop(): Promise<void> {
         try {
-            await FetchHelper.json<unknown, {
-                data?: ISpammerSettings;
-                error?: {
-                    message: string;
-                };
-            }>(
+            await FetchHelper.json<unknown, ISpammerSettings>(
                 `${window.location.protocol}//${window.location.host}`,
                 "/api/plugins/spammer/v1/stop",
                 "post",
