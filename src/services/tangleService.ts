@@ -340,18 +340,15 @@ export class TangleService {
      */
     public async blockDetails(blockId: string): Promise<{
         metadata?: IBlockMetadata;
-        childrenIds?: string[];
         unavailable?: boolean;
     } | undefined> {
         try {
             const client = this.buildClient();
 
             const metadata = await client.blockMetadata(blockId);
-            const children = await client.blockChildren(blockId);
 
             return {
-                metadata,
-                childrenIds: children ? children.children : undefined
+                metadata
             };
         } catch (err) {
             if (err instanceof ClientError && this.checkForUnavailable(err)) {
