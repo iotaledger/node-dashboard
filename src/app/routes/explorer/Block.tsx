@@ -46,7 +46,6 @@ class Block extends AsyncComponent<RouteComponentProps<BlockRouteProps>, BlockSt
         this._tangleService = ServiceFactory.get<TangleService>("tangle");
 
         this.state = {
-            childrenBusy: true,
             dataUrls: {},
             selectedDataUrl: "json"
         };
@@ -275,33 +274,6 @@ class Block extends AsyncComponent<RouteComponentProps<BlockRouteProps>, BlockSt
                             </a>
                         </div>
                     </div>
-                    <div className="card margin-t-s padding-l">
-                        <div className="row margin-b-s">
-                            <h2>Child Blocks</h2>
-                            {this.state.childrenIds !== undefined && (
-                                <span className="card--header-count">
-                                    {this.state.childrenIds.length}
-                                </span>
-                            )}
-                        </div>
-                        {this.state.childrenBusy && (<Spinner />)}
-                        {this.state.childrenIds?.map(childId => (
-                            <div className="card--value card--value__mono margin-b-s" key={childId}>
-                                <Link
-                                    to={
-                                        `/explorer/block/${childId}`
-                                    }
-                                >
-                                    {childId}
-                                </Link>
-                            </div>
-                        ))}
-                        {!this.state.childrenBusy &&
-                            this.state.childrenIds &&
-                            this.state.childrenIds.length === 0 && (
-                                <p>There are no children for this block.</p>
-                            )}
-                    </div>
                 </div>
             </div>
         );
@@ -316,10 +288,7 @@ class Block extends AsyncComponent<RouteComponentProps<BlockRouteProps>, BlockSt
         this.setState({
             metadata: details?.metadata,
             conflictReason: this.calculateConflictReason(details?.metadata),
-            childrenIds: details?.childrenIds && details?.childrenIds.length > 0
-                ? details?.childrenIds : (this.state.childrenIds ?? []),
             blockTangleStatus: this.calculateStatus(details?.metadata),
-            childrenBusy: false,
             metadataStatus: details?.unavailable ? "The node is currently unavailable or is not synced" : undefined
         });
 

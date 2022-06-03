@@ -23,4 +23,11 @@ export interface ISpammerSettings {
      * The max number of spam workers.
      */
     spammerWorkersMax: number;
+
+    /**
+     * The error messsage.
+     */
+    error?: {
+        message: string;
+    };
 }
