@@ -207,7 +207,7 @@ class Output extends Component<OutputProps, OutputState> {
                                         Foundry id:
                                     </div>
                                     <div className="card--value row">
-                                        {this.buildFoundyId()}
+                                        {this.buildFoundryId()}
                                     </div>
                                     <div className="card--label">
                                         Serial number:
@@ -331,7 +331,7 @@ class Output extends Component<OutputProps, OutputState> {
      * Build a FoundryId from aliasAddres, serialNumber and tokenSchemeType
      * @returns The FoundryId string.
      */
-    private buildFoundyId() {
+    private buildFoundryId() {
         if (this.state.output.type === FOUNDRY_OUTPUT_TYPE) {
             const immutableAliasUnlockCondition =
             this.state.output.unlockConditions[0] as IImmutableAliasUnlockCondition;
