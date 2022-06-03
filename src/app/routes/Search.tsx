@@ -158,9 +158,9 @@ class Search extends AsyncComponent<RouteComponentProps<SearchRouteProps>, Searc
                             objParam = Converter.bytesToHex(Blake2b.sum256(writeStream.finalBytes()), true);
                         } else if (response?.address) {
                             objType = "address";
-                        } else if (response.output) {
-                            objType = "block";
-                            objParam = response.output.metadata.blockId;
+                        } else if (response.outputId) {
+                            objType = "output";
+                            objParam = response.outputId;
                         } else if (response.milestone) {
                             objType = "milestone";
                             objParam = response.milestone.index.toString();

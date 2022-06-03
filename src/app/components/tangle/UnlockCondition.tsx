@@ -65,7 +65,7 @@ class UnlockCondition extends Component<UnlockConditionProps, UnlockCondtionStat
                         {this.props.unlockCondition.type === STORAGE_DEPOSIT_RETURN_UNLOCK_CONDITION_TYPE && (
                             <React.Fragment>
                                 <Bech32Address
-                                    activeLinks={false}
+                                    activeLinks={true}
                                     showHexAddress={false}
                                     address={this.props.unlockCondition.returnAddress}
                                 />
@@ -82,7 +82,7 @@ class UnlockCondition extends Component<UnlockConditionProps, UnlockCondtionStat
                             <React.Fragment>
                                 {this.props.unlockCondition.type === EXPIRATION_UNLOCK_CONDITION_TYPE && (
                                     <Bech32Address
-                                        activeLinks={false}
+                                        activeLinks={true}
                                         showHexAddress={false}
                                         address={this.props.unlockCondition.returnAddress}
                                     />

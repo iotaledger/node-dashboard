@@ -1,27 +1,23 @@
 import { BigInteger } from "big-integer";
+import { IBech32AddressDetails } from "./IBech32AddressDetails";
 /**
  * Address details.
  */
- export interface IAddressDetails {
-    /**
-     * The address the details are for.
-     */
-    address?: string;
-
+ export interface IAddressDetails extends IBech32AddressDetails {
     /**
      * The balance of the address.
      */
-    balance: number;
+    balance?: number;
 
     /**
      * Nativ tokens.
      */
-    nativeTokens: {
+    nativeTokens?: {
         [id: string]: BigInteger;
     };
 
     /**
      * The ledger index at which these outputs where available at.
      */
-    ledgerIndex: number;
+    ledgerIndex?: number;
 }

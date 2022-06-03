@@ -1,6 +1,6 @@
 import { Blake2b } from "@iota/crypto.js";
-import { BASIC_OUTPUT_TYPE, ALIAS_OUTPUT_TYPE, FOUNDRY_OUTPUT_TYPE, NFT_OUTPUT_TYPE, TREASURY_OUTPUT_TYPE, IOutputResponse, SIMPLE_TOKEN_SCHEME_TYPE, ALIAS_ADDRESS_TYPE, NFT_ADDRESS_TYPE } from "@iota/iota.js";
-import { Converter, HexHelper } from "@iota/util.js";
+import { BASIC_OUTPUT_TYPE, ALIAS_OUTPUT_TYPE, FOUNDRY_OUTPUT_TYPE, NFT_OUTPUT_TYPE, TREASURY_OUTPUT_TYPE, IOutputResponse, SIMPLE_TOKEN_SCHEME_TYPE, ALIAS_ADDRESS_TYPE, NFT_ADDRESS_TYPE, IImmutableAliasUnlockCondition, IAliasAddress } from "@iota/iota.js";
+import { Converter, HexHelper, WriteStream } from "@iota/util.js";
 import bigInt from "big-integer";
 import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
@@ -14,6 +14,7 @@ import Bech32Address from "./Bech32Address";
 import Feature from "./Feature";
 import { OutputProps } from "./OutputProps";
 import { OutputState } from "./OutputState";
+import Token from "./Token";
 import UnlockCondition from "./UnlockCondition";
 
 /**
@@ -31,8 +32,11 @@ class Output extends Component<OutputProps, OutputState> {
             formatFull: false,
             isGenesis: (this.isOutputResponse(props.output)) ? props.output.metadata.blockId === "0".repeat(64) : false,
             output: (this.isOutputResponse(props.output)) ? props.output.output : props.output,
-            showDetails: false
+            showDetails: this.props.showDetails ?? false,
+            showTokens: false
         };
+        console.log("output is output response", (this.isOutputResponse(props.output)));
+        console.log("output in output:", this.state.output);
     }
 
     /**
@@ -202,6 +206,12 @@ class Output extends Component<OutputProps, OutputState> {
                             {this.state.output.type === FOUNDRY_OUTPUT_TYPE && (
                                 <React.Fragment>
                                     <div className="card--label">
+                                        Foundry id:
+                                    </div>
+                                    <div className="card--value row">
+                                        {this.buildFoundyId()}
+                                    </div>
+                                    <div className="card--label">
                                         Serial number:
                                     </div>
                                     <div className="card--value row">
@@ -265,31 +275,46 @@ class Output extends Component<OutputProps, OutputState> {
                                             ))}
                                         </React.Fragment>
                                     )}
-                                    {this.state.output.nativeTokens?.map((token, idx: number) => (
-                                        <React.Fragment key={idx}>
-                                            <div className="native-token padding-t-s">
-                                                <h3>Native token</h3>
-                                                <div className="card--label">
-                                                    Token id:
+
+                                    {this.state.output?.nativeTokens && (
+                                        <React.Fragment>
+                                            <div
+                                                className="card--content__input margin-t-s"
+                                                onClick={() => this.setState({ showTokens: !this.state.showTokens })}
+                                            >
+                                                <div className={classNames(
+                                                        "margin-r-t",
+                                                        "card--content__input--dropdown",
+                                                        { "opened": this.state.showTokens }
+                                                    )}
+                                                >
+                                                    <DropdownIcon />
                                                 </div>
-                                                <div className="card--value row">
-                                                    {token.id}
-                                                </div>
-                                                <div className="card--label">
-                                                    Amount:
-                                                </div>
-                                                <div className="card--value row">
-                                                    {token.amount}
-                                                </div>
+                                                <h3 className="card--content__input--label">
+                                                    Native Tokens
+                                                </h3>
                                             </div>
+                                            {this.state.showTokens && (
+                                                <div className="card--content--border-l">
+                                                    {this.state.output.nativeTokens?.map((token, idx: number) => (
+                                                        <Token
+                                                            key={idx}
+                                                            index={idx + 1}
+                                                            token={{
+                                                                id: token.id,
+                                                                amount: token.amount
+                                                            }}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            )}
                                         </React.Fragment>
-                                    ))}
+                                    )}
                                 </React.Fragment>
                             )}
 
                         </div>
                     )}
-
                 </div>
             </div>
         );
@@ -301,7 +326,7 @@ class Output extends Component<OutputProps, OutputState> {
      * @returns True of object is IOutputResponse.
      */
     private isOutputResponse(object: unknown): object is IOutputResponse {
-        return Object.prototype.hasOwnProperty.call(object, "blockId");
+        return Object.prototype.hasOwnProperty.call(object, "metadata");
     }
 
     /**
@@ -315,6 +340,31 @@ class Output extends Component<OutputProps, OutputState> {
             : HexHelper.addPrefix(Converter.bytesToHex(
                 Blake2b.sum256(Converter.hexToBytes(HexHelper.stripPrefix(this.props.outputId)))
             ));
+    }
+
+    /**
+     * Build a FoundryId from aliasAddres, serialNumber and tokenSchemeType
+     * @returns The FoundryId string.
+     */
+    private buildFoundyId() {
+        if (this.state.output.type === FOUNDRY_OUTPUT_TYPE) {
+            const immutableAliasUnlockCondition =
+            this.state.output.unlockConditions[0] as IImmutableAliasUnlockCondition;
+            const aliasId = (immutableAliasUnlockCondition.address as IAliasAddress).aliasId;
+            const typeWS = new WriteStream();
+            typeWS.writeUInt8("alias address type", ALIAS_ADDRESS_TYPE);
+            const aliasAddress = HexHelper.addPrefix(
+                `${typeWS.finalHex()}${HexHelper.stripPrefix(aliasId)}`
+            );
+            const serialNumberWS = new WriteStream();
+            serialNumberWS.writeUInt32("serialNumber", this.state.output.serialNumber);
+            const serialNumberHex = serialNumberWS.finalHex();
+            const tokenSchemeTypeWS = new WriteStream();
+            tokenSchemeTypeWS.writeUInt8("tokenSchemeType", this.state.output.tokenScheme.type);
+            const tokenSchemeTypeHex = tokenSchemeTypeWS.finalHex();
+
+            return `${aliasAddress}${serialNumberHex}${tokenSchemeTypeHex}`;
+        }
     }
 }
 
