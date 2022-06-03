@@ -1,7 +1,5 @@
-import { Blake2b } from "@iota/crypto.js";
 import { BASIC_OUTPUT_TYPE, ALIAS_OUTPUT_TYPE, FOUNDRY_OUTPUT_TYPE, NFT_OUTPUT_TYPE, TREASURY_OUTPUT_TYPE, IOutputResponse, SIMPLE_TOKEN_SCHEME_TYPE, ALIAS_ADDRESS_TYPE, NFT_ADDRESS_TYPE, IImmutableAliasUnlockCondition, IAliasAddress } from "@iota/iota.js";
-import { Converter, HexHelper, WriteStream } from "@iota/util.js";
-import bigInt from "big-integer";
+import { HexHelper, WriteStream } from "@iota/util.js";
 import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
 import { Link } from "react-router-dom";
@@ -35,8 +33,6 @@ class Output extends Component<OutputProps, OutputState> {
             showDetails: this.props.showDetails ?? false,
             showTokens: false
         };
-        console.log("output is output response", (this.isOutputResponse(props.output)));
-        console.log("output in output:", this.state.output);
     }
 
     /**
@@ -164,7 +160,8 @@ class Output extends Component<OutputProps, OutputState> {
                                         showHexAddress={false}
                                         address={
                                             {
-                                                aliasId: this.resolveId(this.state.output.aliasId),
+                                                aliasId: FormatHelper
+                                                        .resolveId(this.state.output.aliasId, this.props.outputId),
                                                 type: ALIAS_ADDRESS_TYPE
                                             }
                                         }
@@ -196,7 +193,8 @@ class Output extends Component<OutputProps, OutputState> {
                                     showHexAddress={false}
                                     address={
                                             {
-                                                nftId: this.resolveId(this.state.output.nftId),
+                                                nftId: FormatHelper
+                                                        .resolveId(this.state.output.nftId, this.props.outputId),
                                                 type: NFT_ADDRESS_TYPE
                                             }
                                         }
@@ -327,19 +325,6 @@ class Output extends Component<OutputProps, OutputState> {
      */
     private isOutputResponse(object: unknown): object is IOutputResponse {
         return Object.prototype.hasOwnProperty.call(object, "metadata");
-    }
-
-    /**
-     * Check if id is all 0 because it hasn't moved and compute it as a hash of the outputId.
-     * @param id The id to resolve.
-     * @returns The correct id.
-     */
-    private resolveId(id: string): string {
-        return !HexHelper.toBigInt256(id).eq(bigInt.zero)
-            ? id
-            : HexHelper.addPrefix(Converter.bytesToHex(
-                Blake2b.sum256(Converter.hexToBytes(HexHelper.stripPrefix(this.props.outputId)))
-            ));
     }
 
     /**

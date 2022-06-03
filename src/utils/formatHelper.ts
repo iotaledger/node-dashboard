@@ -1,4 +1,7 @@
+import { Blake2b } from "@iota/crypto.js";
 import { INodeInfoBaseToken, UnitsHelper } from "@iota/iota.js";
+import { Converter, HexHelper } from "@iota/util.js";
+import bigInt from "big-integer";
 import humanize from "humanize-duration";
 import moment from "moment";
 import { ServiceFactory } from "../factories/serviceFactory";
@@ -150,6 +153,20 @@ export class FormatHelper {
             return valueInMs * 1000;
         }
         return valueInMs;
+    }
+
+    /**
+     * Check if id is all 0 because it hasn't moved and compute it as a hash of the outputId.
+     * @param id The id to resolve.
+     * @param outputId The output id to hash if nft/alias id is all 0.
+     * @returns The correct id.
+     */
+    public static resolveId(id: string, outputId: string): string {
+        return !HexHelper.toBigInt256(id).eq(bigInt.zero)
+            ? id
+            : HexHelper.addPrefix(Converter.bytesToHex(
+                Blake2b.sum256(Converter.hexToBytes(HexHelper.stripPrefix(outputId)))
+            ));
     }
 
     /**

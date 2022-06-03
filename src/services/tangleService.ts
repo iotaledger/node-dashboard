@@ -4,6 +4,7 @@ import { ServiceFactory } from "../factories/serviceFactory";
 import { IAddressDetails } from "../models/IAddressDetails";
 import { ISearchResponse } from "../models/tangle/ISearchResponse";
 import { Bech32AddressHelper } from "../utils/bech32AddressHelper";
+import { FormatHelper } from "../utils/formatHelper";
 import { AuthService } from "./authService";
 /**
  * Service to handle api requests.
@@ -248,7 +249,10 @@ export class TangleService {
                     if (outputResponse.output) {
                         if (outputResponse.output.type === ALIAS_OUTPUT_TYPE) {
                             const address = Bech32AddressHelper
-                                            .buildAddress(queryLowerNoPrefix, bech32HRP, ALIAS_ADDRESS_TYPE);
+                                        .buildAddress(
+                                            FormatHelper.resolveId(outputResponse.output.aliasId, queryLowerNoPrefix),
+                                            bech32HRP, ALIAS_ADDRESS_TYPE
+                                        );
                             const foundryOutputs = await indexerPlugin
                                                         .foundries({ aliasAddressBech32: address.bech32 });
                             return {
@@ -258,7 +262,10 @@ export class TangleService {
                         }
                         if (outputResponse.output.type === NFT_OUTPUT_TYPE) {
                             const address = Bech32AddressHelper
-                                            .buildAddress(queryLowerNoPrefix, bech32HRP, NFT_ADDRESS_TYPE);
+                                            .buildAddress(
+                                                FormatHelper.resolveId(outputResponse.output.nftId, queryLowerNoPrefix),
+                                                bech32HRP, NFT_ADDRESS_TYPE
+                                            );
                             return {
                                 address,
                                 addressOutputIds: [HexHelper.addPrefix(queryLowerNoPrefix)]
