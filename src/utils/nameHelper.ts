@@ -109,14 +109,14 @@ export class NameHelper {
      */
     public static getFeatureBlockTypeName(type: number): string {
         if (type === SENDER_FEATURE_TYPE) {
-            return "Sender Feature Block";
+            return "Sender Feature";
         } else if (type === ISSUER_FEATURE_TYPE) {
-            return "Issuer Feature Block";
+            return "Issuer Feature";
         } else if (type === METADATA_FEATURE_TYPE) {
-            return "Metadata Feature Block";
+            return "Metadata Feature";
         } else if (type === TAG_FEATURE_TYPE) {
-            return "Tag Feature Block";
+            return "Tag Feature";
         }
-        return "Unknown Feature Block";
+        return "Unknown Feature";
     }
 }

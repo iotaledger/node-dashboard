@@ -34,6 +34,8 @@ import Block from "./routes/explorer/Block";
 import { BlockRouteProps } from "./routes/explorer/BlockRouteProps";
 import Milestone from "./routes/explorer/Milestone";
 import { MilestoneRouteProps } from "./routes/explorer/MilestoneRouteProps";
+import OutputRoute from "./routes/explorer/OutputRoute";
+import { OutputRouteProps } from "./routes/explorer/OutputRouteProps";
 import Home from "./routes/Home";
 import Login from "./routes/Login";
 import Peer from "./routes/Peer";
@@ -387,6 +389,11 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                                         path="/explorer/address/:address"
                                         component={(props: RouteComponentProps<AddressRouteProps>) =>
                                             (<Address {...props} />)}
+                                    />
+                                    <Route
+                                        path="/explorer/output/:outputId"
+                                        component={(props: RouteComponentProps<OutputRouteProps>) =>
+                                            (<OutputRoute {...props} />)}
                                     />
                                     <Route
                                         path="/visualizer"

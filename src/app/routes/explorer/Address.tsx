@@ -8,6 +8,7 @@ import { NodeConfigService } from "../../../services/nodeConfigService";
 import { TangleService } from "../../../services/tangleService";
 import { Bech32AddressHelper } from "../../../utils/bech32AddressHelper";
 import { FormatHelper } from "../../../utils/formatHelper";
+import { NameHelper } from "../../../utils/nameHelper";
 import AsyncComponent from "../../components/layout/AsyncComponent";
 import Pagination from "../../components/layout/Pagination";
 import Spinner from "../../components/layout/Spinner";
@@ -78,10 +79,9 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
 
         const result = await this._tangleService.search(this.props.match.params.address);
 
-        if (result?.address?.address) {
+        if (result?.address) {
             this.setState({
                 address: result.address,
-                bech32AddressDetails: Bech32AddressHelper.buildAddress(result.address.address, this._bech32Hrp),
                 balance: result.address.balance,
                 outputIds: result.addressOutputIds
             }, async () => {
@@ -90,7 +90,6 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                 if (result.addressOutputIds) {
                     for (const outputId of result.addressOutputIds) {
                         const outputResult = await this._tangleService.outputDetails(outputId);
-
                         if (outputResult) {
                             outputs.push(outputResult);
 
@@ -136,12 +135,15 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                     </Link>
                     <div className="card margin-t-m padding-l">
                         <div className="card--content padding-0">
-                            <h2>Address</h2>
-                            {this.state.bech32AddressDetails && (
+                            <h2> {this.state.address?.type
+                                ? NameHelper.getAddressTypeName(this.state.address.type)
+                                : "Address"}
+                            </h2>
+                            {this.state.address?.bech32 && (
                                 <Bech32Address
                                     activeLinks={false}
                                     showHexAddress={true}
-                                    addressDetails={this.state.bech32AddressDetails}
+                                    addressDetails={this.state.address}
                                 />
                             )}
                             {this.state.balance !== undefined && (
@@ -191,7 +193,7 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                                                             index={idx}
                                                             token={{
                                                                 id: key,
-                                                                amount: this.state.address
+                                                                amount: this.state.address?.nativeTokens
                                                                         ? this.state.address?.nativeTokens[key]
                                                                             .toString()
                                                                         : "0"

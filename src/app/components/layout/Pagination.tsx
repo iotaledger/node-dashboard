@@ -83,13 +83,13 @@ class Pagination extends Component<PaginationProps, PaginationState> {
             <ul
                 className={classNames("pagination", {
                     [this.props.classNames as string]: this.props.classNames !== undefined,
-                    hidden: (this.props.currentPage === 0 || this.state.paginationRange.length < 2)
+                    "d-none": (this.props.currentPage === 0 || this.state.paginationRange.length < 2)
                 })}
             >
                 <li
                     className={classNames("pagination-item", {
                         disabled: this.props.currentPage < 11,
-                        hidden: this.state.isMobile
+                        "d-none": this.state.isMobile
                     })}
                     onClick={() => {
                         this.props.onPageChange(this.props.currentPage - 10);
@@ -138,7 +138,7 @@ class Pagination extends Component<PaginationProps, PaginationState> {
                 <li
                     className={classNames("pagination-item", {
                         disabled: this.props.currentPage > this.state.lastPage - 10,
-                        hidden: this.state.isMobile
+                        "d-none": this.state.isMobile
                     })}
                     onClick={() => {
                         this.props.onPageChange(this.props.currentPage + 10);

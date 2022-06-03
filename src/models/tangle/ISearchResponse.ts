@@ -28,6 +28,11 @@ export interface ISearchResponse {
     addressOutputIds?: string[];
 
     /**
+     * Output id if it waas found.
+     */
+    outputId?: string;
+
+    /**
      * Output if it was found (block will also be populated).
      */
     output?: IOutputResponse;

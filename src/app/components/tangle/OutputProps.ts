@@ -4,7 +4,7 @@ export interface OutputProps {
     /**
      * The index within the parent.
      */
-    index: number;
+    index?: number;
 
     /**
      * The output id.
@@ -15,4 +15,9 @@ export interface OutputProps {
      * The output to display.
      */
     output: IOutputResponse | OutputTypes;
+
+    /**
+     * Expand output details.
+     */
+    showDetails?: boolean;
 }

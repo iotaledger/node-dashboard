@@ -20,4 +20,9 @@ export interface OutputState {
      * Shows details of the specified output
      */
     showDetails: boolean;
+
+    /**
+     * Shows tokens of the specified output
+     */
+    showTokens: boolean;
 }
