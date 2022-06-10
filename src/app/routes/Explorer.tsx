@@ -57,7 +57,7 @@ class Peers extends AsyncComponent<RouteComponentProps, ExplorerState> {
         super.componentDidMount();
 
         this._milestonesSubscription = this._metricsService.subscribe<IMs>(
-            WebSocketTopic.Ms,
+            WebSocketTopic.Milestone,
             undefined,
             allData => {
                 const nonNull = allData.filter(d => d !== undefined && d !== null);
@@ -76,9 +76,9 @@ class Peers extends AsyncComponent<RouteComponentProps, ExplorerState> {
             data => {
                 if (data) {
                     this.setState({
-                        bps: data.bps.toFixed(1).toString(),
-                        rbps: data.rbps.toFixed(1).toString(),
-                        referencedRate: `${data.referenced_rate.toFixed(1).toString()}%`
+                        bps: data.blocksPerSecond.toFixed(1).toString(),
+                        rbps: data.referencedBlocksPerSecond.toFixed(1).toString(),
+                        referencedRate: `${data.referencedRate.toFixed(1).toString()}%`
                     });
                 }
             }

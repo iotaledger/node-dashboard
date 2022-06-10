@@ -58,10 +58,8 @@ export class MetricsService {
             { topic: WebSocketTopic.BPSMetrics, isPublic: true },
             { topic: WebSocketTopic.DBSizeMetric, isPublic: false },
             { topic: WebSocketTopic.PeerMetric, isPublic: false },
-            { topic: WebSocketTopic.Ms, isPublic: true },
-            { topic: WebSocketTopic.ConfirmedMsMetrics, isPublic: true },
-            { topic: WebSocketTopic.SpamMetrics, isPublic: false },
-            { topic: WebSocketTopic.AvgSpamMetrics, isPublic: false }
+            { topic: WebSocketTopic.Milestone, isPublic: true },
+            { topic: WebSocketTopic.ConfirmedMsMetrics, isPublic: true }
         ];
 
         for (const t of topics) {
