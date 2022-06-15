@@ -457,6 +457,7 @@ export class TangleService {
             `${window.location.protocol}//${window.location.host}`,
             {
                 basePath: "/dashboard/api/v2/",
+                basePluginPath: "/dashboard/api/plugins/",
                 headers
             });
     }
