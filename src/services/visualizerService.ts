@@ -139,7 +139,7 @@ export class VisualizerService {
      */
     private updateVertices(vert?: IVertex): void {
         if (vert) {
-            const shortVertId = vert.id.slice(0, 7);
+            const shortVertId = vert.id.slice(0, 10);
 
             let vertex = this._vertices[shortVertId];
 
