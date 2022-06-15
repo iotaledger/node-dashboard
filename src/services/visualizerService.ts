@@ -131,6 +131,13 @@ export class VisualizerService {
         this._subscriptions = [];
         this._vertices = {};
         this._verticesOrder = [];
+
+        // reset counts
+        this._counts.total = 0;
+        this._counts.solid = 0;
+        this._counts.referenced = 0;
+        this._counts.conflicting = 0;
+        this._counts.tips = 0;
     }
 
     /**
