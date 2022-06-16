@@ -4,10 +4,10 @@ export interface IVertex {
     parents: string;
     isSolid: boolean;
     isReferenced: boolean;
+    isConflicting: boolean;
     isMilestone: boolean;
     isTip: boolean;
 
     // info set by the visualizer itself
-    isConflicting: boolean;
     isSelected: boolean;
 }
