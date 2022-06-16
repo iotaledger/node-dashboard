@@ -9,7 +9,6 @@ import { WebSocketTopic } from "../../../models/websocket/webSocketTopic";
 import { AuthService } from "../../../services/authService";
 import { EventAggregator } from "../../../services/eventAggregator";
 import { MetricsService } from "../../../services/metricsService";
-import { DataHelper } from "../../../utils/dataHelper";
 import { FormatHelper } from "../../../utils/formatHelper";
 import AsyncComponent from "./AsyncComponent";
 import Breakpoint from "./Breakpoint";
@@ -120,7 +119,7 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
             WebSocketTopic.NodeStatus,
             data => {
                 if (data) {
-                    const memorySizeFormatted = FormatHelper.iSize(DataHelper.calculateMemoryUsage(data), 1);
+                    const memorySizeFormatted = FormatHelper.iSize(data.memUsage, 1);
 
                     if (memorySizeFormatted !== this.state.memorySizeFormatted) {
                         this.setState({ memorySizeFormatted });
@@ -131,7 +130,7 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
                 const nonNull = allData.filter(d => d !== undefined && d !== null);
                 this.setState({
                     memorySize: nonNull
-                        .map(d => DataHelper.calculateMemoryUsage(d))
+                        .map(d => d.memUsage)
                 });
             });
 

@@ -32,7 +32,7 @@ If Node.js is installed, you should see the version that's installed.
 
 # Getting Started
 
-You need to run a local version of the Hornet node software from the main branch [https://github.com/gohornet/hornet/](https://github.com/gohornet/hornet/)
+You need to run a local version of the Hornet node software from the main branch [https://github.com/iotaledger/hornet/](https://github.com/iotaledger/hornet/)
 
 1. Make sure to set `dashboard.dev` to true in Hornet config, to enable the node to serve assets
    from the dev instance.

@@ -16,7 +16,6 @@ import { NodeConfigService } from "../../services/nodeConfigService";
 import { SettingsService } from "../../services/settingsService";
 import { ThemeService } from "../../services/themeService";
 import { BrandHelper } from "../../utils/brandHelper";
-import { DataHelper } from "../../utils/dataHelper";
 import { FormatHelper } from "../../utils/formatHelper";
 import AsyncComponent from "../components/layout/AsyncComponent";
 import Graph from "../components/layout/Graph";
@@ -136,7 +135,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
                     const nodeName = data.nodeAlias ? data.nodeAlias : BrandHelper.getConfiguration().name;
                     const nodeId = data.nodeId || "No node Id.";
                     const uptime = FormatHelper.duration(data.uptime);
-                    const memory = FormatHelper.iSize(DataHelper.calculateMemoryUsage(data));
+                    const memory = FormatHelper.iSize(data.memUsage);
 
                     if (nodeName !== this.state.nodeName) {
                         this.setState({ nodeName });
