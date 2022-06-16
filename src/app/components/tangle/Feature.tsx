@@ -21,15 +21,11 @@ class FeatureBlock extends Component<FeatureProps, FeatureState> {
      constructor(props: FeatureProps) {
         super(props);
 
-        const utf8Index = this.props.feature.type === METADATA_FEATURE_TYPE ? Converter.hexToUtf8(this.props.feature.data) : "";
-        const matchHexIndex = this.props.feature.type === METADATA_FEATURE_TYPE ? this.props.feature.data.match(/.{1,2}/g) : "";
-        const hexIndex = matchHexIndex ? matchHexIndex.join(" ") : (this.props.feature.type === METADATA_FEATURE_TYPE  ? this.props.feature.data : "");
-
         let hexData;
         let utf8Data;
         let jsonData;
 
-        if (this.props.feature.type === METADATA_FEATURE_TYPE ) {
+        if (this.props.feature.type === METADATA_FEATURE_TYPE) {
             const matchHexData = this.props.feature.data.match(/.{1,2}/g);
 
             hexData = matchHexData ? matchHexData.join(" ") : this.props.feature.data;
@@ -45,7 +41,7 @@ class FeatureBlock extends Component<FeatureProps, FeatureState> {
             showDetails: false,
             utf8Data,
             hexData,
-            jsonData,
+            jsonData
         };
     }
 

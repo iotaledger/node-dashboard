@@ -13,7 +13,7 @@ export interface FeatureState {
      * UTF8 view of data.
      */
     utf8Data?: string;
- 
+
     /**
      * JSON view of data.
      */
