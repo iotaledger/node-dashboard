@@ -235,7 +235,7 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                                     index={idx + 1}
                                     output={output}
                                     outputId={this.state.outputIds
-                                            ? this.state.outputIds[output.metadata.outputIndex]
+                                            ? this.state.outputIds[idx]
                                             : ""}
                                 />
                             ))}

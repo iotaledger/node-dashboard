@@ -1,7 +1,10 @@
 import { ISSUER_FEATURE_TYPE, METADATA_FEATURE_TYPE, SENDER_FEATURE_TYPE, TAG_FEATURE_TYPE } from "@iota/iota.js";
+import { Converter } from "@iota/util.js";
 import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
+import { ClipboardHelper } from "../../../utils/clipboardHelper";
 import { NameHelper } from "../../../utils/nameHelper";
+import BlockButton from "../layout/BlockButton";
 import { ReactComponent as DropdownIcon } from "./../../../assets/dropdown-arrow.svg";
 import Bech32Address from "./Bech32Address";
 import { FeatureProps } from "./FeatureProps";
@@ -18,8 +21,31 @@ class FeatureBlock extends Component<FeatureProps, FeatureState> {
      constructor(props: FeatureProps) {
         super(props);
 
+        const utf8Index = this.props.feature.type === METADATA_FEATURE_TYPE ? Converter.hexToUtf8(this.props.feature.data) : "";
+        const matchHexIndex = this.props.feature.type === METADATA_FEATURE_TYPE ? this.props.feature.data.match(/.{1,2}/g) : "";
+        const hexIndex = matchHexIndex ? matchHexIndex.join(" ") : (this.props.feature.type === METADATA_FEATURE_TYPE  ? this.props.feature.data : "");
+
+        let hexData;
+        let utf8Data;
+        let jsonData;
+
+        if (this.props.feature.type === METADATA_FEATURE_TYPE ) {
+            const matchHexData = this.props.feature.data.match(/.{1,2}/g);
+
+            hexData = matchHexData ? matchHexData.join(" ") : this.props.feature.data;
+            utf8Data = Converter.hexToUtf8(this.props.feature.data);
+
+            try {
+                jsonData = JSON.stringify(JSON.parse(utf8Data), undefined, "  ");
+            } catch {}
+        }
+
+
         this.state = {
-            showDetails: false
+            showDetails: false,
+            utf8Data,
+            hexData,
+            jsonData,
         };
     }
 
@@ -54,18 +80,63 @@ class FeatureBlock extends Component<FeatureProps, FeatureState> {
                         this.props.feature.type === ISSUER_FEATURE_TYPE) && (
                             <Bech32Address
                                 activeLinks={false}
-                                showHexAddress={false}
+                                showHexAddress={true}
                                 address={this.props.feature.address}
                             />
                         )}
                         {this.props.feature.type === METADATA_FEATURE_TYPE && (
                             <React.Fragment>
-                                <div className="card--label">
-                                    Data:
-                                </div>
-                                <div className="card--value row">
-                                    {this.props.feature.data}
-                                </div>
+                                {!this.state.jsonData && this.state.utf8Data && (
+                                    <React.Fragment>
+                                        <div className="card--label row bottom spread">
+                                            <span className="margin-r-t">Data UTF8</span>
+                                            <BlockButton
+                                                onClick={() => ClipboardHelper.copy(
+                                                    this.state.utf8Data
+                                                )}
+                                                buttonType="copy"
+                                                labelPosition="top"
+                                            />
+                                        </div>
+                                        <div className="card--value card--value-textarea card--value-textarea__utf8">
+                                            {this.state.utf8Data}
+                                        </div>
+                                    </React.Fragment>
+                                )}
+                                {this.state.jsonData && (
+                                    <React.Fragment>
+                                        <div className="card--label row bottom spread">
+                                            Data JSON
+                                            <BlockButton
+                                                onClick={() => ClipboardHelper.copy(
+                                                    this.state.jsonData
+                                                )}
+                                                buttonType="copy"
+                                                labelPosition="top"
+                                            />
+                                        </div>
+                                        <div className="card--value card--value-textarea card--value-textarea__json">
+                                            {this.state.jsonData}
+                                        </div>
+                                    </React.Fragment>
+                                )}
+                                {this.state.hexData && (
+                                    <React.Fragment>
+                                        <div className="card--label row middle">
+                                            <span className="margin-r-t">Data Hex</span>
+                                            <BlockButton
+                                                onClick={() => ClipboardHelper.copy(
+                                                    this.state.hexData?.replace(/ /g, "")
+                                                )}
+                                                buttonType="copy"
+                                                labelPosition="right"
+                                            />
+                                        </div>
+                                        <div className="card--value card--value-textarea card--value-textarea__hex">
+                                            {this.state.hexData}
+                                        </div>
+                                    </React.Fragment>
+                                )}
                             </React.Fragment>
                         )}
                         {this.props.feature.type === TAG_FEATURE_TYPE && (
