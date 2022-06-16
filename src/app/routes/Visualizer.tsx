@@ -452,7 +452,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                         this._enteredVertexId = undefined;
                     }
                     if (node) {
-                        this._enteredVertexId = node.data?.shortId ?? node.id.slice(0, 7);
+                        this._enteredVertexId = node.data?.shortId ?? node.id.slice(0, 10);
                         this.connectedLinkStyle(this._enteredVertexId, true);
                     }
                 }
@@ -650,7 +650,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
 
             while (seenNodes.length > pointer) {
                 const node = seenNodes[pointer++];
-                const nodeId = node.data?.shortId ?? node.id.slice(0, 7);
+                const nodeId = node.data?.shortId ?? node.id.slice(0, 10);
 
                 if (nodeCallback?.(nodeId)) {
                     continue;

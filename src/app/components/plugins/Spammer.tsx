@@ -193,7 +193,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
         try {
             const response = await FetchHelper.json<unknown, ISpammerSettings>(
                     `${window.location.protocol}//${window.location.host}`,
-                    "/api/plugins/spammer/v1/status",
+                    "/dashboard/api/plugins/spammer/v1/status",
                     "get",
                     undefined,
                     Spammer.buildAuthHeaders()
@@ -246,7 +246,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
         try {
             await FetchHelper.json<unknown, ISpammerSettings>(
                 `${window.location.protocol}//${window.location.host}`,
-                "/api/plugins/spammer/v1/start",
+                "/dashboard/api/plugins/spammer/v1/start",
                 "post",
                 {
                     bpsRateLimit: Number.parseFloat(this.state.bps),
@@ -268,7 +268,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
         try {
             await FetchHelper.json<unknown, ISpammerSettings>(
                 `${window.location.protocol}//${window.location.host}`,
-                "/api/plugins/spammer/v1/stop",
+                "/dashboard/api/plugins/spammer/v1/stop",
                 "post",
                 undefined,
                 Spammer.buildAuthHeaders());

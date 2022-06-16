@@ -1,23 +1,9 @@
 import { IPeer } from "@iota/iota.js";
-import { INodeStatus } from "../models/websocket/INodeStatus";
 
 /**
  * Class to help with processing of data.
  */
 export class DataHelper {
-    /**
-     * Calculate the memory usage.
-     * @param status The status.
-     * @returns The calculate memory usage.
-     */
-    public static calculateMemoryUsage(status: INodeStatus): number {
-        return status.mem.heapInUse +
-            (status.mem.heapIdle - status.mem.heapReleased) +
-            status.mem.mSpanInUse +
-            status.mem.mCacheInUse +
-            status.mem.stackSys;
-    }
-
     /**
      * Format the address for the peer.
      * @param peer The peer.
