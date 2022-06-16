@@ -34,7 +34,8 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
         Unsolid: 0x8FE6FAFF,
         Referenced: 0x61E884FF,
         Conflicting: 0xFF8B5CFF,
-        Milestone: 0x666AF6FF,
+        Transaction: 0xC061E8FF,
+        Milestone: 0xD92121FF,
         Tip: 0xFFCA62FF,
         Unknown: 0x9AADCEFF
     };
@@ -131,6 +132,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
             total: "-",
             tips: "-",
             referenced: "-",
+            transactions: "-",
             conflicting: "-",
             solid: "-",
             isActive: true,
@@ -161,6 +163,9 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                         tips: counts.tips.toString(),
                         referenced: counts.total > 0
                             ? `${(counts.referenced / counts.total * 100).toFixed(2)}%`
+                            : "-",
+                        transactions: counts.total > 0
+                            ? `${(counts.transactions / counts.total * 100).toFixed(2)}%`
                             : "-",
                         conflicting: counts.total > 0
                             ? `${(counts.conflicting / counts.total * 100).toFixed(2)}%`
@@ -257,6 +262,12 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                             {this.state.referenced}
                         </div>
                         <div className="card--label">
+                            Transactions
+                        </div>
+                        <div className="card--value">
+                            {this.state.transactions}
+                        </div>
+                        <div className="card--label">
                             Conflicting
                         </div>
                         <div className="card--value">
@@ -283,6 +294,10 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                         <div className="key-panel-item">
                             <div className="key-marker vertex-state--referenced" />
                             <div className="key-label">Referenced</div>
+                        </div>
+                        <div className="key-panel-item">
+                            <div className="key-marker vertex-state--transaction" />
+                            <div className="key-label">Transaction</div>
                         </div>
                         <div className="key-panel-item">
                             <div className="key-marker vertex-state--conflicting" />
@@ -539,6 +554,9 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
             return "Conflicting";
         }
         if (vertex.isReferenced) {
+            if (vertex.isTransaction) {
+                return "Transaction";
+            }
             return "Referenced";
         }
         if (vertex.isSolid) {

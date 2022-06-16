@@ -4,6 +4,7 @@ export interface IVertex {
     parents: string;
     isSolid: boolean;
     isReferenced: boolean;
+    isTransaction: boolean;
     isConflicting: boolean;
     isMilestone: boolean;
     isTip: boolean;

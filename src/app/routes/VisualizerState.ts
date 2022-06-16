@@ -23,6 +23,11 @@ export interface VisualizerState {
     referenced: string;
 
     /**
+     * Transactions.
+     */
+    transactions: string;
+
+    /**
      * Conflicting.
      */
     conflicting: string;

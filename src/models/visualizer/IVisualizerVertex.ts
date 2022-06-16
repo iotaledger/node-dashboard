@@ -20,6 +20,11 @@ export interface IVisualizerVertex {
     isSolid?: boolean;
 
     /**
+     * Is it a transaction.
+     */
+    isTransaction?: boolean;
+
+    /**
      * Is the block conflicting.
      */
     isConflicting?: boolean;

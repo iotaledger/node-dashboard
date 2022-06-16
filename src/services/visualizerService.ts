@@ -73,6 +73,7 @@ export class VisualizerService {
             total: 0,
             solid: 0,
             referenced: 0,
+            transactions: 0,
             conflicting: 0,
             tips: 0
         };
@@ -136,6 +137,7 @@ export class VisualizerService {
         this._counts.total = 0;
         this._counts.solid = 0;
         this._counts.referenced = 0;
+        this._counts.transactions = 0;
         this._counts.conflicting = 0;
         this._counts.tips = 0;
     }
@@ -174,6 +176,9 @@ export class VisualizerService {
                 if (vert.isReferenced) {
                     this._counts.referenced++;
                 }
+                if (vert.isTransaction) {
+                    this._counts.transactions++;
+                }
                 if (vert.isConflicting) {
                     this._counts.conflicting++;
                 }
@@ -193,6 +198,7 @@ export class VisualizerService {
             vertex.parents = vert.parents;
             vertex.isSolid = vert.isSolid;
             vertex.isReferenced = vert.isReferenced;
+            vertex.isTransaction = vert.isTransaction;
             vertex.isConflicting = vert.isConflicting;
             vertex.isMilestone = vert.isMilestone;
             vertex.isTip = vert.isTip;
@@ -250,6 +256,9 @@ export class VisualizerService {
             }
             if (vertex.isReferenced) {
                 this._counts.referenced--;
+            }
+            if (vertex.isTransaction) {
+                this._counts.transactions--;
             }
             if (vertex.isConflicting) {
                 this._counts.conflicting--;

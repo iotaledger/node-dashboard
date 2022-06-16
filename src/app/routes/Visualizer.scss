@@ -124,12 +124,16 @@
     background-color: #61e884;
   }
 
+  .vertex-state--transaction {
+    background-color: #c061e8;
+  }
+
   .vertex-state--conflicting {
     background-color: #ff8b5c;
   }
 
   .vertex-state--milestone {
-    background-color: #666af6;
+    background-color: #d92121;
   }
 
   .vertex-state--unknown {
