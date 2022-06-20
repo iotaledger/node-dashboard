@@ -1,18 +1,19 @@
 import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
 import { ReactComponent as DropdownIcon } from "./../../../assets/dropdown-arrow.svg";
-import { PoWMilestoneOptionProps } from "./PoWMilestoneOptionProps";
-import { PoWMilestoneOptionState } from "./PoWMilestoneOptionState";
+import { ProtocolParamsMilestonOptionProps } from "./ProtocolParamsMilestonOptionProps";
+import { ProtocoParamsMilestoneOptionState } from "./ProtocolParamsMilestonOptionState";
 
 /**
- * Component which will display a PoW milestone option.
+ * Component which will display a Protocol parameters milestone option.
  */
-class PoWMilestoneOption extends Component<PoWMilestoneOptionProps, PoWMilestoneOptionState> {
+class ProtocolParamsMilestonOption
+    extends Component<ProtocolParamsMilestonOptionProps, ProtocoParamsMilestoneOptionState> {
     /**
-     * Create a new instance of PoW milestone option.
+     * Create a new instance of Protocol params milestone option.
      * @param props The props.
      */
-    constructor(props: PoWMilestoneOptionProps) {
+    constructor(props: ProtocolParamsMilestonOptionProps) {
         super(props);
 
         this.state = {
@@ -41,22 +42,28 @@ class PoWMilestoneOption extends Component<PoWMilestoneOptionProps, PoWMilestone
                         <DropdownIcon />
                     </div>
                     <h3 className="card--content__input--label">
-                        PoW
+                        Protocol Params
                     </h3>
                 </div>
                 {this.state.showDetails && (
                     <div className="card--content--border-l">
                         <div className="card--label">
-                            Next PoW Score
+                            Target Milestone Index
                         </div>
                         <div className="card--value">
-                            {this.props.option.nextPoWScore}
+                            {this.props.option.targetMilestoneIndex}
                         </div>
                         <div className="card--label">
-                            Next PoW Score Milestone Index
+                            Protocol version
                         </div>
                         <div className="card--value">
-                            {this.props.option.nextPoWScoreMilestoneIndex}
+                            {this.props.option.protocolVersion}
+                        </div>
+                        <div className="card--label">
+                            Params
+                        </div>
+                        <div className="card--value">
+                            {this.props.option.params}
                         </div>
                     </div>
                 )}
@@ -65,4 +72,4 @@ class PoWMilestoneOption extends Component<PoWMilestoneOptionProps, PoWMilestone
     }
 }
 
-export default PoWMilestoneOption;
+export default ProtocolParamsMilestonOption;

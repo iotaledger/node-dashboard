@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { RECEIPT_MILESTONE_OPTION_TYPE, POW_MILESTONE_OPTION_TYPE } from "@iota/iota.js";
+import { RECEIPT_MILESTONE_OPTION_TYPE, PROTOCOL_PARAMETERS_MILESTONE_OPTION_TYPE } from "@iota/iota.js";
 import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
 import { Link } from "react-router-dom";
@@ -9,7 +9,7 @@ import BlockButton from "../layout/BlockButton";
 import { ReactComponent as DropdownIcon } from "./../../../assets/dropdown-arrow.svg";
 import { MilestonePayloadProps } from "./MilestonePayloadProps";
 import { MilestonePayloadState } from "./MilestonePayloadState";
-import PoWMilestoneOption from "./PoWMilestoneOption";
+import ProtocolParamsMilestonOption from "./ProtocolParamsMilestonOption";
 import ReceiptMilestoneOption from "./ReceiptMilestoneOption";
 
 /**
@@ -138,8 +138,8 @@ class MilestonePayload extends Component<MilestonePayloadProps, MilestonePayload
                                 { option.type === RECEIPT_MILESTONE_OPTION_TYPE && (
                                 <ReceiptMilestoneOption option={option} />
                                         )}
-                                { option.type === POW_MILESTONE_OPTION_TYPE && (
-                                <PoWMilestoneOption option={option} />
+                                { option.type === PROTOCOL_PARAMETERS_MILESTONE_OPTION_TYPE && (
+                                <ProtocolParamsMilestonOption option={option} />
                                         )}
                             </React.Fragment>
                                 ))}
