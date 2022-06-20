@@ -87,16 +87,6 @@ class UnlockCondition extends Component<UnlockConditionProps, UnlockCondtionStat
                                         address={this.props.unlockCondition.returnAddress}
                                     />
                                 )}
-                                {this.props.unlockCondition.milestoneIndex && (
-                                    <React.Fragment>
-                                        <div className="card--label">
-                                            Milestone index
-                                        </div>
-                                        <div className="card--value row">
-                                            {this.props.unlockCondition.milestoneIndex}
-                                        </div>
-                                    </React.Fragment>
-                                )}
                                 {this.props.unlockCondition.unixTime && (
                                     <React.Fragment>
                                         <div className="card--label">
