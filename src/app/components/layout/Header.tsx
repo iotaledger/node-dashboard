@@ -258,7 +258,7 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
                                             className="child"
                                         />
                                         <MicroGraph
-                                            label="Tanlge db"
+                                            label="Tangle db"
                                             value={this.state.dbTangleSizeFormatted}
                                             values={this.state.dbTangleSize}
                                             className="child"
