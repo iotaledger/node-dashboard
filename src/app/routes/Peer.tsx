@@ -118,12 +118,12 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                                 sentBlocksTotal.push(peer.gossip.metrics.sentBlocks);
 
                                 if (isConnected) {
-                                    hasPeers = peer.gossip.heartbeat.connectedNeighbors > 0;
+                                    hasPeers = peer.gossip.heartbeat.connectedPeers > 0;
                                     latestMilestoneIndex = peer.gossip.heartbeat.latestMilestoneIndex.toString();
                                     latestSolidMilestoneIndex = peer.gossip.heartbeat.solidMilestoneIndex.toString();
                                     pruningIndex = peer.gossip.heartbeat.prunedMilestoneIndex.toString();
-                                    syncedPeers = peer.gossip.heartbeat.syncedNeighbors.toString();
-                                    connectedPeers = peer.gossip.heartbeat.connectedNeighbors.toString();
+                                    syncedPeers = peer.gossip.heartbeat.syncedPeers.toString();
+                                    connectedPeers = peer.gossip.heartbeat.connectedPeers.toString();
                                 }
                             }
                         }
