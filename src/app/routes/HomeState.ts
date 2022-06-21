@@ -56,6 +56,16 @@ export interface HomeState {
     memory?: string;
 
     /**
+     * Ledger database size.
+     */
+    dbLedgerSizeFormatted: string;
+
+    /**
+     * Tangle database size.
+     */
+    dbTangleSizeFormatted: string;
+
+    /**
      * Last received bps time.
      */
     lastReceivedBpsTime: number;
