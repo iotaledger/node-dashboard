@@ -57,8 +57,8 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
         const tangleService = ServiceFactory.get<TangleService>("tangle");
 
         try {
-            const info = await tangleService.info();
-            if (info.plugins.includes("participation/v1")) {
+            const routes = await tangleService.routes();
+            if (routes.routes.includes("participation/v1")) {
                 Participation._isAvailable = true;
             }
         } catch (err) {
@@ -415,7 +415,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
         try {
             const response = await FetchHelper.json<unknown, IParticipationEvents>(
                 `${window.location.protocol}//${window.location.host}`,
-                "/dashboard/api/plugins/participation/v1/events",
+                "/dashboard/api/participation/v1/events",
                 "get",
                 undefined,
                 Participation.buildAuthHeaders());
@@ -440,7 +440,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
         try {
             const response = await FetchHelper.json<unknown, IParticipationEventInfo>(
                 `${window.location.protocol}//${window.location.host}`,
-                `/dashboard/api/plugins/participation/v1/events/${id}`,
+                `/dashboard/api/participation/v1/events/${id}`,
                 "get",
                 undefined,
                 Participation.buildAuthHeaders());
@@ -468,7 +468,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
         try {
             const response = await FetchHelper.json<unknown, IParticipationEventStatus>(
                 `${window.location.protocol}//${window.location.host}`,
-                `/dashboard/api/plugins/participation/v1/events/${id}/status`,
+                `/dashboard/api/participation/v1/events/${id}/status`,
                 "get",
                 undefined,
                 Participation.buildAuthHeaders());
@@ -533,7 +533,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
             try {
                 const response = await FetchHelper.json<unknown, IParticipationEvent>(
                     `${window.location.protocol}//${window.location.host}`,
-                    "/dashboard/api/plugins/participation/v1/admin/events",
+                    "/dashboard/api/participation/v1/admin/events",
                     "post",
                     eventInfo,
                     Participation.buildAuthHeaders());
@@ -583,7 +583,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                     };
                 }>(
                     `${window.location.protocol}//${window.location.host}`,
-                    `/dashboard/api/plugins/participation/v1/admin/events/${eventId}`,
+                    `/dashboard/api/participation/v1/admin/events/${eventId}`,
                     "delete",
                     undefined,
                     Participation.buildAuthHeaders());

@@ -1,4 +1,4 @@
-import { addressBalance, Bech32Helper, ClientError, IClient, ITaggedDataPayload, IBlockMetadata, IMilestonePayload, INodeInfo, IOutputResponse, ITransactionPayload, SingleNodeClient, IndexerPluginClient, ED25519_ADDRESS_TYPE, ALIAS_ADDRESS_TYPE, NFT_ADDRESS_TYPE, ALIAS_OUTPUT_TYPE, NFT_OUTPUT_TYPE } from "@iota/iota.js";
+import { addressBalance, Bech32Helper, ClientError, IClient, ITaggedDataPayload, IBlockMetadata, IMilestonePayload, IRoutesResponse, INodeInfo, IOutputResponse, ITransactionPayload, SingleNodeClient, IndexerPluginClient, ED25519_ADDRESS_TYPE, ALIAS_ADDRESS_TYPE, NFT_ADDRESS_TYPE, ALIAS_OUTPUT_TYPE, NFT_OUTPUT_TYPE } from "@iota/iota.js";
 import { Converter, HexHelper } from "@iota/util.js";
 import { ServiceFactory } from "../factories/serviceFactory";
 import { IAddressDetails } from "../models/IAddressDetails";
@@ -25,6 +25,16 @@ export class TangleService {
      */
     constructor() {
         this._authService = ServiceFactory.get<AuthService>("auth");
+    }
+
+    /**
+     * Get the routes the node exposes.
+     * @returns The routes.
+     */
+     public async routes(): Promise<IRoutesResponse> {
+        const client = this.buildClient();
+        const routes = await client.routes();
+        return routes;
     }
 
     /**
@@ -456,8 +466,7 @@ export class TangleService {
         return new SingleNodeClient(
             `${window.location.protocol}//${window.location.host}`,
             {
-                basePath: "/dashboard/api/v2/",
-                basePluginPath: "/dashboard/api/plugins/",
+                basePath: "/dashboard/api/",
                 headers
             });
     }
