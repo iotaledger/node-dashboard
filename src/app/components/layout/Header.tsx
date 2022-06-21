@@ -70,8 +70,10 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
             bpsValues: [],
             memorySizeFormatted: "-",
             memorySize: [],
-            databaseSizeFormatted: "-",
-            databaseSize: [],
+            dbLedgerSizeFormatted: "-",
+            dbLedgerSize: [],
+            dbTangleSizeFormatted: "-",
+            dbTangleSize: [],
             isLoggedIn: Boolean(this._authService.isLoggedIn()),
             online: false
         };
@@ -138,20 +140,31 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
             WebSocketTopic.DBSizeMetric,
             data => {
                 if (data) {
-                    const databaseSizeFormatted = FormatHelper.size(data.total);
+                    const dbLedgerSizeFormatted = FormatHelper.size(data.utxo);
 
-                    if (databaseSizeFormatted !== this.state.databaseSizeFormatted) {
-                        this.setState({ databaseSizeFormatted });
+                    if (dbLedgerSizeFormatted !== this.state.dbLedgerSizeFormatted) {
+                        this.setState({ dbLedgerSizeFormatted });
+                    }
+
+                    const dbTangleSizeFormatted = FormatHelper.size(data.tangle);
+
+                    if (dbTangleSizeFormatted !== this.state.dbTangleSizeFormatted) {
+                        this.setState({ dbTangleSizeFormatted });
                     }
                 }
             },
             allData => {
                 const nonNull = allData.filter(d => d !== undefined && d !== null);
 
-                const databaseSizeValues = nonNull
-                    .map(d => d.total);
+                const dbLedgerSizeValues = nonNull
+                    .map(d => d.utxo);
 
-                this.setState({ databaseSize: databaseSizeValues });
+                this.setState({ dbLedgerSize: dbLedgerSizeValues });
+
+                const dbTangleSizeValues = nonNull
+                    .map(d => d.tangle);
+
+                this.setState({ dbTangleSize: dbTangleSizeValues });
             });
 
         this._bpsMetricsSubscription = this._metricsService.subscribe<IBpsMetrics>(
@@ -239,9 +252,15 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
                                 {this.state.isLoggedIn && (
                                     <React.Fragment>
                                         <MicroGraph
-                                            label="Database"
-                                            value={this.state.databaseSizeFormatted}
-                                            values={this.state.databaseSize}
+                                            label="Ledger db"
+                                            value={this.state.dbLedgerSizeFormatted}
+                                            values={this.state.dbLedgerSize}
+                                            className="child"
+                                        />
+                                        <MicroGraph
+                                            label="Tangle db"
+                                            value={this.state.dbTangleSizeFormatted}
+                                            values={this.state.dbTangleSize}
                                             className="child"
                                         />
                                         <MicroGraph

@@ -1,11 +1,13 @@
 import React, { ReactNode } from "react";
 import { ReactComponent as BannerCurve } from "../../assets/banner-curve.svg";
+import { ReactComponent as DbIcon } from "../../assets/db-icon.svg";
 import { ReactComponent as MemoryIcon } from "../../assets/memory.svg";
 import { ReactComponent as MilestoneIcon } from "../../assets/milestone.svg";
 import { ReactComponent as PruningIcon } from "../../assets/pruning.svg";
 import { ReactComponent as UptimeIcon } from "../../assets/uptime.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
 import { IBpsMetrics } from "../../models/websocket/IBpsMetrics";
+import { IDBSizeMetric } from "../../models/websocket/IDBSizeMetric";
 import { INodeStatus } from "../../models/websocket/INodeStatus";
 import { IPublicNodeStatus } from "../../models/websocket/IPublicNodeStatus";
 import { ISyncStatus } from "../../models/websocket/ISyncStatus";
@@ -64,6 +66,11 @@ class Home extends AsyncComponent<unknown, HomeState> {
     private _bpsMetricsSubscription?: string;
 
     /**
+     * The database size metrics subscription id.
+     */
+    private _databaseSizeSubscription?: string;
+
+    /**
      * The network id.
      */
     private readonly _networkId?: string;
@@ -91,6 +98,8 @@ class Home extends AsyncComponent<unknown, HomeState> {
             cmi: "-",
             pruningIndex: "-",
             memory: "-",
+            dbLedgerSizeFormatted: "-",
+            dbTangleSizeFormatted: "-",
             uptime: "-",
             lastReceivedBpsTime: 0,
             bpsIncoming: [],
@@ -187,6 +196,24 @@ class Home extends AsyncComponent<unknown, HomeState> {
             }
         );
 
+        this._databaseSizeSubscription = this._metricsService.subscribe<IDBSizeMetric>(
+            WebSocketTopic.DBSizeMetric,
+            data => {
+                if (data) {
+                    const dbLedgerSizeFormatted = FormatHelper.size(data.utxo);
+
+                    if (dbLedgerSizeFormatted !== this.state.dbLedgerSizeFormatted) {
+                        this.setState({ dbLedgerSizeFormatted });
+                    }
+
+                    const dbTangleSizeFormatted = FormatHelper.size(data.tangle);
+
+                    if (dbTangleSizeFormatted !== this.state.dbTangleSizeFormatted) {
+                        this.setState({ dbTangleSizeFormatted });
+                    }
+                }
+            });
+
         EventAggregator.subscribe("settings.blindMode", "home", blindMode => {
             this.setState({ blindMode });
         });
@@ -218,6 +245,11 @@ class Home extends AsyncComponent<unknown, HomeState> {
         if (this._bpsMetricsSubscription) {
             this._metricsService.unsubscribe(this._bpsMetricsSubscription);
             this._bpsMetricsSubscription = undefined;
+        }
+
+        if (this._databaseSizeSubscription) {
+            this._metricsService.unsubscribe(this._databaseSizeSubscription);
+            this._databaseSizeSubscription = undefined;
         }
 
         EventAggregator.unsubscribe("settings.blindMode", "home");
@@ -282,6 +314,20 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                     caption="Memory Usage"
                                     value={this.state.memory}
                                     icon={<MemoryIcon />}
+                                    backgroundStyle="purple"
+                                />
+                            </div>
+                            <div className="row margin-t-s tablet-down-column">
+                                <InfoPanel
+                                    caption="Ledger Db"
+                                    value={this.state.dbLedgerSizeFormatted}
+                                    icon={<DbIcon />}
+                                    backgroundStyle="blue"
+                                />
+                                <InfoPanel
+                                    caption="Tangle db"
+                                    value={this.state.dbTangleSizeFormatted}
+                                    icon={<DbIcon />}
                                     backgroundStyle="purple"
                                 />
                             </div>
