@@ -26,7 +26,7 @@ initServices()
             !brandConfiguration
                 ? (<div>REACT_APP_BRAND_ID is not set</div>)
                 : (
-                    <BrowserRouter>
+                    <BrowserRouter basename={process.env.PUBLIC_URL}>
                         <App />
                     </BrowserRouter>
                 ),
