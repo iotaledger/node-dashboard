@@ -79,7 +79,7 @@
       }
 
       .events-panel--item {
-        width: $content-width-desktop / 2 - $spacing-small / 2;
+        width: calc($content-width-desktop / 2 - $spacing-small / 2);
         margin-top: $spacing-small;
         overflow: hidden;
 

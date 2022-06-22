@@ -50,7 +50,7 @@
         @include font-size(10px);
 
         margin-top: $spacing-small;
-        margin-bottom: $spacing-tiny / 2;
+        margin-bottom: calc($spacing-tiny / 2);
         color: var(--text-color-secondary);
         font-family: $font-sans;
         font-weight: 500;
