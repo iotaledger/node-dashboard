@@ -798,7 +798,8 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      */
     private calculateBlockLink(vertex?: IVisualizerVertex): string {
         return vertex?.fullId
-            ? `${window.location.protocol}//${window.location.host}/explorer/block/${vertex.fullId}`
+            ? `${window.location.protocol}//${window.location.host}` +
+              `${process.env.PUBLIC_URL}/explorer/block/${vertex.fullId}`
             : "";
     }
 
