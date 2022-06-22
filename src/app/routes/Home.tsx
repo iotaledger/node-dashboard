@@ -319,16 +319,16 @@ class Home extends AsyncComponent<unknown, HomeState> {
                             </div>
                             <div className="row margin-t-s tablet-down-column">
                                 <InfoPanel
-                                    caption="Ledger Db"
+                                    caption="Ledger DB"
                                     value={this.state.dbLedgerSizeFormatted}
                                     icon={<DbIcon />}
-                                    backgroundStyle="blue"
+                                    backgroundStyle="green"
                                 />
                                 <InfoPanel
-                                    caption="Tangle db"
+                                    caption="Tangle DB"
                                     value={this.state.dbTangleSizeFormatted}
                                     icon={<DbIcon />}
-                                    backgroundStyle="purple"
+                                    backgroundStyle="green"
                                 />
                             </div>
                             <div className="row margin-t-s">
