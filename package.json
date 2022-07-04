@@ -52,7 +52,7 @@
         "@typescript-eslint/eslint-plugin": "^5.25.0",
         "@typescript-eslint/parser": "^5.25.0",
         "cross-env": "^7.0.3",
-        "eslint": "^7.26.0",
+        "eslint": "^8.19.0",
         "eslint-plugin-import": "^2.23.2",
         "eslint-plugin-jsdoc": "^34.6.3",
         "eslint-plugin-react": "^7.23.2",
