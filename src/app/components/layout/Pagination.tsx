@@ -88,11 +88,12 @@ class Pagination extends Component<PaginationProps, PaginationState> {
             >
                 <li
                     className={classNames("pagination-item", {
-                        disabled: this.props.currentPage < 11,
+                        disabled: this.props.currentPage === 1,
                         "d-none": this.state.isMobile
                     })}
                     onClick={() => {
-                        this.props.onPageChange(this.props.currentPage - 10);
+                        const page = this.props.currentPage < 11 ? 1 : this.props.currentPage - 10;
+                        this.props.onPageChange(page);
                     }}
                 >
                     <div className="arrow left" />
@@ -137,11 +138,14 @@ class Pagination extends Component<PaginationProps, PaginationState> {
                 </li>
                 <li
                     className={classNames("pagination-item", {
-                        disabled: this.props.currentPage > this.state.lastPage - 10,
+                        disabled: this.props.currentPage === this.state.lastPage,
                         "d-none": this.state.isMobile
                     })}
                     onClick={() => {
-                        this.props.onPageChange(this.props.currentPage + 10);
+                        const page = this.props.currentPage > this.state.lastPage - 10
+                                ? this.state.lastPage
+                                : this.props.currentPage + 10;
+                        this.props.onPageChange(page);
                     }}
                 >
                     <div className="arrow right" />
@@ -165,7 +169,7 @@ class Pagination extends Component<PaginationProps, PaginationState> {
         const minPageRangeCount: number = this.props.siblingsCount + 5;
 
         if (minPageRangeCount >= totalPageCount) {
-            paginationRange = this.range(1, totalPageCount);
+            return this.range(1, totalPageCount);
         }
 
         const leftSiblingIndex = Math.max(this.props.currentPage - this.props.siblingsCount, 1);

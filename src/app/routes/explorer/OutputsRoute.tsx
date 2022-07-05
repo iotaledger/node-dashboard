@@ -1,49 +1,36 @@
-import { ALIAS_ADDRESS_TYPE, IOutputResponse, NFT_ADDRESS_TYPE } from "@iota/iota.js";
+import { IOutputResponse } from "@iota/iota.js";
 import React, { ReactNode } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
 import { ReactComponent as ChevronLeftIcon } from "../../../assets/chevron-left.svg";
 import { ServiceFactory } from "../../../factories/serviceFactory";
-import { NodeConfigService } from "../../../services/nodeConfigService";
 import { TangleService } from "../../../services/tangleService";
-import { Bech32AddressHelper } from "../../../utils/bech32AddressHelper";
-import { NameHelper } from "../../../utils/nameHelper";
 import AsyncComponent from "../../components/layout/AsyncComponent";
 import Pagination from "../../components/layout/Pagination";
 import Spinner from "../../components/layout/Spinner";
-import Bech32Address from "../../components/tangle/Bech32Address";
 import Output from "../../components/tangle/Output";
-import "./Address.scss";
-import { AddressProps } from "./AddressProps";
-import { AddressState } from "./AddressState";
+import "./OutputsRoute.scss";
+import { OutputsRouteProps } from "./OutputsRouteProps";
+import { OutputsRouteState } from "./OutputsRouteState";
 
 /**
- * Component which will show the address page.
+ * Component which will show the outputs page.
  */
-class Address extends AsyncComponent<RouteComponentProps<AddressProps>, AddressState> {
+class OutputsRoute extends AsyncComponent<RouteComponentProps<OutputsRouteProps>, OutputsRouteState> {
     /**
      * Service for tangle requests.
      */
     private readonly _tangleService: TangleService;
 
     /**
-     * The bech32 hrp from the node.
-     */
-    private readonly _bech32Hrp: string;
-
-    /**
-     * Create a new instance of Address.
+     * Create a new instance of Outputs.
      * @param props The props.
      */
-    constructor(props: RouteComponentProps<AddressProps>) {
+    constructor(props: RouteComponentProps<OutputsRouteProps>) {
         super(props);
 
         this._tangleService = ServiceFactory.get<TangleService>("tangle");
 
-        const nodeConfigService = ServiceFactory.get<NodeConfigService>("node-config");
-        this._bech32Hrp = nodeConfigService.getBech32Hrp();
-
         this.state = {
-            address: { ...Bech32AddressHelper.buildAddress(props.match.params.address, this._bech32Hrp) },
             statusBusy: true,
             currentPage: 1,
             pageSize: 10,
@@ -67,17 +54,7 @@ class Address extends AsyncComponent<RouteComponentProps<AddressProps>, AddressS
     public async componentDidMount(): Promise<void> {
         super.componentDidMount();
 
-        if (this.state.address?.type === NFT_ADDRESS_TYPE && this.state.address.hex) {
-            const nft = await this._tangleService.nftDetails(this.state.address.hex);
-            this.setState({ nft });
-        }
-
-        if (this.state.address?.type === ALIAS_ADDRESS_TYPE && this.state.address.hex) {
-            const alias = await this._tangleService.aliasDetails(this.state.address.hex);
-            this.setState({ alias });
-        }
-
-        const associatedOutputs = await this._tangleService.getOutputsForAddress(this.props.match.params.address);
+        const associatedOutputs = await this._tangleService.getOutputsByTag(this.props.match.params.tag);
 
         if (associatedOutputs.length > 0) {
             const sortedResults = associatedOutputs.sort((a, b) => a.association - b.association);
@@ -107,7 +84,7 @@ class Address extends AsyncComponent<RouteComponentProps<AddressProps>, AddressS
      */
     public render(): ReactNode {
         return (
-            <div className="address">
+            <div className="outputs">
                 <div className="content">
                     <Link
                         to="/explorer"
@@ -116,36 +93,6 @@ class Address extends AsyncComponent<RouteComponentProps<AddressProps>, AddressS
                         <ChevronLeftIcon className="secondary" />
                         <h3 className="secondary margin-l-s">Back to Explorer</h3>
                     </Link>
-                    <div className="card margin-t-m padding-l">
-                        <div className="card--content padding-0">
-                            <h2> {this.state.address?.type
-                                ? NameHelper.getAddressTypeName(this.state.address.type)
-                                : "Address"}
-                            </h2>
-                            {this.state.address?.bech32 && (
-                                <Bech32Address
-                                    activeLinks={false}
-                                    showHexAddress={true}
-                                    addressDetails={this.state.address}
-                                />
-                            )}
-                            {this.state.nft && (
-                                <Output
-                                    showDetails={true}
-                                    output={{ output: this.state.nft.output, metadata: this.state.nft.metadata }}
-                                    outputId={this.state.nft.outputId}
-                                />
-                            )}
-                            {this.state.alias && (
-                                <Output
-                                    showDetails={true}
-                                    output={{ output: this.state.alias.output, metadata: this.state.alias.metadata }}
-                                    outputId={this.state.alias.outputId}
-                                />
-                            )}
-                        </div>
-                    </div>
-
                     {this.state.outputs.length > 0 && (
                         <div className="card margin-t-m padding-l">
                             <div className="row spread">
@@ -197,7 +144,7 @@ class Address extends AsyncComponent<RouteComponentProps<AddressProps>, AddressS
                             <h2 className="margin-b-s">Outputs</h2>
                             {this.state.outputs && (
                                 <div className="card--value">
-                                    There are no outputs for this address.
+                                    There are no outputs for this tag.
                                 </div>
                             )}
                         </div>
@@ -253,4 +200,4 @@ class Address extends AsyncComponent<RouteComponentProps<AddressProps>, AddressS
     }
 }
 
-export default Address;
+export default OutputsRoute;

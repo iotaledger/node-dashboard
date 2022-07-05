@@ -1,10 +1,11 @@
-import { addressBalance, Bech32Helper, ClientError, IClient, ITaggedDataPayload, IBlockMetadata, IMilestonePayload, IRoutesResponse, INodeInfo, IOutputResponse, ITransactionPayload, SingleNodeClient, IndexerPluginClient, ED25519_ADDRESS_TYPE, ALIAS_ADDRESS_TYPE, NFT_ADDRESS_TYPE, ALIAS_OUTPUT_TYPE, NFT_OUTPUT_TYPE } from "@iota/iota.js";
-import { Converter, HexHelper } from "@iota/util.js";
+import { Bech32Helper, ClientError, IClient, ITaggedDataPayload, IBlockMetadata, IMilestonePayload, IRoutesResponse, INodeInfo, IOutputResponse, ITransactionPayload, SingleNodeClient, IndexerPluginClient, ALIAS_ADDRESS_TYPE, NFT_ADDRESS_TYPE } from "@iota/iota.js";
 import { ServiceFactory } from "../factories/serviceFactory";
-import { IAddressDetails } from "../models/IAddressDetails";
+import { IAssociatedOutput } from "../models/tangle/IAssociatedOutputsResponse";
+import { ISearchRequest } from "../models/tangle/ISearchRequest";
 import { ISearchResponse } from "../models/tangle/ISearchResponse";
 import { Bech32AddressHelper } from "../utils/bech32AddressHelper";
-import { FormatHelper } from "../utils/formatHelper";
+import { OutputsHelper } from "../utils/outputsHelper";
+import { SearchQuery, SearchQueryBuilder } from "../utils/searchQueryBuilder";
 import { AuthService } from "./authService";
 /**
  * Service to handle api requests.
@@ -48,14 +49,11 @@ export class TangleService {
     }
 
     /**
-     * Query the node.
-     * @param query The query to search for.
-     * @returns The response data.
+     * Find item on the stardust network.
+     * @param request The earch query
+     * @returns The item found.
      */
-    public async search(query: string): Promise<ISearchResponse & { unavailable?: boolean }> {
-        const queryLower = query.toLowerCase();
-        const queryLowerNoPrefix = HexHelper.stripPrefix(queryLower);
-
+    public async search(request: ISearchRequest): Promise<ISearchResponse & { unavailable?: boolean }> {
         const client = this.buildClient();
         const indexerPlugin = new IndexerPluginClient(client);
 
@@ -63,11 +61,11 @@ export class TangleService {
             await this.info();
         }
         const bech32HRP = this._nodeInfo ? this._nodeInfo.protocol.bech32HRP : Bech32Helper.BECH32_DEFAULT_HRP_MAIN;
+        const searchQuery: SearchQuery = new SearchQueryBuilder(request.query, bech32HRP).build();
 
-        // If the query is an integer then lookup a milestone
-        if (/^\d+$/.test(query)) {
+        if (searchQuery.milestoneIndex) {
             try {
-                const milestone = await client.milestoneByIndex(Number.parseInt(query, 10));
+                const milestone = await client.milestoneByIndex(searchQuery.milestoneIndex);
 
                 return {
                     milestone
@@ -81,47 +79,46 @@ export class TangleService {
             }
         }
 
-        // Address bech32
-        if (Bech32Helper.matches(queryLowerNoPrefix, bech32HRP)) {
+        if (searchQuery.milestoneId) {
             try {
-                const address = Bech32AddressHelper.buildAddress(queryLowerNoPrefix, bech32HRP);
+                const milestone = await client.milestoneById(searchQuery.milestoneId);
 
-                if (address.type === 0) {
-                    // ed
-                    const addrBalance = await this.addressBalance(queryLowerNoPrefix);
-                    const basicOutputs = await indexerPlugin.outputs({ addressBech32: queryLowerNoPrefix });
-                    const aliasOutputs = await indexerPlugin.aliases({ stateControllerBech32: queryLowerNoPrefix });
-                    const nftOutputs = await indexerPlugin.nfts({ addressBech32: queryLowerNoPrefix });
-                    const addressOutputIds = basicOutputs.items.concat(aliasOutputs.items, nftOutputs.items);
-
+                return {
+                    milestone
+                };
+            } catch (err) {
+                if (err instanceof ClientError && this.checkForUnavailable(err)) {
                     return {
-                        address: { ...address, ...addrBalance },
-                        addressOutputIds
+                        unavailable: true
                     };
                 }
+            }
+        }
 
-                if (address.type === 8 && address.hex) {
-                     // Address alias
-                    const aliasOutput = await indexerPlugin.alias(HexHelper.addPrefix(address.hex));
-                    if (aliasOutput.items.length > 0) {
-                        const foundryOutputs = await indexerPlugin.foundries({ aliasAddressBech32: address.bech32 });
+        if (searchQuery.blockIdOrTransactionId) {
+            try {
+                const block = await client.block(searchQuery.blockIdOrTransactionId);
 
-                        return {
-                            address,
-                            addressOutputIds: [...aliasOutput.items, ...foundryOutputs.items]
-                        };
-                    }
+                if (Object.keys(block).length > 0) {
+                    return {
+                        block
+                    };
                 }
+            } catch (err) {
+                if (err instanceof ClientError && this.checkForUnavailable(err)) {
+                    return {
+                        unavailable: true
+                    };
+                }
+            }
 
-                if (address.type === 16 && address.hex) {
-                    const nftOutput = await indexerPlugin.nft(HexHelper.addPrefix(address.hex));
+            try {
+                const block = await client.transactionIncludedBlock(searchQuery.blockIdOrTransactionId);
 
-                    if (nftOutput.items.length > 0) {
-                        return {
-                            address,
-                            addressOutputIds: nftOutput.items
-                        };
-                    }
+                if (Object.keys(block).length > 0) {
+                    return {
+                        block
+                    };
                 }
             } catch (err) {
                 if (err instanceof ClientError && this.checkForUnavailable(err)) {
@@ -132,201 +129,103 @@ export class TangleService {
             }
         }
 
-        if (Converter.isHex(queryLowerNoPrefix)) {
-            if (queryLowerNoPrefix.length === 64) {
-                // search for a block
-                try {
-                    const block = await client.block(HexHelper.addPrefix(queryLowerNoPrefix));
-
-                    return {
-                        block
-                    };
-                } catch (err) {
-                    if (err instanceof ClientError && this.checkForUnavailable(err)) {
-                        return {
-                            unavailable: true
-                        };
-                    }
-                }
-
-                // search for a transaction included block
-                try {
-                    const block = await client.transactionIncludedBlock(HexHelper.addPrefix(queryLowerNoPrefix));
-                    return {
-                        block
-                    };
-                } catch (err) {
-                    if (err instanceof ClientError && this.checkForUnavailable(err)) {
-                        return {
-                            unavailable: true
-                        };
-                    }
-                }
-
-                // search for a milestone by id
-                try {
-                    const milestone = await client.milestoneById(HexHelper.addPrefix(queryLowerNoPrefix));
-
-                    return {
-                        milestone
-                    };
-                } catch (err) {
-                    if (err instanceof ClientError && this.checkForUnavailable(err)) {
-                        return {
-                            unavailable: true
-                        };
-                    }
-                }
-            }
-
-           // Address ed25519/NftId/AliasId
-            if (queryLowerNoPrefix.length === 64 || queryLowerNoPrefix.length === 66) {
-                 // remove type byte
-                 const queryLowerNoType = queryLowerNoPrefix.length === 66
-                 ? queryLowerNoPrefix.slice(2) : queryLowerNoPrefix;
-
-                // Address ed25519
-                try {
-                    const address = Bech32AddressHelper.buildAddress(queryLowerNoType, bech32HRP, ED25519_ADDRESS_TYPE);
-                    if (address.bech32) {
-                        const addrBalance = await this.addressBalance(address.bech32);
-
-                        const basicOutputs = await indexerPlugin.outputs({ addressBech32: address.bech32 });
-                        const aliasOutputs = await indexerPlugin.aliases({ stateControllerBech32: address.bech32 });
-                        const nftOutputs = await indexerPlugin.nfts({ addressBech32: address.bech32 });
-                        const addressOutputIds = basicOutputs.items.concat(aliasOutputs.items, nftOutputs.items);
-
-                        if (addressOutputIds.length > 0) {
-                            return {
-                                address: { ...address, ...addrBalance },
-                                addressOutputIds
-                            };
-                        }
-                    }
-                } catch (err) {
-                    if (err instanceof ClientError && this.checkForUnavailable(err)) {
-                        return {
-                            unavailable: true
-                        };
-                    }
-                }
-                // Address alias
-                try {
-                    const aliasOutput = await indexerPlugin.alias(HexHelper.addPrefix(queryLowerNoType));
-                    if (aliasOutput.items.length > 0) {
-                        const address = Bech32AddressHelper
-                                        .buildAddress(queryLowerNoType, bech32HRP, ALIAS_ADDRESS_TYPE);
-                        const foundryOutputs = await indexerPlugin.foundries({ aliasAddressBech32: address.bech32 });
-
-                        return {
-                            address,
-                            addressOutputIds: [...aliasOutput.items, ...foundryOutputs.items]
-                        };
-                    }
-                } catch (err) {
-                    if (err instanceof ClientError && this.checkForUnavailable(err)) {
-                        return {
-                            unavailable: true
-                        };
-                    }
-                }
-                // Address nft
-                try {
-                    const nftOutput = await indexerPlugin.nft(HexHelper.addPrefix(queryLowerNoType));
-
-                    if (nftOutput.items.length > 0) {
-                        const address = Bech32AddressHelper.buildAddress(queryLowerNoType, bech32HRP, NFT_ADDRESS_TYPE);
-
-                        return {
-                            address,
-                            addressOutputIds: nftOutput.items
-                        };
-                    }
-                } catch (err) {
-                    if (err instanceof ClientError && this.checkForUnavailable(err)) {
-                        return {
-                            unavailable: true
-                        };
-                    }
-                }
-            }
-
-            // If the query is 68 bytes hex, try and look for an output
-            if (queryLowerNoPrefix.length === 68) {
-                try {
-                    const outputResponse = await client.output(HexHelper.addPrefix(queryLowerNoPrefix));
-
-                    if (outputResponse.output) {
-                        if (outputResponse.output.type === ALIAS_OUTPUT_TYPE) {
-                            const address = Bech32AddressHelper
-                                        .buildAddress(
-                                            FormatHelper.resolveId(outputResponse.output.aliasId, queryLowerNoPrefix),
-                                            bech32HRP, ALIAS_ADDRESS_TYPE
-                                        );
-                            const foundryOutputs = await indexerPlugin
-                                                        .foundries({ aliasAddressBech32: address.bech32 });
-                            return {
-                                address,
-                                addressOutputIds: [HexHelper.addPrefix(queryLowerNoPrefix), ...foundryOutputs.items]
-                            };
-                        }
-                        if (outputResponse.output.type === NFT_OUTPUT_TYPE) {
-                            const address = Bech32AddressHelper
-                                            .buildAddress(
-                                                FormatHelper.resolveId(outputResponse.output.nftId, queryLowerNoPrefix),
-                                                bech32HRP, NFT_ADDRESS_TYPE
-                                            );
-                            return {
-                                address,
-                                addressOutputIds: [HexHelper.addPrefix(queryLowerNoPrefix)]
-                            };
-                        }
-                        return {
-                            outputId: HexHelper.addPrefix(queryLowerNoPrefix),
-                            output: outputResponse
-                        };
-                    }
-                } catch (err) {
-                    if (err instanceof ClientError && this.checkForUnavailable(err)) {
-                        return {
-                            unavailable: true
-                        };
-                    }
-                }
-            }
-
-            if (queryLowerNoPrefix.length === 76 || queryLowerNoPrefix.length === 100) {
-                try {
-                    // Foundry lookup by foundry id or token id
-                    const foundryId = queryLowerNoPrefix.length === 100
-                            ? queryLowerNoPrefix.slice(0, 76) : queryLowerNoPrefix;
-                    const foundryOutputs = await indexerPlugin.foundry(HexHelper.addPrefix(foundryId));
-
-                    if (foundryOutputs.items.length > 0) {
-                        return {
-                            outputId: foundryOutputs.items[0]
-                        };
-                    }
-                } catch (err) {
-                    if (err instanceof ClientError && this.checkForUnavailable(err)) {
-                        return {
-                            unavailable: true
-                        };
-                    }
-                }
-            }
-
-            // Basic output tag search
+        if (searchQuery.output) {
             try {
-                // search outputs by tag
-                const outputs = await indexerPlugin.outputs({ tagHex: HexHelper.addPrefix(queryLowerNoPrefix) });
-
-                if (outputs.items.length > 0) {
-                    const output = await client.output(outputs.items[0]);
+                return {
+                    outputId: searchQuery.output,
+                    output: await client.output(searchQuery.output)
+                };
+            } catch (err) {
+                if (err instanceof ClientError && this.checkForUnavailable(err)) {
                     return {
-                        output
+                        unavailable: true
                     };
                 }
+            }
+        }
+
+        if (searchQuery.aliasId) {
+            try {
+                const aliasOutputs = await indexerPlugin.alias(searchQuery.aliasId);
+                if (aliasOutputs.items.length > 0) {
+                    const address = Bech32AddressHelper
+                                        .buildAddress(searchQuery.aliasId, bech32HRP, ALIAS_ADDRESS_TYPE);
+                    return {
+                        address,
+                        addressOutputIds: aliasOutputs.items
+                    };
+                }
+            } catch (err) {
+                if (err instanceof ClientError && this.checkForUnavailable(err)) {
+                    return {
+                        unavailable: true
+                    };
+                }
+            }
+        }
+
+        if (searchQuery.nftId) {
+            try {
+                const nftOutputs = await indexerPlugin.nft(searchQuery.nftId);
+                if (nftOutputs.items.length > 0) {
+                    const address = Bech32AddressHelper
+                                    .buildAddress(searchQuery.nftId, bech32HRP, NFT_ADDRESS_TYPE);
+                    return {
+                        address,
+                        addressOutputIds: nftOutputs.items
+                    };
+                }
+            } catch (err) {
+                if (err instanceof ClientError && this.checkForUnavailable(err)) {
+                    return {
+                        unavailable: true
+                    };
+                }
+            }
+        }
+
+        if (searchQuery.foundryId) {
+            try {
+                const foundryOutputs = await indexerPlugin.foundry(searchQuery.foundryId);
+                if (foundryOutputs.items.length > 0) {
+                    return {
+                        outputId: foundryOutputs.items[0]
+                    };
+                }
+            } catch (err) {
+                if (err instanceof ClientError && this.checkForUnavailable(err)) {
+                    return {
+                        unavailable: true
+                    };
+                }
+            }
+        }
+
+        if (searchQuery.tag) {
+            try {
+                const taggedOutputs = await indexerPlugin.outputs({ tagHex: searchQuery.tag });
+
+                if (taggedOutputs.items.length > 0) {
+                    return {
+                        outputs: taggedOutputs.items
+                    };
+                }
+            } catch (err) {
+                if (err instanceof ClientError && this.checkForUnavailable(err)) {
+                    return {
+                        unavailable: true
+                    };
+                }
+            }
+        }
+
+        if (searchQuery.address?.bech32) {
+            try {
+                // const addrBalance = await this.addressBalance(searchQuery.address?.bech32);
+                console.log("addy:", searchQuery.address);
+                return {
+                    address: { ...searchQuery.address }
+                };
             } catch (err) {
                 if (err instanceof ClientError && this.checkForUnavailable(err)) {
                     return {
@@ -370,18 +269,77 @@ export class TangleService {
     }
 
     /**
-     * Get the balance for an address.
-     * @param addressBech32 The address to get the balances for.
-     * @returns The balance.
+     * Get the nft output details.
+     * @param nftId The nft id to get the details for.
+     * @returns The nft output response.
      */
-    public async addressBalance(
-        addressBech32: string): Promise<IAddressDetails | undefined> {
+     public async nftDetails(
+        nftId: string): Promise<IOutputResponse & { outputId: string } | undefined> {
         try {
             const client = this.buildClient();
-            const address = await addressBalance(client, addressBech32) as unknown as IAddressDetails;
+            const indexerPlugin = new IndexerPluginClient(client);
 
-            return address;
+            const nftOutputs = await indexerPlugin.nft(nftId);
+            if (nftOutputs.items.length > 0) {
+                return { ...await client.output(nftOutputs.items[0]), outputId: nftOutputs.items[0] };
+            }
         } catch {}
+    }
+
+    /**
+     * Get the alias output details.
+     * @param aliasId The alias id to get the details for.
+     * @returns The alias output response.
+     */
+     public async aliasDetails(
+        aliasId: string): Promise<IOutputResponse & { outputId: string } | undefined> {
+        try {
+            const client = this.buildClient();
+            const indexerPlugin = new IndexerPluginClient(client);
+
+            const aliasOutputs = await indexerPlugin.alias(aliasId);
+            if (aliasOutputs.items.length > 0) {
+                return { ...await client.output(aliasOutputs.items[0]), outputId: aliasOutputs.items[0] };
+            }
+        } catch {}
+    }
+
+    /**
+     * Get the output details.
+     * @param addressBech32 The address to get the outputs for.
+     * @returns The associated outputs.
+     */
+    public async getOutputsForAddress(
+        addressBech32: string): Promise<IAssociatedOutput[]> {
+        let outputs: IAssociatedOutput[] = [];
+
+        try {
+            const client = this.buildClient();
+            const helper = new OutputsHelper(addressBech32, client);
+            await helper.fetchAssociatedOutputs();
+            outputs = helper.associatedOutputs;
+        } catch {}
+
+        return outputs;
+    }
+
+    /**
+     * Get the output details.
+     * @param tag The tag to get the outputs for.
+     * @returns The associated outputs.
+     */
+    public async getOutputsByTag(
+        tag: string): Promise<IAssociatedOutput[]> {
+        let outputs: IAssociatedOutput[] = [];
+
+        try {
+            const client = this.buildClient();
+            const helper = new OutputsHelper(tag, client);
+            await helper.fetchOutputsByTag();
+            outputs = helper.associatedOutputs;
+        } catch {}
+
+        return outputs;
     }
 
     /**

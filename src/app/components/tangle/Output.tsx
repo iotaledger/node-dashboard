@@ -36,6 +36,20 @@ class Output extends Component<OutputProps, OutputState> {
     }
 
     /**
+     * The component updated.
+     * @param prevProps The previous properties.
+     */
+    public componentDidUpdate(prevProps: OutputProps): void {
+        if (prevProps !== this.props) {
+            this.setState({
+                isGenesis: (this.isOutputResponse(this.props.output))
+                            ? this.props.output.metadata.blockId === "0".repeat(64) : false,
+                output: (this.isOutputResponse(this.props.output)) ? this.props.output.output : this.props.output
+            });
+        }
+    }
+
+    /**
      * Render the component.
      * @returns The node to render.
      */
@@ -227,19 +241,19 @@ class Output extends Component<OutputProps, OutputState> {
                                                 Minted tokens:
                                             </div>
                                             <div className="card--value row">
-                                                {this.state.output.tokenScheme.mintedTokens}
+                                                {Number.parseInt(this.state.output.tokenScheme.mintedTokens, 16)}
                                             </div>
                                             <div className="card--label">
                                                 Melted tokens:
                                             </div>
                                             <div className="card--value row">
-                                                {this.state.output.tokenScheme.meltedTokens}
+                                                {Number.parseInt(this.state.output.tokenScheme.meltedTokens, 16)}
                                             </div>
                                             <div className="card--label">
                                                 Maximum supply:
                                             </div>
                                             <div className="card--value row">
-                                                {this.state.output.tokenScheme.maximumSupply}
+                                                {Number.parseInt(this.state.output.tokenScheme.maximumSupply, 16)}
                                             </div>
                                         </React.Fragment>
                                     )}

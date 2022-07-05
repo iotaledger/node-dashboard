@@ -38,7 +38,17 @@ export interface ISearchResponse {
     output?: IOutputResponse;
 
     /**
+     * Output ids array.
+     */
+    outputs?: string[];
+
+    /**
      * Milestone if it was found.
      */
     milestone?: IMilestonePayload;
+
+    /**
+     * Cursor for next page.
+     */
+    cursor?: string;
 }

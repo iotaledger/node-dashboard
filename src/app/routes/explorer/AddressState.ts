@@ -1,5 +1,6 @@
 import { IOutputResponse } from "@iota/iota.js";
 import { IAddressDetails } from "../../../models/IAddressDetails";
+import { IAssociatedOutput } from "../../../models/tangle/IAssociatedOutputsResponse";
 
 export interface AddressState {
     /**
@@ -8,9 +9,19 @@ export interface AddressState {
     address?: IAddressDetails;
 
     /**
-     * The address balance.
+     * The outputs for the address.
      */
-    balance?: number;
+    outputs: IAssociatedOutput[];
+
+    /**
+     * Nft output details.
+     */
+    nft?: IOutputResponse & { outputId: string };
+
+    /**
+     * Alias output details.
+     */
+    alias?: IOutputResponse & { outputId: string };
 
     /**
      * Is the component status busy.
@@ -21,26 +32,6 @@ export interface AddressState {
      * The status.
      */
     status: string;
-
-    /**
-     * The output ids for the address.
-     */
-    outputIds?: string[];
-
-    /**
-     * The outputs for the address.
-     */
-    outputs?: IOutputResponse[];
-
-    /**
-     * Format the amount in full.
-     */
-    formatFull: boolean;
-
-    /**
-     * Show native tokens.
-     */
-    showTokens: boolean;
 
     /**
      * The current page.
