@@ -7,11 +7,6 @@ export interface TransactionPayloadState {
     unlockAddresses: AddressTypes[];
 
     /**
-     * The transaction id.
-     */
-    transactionId: string;
-
-    /**
      * The current outputs page.
      */
     currentOutputsPage: number;

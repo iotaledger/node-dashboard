@@ -164,6 +164,7 @@ class Search extends AsyncComponent<RouteComponentProps<SearchRouteProps>, Searc
                             objParam = response.outputId;
                         } else if (response.outputs) {
                             objType = "outputs";
+                            objParam = Converter.isHex(objParam, true) ? objParam : Converter.utf8ToHex(objParam, true);
                         } else if (response.milestone) {
                             objType = "milestone";
                             objParam = response.milestone.index.toString();

@@ -7,11 +7,6 @@ export interface OutputsRouteState {
     outputs: IAssociatedOutput[];
 
     /**
-     * The status.
-     */
-    status: string;
-
-    /**
      * Is the component status busy.
      */
     statusBusy: boolean;

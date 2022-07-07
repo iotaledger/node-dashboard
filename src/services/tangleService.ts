@@ -219,10 +219,8 @@ export class TangleService {
             }
         }
 
-        if (searchQuery.address?.bech32) {
+        if (searchQuery.address?.hexNoPrefix && searchQuery.address?.hexNoPrefix.length === 64) {
             try {
-                // const addrBalance = await this.addressBalance(searchQuery.address?.bech32);
-                console.log("addy:", searchQuery.address);
                 return {
                     address: { ...searchQuery.address }
                 };

@@ -1,12 +1,9 @@
 /* eslint-disable max-len */
-import { Blake2b } from "@iota/crypto.js";
-import { Ed25519Address, IReferenceUnlock, ISignatureUnlock, REFERENCE_UNLOCK_TYPE, SIGNATURE_UNLOCK_TYPE, ALIAS_UNLOCK_TYPE, NFT_UNLOCK_TYPE, serializeTransactionPayload, AddressTypes, IEd25519Address, ED25519_ADDRESS_TYPE, TransactionHelper } from "@iota/iota.js";
-import { Converter, WriteStream } from "@iota/util.js";
+import { Ed25519Address, IReferenceUnlock, ISignatureUnlock, REFERENCE_UNLOCK_TYPE, SIGNATURE_UNLOCK_TYPE, ALIAS_UNLOCK_TYPE, NFT_UNLOCK_TYPE, AddressTypes, IEd25519Address, ED25519_ADDRESS_TYPE } from "@iota/iota.js";
+import { Converter } from "@iota/util.js";
 import React, { Component, ReactNode } from "react";
-import { ServiceFactory } from "../../../factories/serviceFactory";
-import { NodeConfigService } from "../../../services/nodeConfigService";
 import Pagination from "../layout/Pagination";
-import Output from "./Output";
+import Outputs from "./Outputs";
 import { TransactionPayloadProps } from "./TransactionPayloadProps";
 import { TransactionPayloadState } from "./TransactionPayloadState";
 import UTXOInput from "./UTXOInput";
@@ -16,19 +13,11 @@ import UTXOInput from "./UTXOInput";
  */
 class TransactionPayload extends Component<TransactionPayloadProps, TransactionPayloadState> {
     /**
-     * The bech32 hrp from the node.
-     */
-    private readonly _bech32Hrp: string;
-
-    /**
      * Create a new instance of TransactionPayload.
      * @param props The props.
      */
     constructor(props: TransactionPayloadProps) {
         super(props);
-
-        const nodeConfigService = ServiceFactory.get<NodeConfigService>("node-config");
-        this._bech32Hrp = nodeConfigService.getBech32Hrp();
 
         const signatureBlocks: ISignatureUnlock[] = [];
         for (let i = 0; i < props.payload.unlocks.length; i++) {
@@ -52,19 +41,8 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
             ), type: ED25519_ADDRESS_TYPE } as IEd25519Address);
         }
 
-        const writeStream = new WriteStream();
-        try {
-            serializeTransactionPayload(writeStream, this.props.payload);
-        } catch (error) {
-            if (error instanceof Error) {
-                console.log(error.message);
-            }
-        }
-        const transactionId = Converter.bytesToHex(Blake2b.sum256(writeStream.finalBytes()), true);
-
         this.state = {
             unlockAddresses,
-            transactionId,
             currentOutputsPage: 1,
             outputsPageSize: 20,
             currentInputsPage: 1,
@@ -81,19 +59,6 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
             const [firstPageIndex, lastPageIndex] = this.getPageIndexes(this.state.currentInputsPage, this.state.inputsPageSize, this.props.payload.essence.inputs.length);
 
             return this.props.payload.essence.inputs.slice(firstPageIndex, lastPageIndex);
-        }
-        return [];
-    }
-
-    /**
-     * Get outputs on the current page.
-     * @returns The outputs on the current page.
-     */
-    private get currentPageOutputs() {
-        if (this.props.payload.essence.outputs.length > 0) {
-            const [firstPageIndex, lastPageIndex] = this.getPageIndexes(this.state.currentOutputsPage, this.state.outputsPageSize, this.props.payload.essence.outputs.length);
-
-            return this.props.payload.essence.outputs.slice(firstPageIndex, lastPageIndex);
         }
         return [];
     }
@@ -132,32 +97,16 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
                     />
                 </div>
 
-                <div className="card margin-t-m padding-l">
-                    <div className="card--header">
-                        <h2 className="card--header__title">Outputs</h2>
-                        <span className="card--header-count">
-                            {this.props.payload.essence.outputs.length}
-                        </span>
-                    </div>
-                    {this.currentPageOutputs.map((output, idx) => (
-                        <Output
-                            key={this.getPageIndex(this.state.currentOutputsPage, this.state.outputsPageSize, idx)}
-                            index={this.getPageIndex(this.state.currentOutputsPage, this.state.outputsPageSize, idx)}
-                            output={output}
-                            outputId={TransactionHelper.outputIdFromTransactionData(this.state.transactionId, this.getPageIndex(this.state.currentOutputsPage, this.state.outputsPageSize, idx))}
-                        />
-                    ))}
-
-                    <Pagination
+                {this.props.payload.essence.outputs.length > 0 && (
+                    <Outputs
+                        outputTypes={this.props.payload.essence.outputs}
                         currentPage={this.state.currentOutputsPage}
-                        totalCount={this.props.payload.essence.outputs.length}
                         pageSize={this.state.outputsPageSize}
                         extraPageRangeLimit={20}
                         siblingsCount={1}
-                        onPageChange={page =>
-                            this.setState({ currentOutputsPage: page })}
+                        title="Outputs"
                     />
-                </div>
+                )}
             </div>
         );
     }

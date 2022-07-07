@@ -1,4 +1,5 @@
 import { IndexerPluginClient, IOutputsResponse, IClient } from "@iota/iota.js";
+import { Converter } from "@iota/util.js";
 import { AssociationType, IAssociatedOutput } from "../models/tangle/IAssociatedOutputsResponse";
 
 /**
@@ -18,16 +19,17 @@ export class OutputsHelper {
 
     public async fetchOutputsByTag() {
         const indexerPlugin = new IndexerPluginClient(this.client);
+        const tag = Converter.isHex(this.query, true) ? this.query : Converter.utf8ToHex(this.query, true);
 
         const promises = [
             this.tryFetchOutputs(
                 async query => indexerPlugin.outputs(query),
-                { tag: this.query },
+                { tagHex: tag },
                 AssociationType.TAG
             ),
             this.tryFetchOutputs(
                 async query => indexerPlugin.nfts(query),
-                { tag: this.query },
+                { tagHex: tag },
                 AssociationType.TAG
             )
         ];

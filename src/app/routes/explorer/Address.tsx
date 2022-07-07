@@ -1,17 +1,17 @@
-import { ALIAS_ADDRESS_TYPE, IOutputResponse, NFT_ADDRESS_TYPE } from "@iota/iota.js";
+import { ALIAS_ADDRESS_TYPE, NFT_ADDRESS_TYPE } from "@iota/iota.js";
 import React, { ReactNode } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
 import { ReactComponent as ChevronLeftIcon } from "../../../assets/chevron-left.svg";
 import { ServiceFactory } from "../../../factories/serviceFactory";
+import { AssociationType, IAssociatedOutput } from "../../../models/tangle/IAssociatedOutputsResponse";
 import { NodeConfigService } from "../../../services/nodeConfigService";
 import { TangleService } from "../../../services/tangleService";
 import { Bech32AddressHelper } from "../../../utils/bech32AddressHelper";
 import { NameHelper } from "../../../utils/nameHelper";
 import AsyncComponent from "../../components/layout/AsyncComponent";
-import Pagination from "../../components/layout/Pagination";
-import Spinner from "../../components/layout/Spinner";
 import Bech32Address from "../../components/tangle/Bech32Address";
 import Output from "../../components/tangle/Output";
+import Outputs from "../../components/tangle/Outputs";
 import "./Address.scss";
 import { AddressProps } from "./AddressProps";
 import { AddressState } from "./AddressState";
@@ -44,21 +44,14 @@ class Address extends AsyncComponent<RouteComponentProps<AddressProps>, AddressS
 
         this.state = {
             address: { ...Bech32AddressHelper.buildAddress(props.match.params.address, this._bech32Hrp) },
-            statusBusy: true,
-            currentPage: 1,
-            pageSize: 10,
             outputs: [],
-            status: "Loading outputs..."
+            basicOutputs: [],
+            nftOutputs: [],
+            aliasOutputs: [],
+            statusBusyBasic: false,
+            statusBusyNft: false,
+            statusBusyAlias: false
         };
-    }
-
-    private get currentPageOutputs() {
-        if (this.state.outputs.length > 0) {
-            const [firstPageIndex, lastPageIndex] = this.getPageIndexes();
-
-            return this.state.outputs.slice(firstPageIndex, lastPageIndex);
-        }
-        return [];
     }
 
     /**
@@ -81,22 +74,40 @@ class Address extends AsyncComponent<RouteComponentProps<AddressProps>, AddressS
 
         if (associatedOutputs.length > 0) {
             const sortedResults = associatedOutputs.sort((a, b) => a.association - b.association);
-            const outputs = [
+            const outputs: IAssociatedOutput[] = [
                 /* eslint-disable-next-line unicorn/no-array-reduce */
                 ...sortedResults.reduce((outputsMap, output) =>
                 (outputsMap.has(output.outputId) ? outputsMap : outputsMap.set(output.outputId, output)),
                 new Map()).values()
             ];
 
-            this.setState({
-                outputs
-            }, async () => {
-                if (this.state.outputs.length > 0) {
-                    const [firstPageIndex, lastPageIndex] = this.getPageIndexes();
+            const basicOutputs = outputs.filter(output => [
+                    AssociationType.BASIC_OUTPUT,
+                    AssociationType.BASIC_SENDER,
+                    AssociationType.BASIC_EXPIRATION_RETURN,
+                    AssociationType.BASIC_STORAGE_RETURN
+                ].includes(output.association));
 
-                    this.updateOutputDetails(firstPageIndex, lastPageIndex)
-                        .catch(err => console.error(err));
-                }
+            const nftOutputs = outputs.filter(output => [
+                    AssociationType.NFT_OUTPUT,
+                    AssociationType.NFT_STORAGE_RETURN,
+                    AssociationType.NFT_EXPIRATION_RETURN,
+                    AssociationType.NFT_SENDER
+                ].includes(output.association));
+
+            const aliasOutputs = outputs.filter(output => [
+                    AssociationType.ALIAS_STATE_CONTROLLER,
+                    AssociationType.ALIAS_GOVERNOR,
+                    AssociationType.ALIAS_ISSUER,
+                    AssociationType.ALIAS_SENDER,
+                    AssociationType.FOUNDRY_ALIAS
+                ].includes(output.association));
+
+            this.setState({
+                outputs,
+                basicOutputs,
+                nftOutputs,
+                aliasOutputs
             });
         }
     }
@@ -132,75 +143,81 @@ class Address extends AsyncComponent<RouteComponentProps<AddressProps>, AddressS
                             {this.state.nft && (
                                 <Output
                                     showDetails={true}
-                                    output={{ output: this.state.nft.output, metadata: this.state.nft.metadata }}
-                                    outputId={this.state.nft.outputId}
+                                    output={this.state.nft.output}
+                                    metadata={this.state.nft.metadata}
                                 />
                             )}
                             {this.state.alias && (
                                 <Output
                                     showDetails={true}
-                                    output={{ output: this.state.alias.output, metadata: this.state.alias.metadata }}
-                                    outputId={this.state.alias.outputId}
+                                    output={this.state.alias.output}
+                                    metadata={this.state.alias.metadata}
                                 />
                             )}
                         </div>
                     </div>
-
-                    {this.state.outputs.length > 0 && (
-                        <div className="card margin-t-m padding-l">
-                            <div className="row spread">
-                                <div className="card--header">
-                                    <h2 className="card--header__title">Outputs</h2>
-                                    <span className="card--header-count">
-                                        {this.state.outputs.length}
-                                    </span>
-                                </div>
-                                {this.state.status && (
-                                    <div className="card--header">
-                                        {this.state.statusBusy && (<Spinner compact={true} />)}
-                                        <p className="status margin-l-s">
-                                            {this.state.status}
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-                            {this.currentPageOutputs.map((output, idx) => (
-                                <Output
-                                    key={output.outputId}
-                                    index={((this.state.currentPage - 1) * this.state.pageSize) + idx + 1}
-                                    output={output.outputDetails ?? {} as IOutputResponse}
-                                    outputId={output.outputId}
-                                />
-                            ))}
-
-                            <Pagination
-                                currentPage={this.state.currentPage}
-                                totalCount={this.state.outputs.length}
-                                pageSize={this.state.pageSize}
-                                extraPageRangeLimit={20}
-                                siblingsCount={1}
-                                onPageChange={page =>
-                                    this.setState({ currentPage: page },
-                                        () => {
-                                            if (this.state.outputs.length > 0) {
-                                                const [firstPageIndex, lastPageIndex] = this.getPageIndexes();
-
-                                                this.updateOutputDetails(firstPageIndex, lastPageIndex)
-                                                    .catch(err => console.error(err));
-                                            }
-                                    })}
-                            />
-                        </div>
+                    {this.state.basicOutputs.length > 0 && (
+                        <Outputs
+                            associatedOutputs={this.state.basicOutputs}
+                            currentPage={1}
+                            pageSize={10}
+                            extraPageRangeLimit={20}
+                            siblingsCount={1}
+                            statusBusy={this.state.statusBusyBasic}
+                            title="Outputs"
+                            onPageChange={(page: number, firstPageIndex: number, lastPageIndex: number) => {
+                                if (this.state.outputs.length > 0) {
+                                    this.updateOutputDetails(
+                                        "basicOutputs",
+                                        "statusBusyBasic",
+                                        firstPageIndex,
+                                        lastPageIndex
+                                    ).catch(err => console.error(err));
+                                }
+                            }}
+                        />
                     )}
-                    {this.state.outputs.length === 0 && (
-                        <div className="card margin-t-m padding-l">
-                            <h2 className="margin-b-s">Outputs</h2>
-                            {this.state.outputs && (
-                                <div className="card--value">
-                                    There are no outputs for this address.
-                                </div>
-                            )}
-                        </div>
+                    {this.state.nftOutputs.length > 0 && (
+                        <Outputs
+                            associatedOutputs={this.state.nftOutputs}
+                            currentPage={1}
+                            pageSize={10}
+                            extraPageRangeLimit={20}
+                            siblingsCount={1}
+                            statusBusy={this.state.statusBusyNft}
+                            title="Nft Outputs"
+                            onPageChange={(page: number, firstPageIndex: number, lastPageIndex: number) => {
+                                if (this.state.outputs.length > 0) {
+                                    this.updateOutputDetails(
+                                        "nftOutputs",
+                                        "statusBusyNft",
+                                        firstPageIndex,
+                                        lastPageIndex
+                                    ).catch(err => console.error(err));
+                                }
+                            }}
+                        />
+                    )}
+                    {this.state.aliasOutputs.length > 0 && (
+                        <Outputs
+                            associatedOutputs={this.state.aliasOutputs}
+                            currentPage={1}
+                            pageSize={10}
+                            extraPageRangeLimit={20}
+                            siblingsCount={1}
+                            statusBusy={this.state.statusBusyAlias}
+                            title="Alias Outputs"
+                            onPageChange={(page: number, firstPageIndex: number, lastPageIndex: number) => {
+                                if (this.state.outputs.length > 0) {
+                                    this.updateOutputDetails(
+                                        "aliasOutputs",
+                                        "statusBusyAlias",
+                                        firstPageIndex,
+                                        lastPageIndex
+                                    ).catch(err => console.error(err));
+                                }
+                            }}
+                        />
                     )}
                 </div>
             </div>
@@ -209,47 +226,39 @@ class Address extends AsyncComponent<RouteComponentProps<AddressProps>, AddressS
 
     /**
      * Update output details from start to end index.
+     * @param outputsKey The key the outputs array to update.
+     * @param busyKey The Keyof the status busy boolean variable.
      * @param startIndex The start index of the output.
      * @param endIndex The end index of the output.
      */
-    private async updateOutputDetails(startIndex: number, endIndex: number) {
-        if (this.state.outputs && this.state.outputs.length > 0) {
-            const updatingPage = this.state.currentPage;
+    private async updateOutputDetails(
+        outputsKey: keyof AddressState,
+        busyKey: keyof AddressState,
+        startIndex: number,
+        endIndex: number) {
+        const outputs = this.state[outputsKey] as IAssociatedOutput[];
+        if (outputs.length > 0) {
+            this.setState(prevState => ({
+                ...prevState,
+                [busyKey]: true
+            }));
             for (let i = startIndex; i < endIndex; i++) {
-                if (updatingPage !== this.state.currentPage) {
-                    break;
-                }
-                const associatedOutput = this.state.outputs[i];
-                const outputResult = await this._tangleService.outputDetails(associatedOutput.outputId);
-                if (outputResult) {
-                    const outputs = [...this.state.outputs];
-                    outputs[i].outputDetails = outputResult;
+                const outputResult = await this._tangleService.outputDetails(outputs[i].outputId);
 
-                    this.setState({
-                        outputs,
-                        status: "Loading outputs..."
-                    });
+                if (outputResult) {
+                    outputs[i].outputDetails = outputResult;
+                    this.setState(prevState => ({
+                        ...prevState,
+                        [outputsKey]: outputs
+                    }));
                 }
             }
 
-            this.setState({
-                    status: "",
-                    statusBusy: false
-                });
+            this.setState(prevState => ({
+                ...prevState,
+                [busyKey]: false
+            }));
         }
-    }
-
-    /**
-     * Get first and last item index.
-     * @returns The first and last item index on the current page.
-     */
-    private getPageIndexes() {
-        const firstPageIndex = (this.state.currentPage - 1) * this.state.pageSize;
-        const lastPageIndex =
-            (this.state.currentPage === Math.ceil(this.state.outputs.length / this.state.pageSize))
-            ? this.state.outputs.length
-            : firstPageIndex + this.state.pageSize;
-        return [firstPageIndex, lastPageIndex] as const;
     }
 }
 

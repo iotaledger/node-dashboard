@@ -14,6 +14,21 @@ export interface AddressState {
     outputs: IAssociatedOutput[];
 
     /**
+     * The basic outputs for the address.
+     */
+    basicOutputs: IAssociatedOutput[];
+
+    /**
+     * The nft outputs for the address.
+     */
+    nftOutputs: IAssociatedOutput[];
+
+    /**
+     * The alias outputs for the address.
+     */
+    aliasOutputs: IAssociatedOutput[];
+
+    /**
      * Nft output details.
      */
     nft?: IOutputResponse & { outputId: string };
@@ -24,22 +39,17 @@ export interface AddressState {
     alias?: IOutputResponse & { outputId: string };
 
     /**
-     * Is the component status busy.
+     * Is the basic outputs status busy.
      */
-    statusBusy: boolean;
+    statusBusyBasic: boolean;
 
     /**
-     * The status.
+     * Is the nft outputs status busy.
      */
-    status: string;
+    statusBusyNft: boolean;
 
     /**
-     * The current page.
+     * Is the alias outputs status busy.
      */
-    currentPage: number;
-
-    /**
-     * The page size.
-     */
-    pageSize: number;
+    statusBusyAlias: boolean;
 }

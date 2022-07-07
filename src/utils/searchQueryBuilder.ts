@@ -135,7 +135,7 @@ export class SearchQueryBuilder {
             output = address.hex;
         }
 
-        const tag = Converter.isHex(this.query) ? this.query : Converter.utf8ToHex(this.query, true);
+        const tag = Converter.isHex(this.query, true) ? this.query : Converter.utf8ToHex(this.query, true);
 
         return {
             queryLower: this.queryLower,

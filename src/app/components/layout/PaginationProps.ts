@@ -35,5 +35,4 @@ export interface PaginationProps {
      * @param page Page navigated to.
      */
     onPageChange(page: number): void;
-
 }
