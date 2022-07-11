@@ -19,13 +19,13 @@ import MilestonePayload from "../../components/tangle/MilestonePayload";
 import TaggedDataPayload from "../../components/tangle/TaggedDataPayload";
 import TransactionPayload from "../../components/tangle/TransactionPayload";
 import "./Block.scss";
-import { BlockRouteProps } from "./BlockRouteProps";
+import { BlockProps } from "./BlockProps";
 import { BlockState } from "./BlockState";
 
 /**
  * Component which will show the block page.
  */
-class Block extends AsyncComponent<RouteComponentProps<BlockRouteProps>, BlockState> {
+class Block extends AsyncComponent<RouteComponentProps<BlockProps>, BlockState> {
     /**
      * Service for tangle requests.
      */
@@ -40,7 +40,7 @@ class Block extends AsyncComponent<RouteComponentProps<BlockRouteProps>, BlockSt
      * Create a new instance of Block.
      * @param props The props.
      */
-    constructor(props: RouteComponentProps<BlockRouteProps>) {
+    constructor(props: RouteComponentProps<BlockProps>) {
         super(props);
 
         this._tangleService = ServiceFactory.get<TangleService>("tangle");
@@ -57,7 +57,7 @@ class Block extends AsyncComponent<RouteComponentProps<BlockRouteProps>, BlockSt
     public async componentDidMount(): Promise<void> {
         super.componentDidMount();
 
-        const result = await this._tangleService.search(this.props.match.params.blockId);
+        const result = await this._tangleService.search({ query: this.props.match.params.blockId });
 
         if (result?.block) {
             const writeStream = new WriteStream();

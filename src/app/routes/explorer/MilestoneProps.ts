@@ -1,4 +1,4 @@
-export interface MilestoneRouteProps {
+export interface MilestoneProps {
     /**
      * The milestone to lookup.
      */

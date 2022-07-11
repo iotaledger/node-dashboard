@@ -18,4 +18,9 @@ export interface FeatureState {
      * JSON view of data.
      */
     jsonData?: string;
+
+    /**
+     * Label for metadata or tag feature.
+     */
+    dataLabel?: string;
 }

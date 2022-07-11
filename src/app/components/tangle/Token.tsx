@@ -56,7 +56,7 @@ class Token extends Component<TokenProps, TokenState> {
                             Amount
                         </div>
                         <div className="card--value card--value__mono">
-                            {this.props.token.amount}
+                            {Number.parseInt(this.props.token.amount, 16)}
                         </div>
                     </div>
                 )}

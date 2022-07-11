@@ -1,14 +1,28 @@
 import { AddressTypes } from "@iota/iota.js";
 
 export interface TransactionPayloadState {
-
     /**
      * The unlock addresses for the transactions.
      */
     unlockAddresses: AddressTypes[];
 
     /**
-     * The transaction id.
+     * The current outputs page.
      */
-    transactionId: string;
+    currentOutputsPage: number;
+
+    /**
+     * The outputs page size.
+     */
+    outputsPageSize: number;
+
+    /**
+     * The current inputs page.
+     */
+    currentInputsPage: number;
+
+    /**
+     * The inputs page size.
+     */
+    inputsPageSize: number;
 }

@@ -1,29 +1,25 @@
-import { IOutputResponse } from "@iota/iota.js";
-import classNames from "classnames";
+import { ALIAS_ADDRESS_TYPE, NFT_ADDRESS_TYPE } from "@iota/iota.js";
 import React, { ReactNode } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
 import { ReactComponent as ChevronLeftIcon } from "../../../assets/chevron-left.svg";
 import { ServiceFactory } from "../../../factories/serviceFactory";
+import { AssociationType, IAssociatedOutput } from "../../../models/tangle/IAssociatedOutputsResponse";
 import { NodeConfigService } from "../../../services/nodeConfigService";
 import { TangleService } from "../../../services/tangleService";
 import { Bech32AddressHelper } from "../../../utils/bech32AddressHelper";
-import { FormatHelper } from "../../../utils/formatHelper";
 import { NameHelper } from "../../../utils/nameHelper";
 import AsyncComponent from "../../components/layout/AsyncComponent";
-import Pagination from "../../components/layout/Pagination";
-import Spinner from "../../components/layout/Spinner";
 import Bech32Address from "../../components/tangle/Bech32Address";
 import Output from "../../components/tangle/Output";
-import Token from "../../components/tangle/Token";
-import { ReactComponent as DropdownIcon } from "./../../../assets/dropdown-arrow.svg";
+import Outputs from "../../components/tangle/Outputs";
 import "./Address.scss";
-import { AddressRouteProps } from "./AddressRouteProps";
+import { AddressProps } from "./AddressProps";
 import { AddressState } from "./AddressState";
 
 /**
  * Component which will show the address page.
  */
-class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, AddressState> {
+class Address extends AsyncComponent<RouteComponentProps<AddressProps>, AddressState> {
     /**
      * Service for tangle requests.
      */
@@ -38,7 +34,7 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
      * Create a new instance of Address.
      * @param props The props.
      */
-    constructor(props: RouteComponentProps<AddressRouteProps>) {
+    constructor(props: RouteComponentProps<AddressProps>) {
         super(props);
 
         this._tangleService = ServiceFactory.get<TangleService>("tangle");
@@ -47,28 +43,15 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
         this._bech32Hrp = nodeConfigService.getBech32Hrp();
 
         this.state = {
-            ...Bech32AddressHelper.buildAddress(props.match.params.address, this._bech32Hrp),
-            formatFull: false,
-            statusBusy: true,
-            showTokens: false,
-            currentPage: 1,
-            pageSize: 10,
-            status: "Loading outputs..."
+            address: { ...Bech32AddressHelper.buildAddress(props.match.params.address, this._bech32Hrp) },
+            outputs: [],
+            basicOutputs: [],
+            nftOutputs: [],
+            aliasOutputs: [],
+            statusBusyBasic: false,
+            statusBusyNft: false,
+            statusBusyAlias: false
         };
-    }
-
-    private get currentPageOutputs() {
-        if (this.state.outputs && this.state.outputs.length > 0) {
-            const firstPageIndex = (this.state.currentPage - 1) * this.state.pageSize;
-            const lastPageIndex =
-                (this.state.currentPage === Math.ceil(this.state.outputs.length / this.state.pageSize))
-                ? this.state.outputs.length
-                : firstPageIndex + this.state.pageSize;
-
-            return this.state.outputs.slice(firstPageIndex, lastPageIndex);
-        }
-
-        return [];
     }
 
     /**
@@ -77,44 +60,55 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
     public async componentDidMount(): Promise<void> {
         super.componentDidMount();
 
-        const result = await this._tangleService.search(this.props.match.params.address);
+        if (this.state.address?.type === NFT_ADDRESS_TYPE && this.state.address.hex) {
+            const nft = await this._tangleService.nftDetails(this.state.address.hex);
+            this.setState({ nft });
+        }
 
-        if (result?.address) {
+        if (this.state.address?.type === ALIAS_ADDRESS_TYPE && this.state.address.hex) {
+            const alias = await this._tangleService.aliasDetails(this.state.address.hex);
+            this.setState({ alias });
+        }
+
+        const associatedOutputs = await this._tangleService.getOutputsForAddress(this.props.match.params.address);
+
+        if (associatedOutputs.length > 0) {
+            const sortedResults = associatedOutputs.sort((a, b) => a.association - b.association);
+            const outputs: IAssociatedOutput[] = [
+                /* eslint-disable-next-line unicorn/no-array-reduce */
+                ...sortedResults.reduce((outputsMap, output) =>
+                (outputsMap.has(output.outputId) ? outputsMap : outputsMap.set(output.outputId, output)),
+                new Map()).values()
+            ];
+
+            const basicOutputs = outputs.filter(output => [
+                    AssociationType.BASIC_OUTPUT,
+                    AssociationType.BASIC_SENDER,
+                    AssociationType.BASIC_EXPIRATION_RETURN,
+                    AssociationType.BASIC_STORAGE_RETURN
+                ].includes(output.association));
+
+            const nftOutputs = outputs.filter(output => [
+                    AssociationType.NFT_OUTPUT,
+                    AssociationType.NFT_STORAGE_RETURN,
+                    AssociationType.NFT_EXPIRATION_RETURN,
+                    AssociationType.NFT_SENDER
+                ].includes(output.association));
+
+            const aliasOutputs = outputs.filter(output => [
+                    AssociationType.ALIAS_STATE_CONTROLLER,
+                    AssociationType.ALIAS_GOVERNOR,
+                    AssociationType.ALIAS_ISSUER,
+                    AssociationType.ALIAS_SENDER,
+                    AssociationType.FOUNDRY_ALIAS
+                ].includes(output.association));
+
             this.setState({
-                address: result.address,
-                balance: result.address.balance,
-                outputIds: result.addressOutputIds
-            }, async () => {
-                const outputs: IOutputResponse[] = [];
-
-                if (result.addressOutputIds) {
-                    for (const outputId of result.addressOutputIds) {
-                        const outputResult = await this._tangleService.outputDetails(outputId);
-                        if (outputResult) {
-                            outputs.push(outputResult);
-
-                            this.setState({
-                                outputs,
-                                status: `Loading outputs [${outputs.length}/${result.addressOutputIds.length}]`
-                            });
-                        }
-
-                        if (!this._isMounted) {
-                            break;
-                        }
-                    }
-                }
-
-                this.setState({
-                    outputs,
-                    status: "",
-                    statusBusy: false
-                });
+                outputs,
+                basicOutputs,
+                nftOutputs,
+                aliasOutputs
             });
-        } else if (result?.unavailable) {
-            this.props.history.replace("/explorer/unavailable");
-        } else {
-            this.props.history.replace(`/explorer/search/${this.props.match.params.address}`);
         }
     }
 
@@ -146,124 +140,125 @@ class Address extends AsyncComponent<RouteComponentProps<AddressRouteProps>, Add
                                     addressDetails={this.state.address}
                                 />
                             )}
-                            {this.state.balance !== undefined && (
-                                <div>
-                                    <div className="card--label">
-                                        Balance
-                                    </div>
-                                    <div className="card--value card--value__mono">
-                                        <button
-                                            className="card--value--button"
-                                            type="button"
-                                            onClick={() => this.setState(
-                                                {
-                                                    formatFull: !this.state.formatFull
-                                                }
-                                            )}
-                                        >
-                                            {FormatHelper.getInstance().amount(
-                                                Number(this.state.balance),
-                                                this.state.formatFull
-                                            )}
-                                        </button>
-                                    </div>
-                                    {this.state.address?.nativeTokens && (
-                                        <React.Fragment>
-                                            <div
-                                                className="card--content__input margin-t-s"
-                                                onClick={() => this.setState({ showTokens: !this.state.showTokens })}
-                                            >
-                                                <div className={classNames(
-                                                        "margin-r-t",
-                                                        "card--content__input--dropdown",
-                                                        { "opened": this.state.showTokens }
-                                                    )}
-                                                >
-                                                    <DropdownIcon />
-                                                </div>
-                                                <h3 className="card--content__input--label">
-                                                    Native Tokens
-                                                </h3>
-                                            </div>
-                                            {this.state.showTokens && (
-                                                <div className="card--content--border-l">
-                                                    {Object.keys(this.state.address?.nativeTokens).map((key, idx) => (
-                                                        <Token
-                                                            key={idx}
-                                                            index={idx}
-                                                            token={{
-                                                                id: key,
-                                                                amount: this.state.address?.nativeTokens
-                                                                        ? this.state.address?.nativeTokens[key]
-                                                                            .toString()
-                                                                        : "0"
-                                                            }}
-                                                        />
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </React.Fragment>
-                                    )}
-                                </div>
+                            {this.state.nft && (
+                                <Output
+                                    showDetails={true}
+                                    output={this.state.nft.output}
+                                    metadata={this.state.nft.metadata}
+                                />
                             )}
-                            {this.state.status && (
-                                <div className="middle row margin-t-m">
-                                    {this.state.statusBusy && (<Spinner compact={true} />)}
-                                    <p className="status margin-l-s">
-                                        {this.props.match.params.address}
-                                        <br />
-                                        {this.state.status}
-                                    </p>
-                                </div>
+                            {this.state.alias && (
+                                <Output
+                                    showDetails={true}
+                                    output={this.state.alias.output}
+                                    metadata={this.state.alias.metadata}
+                                />
                             )}
                         </div>
                     </div>
-
-                    {this.state.outputs &&
-                    this.state.outputIds &&
-                    this.state.outputs.length > 0 && (
-                        <div className="card margin-t-m padding-l">
-                            <div className="card--header">
-                                <h2 className="card--header__title">Outputs</h2>
-                                <span className="card--header-count">
-                                    {this.state.outputs.length}
-                                </span>
-                            </div>
-                            {this.currentPageOutputs.map((output, idx) => (
-                                <Output
-                                    key={idx}
-                                    index={idx + 1}
-                                    output={output}
-                                    outputId={this.state.outputIds
-                                            ? this.state.outputIds[idx]
-                                            : ""}
-                                />
-                            ))}
-
-                            <Pagination
-                                currentPage={this.state.currentPage}
-                                totalCount={this.state.outputs.length}
-                                pageSize={this.state.pageSize}
-                                extraPageRangeLimit={20}
-                                siblingsCount={1}
-                                onPageChange={page => this.setState({ currentPage: page })}
-                            />
-                        </div>
+                    {this.state.basicOutputs.length > 0 && (
+                        <Outputs
+                            associatedOutputs={this.state.basicOutputs}
+                            currentPage={1}
+                            pageSize={10}
+                            extraPageRangeLimit={20}
+                            siblingsCount={1}
+                            statusBusy={this.state.statusBusyBasic}
+                            title="Outputs"
+                            onPageChange={(page: number, firstPageIndex: number, lastPageIndex: number) => {
+                                if (this.state.outputs.length > 0) {
+                                    this.updateOutputDetails(
+                                        "basicOutputs",
+                                        "statusBusyBasic",
+                                        firstPageIndex,
+                                        lastPageIndex
+                                    ).catch(err => console.error(err));
+                                }
+                            }}
+                        />
                     )}
-
-                    {this.state.outputs && this.state.outputs.length === 0 && (
-                        <div className="card margin-t-m padding-l">
-                            <h2 className="margin-b-s">Outputs</h2>
-                            {this.state.outputs && this.state.outputs.length === 0 && (
-                                <div className="card--value">
-                                    There are no outputs for this address.
-                                </div>
-                            )}
-                        </div>
+                    {this.state.nftOutputs.length > 0 && (
+                        <Outputs
+                            associatedOutputs={this.state.nftOutputs}
+                            currentPage={1}
+                            pageSize={10}
+                            extraPageRangeLimit={20}
+                            siblingsCount={1}
+                            statusBusy={this.state.statusBusyNft}
+                            title="Nft Outputs"
+                            onPageChange={(page: number, firstPageIndex: number, lastPageIndex: number) => {
+                                if (this.state.outputs.length > 0) {
+                                    this.updateOutputDetails(
+                                        "nftOutputs",
+                                        "statusBusyNft",
+                                        firstPageIndex,
+                                        lastPageIndex
+                                    ).catch(err => console.error(err));
+                                }
+                            }}
+                        />
+                    )}
+                    {this.state.aliasOutputs.length > 0 && (
+                        <Outputs
+                            associatedOutputs={this.state.aliasOutputs}
+                            currentPage={1}
+                            pageSize={10}
+                            extraPageRangeLimit={20}
+                            siblingsCount={1}
+                            statusBusy={this.state.statusBusyAlias}
+                            title="Alias Outputs"
+                            onPageChange={(page: number, firstPageIndex: number, lastPageIndex: number) => {
+                                if (this.state.outputs.length > 0) {
+                                    this.updateOutputDetails(
+                                        "aliasOutputs",
+                                        "statusBusyAlias",
+                                        firstPageIndex,
+                                        lastPageIndex
+                                    ).catch(err => console.error(err));
+                                }
+                            }}
+                        />
                     )}
                 </div>
             </div>
         );
+    }
+
+    /**
+     * Update output details from start to end index.
+     * @param outputsKey The key the outputs array to update.
+     * @param busyKey The Keyof the status busy boolean variable.
+     * @param startIndex The start index of the output.
+     * @param endIndex The end index of the output.
+     */
+    private async updateOutputDetails(
+        outputsKey: keyof AddressState,
+        busyKey: keyof AddressState,
+        startIndex: number,
+        endIndex: number) {
+        const outputs = this.state[outputsKey] as IAssociatedOutput[];
+        if (outputs.length > 0) {
+            this.setState(prevState => ({
+                ...prevState,
+                [busyKey]: true
+            }));
+            for (let i = startIndex; i < endIndex; i++) {
+                const outputResult = await this._tangleService.outputDetails(outputs[i].outputId);
+
+                if (outputResult) {
+                    outputs[i].outputDetails = outputResult;
+                    this.setState(prevState => ({
+                        ...prevState,
+                        [outputsKey]: outputs
+                    }));
+                }
+            }
+
+            this.setState(prevState => ({
+                ...prevState,
+                [busyKey]: false
+            }));
+        }
     }
 }
 

@@ -1,6 +1,5 @@
-import { Blake2b } from "@iota/crypto.js";
-import { INodeInfoBaseToken, UnitsHelper } from "@iota/iota.js";
-import { Converter, HexHelper } from "@iota/util.js";
+import { INodeInfoBaseToken, TransactionHelper, UnitsHelper } from "@iota/iota.js";
+import { HexHelper } from "@iota/util.js";
 import bigInt from "big-integer";
 import humanize from "humanize-duration";
 import moment from "moment";
@@ -164,9 +163,7 @@ export class FormatHelper {
     public static resolveId(id: string, outputId: string): string {
         return !HexHelper.toBigInt256(id).eq(bigInt.zero)
             ? id
-            : HexHelper.addPrefix(Converter.bytesToHex(
-                Blake2b.sum256(Converter.hexToBytes(HexHelper.stripPrefix(outputId)))
-            ));
+            : TransactionHelper.resolveIdFromOutputId(outputId);
     }
 
     /**

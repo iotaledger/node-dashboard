@@ -1,5 +1,5 @@
 import { Bech32Helper, ALIAS_ADDRESS_TYPE, ED25519_ADDRESS_TYPE, NFT_ADDRESS_TYPE } from "@iota/iota.js";
-import { Converter } from "@iota/util.js";
+import { Converter, HexHelper } from "@iota/util.js";
 import { IBech32AddressDetails } from "../models/IBech32AddressDetails";
 
 export class Bech32AddressHelper {
@@ -13,6 +13,7 @@ export class Bech32AddressHelper {
     public static buildAddress(address: string, hrp: string, addressType?: number): IBech32AddressDetails {
         let bech32;
         let hex;
+        let hexNoPrefix;
         let type;
 
         if (Bech32Helper.matches(address, hrp)) {
@@ -21,20 +22,23 @@ export class Bech32AddressHelper {
                 if (result) {
                     bech32 = address;
                     type = result.addressType;
-                    hex = Converter.bytesToHex(result.addressBytes);
+                    hex = Converter.bytesToHex(result.addressBytes, true);
+                    hexNoPrefix = HexHelper.stripPrefix(hex);
                 }
             } catch {}
         }
 
         if (!bech32) {
-            type = addressType !== undefined ? addressType : Number.parseInt(address.slice(0, 2), 16);
-            hex = address;
+            hex = HexHelper.addPrefix(address);
+            hexNoPrefix = HexHelper.stripPrefix(address);
+            type = addressType !== undefined ? addressType : ED25519_ADDRESS_TYPE;
             bech32 = Bech32Helper.toBech32(type, Converter.hexToBytes(hex), hrp);
         }
 
         return {
             bech32,
             hex,
+            hexNoPrefix,
             type,
             typeLabel: Bech32AddressHelper.typeLabel(type)
         };

@@ -1,5 +1,6 @@
 import { IOutputResponse } from "@iota/iota.js";
 import { IAddressDetails } from "../../../models/IAddressDetails";
+import { IAssociatedOutput } from "../../../models/tangle/IAssociatedOutputsResponse";
 
 export interface AddressState {
     /**
@@ -8,47 +9,47 @@ export interface AddressState {
     address?: IAddressDetails;
 
     /**
-     * The address balance.
-     */
-    balance?: number;
-
-    /**
-     * Is the component status busy.
-     */
-    statusBusy: boolean;
-
-    /**
-     * The status.
-     */
-    status: string;
-
-    /**
-     * The output ids for the address.
-     */
-    outputIds?: string[];
-
-    /**
      * The outputs for the address.
      */
-    outputs?: IOutputResponse[];
+    outputs: IAssociatedOutput[];
 
     /**
-     * Format the amount in full.
+     * The basic outputs for the address.
      */
-    formatFull: boolean;
+    basicOutputs: IAssociatedOutput[];
 
     /**
-     * Show native tokens.
+     * The nft outputs for the address.
      */
-    showTokens: boolean;
+    nftOutputs: IAssociatedOutput[];
 
     /**
-     * The current page.
+     * The alias outputs for the address.
      */
-    currentPage: number;
+    aliasOutputs: IAssociatedOutput[];
 
     /**
-     * The page size.
+     * Nft output details.
      */
-    pageSize: number;
+    nft?: IOutputResponse & { outputId: string };
+
+    /**
+     * Alias output details.
+     */
+    alias?: IOutputResponse & { outputId: string };
+
+    /**
+     * Is the basic outputs status busy.
+     */
+    statusBusyBasic: boolean;
+
+    /**
+     * Is the nft outputs status busy.
+     */
+    statusBusyNft: boolean;
+
+    /**
+     * Is the alias outputs status busy.
+     */
+    statusBusyAlias: boolean;
 }

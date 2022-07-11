@@ -1,4 +1,4 @@
-import { IOutputResponse, OutputTypes } from "@iota/iota.js";
+import { IOutputMetadataResponse, OutputTypes } from "@iota/iota.js";
 
 export interface OutputProps {
     /**
@@ -7,14 +7,14 @@ export interface OutputProps {
     index?: number;
 
     /**
-     * The output id.
+     * The output metadata.
      */
-    outputId: string;
+    metadata?: IOutputMetadataResponse;
 
     /**
-     * The output to display.
+     * The output.
      */
-    output: IOutputResponse | OutputTypes;
+    output: OutputTypes;
 
     /**
      * Expand output details.

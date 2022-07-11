@@ -10,13 +10,13 @@ import { FormatHelper } from "../../../utils/formatHelper";
 import AsyncComponent from "../../components/layout/AsyncComponent";
 import BlockButton from "../../components/layout/BlockButton";
 import "./Milestone.scss";
-import { MilestoneRouteProps } from "./MilestoneRouteProps";
+import { MilestoneProps } from "./MilestoneProps";
 import { MilestoneState } from "./MilestoneState";
 
 /**
  * Component which will show the milestone page.
  */
-class Milestone extends AsyncComponent<RouteComponentProps<MilestoneRouteProps>, MilestoneState> {
+class Milestone extends AsyncComponent<RouteComponentProps<MilestoneProps>, MilestoneState> {
     /**
      * Service for tangle requests.
      */
@@ -26,7 +26,7 @@ class Milestone extends AsyncComponent<RouteComponentProps<MilestoneRouteProps>,
      * Create a new instance of Milestone.
      * @param props The props.
      */
-    constructor(props: RouteComponentProps<MilestoneRouteProps>) {
+    constructor(props: RouteComponentProps<MilestoneProps>) {
         super(props);
 
         this._tangleService = ServiceFactory.get<TangleService>("tangle");

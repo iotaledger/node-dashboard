@@ -87,9 +87,9 @@ class OutputRoute extends AsyncComponent<RouteComponentProps<OutputRouteProps>, 
                         </div>
                         {this.state.outputResponse && (
                             <Output
-                                output={this.state.outputResponse}
-                                outputId={this.props.match.params.outputId}
                                 showDetails={true}
+                                output={this.state.outputResponse.output}
+                                metadata={this.state.outputResponse.metadata}
                             />
                         )}
 

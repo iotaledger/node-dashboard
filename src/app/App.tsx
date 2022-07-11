@@ -29,13 +29,15 @@ import NavMenu from "./components/layout/NavMenu";
 import NavPanel from "./components/layout/NavPanel";
 import Explorer from "./routes/Explorer";
 import Address from "./routes/explorer/Address";
-import { AddressRouteProps } from "./routes/explorer/AddressRouteProps";
+import { AddressProps } from "./routes/explorer/AddressProps";
 import Block from "./routes/explorer/Block";
-import { BlockRouteProps } from "./routes/explorer/BlockRouteProps";
+import { BlockProps } from "./routes/explorer/BlockProps";
 import Milestone from "./routes/explorer/Milestone";
-import { MilestoneRouteProps } from "./routes/explorer/MilestoneRouteProps";
+import { MilestoneProps } from "./routes/explorer/MilestoneProps";
 import OutputRoute from "./routes/explorer/OutputRoute";
 import { OutputRouteProps } from "./routes/explorer/OutputRouteProps";
+import OutputsRoute from "./routes/explorer/OutputsRoute";
+import { OutputsRouteProps } from "./routes/explorer/OutputsRouteProps";
 import Home from "./routes/Home";
 import Login from "./routes/Login";
 import Peer from "./routes/Peer";
@@ -377,23 +379,28 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                                     />
                                     <Route
                                         path="/explorer/block/:blockId"
-                                        component={(props: RouteComponentProps<BlockRouteProps>) =>
+                                        component={(props: RouteComponentProps<BlockProps>) =>
                                             (<Block {...props} />)}
                                     />
                                     <Route
                                         path="/explorer/milestone/:milestoneIndex"
-                                        component={(props: RouteComponentProps<MilestoneRouteProps>) =>
+                                        component={(props: RouteComponentProps<MilestoneProps>) =>
                                             (<Milestone {...props} />)}
                                     />
                                     <Route
                                         path="/explorer/address/:address"
-                                        component={(props: RouteComponentProps<AddressRouteProps>) =>
+                                        component={(props: RouteComponentProps<AddressProps>) =>
                                             (<Address {...props} />)}
                                     />
                                     <Route
                                         path="/explorer/output/:outputId"
                                         component={(props: RouteComponentProps<OutputRouteProps>) =>
                                             (<OutputRoute {...props} />)}
+                                    />
+                                    <Route
+                                        path="/explorer/outputs/:tag"
+                                        component={(props: RouteComponentProps<OutputsRouteProps>) =>
+                                            (<OutputsRoute {...props} />)}
                                     />
                                     <Route
                                         path="/visualizer"

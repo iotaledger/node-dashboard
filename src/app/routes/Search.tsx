@@ -131,7 +131,7 @@ class Search extends AsyncComponent<RouteComponentProps<SearchRouteProps>, Searc
         if (query.length > 0) {
             this.setState({ statusBusy: true }, async () => {
                 const tangleService = ServiceFactory.get<TangleService>("tangle");
-                const response = await tangleService.search(query);
+                const response = await tangleService.search({ query });
 
                 let redirect = "";
 
@@ -158,9 +158,13 @@ class Search extends AsyncComponent<RouteComponentProps<SearchRouteProps>, Searc
                             objParam = Converter.bytesToHex(Blake2b.sum256(writeStream.finalBytes()), true);
                         } else if (response?.address) {
                             objType = "address";
+                            objParam = response.address.bech32 ?? objParam;
                         } else if (response.outputId) {
                             objType = "output";
                             objParam = response.outputId;
+                        } else if (response.outputs) {
+                            objType = "outputs";
+                            objParam = Converter.isHex(objParam, true) ? objParam : Converter.utf8ToHex(objParam, true);
                         } else if (response.milestone) {
                             objType = "milestone";
                             objParam = response.milestone.index.toString();

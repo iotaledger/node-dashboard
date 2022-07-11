@@ -24,12 +24,16 @@ class FeatureBlock extends Component<FeatureProps, FeatureState> {
         let hexData;
         let utf8Data;
         let jsonData;
+        let dataLabel;
 
-        if (this.props.feature.type === METADATA_FEATURE_TYPE) {
-            const matchHexData = this.props.feature.data.match(/.{1,2}/g);
+        if (this.props.feature.type === METADATA_FEATURE_TYPE || this.props.feature.type === TAG_FEATURE_TYPE) {
+            const data = this.props.feature.type === TAG_FEATURE_TYPE
+                            ? this.props.feature.tag : this.props.feature.data;
+            const matchHexData = data.match(/.{1,2}/g);
 
-            hexData = matchHexData ? matchHexData.join(" ") : this.props.feature.data;
-            utf8Data = Converter.hexToUtf8(this.props.feature.data);
+            dataLabel = this.props.feature.type === METADATA_FEATURE_TYPE ? "Data" : "Tag";
+            hexData = matchHexData ? matchHexData.join(" ") : data;
+            utf8Data = Converter.hexToUtf8(data);
 
             try {
                 jsonData = JSON.stringify(JSON.parse(utf8Data), undefined, "  ");
@@ -41,7 +45,8 @@ class FeatureBlock extends Component<FeatureProps, FeatureState> {
             showDetails: false,
             utf8Data,
             hexData,
-            jsonData
+            jsonData,
+            dataLabel
         };
     }
 
@@ -80,12 +85,13 @@ class FeatureBlock extends Component<FeatureProps, FeatureState> {
                                 address={this.props.feature.address}
                             />
                         )}
-                        {this.props.feature.type === METADATA_FEATURE_TYPE && (
+                        {(this.props.feature.type === METADATA_FEATURE_TYPE ||
+                        this.props.feature.type === TAG_FEATURE_TYPE) && (
                             <React.Fragment>
                                 {!this.state.jsonData && this.state.utf8Data && (
                                     <React.Fragment>
-                                        <div className="card--label row bottom spread">
-                                            <span className="margin-r-t">Data UTF8</span>
+                                        <div className="card--label row middle">
+                                            <span className="margin-r-t">{this.state.dataLabel} UTF8</span>
                                             <BlockButton
                                                 onClick={() => ClipboardHelper.copy(
                                                     this.state.utf8Data
@@ -101,8 +107,8 @@ class FeatureBlock extends Component<FeatureProps, FeatureState> {
                                 )}
                                 {this.state.jsonData && (
                                     <React.Fragment>
-                                        <div className="card--label row bottom spread">
-                                            Data JSON
+                                        <div className="card--label row middle">
+                                            {this.state.dataLabel} JSON
                                             <BlockButton
                                                 onClick={() => ClipboardHelper.copy(
                                                     this.state.jsonData
@@ -119,7 +125,7 @@ class FeatureBlock extends Component<FeatureProps, FeatureState> {
                                 {this.state.hexData && (
                                     <React.Fragment>
                                         <div className="card--label row middle">
-                                            <span className="margin-r-t">Data Hex</span>
+                                            <span className="margin-r-t">{this.state.dataLabel} Hex</span>
                                             <BlockButton
                                                 onClick={() => ClipboardHelper.copy(
                                                     this.state.hexData?.replace(/ /g, "")
@@ -133,16 +139,6 @@ class FeatureBlock extends Component<FeatureProps, FeatureState> {
                                         </div>
                                     </React.Fragment>
                                 )}
-                            </React.Fragment>
-                        )}
-                        {this.props.feature.type === TAG_FEATURE_TYPE && (
-                            <React.Fragment>
-                                <div className="card--label">
-                                    Tag:
-                                </div>
-                                <div className="card--value row">
-                                    {this.props.feature.tag}
-                                </div>
                             </React.Fragment>
                         )}
                     </div>

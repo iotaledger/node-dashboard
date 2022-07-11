@@ -1,5 +1,3 @@
-import { OutputTypes } from "@iota/iota.js";
-
 export interface OutputState {
     /**
      * Format the amount in full.
@@ -10,11 +8,6 @@ export interface OutputState {
      * Is genesis output.
      */
     isGenesis: boolean;
-
-    /**
-     * Is genesis output.
-     */
-    output: OutputTypes;
 
     /**
      * Shows details of the specified output

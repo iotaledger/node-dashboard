@@ -1,4 +1,4 @@
-export interface BlockRouteProps {
+export interface BlockProps {
     /**
      * The block to lookup.
      */
