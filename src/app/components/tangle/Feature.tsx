@@ -108,7 +108,7 @@ class FeatureBlock extends Component<FeatureProps, FeatureState> {
                                 {this.state.jsonData && (
                                     <React.Fragment>
                                         <div className="card--label row middle">
-                                            {this.state.dataLabel} JSON
+                                            <span className="margin-r-t">{this.state.dataLabel} JSON</span>
                                             <BlockButton
                                                 onClick={() => ClipboardHelper.copy(
                                                     this.state.jsonData
