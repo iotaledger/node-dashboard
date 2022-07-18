@@ -1,4 +1,4 @@
-import { TAGGED_DATA_PAYLOAD_TYPE, MILESTONE_PAYLOAD_TYPE, BASIC_OUTPUT_TYPE, TRANSACTION_PAYLOAD_TYPE, UnitsHelper } from "@iota/iota.js";
+import { TAGGED_DATA_PAYLOAD_TYPE, MILESTONE_PAYLOAD_TYPE, BASIC_OUTPUT_TYPE, TRANSACTION_PAYLOAD_TYPE } from "@iota/iota.js";
 import { Converter } from "@iota/util.js";
 import classNames from "classnames";
 import React, { ReactNode } from "react";
@@ -365,7 +365,10 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                                                 Total
                                             </div>
                                             <div className="card--value">
-                                                {UnitsHelper.formatBest(this.calculateTotal())}
+                                                {FormatHelper.getInstance().amount(
+                                                    Number(this.calculateTotal()),
+                                                    false
+                                                )}
                                             </div>
                                         </React.Fragment>
                                     )}
