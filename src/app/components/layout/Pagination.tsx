@@ -14,6 +14,11 @@ class Pagination extends Component<PaginationProps, PaginationState> {
     private static readonly DOTS: string = "...";
 
     /**
+     * Dots for pagination.
+     */
+    private readonly _resize;
+
+    /**
      * Is the component mounted.
      */
     private _isMounted?: boolean;
@@ -24,6 +29,7 @@ class Pagination extends Component<PaginationProps, PaginationState> {
      */
     constructor(props: PaginationProps) {
         super(props);
+        this._resize = this.resize.bind(this);
         this.state = {
             paginationRange: [],
             lastPage: 0,
@@ -51,7 +57,7 @@ class Pagination extends Component<PaginationProps, PaginationState> {
      */
     public componentDidMount(): void {
         this._isMounted = true;
-        window.addEventListener("resize", this.resize.bind(this));
+        window.addEventListener("resize", this._resize);
         this.resize();
     }
 
@@ -71,7 +77,7 @@ class Pagination extends Component<PaginationProps, PaginationState> {
      */
     public async componentWillUnmount(): Promise<void> {
         this._isMounted = false;
-        window.removeEventListener("resize", this.resize.bind(this));
+        window.removeEventListener("resize", this._resize);
     }
 
     /**

@@ -29,7 +29,7 @@ class Output extends Component<OutputProps, OutputState> {
 
         this.state = {
             formatFull: false,
-            isGenesis: props.metadata?.blockId === "0".repeat(64) ?? false,
+            isGenesis: props.metadata?.blockId === "0".repeat(64),
             showDetails: this.props.showDetails ?? false,
             showTokens: false
         };

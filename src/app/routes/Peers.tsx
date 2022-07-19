@@ -99,8 +99,8 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                             for (const peer of allDataPeers) {
                                 if (finalPeerIds.has(peer.id)) {
                                     const address = DataHelper.formatPeerAddress(peer);
-                                    const cmi = this.state.cmi ? this.state.cmi : 0;
-                                    const lmi = this.state.lmi ? this.state.lmi : 0;
+                                    const cmi = this.state.cmi ?? 0;
+                                    const lmi = this.state.lmi ?? 0;
                                     const health = DataHelper.calculateHealth(peer, cmi, lmi);
 
                                     if (!peers[peer.id]) {

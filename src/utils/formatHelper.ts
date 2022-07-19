@@ -175,7 +175,7 @@ export class FormatHelper {
      */
     public amount(value: number, formatFull: boolean, decimalPlaces: number = 2): string {
         if (formatFull) {
-            return `${value} ${this._baseToken.subunit ? this._baseToken.subunit : this._baseToken.unit}`;
+            return `${value} ${this._baseToken.subunit ?? this._baseToken.unit}`;
         }
         const baseTokeValue = value / Math.pow(10, this._baseToken.decimals);
         const amount = this._baseToken.useMetricPrefix

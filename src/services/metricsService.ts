@@ -122,7 +122,7 @@ export class MetricsService {
      * @param subscriptionId The subscription to unsubscribe.
      */
     public unsubscribe(subscriptionId: string): void {
-        for (const topic of Object.keys(this._subscriptions).map(k => Number(k))) {
+        for (const topic of Object.keys(this._subscriptions).map(Number)) {
             const subscriptionIdx = this._subscriptions[topic].findIndex(s => s.subscriptionId === subscriptionId);
             if (subscriptionIdx >= 0) {
                 this._subscriptions[topic].splice(subscriptionIdx, 1);

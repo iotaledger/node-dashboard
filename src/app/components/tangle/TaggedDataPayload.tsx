@@ -18,7 +18,7 @@ class TaggedDataPayload extends Component<TaggedDataPayloadProps, TaggedDataPayl
 
         const utf8Index = props.payload.tag ? Converter.hexToUtf8(props.payload.tag) : "";
         const matchHexIndex = props.payload.tag ? props.payload.tag.match(/.{1,2}/g) : "";
-        const hexIndex = matchHexIndex ? matchHexIndex.join(" ") : (props.payload.tag ? props.payload.tag : "");
+        const hexIndex = matchHexIndex ? matchHexIndex.join(" ") : (props.payload.tag ?? "");
 
         let hexData;
         let utf8Data;

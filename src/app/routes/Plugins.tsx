@@ -85,7 +85,7 @@ class Plugins extends AsyncComponent<unknown, PluginsState> {
                     )}
                     <TabPanel
                         tabs={this.state.plugins.map(p => p.title)}
-                        activeTab={this.state.activeTab ? this.state.activeTab : ""}
+                        activeTab={this.state.activeTab ?? ""}
                         onTabChanged={activeTab => {
                             this.setState({
                                 activeTab
