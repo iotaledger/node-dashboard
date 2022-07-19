@@ -103,7 +103,7 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                 for (const allDataPeers of allData) {
                     if (allDataPeers) {
                         const peer = allDataPeers.find(p => p.id === this.props.match.params.id);
-                        const lmi = this.state.nodeLmi ? this.state.nodeLmi : 0;
+                        const lmi = this.state.nodeLmi ?? 0;
 
                         if (peer) {
                             alias = peer.alias;

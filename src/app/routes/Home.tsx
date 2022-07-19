@@ -141,7 +141,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
             WebSocketTopic.NodeStatus,
             data => {
                 if (data) {
-                    const nodeName = data.nodeAlias ? data.nodeAlias : BrandHelper.getConfiguration().name;
+                    const nodeName = data.nodeAlias ?? BrandHelper.getConfiguration().name;
                     const nodeId = data.nodeId || "No node Id.";
                     const uptime = FormatHelper.duration(data.uptime);
                     const memory = FormatHelper.iSize(data.memUsage);
@@ -411,11 +411,11 @@ class Home extends AsyncComponent<unknown, HomeState> {
                     let secondAlphabet = 96;
                     const firstIndex = partsFirst[i].indexOf("-");
                     if (firstIndex > 0) {
-                        firstAlphabet = partsFirst[i].charCodeAt(firstIndex + 1);
+                        firstAlphabet = partsFirst[i].codePointAt(firstIndex + 1) ?? Number.NaN;
                     }
                     const secondIndex = partsSecond[i].indexOf("-");
                     if (secondIndex > 0) {
-                        secondAlphabet = partsSecond[i].charCodeAt(secondIndex + 1);
+                        secondAlphabet = partsSecond[i].codePointAt(secondIndex + 1) ?? Number.NaN;
                     }
 
                     return firstAlphabet - secondAlphabet;
