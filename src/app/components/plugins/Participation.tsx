@@ -206,7 +206,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                                         <div className="row event-actions">
                                             <button
                                                 type="button"
-                                                className="card--action card--action margin-t-s margin-r-s"
+                                                className="card--action margin-t-s margin-r-s"
                                                 onClick={() => this.setState({
                                                     dialogType: "details",
                                                     dialogStatus: "",
