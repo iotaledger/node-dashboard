@@ -162,7 +162,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                                             <div className="event-id word-break-all margin-b-s">
                                                 <span><h4>ID</h4> {e}</span>
                                             </div>
-                                            <div className="event-item event-item--stretch">
+                                            <div className="event-item event-item--stretch margin-b-s">
                                                 <h4>Name</h4>
                                                 <div className="event-value word-break-all">
                                                     {eventInfo?.name}
@@ -306,13 +306,14 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                                             {this.state.dialogDetailsEvent.payload.questions
                                             ?.map((q: IParticipationEventQuestion, idx: number) => (
                                                 <div className="event-item--highlight margin-b-s" key={idx}>
-                                                    <div className="event-item event-item--stretch">
-                                                        <h4>Question</h4>
-                                                        <div className="event-value word-break-all">
-                                                            {q.text}
+                                                    <div className="row wrap">
+                                                        <div className="event-item event-item--stretch margin-b-s">
+                                                            <h4>Question</h4>
+                                                            <div className="event-value">
+                                                                {q.text}
+                                                            </div>
                                                         </div>
                                                     </div>
-
                                                     {q.answers.map((a: IParticipationEventAnswer, idy) => (
                                                         <div className="row wrap" key={idy}>
                                                             <div className="event-item event-item--small">
