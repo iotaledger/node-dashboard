@@ -60,7 +60,7 @@ export class TangleService {
         if (!this._nodeInfo) {
             await this.info();
         }
-        const bech32HRP = this._nodeInfo ? this._nodeInfo.protocol.bech32HRP : Bech32Helper.BECH32_DEFAULT_HRP_MAIN;
+        const bech32HRP = this._nodeInfo ? this._nodeInfo.protocol.bech32Hrp : Bech32Helper.BECH32_DEFAULT_HRP_MAIN;
         const searchQuery: SearchQuery = new SearchQueryBuilder(request.query, bech32HRP).build();
 
         if (searchQuery.milestoneIndex) {
