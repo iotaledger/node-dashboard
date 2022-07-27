@@ -36,7 +36,7 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
                         const referenceUnlock = unlocks[refUnlockIdx] as IReferenceUnlock;
                         signatureUnlock = unlocks[referenceUnlock.reference] as ISignatureUnlock;
                         refUnlockIdx = referenceUnlock.reference;
-                    } while (!signatureUnlock.signature)
+                    } while (!signatureUnlock.signature);
 
                     signatureBlocks.push(signatureUnlock);
             }
