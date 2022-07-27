@@ -20,16 +20,25 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
         super(props);
 
         const signatureBlocks: ISignatureUnlock[] = [];
-        for (let i = 0; i < props.payload.unlocks.length; i++) {
-            if (props.payload.unlocks[i].type === SIGNATURE_UNLOCK_TYPE) {
-                const sigUnlockBlock = props.payload.unlocks[i] as ISignatureUnlock;
-                signatureBlocks.push(sigUnlockBlock);
+        const unlocks = props.payload.unlocks;
+        for (let i = 0; i < unlocks.length; i++) {
+            if (unlocks[i].type === SIGNATURE_UNLOCK_TYPE) {
+                signatureBlocks.push(unlocks[i] as ISignatureUnlock);
             } else if (
-                props.payload.unlocks[i].type === REFERENCE_UNLOCK_TYPE ||
-                props.payload.unlocks[i].type === ALIAS_UNLOCK_TYPE ||
-                props.payload.unlocks[i].type === NFT_UNLOCK_TYPE) {
-                    const refUnlockBlock = props.payload.unlocks[i] as IReferenceUnlock;
-                    signatureBlocks.push(props.payload.unlocks[refUnlockBlock.reference] as ISignatureUnlock);
+                unlocks[i].type === REFERENCE_UNLOCK_TYPE ||
+                unlocks[i].type === ALIAS_UNLOCK_TYPE ||
+                unlocks[i].type === NFT_UNLOCK_TYPE) {
+                    let refUnlockIdx = i;
+                    let signatureUnlock: ISignatureUnlock;
+                    // unlock references can be transitive,
+                    // so we need to follow the path until we find the signature
+                    do {
+                        const referenceUnlock = unlocks[refUnlockIdx] as IReferenceUnlock;
+                        signatureUnlock = unlocks[referenceUnlock.reference] as ISignatureUnlock;
+                        refUnlockIdx = referenceUnlock.reference;
+                    } while (!signatureUnlock.signature)
+
+                    signatureBlocks.push(signatureUnlock);
             }
         }
 
