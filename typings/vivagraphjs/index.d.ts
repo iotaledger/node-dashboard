@@ -24,6 +24,7 @@ declare module "vivagraphjs" {
 
             beginUpdate: () => void;
             endUpdate: () => void;
+            clear(): () => void;
             forEachNode: (callback: (node: INode<T, U>) => void) => void;
             forEachLink: (callback: (link: ILink<U>) => void) => void;
             forEachLinkedNode: (node: string, callback: (linkedNode: INode<T, U>, link: ILink<U>) => void) => void;

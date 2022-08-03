@@ -206,9 +206,11 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
 
         EventAggregator.unsubscribe("theme", "visualizer");
 
+        this._graph?.clear();
+        this._renderer?.dispose();
+
         this._graph = undefined;
         this._graphics = undefined;
-        this._renderer?.dispose();
         this._renderer = undefined;
         this._graphElement = null;
         window.removeEventListener("resize", this._resize);
@@ -707,6 +709,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      * The window was resized.
      */
     private resize(): void {
+        console.log("resize")
         if (this._graphics && this._graphElement) {
             this._graphics.updateSize();
             this._graphics.scale(1, {
