@@ -709,7 +709,6 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      * The window was resized.
      */
     private resize(): void {
-        console.log("resize")
         if (this._graphics && this._graphElement) {
             this._graphics.updateSize();
             this._graphics.scale(1, {
