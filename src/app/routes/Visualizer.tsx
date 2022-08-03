@@ -206,6 +206,20 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
 
         EventAggregator.unsubscribe("theme", "visualizer");
 
+        // This is a workaround for an issue in Safari
+        // https://github.com/WebKit/WebKit/pull/1693
+        // https://pqina.nl/blog/total-canvas-memory-use-exceeds-the-maximum-limit/
+        if (this._graphElement) {
+            const canvas = this._graphElement.children[0] as HTMLCanvasElement;
+            canvas.width = 1;
+            canvas.height = 1;
+            const ctx = canvas.getContext("2d");
+            ctx?.clearRect(0, 0, 1, 1);
+        }
+
+        this._graph?.clear();
+        this._renderer?.dispose();
+
         this._graph = undefined;
         this._graphics = undefined;
         this._renderer = undefined;

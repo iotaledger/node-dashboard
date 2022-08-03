@@ -132,19 +132,19 @@ class MilestonePayload extends Component<MilestonePayloadProps, MilestonePayload
                         </div>
                     </div>
                     {this.state.showOptions && (
-                    <div className="card--content--border-l">
-                        {this.props.payload.options.map((option, idx) => (
-                            <React.Fragment key={idx}>
-                                { option.type === RECEIPT_MILESTONE_OPTION_TYPE && (
-                                <ReceiptMilestoneOption option={option} />
-                                        )}
-                                { option.type === PROTOCOL_PARAMETERS_MILESTONE_OPTION_TYPE && (
-                                <ProtocolParamsMilestonOption option={option} />
-                                        )}
-                            </React.Fragment>
-                                ))}
-                    </div>
-                        )}
+                        <div className="card--content--border-l">
+                            {this.props.payload.options.map((option, idx) => (
+                                <React.Fragment key={idx}>
+                                    { option.type === RECEIPT_MILESTONE_OPTION_TYPE && (
+                                        <ReceiptMilestoneOption option={option} />
+                                    )}
+                                    { option.type === PROTOCOL_PARAMETERS_MILESTONE_OPTION_TYPE && (
+                                        <ProtocolParamsMilestonOption option={option} />
+                                    )}
+                                </React.Fragment>
+                            ))}
+                        </div>
+                    )}
                 </React.Fragment>
                 )}
                 <div className="milestone-payloads__signatures padding-t-s">
