@@ -102,7 +102,7 @@ class TransactionPayload extends Component<TransactionPayloadProps, TransactionP
     private async updateOutputDetails(
         startIndex: number,
         endIndex: number) {
-        const outputs = this.state.inputs;
+        const outputs = [...this.state.inputs];
         if (outputs.length > 0) {
             this.setState({ statusInputsBusy: true });
 
