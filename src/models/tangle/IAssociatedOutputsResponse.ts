@@ -1,4 +1,4 @@
-import { IOutputResponse } from "@iota/iota.js";
+import { IOutputResponse, OutputTypes } from "@iota/iota.js";
 
 export enum AssociationType {
     BASIC_OUTPUT,
@@ -18,9 +18,10 @@ export enum AssociationType {
 }
 
 export interface IAssociatedOutput {
-    association: AssociationType;
+    association?: AssociationType;
     outputId: string;
     outputDetails?: IOutputResponse;
+    outputType?: OutputTypes;
 }
 
 export interface IAssociatedOutputsResponse {

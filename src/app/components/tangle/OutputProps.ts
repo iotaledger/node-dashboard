@@ -12,6 +12,11 @@ export interface OutputProps {
     metadata?: IOutputMetadataResponse;
 
     /**
+     * The output id.
+     */
+    outputId: string;
+
+    /**
      * The output.
      */
     output: OutputTypes;

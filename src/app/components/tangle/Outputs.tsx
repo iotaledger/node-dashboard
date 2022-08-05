@@ -1,6 +1,5 @@
 import { OutputTypes } from "@iota/iota.js";
 import React, { Component, ReactNode } from "react";
-import { IAssociatedOutput } from "../../../models/tangle/IAssociatedOutputsResponse";
 import Pagination from "../layout/Pagination";
 import Spinner from "../layout/Spinner";
 import Output from "./Output";
@@ -18,17 +17,8 @@ class Outputs extends Component<OutputsProps, OutputsState> {
     constructor(props: OutputsProps) {
         super(props);
 
-        let outputs: OutputTypes[] | IAssociatedOutput[] = [];
-
-        if (this.props.outputTypes) {
-            outputs = this.props.outputTypes;
-        }
-        if (this.props.associatedOutputs) {
-            outputs = this.props.associatedOutputs;
-        }
         this.state = {
-          currentPage: this.props.currentPage,
-          outputs
+          currentPage: this.props.currentPage
         };
     }
 
@@ -36,9 +26,9 @@ class Outputs extends Component<OutputsProps, OutputsState> {
      * The outputs on current page.
      * @returns The outputs
      */
-     private get currentPageOutputs() {
-        if (this.state.outputs.length > 0) {
-            return this.state.outputs.slice(...this.getPageIndexes());
+    private get currentPageOutputs() {
+        if (this.props.outputs.length > 0) {
+            return this.props.outputs.slice(...this.getPageIndexes());
         }
         return [];
     }
@@ -64,7 +54,7 @@ class Outputs extends Component<OutputsProps, OutputsState> {
                         <div className="card--header">
                             <h2 className="card--header__title">{this.props.title}</h2>
                             <span className="card--header-count">
-                                {this.state.outputs.length}
+                                {this.props.outputs.length}
                             </span>
                         </div>
                         {this.props.statusBusy && (
@@ -77,27 +67,19 @@ class Outputs extends Component<OutputsProps, OutputsState> {
                         )}
                     </div>
 
-                    {this.props.outputTypes && (this.currentPageOutputs as OutputTypes[]).map((output, idx) => (
-                        <Output
-                            key={((this.props.currentPage - 1) * this.props.pageSize) + idx + 1}
-                            index={((this.props.currentPage - 1) * this.props.pageSize) + idx + 1}
-                            output={output}
-                        />
-                    ))}
-
-                    {this.props.associatedOutputs &&
-                    (this.currentPageOutputs as IAssociatedOutput[]).map((output, idx) => (
+                    {this.currentPageOutputs.map((output, idx) => (
                         <Output
                             key={output.outputId}
                             index={((this.state.currentPage - 1) * this.props.pageSize) + idx + 1}
-                            output={output.outputDetails?.output ?? {} as OutputTypes}
+                            outputId={output.outputId}
+                            output={output.outputType ?? (output.outputDetails?.output ?? {} as OutputTypes)}
                             metadata={output.outputDetails?.metadata}
                         />
                     ))}
 
                     <Pagination
                         currentPage={this.state.currentPage}
-                        totalCount={this.state.outputs.length}
+                        totalCount={this.props.outputs.length}
                         pageSize={this.props.pageSize}
                         extraPageRangeLimit={this.props.extraPageRangeLimit}
                         siblingsCount={this.props.siblingsCount}
@@ -111,10 +93,10 @@ class Outputs extends Component<OutputsProps, OutputsState> {
                             )}
                     />
                 </div>
-                {this.state.outputs.length === 0 && (
+                {this.props.outputs.length === 0 && (
                     <div className="card margin-t-m padding-l">
                         <h2 className="margin-b-s">{this.props.title}</h2>
-                        {this.state.outputs && (
+                        {this.props.outputs && (
                             <div className="card--value">
                                 There are no outputs for this address.
                             </div>
@@ -132,8 +114,8 @@ class Outputs extends Component<OutputsProps, OutputsState> {
     private getPageIndexes() {
         const firstPageIndex = (this.state.currentPage - 1) * this.props.pageSize;
         const lastPageIndex =
-            (this.state.currentPage === Math.ceil(this.state.outputs.length / this.props.pageSize))
-            ? this.state.outputs.length
+            (this.state.currentPage === Math.ceil(this.props.outputs.length / this.props.pageSize))
+            ? this.props.outputs.length
             : firstPageIndex + this.props.pageSize;
         return [firstPageIndex, lastPageIndex] as const;
     }
