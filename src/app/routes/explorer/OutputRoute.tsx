@@ -1,3 +1,4 @@
+import { TransactionHelper } from "@iota/iota.js";
 import React, { ReactNode } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
 import { ReactComponent as ChevronLeftIcon } from "../../../assets/chevron-left.svg";
@@ -88,6 +89,9 @@ class OutputRoute extends AsyncComponent<RouteComponentProps<OutputRouteProps>, 
                         {this.state.outputResponse && (
                             <Output
                                 showDetails={true}
+                                outputId={TransactionHelper.outputIdFromTransactionData(
+                                    this.state.outputResponse.metadata.transactionId,
+                                    this.state.outputResponse.metadata.outputIndex)}
                                 output={this.state.outputResponse.output}
                                 metadata={this.state.outputResponse.metadata}
                             />

@@ -1,16 +1,10 @@
-import { OutputTypes } from "@iota/iota.js";
 import { IAssociatedOutput } from "../../../models/tangle/IAssociatedOutputsResponse";
 
 export interface OutputsProps {
     /**
-     * The output types to display.
-     */
-    outputTypes?: OutputTypes[];
-
-    /**
      * The associated outputs to display.
      */
-    associatedOutputs?: IAssociatedOutput[];
+    outputs: IAssociatedOutput[];
 
     /**
      * The current page.

@@ -15,3 +15,19 @@ $rem-base-font: 16px !default;
     line-height: calc($line-height / $rem-base-font * 1rem);
   }
 }
+
+.font-weight-bold {
+  font-weight: bold !important;
+}
+
+.font-weight-normal {
+  font-weight: normal !important;
+}
+
+.font-weight-light {
+  font-weight: 300 !important;
+}
+
+.font-italic {
+  font-style: italic !important;
+}

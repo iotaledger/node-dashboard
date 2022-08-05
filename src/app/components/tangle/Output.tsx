@@ -1,6 +1,4 @@
-import { Blake2b } from "@iota/crypto.js";
-import { BASIC_OUTPUT_TYPE, ALIAS_OUTPUT_TYPE, FOUNDRY_OUTPUT_TYPE, NFT_OUTPUT_TYPE, TREASURY_OUTPUT_TYPE, SIMPLE_TOKEN_SCHEME_TYPE, ALIAS_ADDRESS_TYPE, NFT_ADDRESS_TYPE, IImmutableAliasUnlockCondition, IAliasAddress, TransactionHelper, serializeOutput } from "@iota/iota.js";
-import { WriteStream, Converter } from "@iota/util.js";
+import { BASIC_OUTPUT_TYPE, ALIAS_OUTPUT_TYPE, FOUNDRY_OUTPUT_TYPE, NFT_OUTPUT_TYPE, TREASURY_OUTPUT_TYPE, SIMPLE_TOKEN_SCHEME_TYPE, ALIAS_ADDRESS_TYPE, NFT_ADDRESS_TYPE, IImmutableAliasUnlockCondition, IAliasAddress, TransactionHelper } from "@iota/iota.js";
 import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
 import { Link } from "react-router-dom";
@@ -58,6 +56,16 @@ class Output extends Component<OutputProps, OutputState> {
                             </div>
                             <h3 className="card--content__input--label">
                                 {NameHelper.getOutputTypeName(this.props.output.type)} {this.props.index}
+                                <span className="margin-l-s card--value font-weight-normal">
+                                    <Link
+                                        to={
+                                            `/explorer/block/${this.props.outputId}`
+                                        }
+                                        className="margin-r-t"
+                                    >
+                                        {this.props.outputId}
+                                    </Link>
+                                </span>
                             </h3>
                         </div>
                         <div className="card--value card--value__mono">
@@ -155,7 +163,7 @@ class Output extends Component<OutputProps, OutputState> {
                                         address={
                                             {
                                                 aliasId: FormatHelper
-                                                        .resolveId(this.props.output.aliasId, this.getOutputId()),
+                                                        .resolveId(this.props.output.aliasId, this.props.outputId),
                                                 type: ALIAS_ADDRESS_TYPE
                                             }
                                         }
@@ -188,7 +196,7 @@ class Output extends Component<OutputProps, OutputState> {
                                     address={
                                             {
                                                 nftId: FormatHelper
-                                                        .resolveId(this.props.output.nftId, this.getOutputId()),
+                                                        .resolveId(this.props.output.nftId, this.props.outputId),
                                                 type: NFT_ADDRESS_TYPE
                                             }
                                         }
@@ -313,23 +321,6 @@ class Output extends Component<OutputProps, OutputState> {
                 </div>
             </div>
         );
-    }
-
-    /**
-     * Get output id from output.
-     * @returns The output id.
-     */
-    private getOutputId(): string {
-        const writeStream = new WriteStream();
-
-        try {
-            serializeOutput(writeStream, this.props.output);
-        } catch (error) {
-            if (error instanceof Error) {
-                console.log(error.message);
-            }
-        }
-        return Converter.bytesToHex(Blake2b.sum256(writeStream.finalBytes()), true);
     }
 }
 
