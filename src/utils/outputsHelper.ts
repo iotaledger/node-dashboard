@@ -23,7 +23,7 @@ export class OutputsHelper {
 
         const promises = [
             this.tryFetchOutputs(
-                async query => indexerPlugin.outputs(query),
+                async query => indexerPlugin.basicOutputs(query),
                 { tagHex: tag },
                 AssociationType.TAG
             ),
@@ -42,28 +42,28 @@ export class OutputsHelper {
         const promises = [
             // Basic output
             this.tryFetchOutputs(
-                async query => indexerPlugin.outputs(query),
+                async query => indexerPlugin.basicOutputs(query),
                 { addressBech32: this.query },
                 AssociationType.BASIC_OUTPUT
             ),
 
             // Basic output -> storage return address
             this.tryFetchOutputs(
-                async query => indexerPlugin.outputs(query),
+                async query => indexerPlugin.basicOutputs(query),
                 { storageReturnAddressBech32: this.query },
                 AssociationType.BASIC_STORAGE_RETURN
             ),
 
             // Basic output -> expiration return address
             this.tryFetchOutputs(
-                async query => indexerPlugin.outputs(query),
+                async query => indexerPlugin.basicOutputs(query),
                 { expirationReturnAddressBech32: this.query },
                 AssociationType.BASIC_EXPIRATION_RETURN
             ),
 
             // Basic output -> sender address
             this.tryFetchOutputs(
-                async query => indexerPlugin.outputs(query),
+                async query => indexerPlugin.basicOutputs(query),
                 { senderBech32: this.query },
                 AssociationType.BASIC_SENDER
             ),
