@@ -203,7 +203,7 @@ export class TangleService {
 
         if (searchQuery.tag) {
             try {
-                const taggedOutputs = await indexerPlugin.outputs({ tagHex: searchQuery.tag });
+                const taggedOutputs = await indexerPlugin.basicOutputs({ tagHex: searchQuery.tag });
 
                 if (taggedOutputs.items.length > 0) {
                     return {

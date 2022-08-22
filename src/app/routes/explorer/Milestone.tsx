@@ -147,7 +147,7 @@ class Milestone extends AsyncComponent<RouteComponentProps<MilestoneProps>, Mile
                 const info = await tangleService.info();
 
                 this.setState({
-                    blockId: blockIdFromMilestonePayload(info.protocol.protocolVersion, result)
+                    blockId: blockIdFromMilestonePayload(info.protocol.version, result)
                 });
             } catch (error) {
                 if (error instanceof Error) {
