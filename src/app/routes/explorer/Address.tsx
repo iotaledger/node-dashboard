@@ -1,4 +1,4 @@
-import { ALIAS_ADDRESS_TYPE, NFT_ADDRESS_TYPE, TransactionHelper } from "@iota/iota.js";
+import { ALIAS_ADDRESS_TYPE, Bech32Helper, NFT_ADDRESS_TYPE, TransactionHelper } from "@iota/iota.js";
 import React, { ReactNode } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
 import { ReactComponent as ChevronLeftIcon } from "../../../assets/chevron-left.svg";
@@ -41,6 +41,10 @@ class Address extends AsyncComponent<RouteComponentProps<AddressProps>, AddressS
 
         const nodeConfigService = ServiceFactory.get<NodeConfigService>("node-config");
         this._bech32Hrp = nodeConfigService.getBech32Hrp();
+
+        if (!Bech32Helper.matches(this.props.match.params.address, this._bech32Hrp)) {
+            this.props.history.push(`/explorer/search/${this.props.match.params.address}`);
+        }
 
         this.state = {
             address: { ...Bech32AddressHelper.buildAddress(props.match.params.address, this._bech32Hrp) },
