@@ -50,7 +50,7 @@ export class OutputsHelper {
             // Basic output -> storage return address
             this.tryFetchOutputs(
                 async query => indexerPlugin.basicOutputs(query),
-                { storageReturnAddressBech32: this.query },
+                { storageDepositReturnAddressBech32: this.query },
                 AssociationType.BASIC_STORAGE_RETURN
             ),
 
@@ -113,7 +113,7 @@ export class OutputsHelper {
             // Nft output -> storage return address
             this.tryFetchOutputs(
                 async query => indexerPlugin.nfts(query),
-                { storageReturnAddressBech32: this.query },
+                { storageDepositReturnAddressBech32: this.query },
                 AssociationType.NFT_STORAGE_RETURN
             ),
 
