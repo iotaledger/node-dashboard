@@ -12,7 +12,7 @@
     "dependencies": {
         "@iota/iota.js": "^1.9.0-stardust.25",
         "classnames": "^2.3.1",
-        "humanize-duration": "^3.25.2",
+        "humanize-duration": "^3.27.3",
         "moment": "^2.29.1",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
@@ -49,7 +49,7 @@
         "@types/react-dom": "^17.0.5",
         "@types/react-helmet": "^6.1.1",
         "@types/react-router-dom": "^5.1.7",
-        "@typescript-eslint/eslint-plugin": "^5.30.7",
+        "@typescript-eslint/eslint-plugin": "^5.38.0",
         "@typescript-eslint/parser": "^5.30.7",
         "cross-env": "^7.0.3",
         "eslint": "^8.20.0",
