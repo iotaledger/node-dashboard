@@ -1,6 +1,7 @@
-@import './fonts';
-@import './variables';
-@import './media-queries';
+/* stylelint-disable selector-class-pattern, function-no-unknown */
+@import "./fonts";
+@import "./variables";
+@import "./media-queries";
 
 .card {
   padding: 10px;
