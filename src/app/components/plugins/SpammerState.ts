@@ -24,4 +24,9 @@ export interface SpammerState {
      * Spam Workers max.
      */
     workersMax: number;
+
+    /**
+     * Is value spamming enabled.
+     */
+    valueSpamEnabled: boolean;
 }

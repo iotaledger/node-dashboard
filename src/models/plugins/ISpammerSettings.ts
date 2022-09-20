@@ -25,6 +25,11 @@ export interface ISpammerSettings {
     spammerWorkersMax: number;
 
     /**
+     * Is value spamming enabled.
+     */
+    valueSpamEnabled: boolean;
+
+    /**
      * The error messsage.
      */
     error?: {

@@ -21,7 +21,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
     /**
      * The description of the plugin.
      */
-    private static readonly PLUGIN_DESCRIPTION = "Spam the IOTA network with data blocks.";
+    private static readonly PLUGIN_DESCRIPTION = "Spam the network with tagged data or transaction payloads.";
 
     /**
      * Is the spammer plugin available.
@@ -40,7 +40,8 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
             bps: "1",
             cpu: "80",
             workers: "0",
-            workersMax: 0
+            workersMax: 0,
+            valueSpamEnabled: false
         };
     }
 
@@ -133,6 +134,15 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                     </div>
                     <h2 className="margin-t-s">Settings</h2>
                     <div className="card--label">
+                        Enable value spam
+                    </div>
+                    <div className="card--value row">
+                        <ToggleButton
+                            value={this.state.valueSpamEnabled}
+                            onChanged={value => this.setState({ valueSpamEnabled: value })}
+                        />
+                    </div>
+                    <div className="card--label">
                         Blocks Per Second
                     </div>
                     <div className="card--value row">
@@ -205,7 +215,8 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                     bps: response.bpsRateLimit.toString(),
                     cpu: (response.cpuMaxUsage * 100).toString(),
                     workers: response.spammerWorkers.toString(),
-                    workersMax: response.spammerWorkersMax
+                    workersMax: response.spammerWorkersMax,
+                    valueSpamEnabled: response.valueSpamEnabled
                 });
             } else {
                 console.log("loging eror", response.error);
@@ -251,7 +262,8 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                 {
                     bpsRateLimit: Number.parseFloat(this.state.bps),
                     cpuMaxUsage: Number.parseFloat(this.state.cpu) / 100,
-                    spammerWorkers: Number.parseInt(this.state.workers, 10)
+                    spammerWorkers: Number.parseInt(this.state.workers, 10),
+                    valueSpamEnabled: this.state.valueSpamEnabled
                 },
                 Spammer.buildAuthHeaders());
 

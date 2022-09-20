@@ -57,7 +57,7 @@ export class NodeConfigService {
 
             try {
                 const info = await tangleService.info();
-                this.setBech32Hrp(info.protocol.bech32HRP);
+                this.setBech32Hrp(info.protocol.bech32Hrp);
                 this.setNetworkId(info.protocol.networkName);
                 this.setBaseToken(info.baseToken);
             } catch {}

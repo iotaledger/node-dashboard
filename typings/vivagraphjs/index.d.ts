@@ -21,12 +21,12 @@ declare module "vivagraphjs" {
             getNode: (node: string) => INode<T, U> | undefined;
             addNode: (node: string, data?: T) => INode<T, U>;
             removeNode: (node: string) => void;
-
             beginUpdate: () => void;
             endUpdate: () => void;
             forEachNode: (callback: (node: INode<T, U>) => void) => void;
             forEachLink: (callback: (link: ILink<U>) => void) => void;
             forEachLinkedNode: (node: string, callback: (linkedNode: INode<T, U>, link: ILink<U>) => void) => void;
+            clear(): () => void;
         }
 
         export interface ILocation {

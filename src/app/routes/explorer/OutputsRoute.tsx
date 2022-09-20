@@ -44,7 +44,11 @@ class OutputsRoute extends AsyncComponent<RouteComponentProps<OutputsRouteProps>
         const associatedOutputs = await this._tangleService.getOutputsByTag(this.props.match.params.tag);
 
         if (associatedOutputs.length > 0) {
-            const sortedResults = associatedOutputs.sort((a, b) => a.association - b.association);
+            const sortedResults = associatedOutputs.sort((a, b) => (
+                    ((a.association || a.association === 0) && (b.association || b.association === 0))
+                    ? a.association - b.association
+                    : -1
+            ));
             const outputs = [
                 /* eslint-disable-next-line unicorn/no-array-reduce */
                 ...sortedResults.reduce((outputsMap, output) =>
@@ -75,7 +79,7 @@ class OutputsRoute extends AsyncComponent<RouteComponentProps<OutputsRouteProps>
                     </Link>
                     {this.state.outputs.length > 0 && (
                         <Outputs
-                            associatedOutputs={this.state.outputs}
+                            outputs={this.state.outputs}
                             currentPage={1}
                             pageSize={15}
                             extraPageRangeLimit={20}

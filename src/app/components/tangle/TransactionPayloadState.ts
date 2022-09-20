@@ -1,10 +1,10 @@
-import { AddressTypes } from "@iota/iota.js";
+import { IAssociatedOutput } from "../../../models/tangle/IAssociatedOutputsResponse";
 
 export interface TransactionPayloadState {
     /**
-     * The unlock addresses for the transactions.
+     * The outputs.
      */
-    unlockAddresses: AddressTypes[];
+    outputs: IAssociatedOutput[];
 
     /**
      * The current outputs page.
@@ -17,12 +17,12 @@ export interface TransactionPayloadState {
     outputsPageSize: number;
 
     /**
-     * The current inputs page.
+     * The inputs with output details.
      */
-    currentInputsPage: number;
+    inputs: IAssociatedOutput[];
 
     /**
-     * The inputs page size.
+     * Is the inputs status busy.
      */
-    inputsPageSize: number;
+    statusInputsBusy: boolean;
 }

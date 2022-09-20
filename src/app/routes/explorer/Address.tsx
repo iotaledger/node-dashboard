@@ -1,4 +1,4 @@
-import { ALIAS_ADDRESS_TYPE, NFT_ADDRESS_TYPE } from "@iota/iota.js";
+import { ALIAS_ADDRESS_TYPE, Bech32Helper, NFT_ADDRESS_TYPE, TransactionHelper } from "@iota/iota.js";
 import React, { ReactNode } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
 import { ReactComponent as ChevronLeftIcon } from "../../../assets/chevron-left.svg";
@@ -42,6 +42,10 @@ class Address extends AsyncComponent<RouteComponentProps<AddressProps>, AddressS
         const nodeConfigService = ServiceFactory.get<NodeConfigService>("node-config");
         this._bech32Hrp = nodeConfigService.getBech32Hrp();
 
+        if (!Bech32Helper.matches(this.props.match.params.address, this._bech32Hrp)) {
+            this.props.history.push(`/explorer/search/${this.props.match.params.address}`);
+        }
+
         this.state = {
             address: { ...Bech32AddressHelper.buildAddress(props.match.params.address, this._bech32Hrp) },
             outputs: [],
@@ -73,7 +77,12 @@ class Address extends AsyncComponent<RouteComponentProps<AddressProps>, AddressS
         const associatedOutputs = await this._tangleService.getOutputsForAddress(this.props.match.params.address);
 
         if (associatedOutputs.length > 0) {
-            const sortedResults = associatedOutputs.sort((a, b) => a.association - b.association);
+            const sortedResults = associatedOutputs.sort((a, b) => (
+                 ((a.association || a.association === 0) && (b.association || b.association === 0))
+                 ? a.association - b.association
+                 : -1
+            ));
+
             const outputs: IAssociatedOutput[] = [
                 /* eslint-disable-next-line unicorn/no-array-reduce */
                 ...sortedResults.reduce((outputsMap, output) =>
@@ -81,27 +90,34 @@ class Address extends AsyncComponent<RouteComponentProps<AddressProps>, AddressS
                 new Map()).values()
             ];
 
-            const basicOutputs = outputs.filter(output => [
+            const basicOutputs = outputs.filter(output =>
+                ((output.association || output.association === 0)
+                ? [
                     AssociationType.BASIC_OUTPUT,
                     AssociationType.BASIC_SENDER,
                     AssociationType.BASIC_EXPIRATION_RETURN,
                     AssociationType.BASIC_STORAGE_RETURN
-                ].includes(output.association));
+                ].includes(output.association)
+                : false));
 
-            const nftOutputs = outputs.filter(output => [
+            const nftOutputs = outputs.filter(output => (output.association
+                ? [
                     AssociationType.NFT_OUTPUT,
                     AssociationType.NFT_STORAGE_RETURN,
                     AssociationType.NFT_EXPIRATION_RETURN,
                     AssociationType.NFT_SENDER
-                ].includes(output.association));
+                ].includes(output.association)
+                : false));
 
-            const aliasOutputs = outputs.filter(output => [
+            const aliasOutputs = outputs.filter(output => (output.association
+                ? [
                     AssociationType.ALIAS_STATE_CONTROLLER,
                     AssociationType.ALIAS_GOVERNOR,
                     AssociationType.ALIAS_ISSUER,
                     AssociationType.ALIAS_SENDER,
                     AssociationType.FOUNDRY_ALIAS
-                ].includes(output.association));
+                ].includes(output.association)
+                : false));
 
             this.setState({
                 outputs,
@@ -143,6 +159,8 @@ class Address extends AsyncComponent<RouteComponentProps<AddressProps>, AddressS
                             {this.state.nft && (
                                 <Output
                                     showDetails={true}
+                                    outputId={TransactionHelper.outputIdFromTransactionData(
+                                        this.state.nft.metadata.transactionId, this.state.nft.metadata.outputIndex)}
                                     output={this.state.nft.output}
                                     metadata={this.state.nft.metadata}
                                 />
@@ -150,6 +168,8 @@ class Address extends AsyncComponent<RouteComponentProps<AddressProps>, AddressS
                             {this.state.alias && (
                                 <Output
                                     showDetails={true}
+                                    outputId={TransactionHelper.outputIdFromTransactionData(
+                                        this.state.alias.metadata.transactionId, this.state.alias.metadata.outputIndex)}
                                     output={this.state.alias.output}
                                     metadata={this.state.alias.metadata}
                                 />
@@ -158,7 +178,7 @@ class Address extends AsyncComponent<RouteComponentProps<AddressProps>, AddressS
                     </div>
                     {this.state.basicOutputs.length > 0 && (
                         <Outputs
-                            associatedOutputs={this.state.basicOutputs}
+                            outputs={this.state.basicOutputs}
                             currentPage={1}
                             pageSize={10}
                             extraPageRangeLimit={20}
@@ -179,7 +199,7 @@ class Address extends AsyncComponent<RouteComponentProps<AddressProps>, AddressS
                     )}
                     {this.state.nftOutputs.length > 0 && (
                         <Outputs
-                            associatedOutputs={this.state.nftOutputs}
+                            outputs={this.state.nftOutputs}
                             currentPage={1}
                             pageSize={10}
                             extraPageRangeLimit={20}
@@ -200,7 +220,7 @@ class Address extends AsyncComponent<RouteComponentProps<AddressProps>, AddressS
                     )}
                     {this.state.aliasOutputs.length > 0 && (
                         <Outputs
-                            associatedOutputs={this.state.aliasOutputs}
+                            outputs={this.state.aliasOutputs}
                             currentPage={1}
                             pageSize={10}
                             extraPageRangeLimit={20}
