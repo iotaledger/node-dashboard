@@ -1,5 +1,6 @@
-/* eslint-disable unicorn/prefer-add-event-listener */
+/* eslint-disable unicorn/prefer-add-event-listener, unicorn/prefer-node-protocol*/
 import { Converter, RandomHelper } from "@iota/util.js";
+import { Buffer } from "buffer";
 import { ServiceFactory } from "../factories/serviceFactory";
 import { IWebSocketMessage } from "../models/websocket/IWebSocketMessage";
 import { WebSocketTopic } from "../models/websocket/webSocketTopic";
