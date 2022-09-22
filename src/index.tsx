@@ -1,6 +1,6 @@
 /* eslint-disable unicorn/prefer-top-level-await */
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./app/App";
 import Participation from "./app/components/plugins/Participation";
@@ -23,15 +23,17 @@ import { BrandHelper } from "./utils/brandHelper";
 
 initServices()
     .then(brandConfiguration => {
-        ReactDOM.render(
+        /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
+        const container = document.querySelector("#root")!;
+        const root = createRoot(container);
+        root.render(
             !brandConfiguration
                 ? (<div>REACT_APP_BRAND_ID is not set</div>)
                 : (
                     <BrowserRouter basename={process.env.PUBLIC_URL}>
                         <App />
                     </BrowserRouter>
-                ),
-            document.querySelector("#root")
+                )
         );
     })
     .catch(err => console.error(err));

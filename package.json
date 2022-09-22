@@ -17,7 +17,7 @@
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-router-dom": "^5.2.0",
-        "react-scripts": "^4.0.3",
+        "react-scripts": "^5.0.1",
         "vivagraphjs": "^0.12.0"
     },
     "engines": {
@@ -41,7 +41,7 @@
         "not op_mini all"
     ],
     "devDependencies": {
-        "@craco/craco": "^6.1.2",
+        "@craco/craco": "^7.0.0-alpha.7",
         "@types/classnames": "^2.3.1",
         "@types/humanize-duration": "^3.25.0",
         "@types/node": "^18.7.18",
@@ -51,6 +51,7 @@
         "@types/react-router-dom": "^5.1.7",
         "@typescript-eslint/eslint-plugin": "^5.38.0",
         "@typescript-eslint/parser": "^5.30.7",
+        "buffer": "^6.0.3",
         "cross-env": "^7.0.3",
         "eslint": "^8.20.0",
         "eslint-plugin-import": "^2.23.2",
