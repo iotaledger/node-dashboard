@@ -43,10 +43,11 @@ class Pagination extends Component<PaginationProps, PaginationState> {
      */
     public componentDidUpdate(prevProps: PaginationProps): void {
         if (this.props !== prevProps) {
+            const paginationRange = this.updatePaginationRange();
             this.setState(
-                { paginationRange: this.updatePaginationRange() },
+                { paginationRange },
                 () => this.setState(
-                    { lastPage: this.state.paginationRange[this.state.paginationRange.length - 1] as number }
+                    { lastPage: paginationRange[paginationRange.length - 1] as number }
                 )
             );
         }
