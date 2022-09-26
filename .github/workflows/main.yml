@@ -7,7 +7,7 @@ on:
       - "src/**"
       - ".github/workflows/main.yml"
   pull_request:
-    branches: [feature/develop]
+    branches: [main]
     paths:
       - "src/**"
       - ".github/workflows/main.yml"
@@ -18,10 +18,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js 12.x
-        uses: actions/setup-node@v1
+      - name: Use Node.js 16.16
+        uses: actions/setup-node@v2
         with:
-          node-version: "12"
+          node-version: "16.16"
+      - name: npm 8.18
+        run: npm install -g npm@8.18
       - name: Client Build
         run: |
           npm install
