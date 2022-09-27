@@ -1,17 +1,34 @@
-@import './fonts/dm-sans';
-@import './fonts/ibm-plex-mono';
+/* stylelint-disable annotation-no-unknown */
+@import "./fonts/dm-sans";
+@import "./fonts/ibm-plex-mono";
 
-$font-sans: 'DM Sans', sans-serif;
-$font-mono: 'IBM Plex Mono', monospace;
+$font-sans: "DM Sans", sans-serif;
+$font-mono: "IBM Plex Mono", monospace;
 
 $rem-base-font: 16px !default;
 
 @mixin font-size($font-size, $line-height: 0) {
   font-size: $font-size;
-  font-size: $font-size / $rem-base-font * 1rem;
+  font-size: calc($font-size / $rem-base-font * 1rem);
 
   @if $line-height > 0 {
     line-height: $line-height;
-    line-height: $line-height / $rem-base-font * 1rem;
+    line-height: calc($line-height / $rem-base-font * 1rem);
   }
+}
+
+.font-weight-bold {
+  font-weight: bold !important;
+}
+
+.font-weight-normal {
+  font-weight: normal !important;
+}
+
+.font-weight-light {
+  font-weight: 300 !important;
+}
+
+.font-italic {
+  font-style: italic !important;
 }

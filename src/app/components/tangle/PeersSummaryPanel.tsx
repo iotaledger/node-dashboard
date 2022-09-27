@@ -154,8 +154,8 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
 
         if (data) {
             sortedPeers = DataHelper.sortPeers(data.map(p => {
-                const cmi = this.state.cmi ? this.state.cmi : 0;
-                const lmi = this.state.lmi ? this.state.lmi : 0;
+                const cmi = this.state.cmi ?? 0;
+                const lmi = this.state.lmi ?? 0;
 
                 return {
                     id: p.id,

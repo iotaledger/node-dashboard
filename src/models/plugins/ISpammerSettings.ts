@@ -5,9 +5,9 @@ export interface ISpammerSettings {
     running: boolean;
 
     /**
-     * The MPS Rate Limit.
+     * The BPS Rate Limit.
      */
-    mpsRateLimit: number;
+    bpsRateLimit: number;
 
     /**
      * Max cpu usage.
@@ -23,4 +23,16 @@ export interface ISpammerSettings {
      * The max number of spam workers.
      */
     spammerWorkersMax: number;
+
+    /**
+     * Is value spamming enabled.
+     */
+    valueSpamEnabled: boolean;
+
+    /**
+     * The error messsage.
+     */
+    error?: {
+        message: string;
+    };
 }

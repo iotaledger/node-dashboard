@@ -1,13 +1,28 @@
-import { IBech32AddressDetails } from "../../../models/IBech32AddressDetails";
+import { IAssociatedOutput } from "../../../models/tangle/IAssociatedOutputsResponse";
 
 export interface TransactionPayloadState {
     /**
-     * Format the curreny in full.
+     * The outputs.
      */
-    formatFull?: boolean;
+    outputs: IAssociatedOutput[];
 
     /**
-     * The unlock addresses for the transactions.
+     * The current outputs page.
      */
-    unlockAddresses: IBech32AddressDetails[];
+    currentOutputsPage: number;
+
+    /**
+     * The outputs page size.
+     */
+    outputsPageSize: number;
+
+    /**
+     * The inputs with output details.
+     */
+    inputs: IAssociatedOutput[];
+
+    /**
+     * Is the inputs status busy.
+     */
+    statusInputsBusy: boolean;
 }

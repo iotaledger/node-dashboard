@@ -1,6 +1,5 @@
 import React, { ReactNode } from "react";
 import { Redirect, Route, RouteComponentProps, Switch, withRouter } from "react-router-dom";
-import { ReactComponent as AnalyticsIcon } from "../assets/analytics.svg";
 import { ReactComponent as ExplorerIcon } from "../assets/explorer.svg";
 import { ReactComponent as HomeIcon } from "../assets/home.svg";
 import { ReactComponent as MoonIcon } from "../assets/moon.svg";
@@ -28,17 +27,17 @@ import Header from "./components/layout/Header";
 import HealthIndicator from "./components/layout/HealthIndicator";
 import NavMenu from "./components/layout/NavMenu";
 import NavPanel from "./components/layout/NavPanel";
-import Analytics from "./routes/Analytics";
-import { AnalyticsRouteProps } from "./routes/AnalyticsRouteProps";
 import Explorer from "./routes/Explorer";
 import Address from "./routes/explorer/Address";
-import { AddressRouteProps } from "./routes/explorer/AddressRouteProps";
-import Indexed from "./routes/explorer/Indexed";
-import { IndexedRouteProps } from "./routes/explorer/IndexedRouteProps";
-import Message from "./routes/explorer/Message";
-import { MessageRouteProps } from "./routes/explorer/MessageRouteProps";
+import { AddressProps } from "./routes/explorer/AddressProps";
+import Block from "./routes/explorer/Block";
+import { BlockProps } from "./routes/explorer/BlockProps";
 import Milestone from "./routes/explorer/Milestone";
-import { MilestoneRouteProps } from "./routes/explorer/MilestoneRouteProps";
+import { MilestoneProps } from "./routes/explorer/MilestoneProps";
+import OutputRoute from "./routes/explorer/OutputRoute";
+import { OutputRouteProps } from "./routes/explorer/OutputRouteProps";
+import OutputsRoute from "./routes/explorer/OutputsRoute";
+import { OutputsRouteProps } from "./routes/explorer/OutputsRouteProps";
 import Home from "./routes/Home";
 import Login from "./routes/Login";
 import Peer from "./routes/Peer";
@@ -150,8 +149,8 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
         this._statusSubscription = this._metricsService.subscribe<INodeStatus>(
             WebSocketTopic.NodeStatus,
             data => {
-                if (data && data.node_alias !== this._alias) {
-                    this._alias = data.node_alias;
+                if (data && data.nodeAlias !== this._alias) {
+                    this._alias = data.nodeAlias;
                     this.updateTitle();
                 }
             });
@@ -182,17 +181,17 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                             online: true
                         });
                     }
-                    if (data.is_healthy !== this.state.nodeHealth) {
-                        this.setState({ nodeHealth: data.is_healthy });
+                    if (data.isHealthy !== this.state.nodeHealth) {
+                        this.setState({ nodeHealth: data.isHealthy });
                     }
-                    if (data.is_synced !== this.state.syncHealth) {
-                        this.setState({ syncHealth: data.is_synced });
+                    if (data.isSynced !== this.state.syncHealth) {
+                        this.setState({ syncHealth: data.isSynced });
                     }
                 }
             });
 
         this._statusTimer = setInterval(() => {
-            if (Date.now() - this._lastStatus > 10000 && this.state.online) {
+            if (Date.now() - this._lastStatus > 30000 && this.state.online) {
                 this.setState({
                     online: false
                 });
@@ -242,12 +241,6 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                 label: "Home",
                 icon: <HomeIcon />,
                 route: "/",
-                hidden: !this.state.isLoggedIn
-            },
-            {
-                label: "Analytics",
-                icon: <AnalyticsIcon />,
-                route: "/analytics",
                 hidden: !this.state.isLoggedIn
             },
             {
@@ -351,11 +344,6 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                                             key="home"
                                         />,
                                         <Route
-                                            path="/analytics/:section?"
-                                            component={(props: AnalyticsRouteProps) => (<Analytics {...props} />)}
-                                            key="analytics"
-                                        />,
-                                        <Route
                                             exact={true}
                                             path="/peers"
                                             component={() => (<Peers />)}
@@ -390,24 +378,29 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                                         component={(props: RouteComponentProps<never>) => (<Unavailable {...props} />)}
                                     />
                                     <Route
-                                        path="/explorer/message/:messageId"
-                                        component={(props: RouteComponentProps<MessageRouteProps>) =>
-                                            (<Message {...props} />)}
+                                        path="/explorer/block/:blockId"
+                                        component={(props: RouteComponentProps<BlockProps>) =>
+                                            (<Block {...props} />)}
                                     />
                                     <Route
                                         path="/explorer/milestone/:milestoneIndex"
-                                        component={(props: RouteComponentProps<MilestoneRouteProps>) =>
+                                        component={(props: RouteComponentProps<MilestoneProps>) =>
                                             (<Milestone {...props} />)}
                                     />
                                     <Route
-                                        path="/explorer/indexed/:index"
-                                        component={(props: RouteComponentProps<IndexedRouteProps>) =>
-                                            (<Indexed {...props} />)}
+                                        path="/explorer/address/:address"
+                                        component={(props: RouteComponentProps<AddressProps>) =>
+                                            (<Address {...props} />)}
                                     />
                                     <Route
-                                        path="/explorer/address/:address"
-                                        component={(props: RouteComponentProps<AddressRouteProps>) =>
-                                            (<Address {...props} />)}
+                                        path="/explorer/output/:outputId"
+                                        component={(props: RouteComponentProps<OutputRouteProps>) =>
+                                            (<OutputRoute {...props} />)}
+                                    />
+                                    <Route
+                                        path="/explorer/outputs/:tag"
+                                        component={(props: RouteComponentProps<OutputsRouteProps>) =>
+                                            (<OutputsRoute {...props} />)}
                                     />
                                     <Route
                                         path="/visualizer"

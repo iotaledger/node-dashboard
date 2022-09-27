@@ -1,4 +1,4 @@
-import { ArrayHelper } from "@iota/iota.js";
+import { ArrayHelper } from "@iota/crypto.js";
 import classNames from "classnames";
 import React, { ReactNode } from "react";
 import AsyncComponent from "./AsyncComponent";

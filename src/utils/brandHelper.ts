@@ -40,7 +40,8 @@ export class BrandHelper {
      * @returns The navigation panel logo.
      */
     public static async getLogoNavigation(theme: string): Promise<string> {
-        return (await import(`../assets/${BrandHelper._brandId}/themes/${theme}/logo-navigation.svg`)).default;
+        const logo = await import(`../assets/${BrandHelper._brandId}/themes/${theme}/logo-navigation.svg`);
+        return logo.default;
     }
 
     /**
@@ -49,6 +50,7 @@ export class BrandHelper {
      * @returns The banner panel logo.
      */
     public static async getBanner(theme: string): Promise<string> {
-        return (await import(`../assets/${BrandHelper._brandId}/themes/${theme}/banner.svg`)).default;
+        const banner = await import(`../assets/${BrandHelper._brandId}/themes/${theme}/banner.svg`);
+        return banner.default;
     }
 }

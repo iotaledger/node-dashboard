@@ -1,25 +1,26 @@
-import { IAddressResponse, IMessage, IMilestoneResponse, IOutputResponse } from "@iota/iota.js";
+import { IMilestonePayload, IBlock, IOutputResponse } from "@iota/iota.js";
+import { IAddressDetails } from "../IAddressDetails";
 
 export interface ISearchResponse {
     /**
-     * Message if it was found.
+     * Block if it was found.
      */
-    message?: IMessage;
+    block?: IBlock;
 
     /**
-     * Message ids if indexation was found.
+     * Block ids if indexation was found.
      */
-    indexMessageIds?: string[];
+    indexBlockIds?: string[];
 
     /**
      * Index type if result from indexation.
      */
-    indexMessageType?: "utf8" | "hex" | undefined;
+    indexBlockType?: "utf8" | "hex" | undefined;
 
     /**
      * Address if it was found.
      */
-    address?: IAddressResponse;
+    address?: IAddressDetails;
 
     /**
      * Output ids when address was found.
@@ -27,12 +28,27 @@ export interface ISearchResponse {
     addressOutputIds?: string[];
 
     /**
-     * Output if it was found (message will also be populated).
+     * Output id if it waas found.
+     */
+    outputId?: string;
+
+    /**
+     * Output if it was found (block will also be populated).
      */
     output?: IOutputResponse;
 
     /**
+     * Output ids array.
+     */
+    outputs?: string[];
+
+    /**
      * Milestone if it was found.
      */
-    milestone?: IMilestoneResponse;
+    milestone?: IMilestonePayload;
+
+    /**
+     * Cursor for next page.
+     */
+    cursor?: string;
 }

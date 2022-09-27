@@ -10,6 +10,11 @@ export interface IBech32AddressDetails {
     hex?: string;
 
     /**
+     * The raw address a hex.
+     */
+    hexNoPrefix?: string;
+
+    /**
      * The raw address type.
      */
     type?: number;

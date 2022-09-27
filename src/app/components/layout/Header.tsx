@@ -1,15 +1,14 @@
 import React, { ReactNode } from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { ServiceFactory } from "../../../factories/serviceFactory";
+import { IBpsMetrics } from "../../../models/websocket/IBpsMetrics";
 import { IDBSizeMetric } from "../../../models/websocket/IDBSizeMetric";
-import { IMpsMetrics } from "../../../models/websocket/IMpsMetrics";
 import { INodeStatus } from "../../../models/websocket/INodeStatus";
 import { IPublicNodeStatus } from "../../../models/websocket/IPublicNodeStatus";
 import { WebSocketTopic } from "../../../models/websocket/webSocketTopic";
 import { AuthService } from "../../../services/authService";
 import { EventAggregator } from "../../../services/eventAggregator";
 import { MetricsService } from "../../../services/metricsService";
-import { DataHelper } from "../../../utils/dataHelper";
 import { FormatHelper } from "../../../utils/formatHelper";
 import AsyncComponent from "./AsyncComponent";
 import Breakpoint from "./Breakpoint";
@@ -50,9 +49,9 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
     private _databaseSizeSubscription?: string;
 
     /**
-     * The mps metrics subscription id.
+     * The bps metrics subscription id.
      */
-    private _mpsMetricsSubscription?: string;
+    private _bpsMetricsSubscription?: string;
 
     /**
      * Create a new instance of Header.
@@ -67,12 +66,14 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
         this.state = {
             syncHealth: false,
             nodeHealth: false,
-            mps: "-",
-            mpsValues: [],
+            bps: "-",
+            bpsValues: [],
             memorySizeFormatted: "-",
             memorySize: [],
-            databaseSizeFormatted: "-",
-            databaseSize: [],
+            dbLedgerSizeFormatted: "-",
+            dbLedgerSize: [],
+            dbTangleSizeFormatted: "-",
+            dbTangleSize: [],
             isLoggedIn: Boolean(this._authService.isLoggedIn()),
             online: false
         };
@@ -107,11 +108,11 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
                             online: true
                         });
                     }
-                    if (data.is_healthy !== this.state.nodeHealth) {
-                        this.setState({ nodeHealth: data.is_healthy });
+                    if (data.isHealthy !== this.state.nodeHealth) {
+                        this.setState({ nodeHealth: data.isHealthy });
                     }
-                    if (data.is_synced !== this.state.syncHealth) {
-                        this.setState({ syncHealth: data.is_synced });
+                    if (data.isSynced !== this.state.syncHealth) {
+                        this.setState({ syncHealth: data.isSynced });
                     }
                 }
             });
@@ -120,7 +121,7 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
             WebSocketTopic.NodeStatus,
             data => {
                 if (data) {
-                    const memorySizeFormatted = FormatHelper.iSize(DataHelper.calculateMemoryUsage(data), 1);
+                    const memorySizeFormatted = FormatHelper.iSize(data.memUsage, 1);
 
                     if (memorySizeFormatted !== this.state.memorySizeFormatted) {
                         this.setState({ memorySizeFormatted });
@@ -131,7 +132,7 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
                 const nonNull = allData.filter(d => d !== undefined && d !== null);
                 this.setState({
                     memorySize: nonNull
-                        .map(d => DataHelper.calculateMemoryUsage(d))
+                        .map(d => d.memUsage)
                 });
             });
 
@@ -139,35 +140,46 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
             WebSocketTopic.DBSizeMetric,
             data => {
                 if (data) {
-                    const databaseSizeFormatted = FormatHelper.size(data.total);
+                    const dbLedgerSizeFormatted = FormatHelper.size(data.utxo);
 
-                    if (databaseSizeFormatted !== this.state.databaseSizeFormatted) {
-                        this.setState({ databaseSizeFormatted });
+                    if (dbLedgerSizeFormatted !== this.state.dbLedgerSizeFormatted) {
+                        this.setState({ dbLedgerSizeFormatted });
+                    }
+
+                    const dbTangleSizeFormatted = FormatHelper.size(data.tangle);
+
+                    if (dbTangleSizeFormatted !== this.state.dbTangleSizeFormatted) {
+                        this.setState({ dbTangleSizeFormatted });
                     }
                 }
             },
             allData => {
                 const nonNull = allData.filter(d => d !== undefined && d !== null);
 
-                const databaseSizeValues = nonNull
-                    .map(d => d.total);
+                const dbLedgerSizeValues = nonNull
+                    .map(d => d.utxo);
 
-                this.setState({ databaseSize: databaseSizeValues });
+                this.setState({ dbLedgerSize: dbLedgerSizeValues });
+
+                const dbTangleSizeValues = nonNull
+                    .map(d => d.tangle);
+
+                this.setState({ dbTangleSize: dbTangleSizeValues });
             });
 
-        this._mpsMetricsSubscription = this._metricsService.subscribe<IMpsMetrics>(
-            WebSocketTopic.MPSMetrics,
+        this._bpsMetricsSubscription = this._metricsService.subscribe<IBpsMetrics>(
+            WebSocketTopic.BPSMetrics,
             data => {
                 if (data) {
-                    const mpsValues = this.state.mpsValues.slice(-40);
-                    mpsValues.push(data.new);
+                    const bpsValues = this.state.bpsValues.slice(-40);
+                    bpsValues.push(data.new);
 
-                    const mpsFormatted = mpsValues[mpsValues.length - 1].toString();
+                    const bpsFormatted = bpsValues[bpsValues.length - 1].toString();
 
-                    if (mpsFormatted !== this.state.mps) {
-                        this.setState({ mps: mpsFormatted });
+                    if (bpsFormatted !== this.state.bps) {
+                        this.setState({ bps: bpsFormatted });
                     }
-                    this.setState({ mpsValues });
+                    this.setState({ bpsValues });
                 }
             });
     }
@@ -196,9 +208,9 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
             this._databaseSizeSubscription = undefined;
         }
 
-        if (this._mpsMetricsSubscription) {
-            this._metricsService.unsubscribe(this._mpsMetricsSubscription);
-            this._mpsMetricsSubscription = undefined;
+        if (this._bpsMetricsSubscription) {
+            this._metricsService.unsubscribe(this._bpsMetricsSubscription);
+            this._bpsMetricsSubscription = undefined;
         }
     }
 
@@ -232,17 +244,23 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
                             </Breakpoint>
                             <Breakpoint size="desktop" aboveBelow="above">
                                 <MicroGraph
-                                    label="MPS"
-                                    value={this.state.mps}
-                                    values={this.state.mpsValues}
+                                    label="BPS"
+                                    value={this.state.bps}
+                                    values={this.state.bpsValues}
                                     className="child"
                                 />
                                 {this.state.isLoggedIn && (
                                     <React.Fragment>
                                         <MicroGraph
-                                            label="Database"
-                                            value={this.state.databaseSizeFormatted}
-                                            values={this.state.databaseSize}
+                                            label="Ledger db"
+                                            value={this.state.dbLedgerSizeFormatted}
+                                            values={this.state.dbLedgerSize}
+                                            className="child"
+                                        />
+                                        <MicroGraph
+                                            label="Tangle db"
+                                            value={this.state.dbTangleSizeFormatted}
+                                            values={this.state.dbTangleSize}
                                             className="child"
                                         />
                                         <MicroGraph

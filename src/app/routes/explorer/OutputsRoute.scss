@@ -1,0 +1,19 @@
+@import '../../../scss/variables';
+@import '../../../scss/media-queries';
+
+.outputs {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    padding: 40px 60px;
+  
+    @include desktop-down {
+      padding: $spacing-small;
+    }
+  
+    .content {
+      flex: 1;
+      max-width: $content-width-desktop;
+    }
+  }
+  

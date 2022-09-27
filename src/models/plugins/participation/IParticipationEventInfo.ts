@@ -37,4 +37,11 @@ export interface IParticipationEventInfo {
      */
     status?: IParticipationEventStatus;
 
+
+    /**
+     * The error message.
+     */
+    error?: {
+        message: string;
+    };
 }

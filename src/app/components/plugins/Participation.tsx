@@ -57,8 +57,8 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
         const tangleService = ServiceFactory.get<TangleService>("tangle");
 
         try {
-            const info = await tangleService.info();
-            if (info.features.includes("Participation")) {
+            const routes = await tangleService.routes();
+            if (routes.routes.includes("participation/v1")) {
                 Participation._isAvailable = true;
             }
         } catch (err) {
@@ -162,7 +162,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                                             <div className="event-id word-break-all margin-b-s">
                                                 <span><h4>ID</h4> {e}</span>
                                             </div>
-                                            <div className="event-item event-item--stretch">
+                                            <div className="event-item event-item--stretch margin-b-s">
                                                 <h4>Name</h4>
                                                 <div className="event-value word-break-all">
                                                     {eventInfo?.name}
@@ -206,7 +206,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                                         <div className="row event-actions">
                                             <button
                                                 type="button"
-                                                className="card--action card--action margin-t-s margin-r-s"
+                                                className="card--action margin-t-s margin-r-s"
                                                 onClick={() => this.setState({
                                                     dialogType: "details",
                                                     dialogStatus: "",
@@ -306,13 +306,14 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                                             {this.state.dialogDetailsEvent.payload.questions
                                             ?.map((q: IParticipationEventQuestion, idx: number) => (
                                                 <div className="event-item--highlight margin-b-s" key={idx}>
-                                                    <div className="event-item event-item--stretch">
-                                                        <h4>Question</h4>
-                                                        <div className="event-value word-break-all">
-                                                            {q.text}
+                                                    <div className="row wrap">
+                                                        <div className="event-item event-item--stretch margin-b-s">
+                                                            <h4>Question</h4>
+                                                            <div className="event-value">
+                                                                {q.text}
+                                                            </div>
                                                         </div>
                                                     </div>
-
                                                     {q.answers.map((a: IParticipationEventAnswer, idy) => (
                                                         <div className="row wrap" key={idy}>
                                                             <div className="event-item event-item--small">
@@ -413,21 +414,16 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
      */
     private async fetchEvents(): Promise<void> {
         try {
-            const response = await FetchHelper.json<unknown, {
-                data?: IParticipationEvents;
-                error?: {
-                    message: string;
-                };
-            }>(
+            const response = await FetchHelper.json<unknown, IParticipationEvents>(
                 `${window.location.protocol}//${window.location.host}`,
-                "/api/plugins/participation/events",
+                "/dashboard/api/participation/v1/events",
                 "get",
                 undefined,
                 Participation.buildAuthHeaders());
 
-            if (response.data) {
+            if (response?.eventIds) {
                 this.setState({
-                    eventIds: response.data.eventIds
+                    eventIds: response.eventIds
                 });
             } else {
                 console.log(response.error);
@@ -443,23 +439,18 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
      */
     private async fetchEventInfo(id: string): Promise<void> {
         try {
-            const response = await FetchHelper.json<unknown, {
-                data?: IParticipationEventInfo;
-                error?: {
-                    message: string;
-                };
-            }>(
+            const response = await FetchHelper.json<unknown, IParticipationEventInfo>(
                 `${window.location.protocol}//${window.location.host}`,
-                `/api/plugins/participation/events/${id}`,
+                `/dashboard/api/participation/v1/events/${id}`,
                 "get",
                 undefined,
                 Participation.buildAuthHeaders());
 
-            if (response.data) {
+            if (!response?.error) {
                 this.setState(prevState => ({
                     events: {
                         ...prevState.events,
-                        [id]: response.data as IParticipationEventInfo
+                        [id]: response
                     }
                 }));
             } else {
@@ -476,19 +467,14 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
      */
     private async fetchEventStatus(id: string): Promise<void> {
         try {
-            const response = await FetchHelper.json<unknown, {
-                data?: IParticipationEventStatus;
-                error?: {
-                    message: string;
-                };
-            }>(
+            const response = await FetchHelper.json<unknown, IParticipationEventStatus>(
                 `${window.location.protocol}//${window.location.host}`,
-                `/api/plugins/participation/events/${id}/status`,
+                `/dashboard/api/participation/v1/events/${id}/status`,
                 "get",
                 undefined,
                 Participation.buildAuthHeaders());
 
-            if (response.data) {
+            if (!response?.error) {
                 if (this.state.events[id]) {
                     this.setState(prevState => ({
                         ...prevState,
@@ -496,7 +482,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                             ...prevState.events,
                             [id]: {
                                 ...prevState.events[id],
-                                status: response.data
+                                status: response
                             }
                         }
                     }));
@@ -515,7 +501,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
     private async submitEvent(): Promise<void> {
         if (this.state.eventInfo) {
             try {
-                await this.eventAdd(JSON.parse(this.state.eventInfo));
+                await this.eventAdd(JSON.parse(this.state.eventInfo) as IParticipationEventInfo);
             } catch {
                 try {
                     const url = new URL(this.state.eventInfo);
@@ -525,10 +511,12 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                         await this.eventAdd(config);
                     }
                 } catch (error) {
-                    this.setState({
-                        dialogBusy: false,
-                        dialogStatus: `Failed to add event: ${error.message}`
-                    });
+                    if (error instanceof Error) {
+                        this.setState({
+                            dialogBusy: false,
+                            dialogStatus: `Failed to add event: ${error.message}`
+                        });
+                    }
                 }
             }
         }
@@ -544,20 +532,15 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
             dialogStatus: "Adding event, please wait..."
         }, async () => {
             try {
-                const response = await FetchHelper.json<unknown, {
-                    data?: IParticipationEvent;
-                    error?: {
-                        message: string;
-                    };
-                }>(
+                const response = await FetchHelper.json<unknown, IParticipationEvent>(
                     `${window.location.protocol}//${window.location.host}`,
-                    "/api/plugins/participation/admin/events",
+                    "/dashboard/api/participation/v1/admin/events",
                     "post",
                     eventInfo,
                     Participation.buildAuthHeaders());
 
-                if (response.data) {
-                    const id = response.data.eventId;
+                if (response.eventId) {
+                    const id = response.eventId;
                     this.setState(prevState => ({
                         eventIds: [
                             id,
@@ -574,11 +557,13 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                         dialogStatus: `Failed to add event: ${response.error?.message}`
                     });
                 }
-            } catch (err) {
-                this.setState({
-                    dialogBusy: false,
-                    dialogStatus: `Failed to add event: ${err.message}`
-                });
+            } catch (error) {
+                if (error instanceof Error) {
+                    this.setState({
+                        dialogBusy: false,
+                        dialogStatus: `Failed to add event: ${error.message}`
+                    });
+                }
             }
         });
     }
@@ -599,7 +584,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                     };
                 }>(
                     `${window.location.protocol}//${window.location.host}`,
-                    `/api/plugins/participation/admin/events/${eventId}`,
+                    `/dashboard/api/participation/v1/admin/events/${eventId}`,
                     "delete",
                     undefined,
                     Participation.buildAuthHeaders());
@@ -618,11 +603,13 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                     });
                     console.log(response.error);
                 }
-            } catch (err) {
-                this.setState({
-                    dialogBusy: false,
-                    dialogStatus: `Failed to delete event: ${err.message}`
-                });
+            } catch (error) {
+                if (error instanceof Error) {
+                    this.setState({
+                        dialogBusy: false,
+                        dialogStatus: `Failed to delete event: ${error.message}`
+                    });
+                }
             }
         });
     }
@@ -634,35 +621,27 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
      */
     private async fetchEventJsonConfig(url: URL): Promise<IParticipationEventInfo | undefined> {
         try {
-            const response = await FetchHelper.json<unknown, {
-                data?: IParticipationEventInfo;
-                error?: {
-                    message: string;
-                };
-            }>(
+            const response = await FetchHelper.json<unknown, IParticipationEventInfo>(
                 url.origin,
                 url.pathname,
                 "get");
 
-                return (response.data) ? response.data : response as IParticipationEventInfo;
+                return response;
         } catch {
             try {
-                const response = await FetchHelper.text<unknown, {
-                    data?: IParticipationEventInfo;
-                    error?: {
-                        message: string;
-                    };
-                }>(
+                const response = await FetchHelper.text<unknown, IParticipationEventInfo>(
                     url.origin,
                     url.pathname,
                     "get");
 
-                    return (response.data) ? response.data : response as IParticipationEventInfo;
-            } catch (err) {
-                this.setState({
-                    dialogBusy: false,
-                    dialogStatus: `Failed to add event: ${err.message}`
-                });
+                    return response;
+            } catch (error) {
+                if (error instanceof Error) {
+                    this.setState({
+                        dialogBusy: false,
+                        dialogStatus: `Failed to add event: ${error.message}`
+                    });
+                }
             }
         }
     }

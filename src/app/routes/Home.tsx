@@ -1,11 +1,13 @@
 import React, { ReactNode } from "react";
 import { ReactComponent as BannerCurve } from "../../assets/banner-curve.svg";
+import { ReactComponent as DbIcon } from "../../assets/db-icon.svg";
 import { ReactComponent as MemoryIcon } from "../../assets/memory.svg";
 import { ReactComponent as MilestoneIcon } from "../../assets/milestone.svg";
 import { ReactComponent as PruningIcon } from "../../assets/pruning.svg";
 import { ReactComponent as UptimeIcon } from "../../assets/uptime.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
-import { IMpsMetrics } from "../../models/websocket/IMpsMetrics";
+import { IBpsMetrics } from "../../models/websocket/IBpsMetrics";
+import { IDBSizeMetric } from "../../models/websocket/IDBSizeMetric";
 import { INodeStatus } from "../../models/websocket/INodeStatus";
 import { IPublicNodeStatus } from "../../models/websocket/IPublicNodeStatus";
 import { ISyncStatus } from "../../models/websocket/ISyncStatus";
@@ -16,7 +18,6 @@ import { NodeConfigService } from "../../services/nodeConfigService";
 import { SettingsService } from "../../services/settingsService";
 import { ThemeService } from "../../services/themeService";
 import { BrandHelper } from "../../utils/brandHelper";
-import { DataHelper } from "../../utils/dataHelper";
 import { FormatHelper } from "../../utils/formatHelper";
 import AsyncComponent from "../components/layout/AsyncComponent";
 import Graph from "../components/layout/Graph";
@@ -60,9 +61,14 @@ class Home extends AsyncComponent<unknown, HomeState> {
     private _syncStatusSubscription?: string;
 
     /**
-     * The mps metrics subscription id.
+     * The bps metrics subscription id.
      */
-    private _mpsMetricsSubscription?: string;
+    private _bpsMetricsSubscription?: string;
+
+    /**
+     * The database size metrics subscription id.
+     */
+    private _databaseSizeSubscription?: string;
 
     /**
      * The network id.
@@ -92,10 +98,12 @@ class Home extends AsyncComponent<unknown, HomeState> {
             cmi: "-",
             pruningIndex: "-",
             memory: "-",
+            dbLedgerSizeFormatted: "-",
+            dbTangleSizeFormatted: "-",
             uptime: "-",
-            lastReceivedMpsTime: 0,
-            mpsIncoming: [],
-            mpsOutgoing: [],
+            lastReceivedBpsTime: 0,
+            bpsIncoming: [],
+            bpsOutgoing: [],
             bannerSrc: "",
             blindMode: this._settingsService.getBlindMode()
         };
@@ -111,7 +119,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
             bannerSrc: await BrandHelper.getBanner(this._themeService.get())
         });
 
-        EventAggregator.subscribe("theme", "home", async theme => {
+        EventAggregator.subscribe("theme", "home", async (theme: string) => {
             this.setState({
                 bannerSrc: await BrandHelper.getBanner(theme)
             });
@@ -121,7 +129,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
             WebSocketTopic.PublicNodeStatus,
             data => {
                 if (data) {
-                    const pruningIndex = data.pruning_index.toString();
+                    const pruningIndex = data.pruningIndex.toString();
 
                     if (pruningIndex !== this.state.pruningIndex) {
                         this.setState({ pruningIndex });
@@ -133,10 +141,10 @@ class Home extends AsyncComponent<unknown, HomeState> {
             WebSocketTopic.NodeStatus,
             data => {
                 if (data) {
-                    const nodeName = data.node_alias ? data.node_alias : BrandHelper.getConfiguration().name;
-                    const nodeId = data.node_id || "No node Id.";
+                    const nodeName = data.nodeAlias ?? BrandHelper.getConfiguration().name;
+                    const nodeId = data.nodeId || "No node Id.";
                     const uptime = FormatHelper.duration(data.uptime);
-                    const memory = FormatHelper.iSize(DataHelper.calculateMemoryUsage(data));
+                    const memory = FormatHelper.iSize(data.memUsage);
 
                     if (nodeName !== this.state.nodeName) {
                         this.setState({ nodeName });
@@ -154,7 +162,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
                         this.setState({ memory });
                     }
 
-                    this.checkVersion(data.version, data.latest_version);
+                    this.checkVersion(data.version, data.latestVersion);
                 }
             });
 
@@ -175,18 +183,36 @@ class Home extends AsyncComponent<unknown, HomeState> {
                 }
             });
 
-        this._mpsMetricsSubscription = this._metricsService.subscribe<IMpsMetrics>(
-            WebSocketTopic.MPSMetrics,
+        this._bpsMetricsSubscription = this._metricsService.subscribe<IBpsMetrics>(
+            WebSocketTopic.BPSMetrics,
             undefined,
             allData => {
                 const nonNull = allData.filter(d => d !== undefined && d !== null);
 
-                const mpsIncoming = nonNull.map(m => m.incoming);
-                const mpsOutgoing = nonNull.map(m => m.outgoing);
+                const bpsIncoming = nonNull.map(m => m.incoming);
+                const bpsOutgoing = nonNull.map(m => m.outgoing);
 
-                this.setState({ mpsIncoming, mpsOutgoing, lastReceivedMpsTime: Date.now() });
+                this.setState({ bpsIncoming, bpsOutgoing, lastReceivedBpsTime: Date.now() });
             }
         );
+
+        this._databaseSizeSubscription = this._metricsService.subscribe<IDBSizeMetric>(
+            WebSocketTopic.DBSizeMetric,
+            data => {
+                if (data) {
+                    const dbLedgerSizeFormatted = FormatHelper.size(data.utxo);
+
+                    if (dbLedgerSizeFormatted !== this.state.dbLedgerSizeFormatted) {
+                        this.setState({ dbLedgerSizeFormatted });
+                    }
+
+                    const dbTangleSizeFormatted = FormatHelper.size(data.tangle);
+
+                    if (dbTangleSizeFormatted !== this.state.dbTangleSizeFormatted) {
+                        this.setState({ dbTangleSizeFormatted });
+                    }
+                }
+            });
 
         EventAggregator.subscribe("settings.blindMode", "home", blindMode => {
             this.setState({ blindMode });
@@ -216,9 +242,14 @@ class Home extends AsyncComponent<unknown, HomeState> {
             this._syncStatusSubscription = undefined;
         }
 
-        if (this._mpsMetricsSubscription) {
-            this._metricsService.unsubscribe(this._mpsMetricsSubscription);
-            this._mpsMetricsSubscription = undefined;
+        if (this._bpsMetricsSubscription) {
+            this._metricsService.unsubscribe(this._bpsMetricsSubscription);
+            this._bpsMetricsSubscription = undefined;
+        }
+
+        if (this._databaseSizeSubscription) {
+            this._metricsService.unsubscribe(this._databaseSizeSubscription);
+            this._databaseSizeSubscription = undefined;
         }
 
         EventAggregator.unsubscribe("settings.blindMode", "home");
@@ -286,23 +317,37 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                     backgroundStyle="purple"
                                 />
                             </div>
+                            <div className="row margin-t-s tablet-down-column">
+                                <InfoPanel
+                                    caption="Ledger DB"
+                                    value={this.state.dbLedgerSizeFormatted}
+                                    icon={<DbIcon />}
+                                    backgroundStyle="green"
+                                />
+                                <InfoPanel
+                                    caption="Tangle DB"
+                                    value={this.state.dbTangleSizeFormatted}
+                                    icon={<DbIcon />}
+                                    backgroundStyle="green"
+                                />
+                            </div>
                             <div className="row margin-t-s">
-                                <div className="card fill messages-graph-panel">
+                                <div className="card fill blocks-graph-panel">
                                     <Graph
-                                        caption="Messages Per Second"
+                                        caption="Blocks Per Second"
                                         seriesMaxLength={20}
                                         timeInterval={1000}
-                                        endTime={this.state.lastReceivedMpsTime}
+                                        endTime={this.state.lastReceivedBpsTime}
                                         series={[
                                             {
                                                 className: "bar-color-1",
                                                 label: "Incoming",
-                                                values: this.state.mpsIncoming
+                                                values: this.state.bpsIncoming
                                             },
                                             {
                                                 className: "bar-color-2",
                                                 label: "Outgoing",
-                                                values: this.state.mpsOutgoing
+                                                values: this.state.bpsOutgoing
                                             }
                                         ]}
                                     />
@@ -366,11 +411,11 @@ class Home extends AsyncComponent<unknown, HomeState> {
                     let secondAlphabet = 96;
                     const firstIndex = partsFirst[i].indexOf("-");
                     if (firstIndex > 0) {
-                        firstAlphabet = partsFirst[i].charCodeAt(firstIndex + 1);
+                        firstAlphabet = partsFirst[i].codePointAt(firstIndex + 1) ?? Number.NaN;
                     }
                     const secondIndex = partsSecond[i].indexOf("-");
                     if (secondIndex > 0) {
-                        secondAlphabet = partsSecond[i].charCodeAt(secondIndex + 1);
+                        secondAlphabet = partsSecond[i].codePointAt(secondIndex + 1) ?? Number.NaN;
                     }
 
                     return firstAlphabet - secondAlphabet;

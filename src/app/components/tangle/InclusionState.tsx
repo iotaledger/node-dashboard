@@ -30,16 +30,16 @@ class InclusionState extends Component<InclusionStateProps> {
                     {this.props.state === "noTransaction" && ("No Transaction")}
                     {this.props.state === "conflicting" && ("Conflicting")}
                 </div>
-                {this.props.state === undefined && ("The message is not yet referenced by a milestone.")}
+                {this.props.state === undefined && ("The block is not yet referenced by a milestone.")}
                 {this.props.state === "included" && (
-                    "The message is referenced by a milestone, the transaction is included in the ledger."
+                    "The block is referenced by a milestone, the transaction is included in the ledger."
                 )}
                 {this.props.state === "noTransaction" && (
-                    "The message is referenced by a milestone, the data is included in the ledger" +
+                    "The block is referenced by a milestone, the data is included in the ledger" +
                     ", but there is no value transfer."
                 )}
                 {this.props.state === "conflicting" && (
-                    "The message has a conflict and will not be included in the ledger."
+                    "The block has a conflict and will not be included in the ledger."
                 )}
             </div>
         );

@@ -44,8 +44,8 @@ class Peers extends AsyncComponent<RouteComponentProps, ExplorerState> {
 
         this.state = {
             milestones: [],
-            mps: "-",
-            rmps: "-",
+            bps: "-",
+            rbps: "-",
             referencedRate: "-"
         };
     }
@@ -57,14 +57,14 @@ class Peers extends AsyncComponent<RouteComponentProps, ExplorerState> {
         super.componentDidMount();
 
         this._milestonesSubscription = this._metricsService.subscribe<IMs>(
-            WebSocketTopic.Ms,
+            WebSocketTopic.Milestone,
             undefined,
             allData => {
                 const nonNull = allData.filter(d => d !== undefined && d !== null);
 
                 this.setState({
                     milestones: nonNull
-                        .map(m => ({ index: m.index, messageId: m.messageID }))
+                        .map(m => ({ index: m.index, milestoneId: m.milestoneId }))
                         .sort((m1, m2) => m2.index - m1.index)
                         .slice(0, 10)
                 });
@@ -76,9 +76,9 @@ class Peers extends AsyncComponent<RouteComponentProps, ExplorerState> {
             data => {
                 if (data) {
                     this.setState({
-                        mps: data.mps.toFixed(1).toString(),
-                        rmps: data.rmps.toFixed(1).toString(),
-                        referencedRate: `${data.referenced_rate.toFixed(1).toString()}%`
+                        bps: data.blocksPerSecond.toFixed(1).toString(),
+                        rbps: data.referencedBlocksPerSecond.toFixed(1).toString(),
+                        referencedRate: `${data.referencedRate.toFixed(1).toString()}%`
                     });
                 }
             }
@@ -119,14 +119,14 @@ class Peers extends AsyncComponent<RouteComponentProps, ExplorerState> {
                     </div>
                     <div className="row tablet-down-column info margin-t-s">
                         <InfoPanel
-                            caption="Messages per Second"
-                            value={this.state.mps}
+                            caption="Blocks per Second"
+                            value={this.state.bps}
                             icon={<MilestoneIcon />}
                             backgroundStyle="green"
                         />
                         <InfoPanel
-                            caption="Referenced Messages per Second"
-                            value={this.state.rmps}
+                            caption="Referenced Blocks per Second"
+                            value={this.state.rbps}
                             icon={<UptimeIcon />}
                             backgroundStyle="blue"
                         />
@@ -147,9 +147,9 @@ class Peers extends AsyncComponent<RouteComponentProps, ExplorerState> {
                             <div key={idx} className="milestones-panel--milestone">
                                 <div className="index">{ms.index}</div>
                                 <Link
-                                    to={`/explorer/message/${ms.messageId}`}
+                                    to={`/explorer/milestone/${ms.index}`}
                                 >
-                                    {ms.messageId}
+                                    {ms.milestoneId}
                                 </Link>
                             </div>
                         ))}

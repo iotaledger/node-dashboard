@@ -1,4 +1,4 @@
-import { Converter, RandomHelper } from "@iota/iota.js";
+import { Converter, RandomHelper } from "@iota/util.js";
 import { ServiceFactory } from "../factories/serviceFactory";
 import { WebSocketTopic } from "../models/websocket/webSocketTopic";
 import { WebSocketService } from "../services/webSocketService";
@@ -55,13 +55,11 @@ export class MetricsService {
             { topic: WebSocketTopic.SyncStatus, isPublic: true },
             { topic: WebSocketTopic.NodeStatus, isPublic: false },
             { topic: WebSocketTopic.PublicNodeStatus, isPublic: true },
-            { topic: WebSocketTopic.MPSMetrics, isPublic: true },
+            { topic: WebSocketTopic.BPSMetrics, isPublic: true },
             { topic: WebSocketTopic.DBSizeMetric, isPublic: false },
             { topic: WebSocketTopic.PeerMetric, isPublic: false },
-            { topic: WebSocketTopic.Ms, isPublic: true },
-            { topic: WebSocketTopic.ConfirmedMsMetrics, isPublic: true },
-            { topic: WebSocketTopic.SpamMetrics, isPublic: false },
-            { topic: WebSocketTopic.AvgSpamMetrics, isPublic: false }
+            { topic: WebSocketTopic.Milestone, isPublic: true },
+            { topic: WebSocketTopic.ConfirmedMsMetrics, isPublic: true }
         ];
 
         for (const t of topics) {
@@ -124,7 +122,7 @@ export class MetricsService {
      * @param subscriptionId The subscription to unsubscribe.
      */
     public unsubscribe(subscriptionId: string): void {
-        for (const topic of Object.keys(this._subscriptions).map(k => Number(k))) {
+        for (const topic of Object.keys(this._subscriptions).map(Number)) {
             const subscriptionIdx = this._subscriptions[topic].findIndex(s => s.subscriptionId === subscriptionId);
             if (subscriptionIdx >= 0) {
                 this._subscriptions[topic].splice(subscriptionIdx, 1);

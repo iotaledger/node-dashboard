@@ -15,17 +15,22 @@ export interface IVisualizerVertex {
     parents?: string;
 
     /**
-     * Is the message solid.
+     * Is the block solid.
      */
     isSolid?: boolean;
 
     /**
-     * Is the message conflicting.
+     * Is it a transaction.
+     */
+    isTransaction?: boolean;
+
+    /**
+     * Is the block conflicting.
      */
     isConflicting?: boolean;
 
     /**
-     * Is the message referenced.
+     * Is the block referenced.
      */
     isReferenced?: boolean;
 

@@ -1,5 +1,6 @@
-/* eslint-disable unicorn/prefer-add-event-listener */
-import { Converter, RandomHelper } from "@iota/iota.js";
+/* eslint-disable unicorn/prefer-add-event-listener, unicorn/prefer-node-protocol*/
+import { Converter, RandomHelper } from "@iota/util.js";
+import { Buffer } from "buffer";
 import { ServiceFactory } from "../factories/serviceFactory";
 import { IWebSocketMessage } from "../models/websocket/IWebSocketMessage";
 import { WebSocketTopic } from "../models/websocket/webSocketTopic";
@@ -95,7 +96,7 @@ export class WebSocketService {
      * @param subscriptionId The subscription to unsubscribe.
      */
     public unsubscribe(subscriptionId: string): void {
-        for (const topic of Object.keys(this._subscriptions).map(k => Number(k))) {
+        for (const topic of Object.keys(this._subscriptions).map(Number)) {
             const subscriptionIdx = this._subscriptions[topic].subs.findIndex(s => s.subscriptionId === subscriptionId);
             if (subscriptionIdx >= 0) {
                 this._subscriptions[topic].subs.splice(subscriptionIdx, 1);
@@ -120,7 +121,7 @@ export class WebSocketService {
      * We resubscribe if the authentication, jwt token has been updated.
      */
     public resubscribe(): void {
-        const topics = Object.keys(this._subscriptions).map(k => Number(k));
+        const topics = Object.keys(this._subscriptions).map(Number);
         for (const topic of topics) {
             this.unsubscribeTopic(topic);
         }
@@ -147,13 +148,13 @@ export class WebSocketService {
         if (window.location.protocol === "https:") {
             uri = "wss:";
         }
-        uri += `//${window.location.hostname}:${process.env.REACT_APP_SOCKET ?? window.location.port}/ws`;
+        uri += `//${window.location.hostname}:${process.env.REACT_APP_SOCKET ?? window.location.port}/dashboard/ws`;
 
         this._webSocket = new WebSocket(uri);
 
         this._webSocket.onopen = () => {
             // Socket has opened so subscribe for all the registered subscription topics
-            for (const topic of Object.keys(this._subscriptions).map(k => Number(k))) {
+            for (const topic of Object.keys(this._subscriptions).map(Number)) {
                 this.subscribeTopic(topic);
             }
         };
@@ -168,7 +169,7 @@ export class WebSocketService {
 
         this._webSocket.onmessage = msg => {
             this._lastMessage = Date.now();
-            this.handleMessage(msg.data);
+            this.handleMessage(msg.data as string);
         };
 
         this._lastMessage = Date.now();

@@ -1,5 +1,5 @@
-@import './variables';
-@import './media-queries';
+@import "./variables";
+@import "./media-queries";
 
 .row {
   display: flex;
@@ -235,5 +235,5 @@
 }
 
 .padding-0 {
-  padding: 0;
+  padding: 0 !important;
 }

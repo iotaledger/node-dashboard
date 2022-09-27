@@ -1,11 +1,18 @@
-import { SIG_LOCKED_DUST_ALLOWANCE_OUTPUT_TYPE, SIG_LOCKED_SINGLE_OUTPUT_TYPE, UnitsHelper } from "@iota/iota.js";
+import { BASIC_OUTPUT_TYPE, ALIAS_OUTPUT_TYPE, FOUNDRY_OUTPUT_TYPE, NFT_OUTPUT_TYPE, TREASURY_OUTPUT_TYPE, SIMPLE_TOKEN_SCHEME_TYPE, ALIAS_ADDRESS_TYPE, NFT_ADDRESS_TYPE, IImmutableAliasUnlockCondition, IAliasAddress, TransactionHelper } from "@iota/iota.js";
+import classNames from "classnames";
 import React, { Component, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
+import { FormatHelper } from "../../../utils/formatHelper";
 import { NameHelper } from "../../../utils/nameHelper";
-import MessageButton from "../layout/MessageButton";
+import BlockButton from "../layout/BlockButton";
+import { ReactComponent as DropdownIcon } from "./../../../assets/dropdown-arrow.svg";
+import Bech32Address from "./Bech32Address";
+import Feature from "./Feature";
 import { OutputProps } from "./OutputProps";
 import { OutputState } from "./OutputState";
+import Token from "./Token";
+import UnlockCondition from "./UnlockCondition";
 
 /**
  * Component which will display an output.
@@ -20,7 +27,9 @@ class Output extends Component<OutputProps, OutputState> {
 
         this.state = {
             formatFull: false,
-            isGenesis: props.output.messageId === "0".repeat(64)
+            isGenesis: props.metadata?.blockId === "0".repeat(64),
+            showDetails: this.props.showDetails ?? false,
+            showTokens: false
         };
     }
 
@@ -30,92 +39,286 @@ class Output extends Component<OutputProps, OutputState> {
      */
     public render(): ReactNode {
         return (
-            <div className="output">
-                <h2>{NameHelper.getOutputTypeName(this.props.output.output.type)} {this.props.index}</h2>
-                <div className="card--label">
-                    Message Id
-                </div>
-                <div className="card--value row">
-                    {this.state.isGenesis && (
-                        <span>Genesis</span>
-                    )}
-                    {!this.state.isGenesis && (
-                        <React.Fragment>
-                            <Link
-                                to={
-                                    `/explorer/message/${this.props.output.messageId}`
-                                }
-                                className="margin-r-t"
+            <div className="output margin-t-m">
+                <div className="card--content padding-0">
+                    <div className="card--header row spread">
+                        <div
+                            className="card--content__input"
+                            onClick={() => this.setState({ showDetails: !this.state.showDetails })}
+                        >
+                            <div className={classNames(
+                                    "margin-r-t",
+                                    "card--content__input--dropdown",
+                                    { "opened": this.state.showDetails }
+                                )}
                             >
-                                {this.props.output.messageId}
-                            </Link>
-                            <MessageButton
-                                onClick={() => ClipboardHelper.copy(
-                                    this.props.output.messageId
-                                )}
-                                buttonType="copy"
-                                labelPosition="top"
-                            />
-                        </React.Fragment>
-                    )}
-                </div>
-                <div className="card--label">
-                    Transaction Id
-                </div>
-                <div className="card--value row">
-                    {this.state.isGenesis && (
-                        <span>Genesis</span>
-                    )}
-                    {!this.state.isGenesis && (
-                        <React.Fragment>
-                            <span className="margin-r-t">
-                                {this.props.output.transactionId}
-                            </span>
-                            <MessageButton
-                                onClick={() => ClipboardHelper.copy(
-                                    this.props.output.transactionId
-                                )}
-                                buttonType="copy"
-                                labelPosition="top"
-                            />
-                        </React.Fragment>
-                    )}
-                </div>
-                <div className="card--label">
-                    Index
-                </div>
-                <div className="card--value">
-                    {this.props.output.outputIndex}
-                </div>
-                <div className="card--label">
-                    Is Spent
-                </div>
-                <div className="card--value">
-                    {this.props.output.isSpent ? "Yes" : "No"}
-                </div>
-                {(this.props.output.output.type === SIG_LOCKED_SINGLE_OUTPUT_TYPE ||
-                    this.props.output.output.type === SIG_LOCKED_DUST_ALLOWANCE_OUTPUT_TYPE) && (
-                        <React.Fragment>
-                            <div className="card--label">
-                                Amount
+                                <DropdownIcon />
                             </div>
-                            <div className="card--value card--value__mono">
-                                <button
-                                    className="card--value--button"
-                                    type="button"
-                                    onClick={() => this.setState(
-                                        {
-                                            formatFull: !this.state.formatFull
+                            <h3 className="card--content__input--label">
+                                {NameHelper.getOutputTypeName(this.props.output.type)} {this.props.index}
+                                <span className="margin-l-s card--value font-weight-normal">
+                                    <Link
+                                        to={
+                                            `/explorer/block/${this.props.outputId}`
                                         }
+                                        className="margin-r-t"
+                                    >
+                                        {this.props.outputId}
+                                    </Link>
+                                </span>
+                            </h3>
+                        </div>
+                        <div className="card--value card--value__mono">
+                            <button
+                                className="card--value--button"
+                                type="button"
+                                onClick={() => this.setState(
+                                    {
+                                        formatFull: !this.state.formatFull
+                                    }
+                                )}
+                            >
+                                {FormatHelper.getInstance().amount(
+                                    Number(this.props.output.amount),
+                                    this.state.formatFull
+                                )}
+                            </button>
+                        </div>
+                    </div>
+
+                    {this.state.showDetails && (
+                        <div className="card--content--border-l">
+                            {/* Diplay metadata for Output Response */}
+                            {this.props.metadata && (
+                                <React.Fragment>
+                                    <div className="card--label">
+                                        Block Id
+                                    </div>
+                                    <div className="card--value row">
+                                        {this.state.isGenesis && (
+                                            <span>Genesis</span>
+                                        )}
+                                        {!this.state.isGenesis && (
+                                            <React.Fragment>
+                                                <Link
+                                                    to={
+                                                        `/explorer/block/${this.props.metadata.blockId}`
+                                                    }
+                                                    className="margin-r-t"
+                                                >
+                                                    {this.props.metadata.blockId}
+                                                </Link>
+                                                <BlockButton
+                                                    onClick={() => {
+                                                        ClipboardHelper.copy(this.props.metadata?.blockId);
+                                                    }}
+                                                    buttonType="copy"
+                                                    labelPosition="top"
+                                                />
+                                            </React.Fragment>
+                                        )}
+                                    </div>
+                                    <div className="card--label">
+                                        Transaction Id
+                                    </div>
+                                    <div className="card--value row">
+                                        {this.state.isGenesis && (
+                                            <span>Genesis</span>
+                                        )}
+                                        {!this.state.isGenesis && (
+                                            <React.Fragment>
+                                                <span className="margin-r-t">
+                                                    {this.props.metadata.transactionId}
+                                                </span>
+                                                <BlockButton
+                                                    onClick={() => {
+                                                        ClipboardHelper.copy(this.props.metadata?.transactionId);
+                                                    }}
+                                                    buttonType="copy"
+                                                    labelPosition="top"
+                                                />
+                                            </React.Fragment>
+                                        )}
+                                    </div>
+                                    <div className="card--label">
+                                        Index
+                                    </div>
+                                    <div className="card--value">
+                                        {this.props.metadata.outputIndex}
+                                    </div>
+                                    <div className="card--label">
+                                        Is Spent
+                                    </div>
+                                    <div className="card--value">
+                                        {this.props.metadata.isSpent ? "Yes" : "No"}
+                                    </div>
+                                </React.Fragment>
+                            )}
+
+                            {this.props.output.type === ALIAS_OUTPUT_TYPE && (
+                                <React.Fragment>
+                                    <Bech32Address
+                                        activeLinks={true}
+                                        showHexAddress={false}
+                                        address={
+                                            {
+                                                aliasId: FormatHelper
+                                                        .resolveId(this.props.output.aliasId, this.props.outputId),
+                                                type: ALIAS_ADDRESS_TYPE
+                                            }
+                                        }
+                                    />
+                                    <div className="card--label">
+                                        State index:
+                                    </div>
+                                    <div className="card--value row">
+                                        {this.props.output.stateIndex}
+                                    </div>
+                                    <div className="card--label">
+                                        State metadata:
+                                    </div>
+                                    <div className="card--value row">
+                                        {this.props.output.stateMetadata}
+                                    </div>
+                                    <div className="card--label">
+                                        Foundry counter:
+                                    </div>
+                                    <div className="card--value row">
+                                        {this.props.output.foundryCounter}
+                                    </div>
+                                </React.Fragment>
+                            )}
+
+                            {this.props.output.type === NFT_OUTPUT_TYPE && (
+                                <Bech32Address
+                                    activeLinks={true}
+                                    showHexAddress={false}
+                                    address={
+                                            {
+                                                nftId: FormatHelper
+                                                        .resolveId(this.props.output.nftId, this.props.outputId),
+                                                type: NFT_ADDRESS_TYPE
+                                            }
+                                        }
+                                />
+                            )}
+
+                            {this.props.output.type === FOUNDRY_OUTPUT_TYPE && (
+                                <React.Fragment>
+                                    <div className="card--label">
+                                        Foundry id:
+                                    </div>
+                                    <div className="card--value row">
+                                        {TransactionHelper.constructTokenId(
+                                            ((this.props.output.unlockConditions[0] as IImmutableAliasUnlockCondition)
+                                                .address as IAliasAddress).aliasId,
+                                            this.props.output.serialNumber,
+                                            this.props.output.tokenScheme.type)}
+                                    </div>
+                                    <div className="card--label">
+                                        Serial number:
+                                    </div>
+                                    <div className="card--value row">
+                                        {this.props.output.serialNumber}
+                                    </div>
+                                    <div className="card--label">
+                                        Token scheme type:
+                                    </div>
+                                    <div className="card--value row">
+                                        {this.props.output.tokenScheme.type}
+                                    </div>
+                                    {this.props.output.tokenScheme.type === SIMPLE_TOKEN_SCHEME_TYPE && (
+                                        <React.Fragment>
+                                            <div className="card--label">
+                                                Minted tokens:
+                                            </div>
+                                            <div className="card--value row">
+                                                {Number.parseInt(this.props.output.tokenScheme.mintedTokens, 16)}
+                                            </div>
+                                            <div className="card--label">
+                                                Melted tokens:
+                                            </div>
+                                            <div className="card--value row">
+                                                {Number.parseInt(this.props.output.tokenScheme.meltedTokens, 16)}
+                                            </div>
+                                            <div className="card--label">
+                                                Maximum supply:
+                                            </div>
+                                            <div className="card--value row">
+                                                {Number.parseInt(this.props.output.tokenScheme.maximumSupply, 16)}
+                                            </div>
+                                        </React.Fragment>
                                     )}
-                                >
-                                    {this.state.formatFull
-                                        ? `${this.props.output.output.amount} i`
-                                        : UnitsHelper.formatBest(this.props.output.output.amount)}
-                                </button>
-                            </div>
-                        </React.Fragment>
+                                </React.Fragment>
+                            )}
+
+                            {/* all output types except Treasury have common output conditions */}
+                            {this.props.output.type !== TREASURY_OUTPUT_TYPE && (
+                                <React.Fragment>
+                                    {this.props.output.unlockConditions.map((unlockCondition, idx) => (
+                                        <UnlockCondition
+                                            key={idx}
+                                            unlockCondition={unlockCondition}
+                                        />
+                                    ))}
+                                    {this.props.output.features?.map((feature, idx) => (
+                                        <Feature
+                                            key={idx}
+                                            feature={feature}
+                                        />
+                                    ))}
+                                    {this.props.output.type !== BASIC_OUTPUT_TYPE &&
+                                    this.props.output.immutableFeatures && (
+                                        <React.Fragment>
+                                            {this.props.output.immutableFeatures
+                                                .map((immutableFeature, idx) => (
+                                                    <Feature
+                                                        key={idx}
+                                                        feature={immutableFeature}
+                                                    />
+                                            ))}
+                                        </React.Fragment>
+                                    )}
+
+                                    {this.props.output?.nativeTokens && (
+                                        <React.Fragment>
+                                            <div
+                                                className="card--content__input margin-t-s"
+                                                onClick={() => this.setState({ showTokens: !this.state.showTokens })}
+                                            >
+                                                <div className={classNames(
+                                                        "margin-r-t",
+                                                        "card--content__input--dropdown",
+                                                        { "opened": this.state.showTokens }
+                                                    )}
+                                                >
+                                                    <DropdownIcon />
+                                                </div>
+                                                <h3 className="card--content__input--label">
+                                                    Native Tokens
+                                                </h3>
+                                            </div>
+                                            {this.state.showTokens && (
+                                                <div className="card--content--border-l">
+                                                    {this.props.output.nativeTokens?.map((token, idx: number) => (
+                                                        <Token
+                                                            key={idx}
+                                                            index={idx + 1}
+                                                            token={{
+                                                                id: token.id,
+                                                                amount: token.amount
+                                                            }}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </React.Fragment>
+                                    )}
+                                </React.Fragment>
+                            )}
+                        </div>
                     )}
+                </div>
             </div>
         );
     }

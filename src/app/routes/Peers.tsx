@@ -82,10 +82,10 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                         originalAddress?: string;
                         health: number;
                         relation: string;
-                        newMessagesTotal: number[];
-                        sentMessagesTotal: number[];
-                        newMessagesDiff: number[];
-                        sentMessagesDiff: number[];
+                        newBlocksTotal: number[];
+                        sentBlocksTotal: number[];
+                        newBlocksDiff: number[];
+                        sentBlocksDiff: number[];
                         lastUpdateTime: number;
                     };
                 } = {};
@@ -99,8 +99,8 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                             for (const peer of allDataPeers) {
                                 if (finalPeerIds.has(peer.id)) {
                                     const address = DataHelper.formatPeerAddress(peer);
-                                    const cmi = this.state.cmi ? this.state.cmi : 0;
-                                    const lmi = this.state.lmi ? this.state.lmi : 0;
+                                    const cmi = this.state.cmi ?? 0;
+                                    const lmi = this.state.lmi ?? 0;
                                     const health = DataHelper.calculateHealth(peer, cmi, lmi);
 
                                     if (!peers[peer.id]) {
@@ -109,10 +109,10 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                             address: "",
                                             health: 0,
                                             relation: peer.relation,
-                                            newMessagesTotal: [],
-                                            sentMessagesTotal: [],
-                                            newMessagesDiff: [],
-                                            sentMessagesDiff: [],
+                                            newBlocksTotal: [],
+                                            sentBlocksTotal: [],
+                                            newBlocksDiff: [],
+                                            sentBlocksDiff: [],
                                             lastUpdateTime: 0
                                         };
                                     }
@@ -127,25 +127,25 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                     }
 
                                     if (peer.gossip) {
-                                        peers[peer.id].newMessagesTotal.push(peer.gossip.metrics.newMessages);
-                                        peers[peer.id].sentMessagesTotal.push(peer.gossip.metrics.sentMessages);
+                                        peers[peer.id].newBlocksTotal.push(peer.gossip.metrics.newBlocks);
+                                        peers[peer.id].sentBlocksTotal.push(peer.gossip.metrics.sentBlocks);
                                     }
 
-                                    peers[peer.id].newMessagesDiff = [];
-                                    for (let i = 1; i < peers[peer.id].newMessagesTotal.length; i++) {
-                                        peers[peer.id].newMessagesDiff.push(
+                                    peers[peer.id].newBlocksDiff = [];
+                                    for (let i = 1; i < peers[peer.id].newBlocksTotal.length; i++) {
+                                        peers[peer.id].newBlocksDiff.push(
                                             Math.max(
-                                                peers[peer.id].newMessagesTotal[i] -
-                                                peers[peer.id].newMessagesTotal[i - 1]
+                                                peers[peer.id].newBlocksTotal[i] -
+                                                peers[peer.id].newBlocksTotal[i - 1]
                                                 , 0)
                                         );
                                     }
-                                    peers[peer.id].sentMessagesDiff = [];
-                                    for (let i = 1; i < peers[peer.id].sentMessagesTotal.length; i++) {
-                                        peers[peer.id].sentMessagesDiff.push(
+                                    peers[peer.id].sentBlocksDiff = [];
+                                    for (let i = 1; i < peers[peer.id].sentBlocksTotal.length; i++) {
+                                        peers[peer.id].sentBlocksDiff.push(
                                             Math.max(
-                                                peers[peer.id].sentMessagesTotal[i] -
-                                                peers[peer.id].sentMessagesTotal[i - 1]
+                                                peers[peer.id].sentBlocksTotal[i] -
+                                                peers[peer.id].sentBlocksTotal[i - 1]
                                                 , 0)
                                         );
                                     }
@@ -256,7 +256,7 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                         </div>
                                     </div>
                                     <Graph
-                                        caption="Messages per Second"
+                                        caption="Blocks per Second"
                                         seriesMaxLength={15}
                                         timeInterval={1000}
                                         timeMarkers={5}
@@ -265,12 +265,12 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                             {
                                                 className: "bar-color-1",
                                                 label: "Incoming",
-                                                values: p.newMessagesDiff
+                                                values: p.newBlocksDiff
                                             },
                                             {
                                                 className: "bar-color-2",
                                                 label: "Outgoing",
-                                                values: p.sentMessagesDiff
+                                                values: p.sentBlocksDiff
                                             }
                                         ]}
                                     />
@@ -469,11 +469,13 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                     dialogPeerId: undefined,
                     dialogType: undefined
                 });
-            } catch (err) {
-                this.setState({
-                    dialogBusy: false,
-                    dialogStatus: `Failed to ${this.state.dialogType} peer: ${err.message}`
-                });
+            } catch (error) {
+                if (error instanceof Error) {
+                    this.setState({
+                        dialogBusy: false,
+                        dialogStatus: `Failed to ${this.state.dialogType} peer: ${error.message}`
+                    });
+                }
             }
         });
     }
@@ -498,11 +500,13 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                         dialogPeerId: undefined,
                         dialogType: undefined
                     });
-                } catch (err) {
-                    this.setState({
-                        dialogBusy: false,
-                        dialogStatus: `Failed to delete peer: ${err.message}`
-                    });
+                } catch (error) {
+                    if (error instanceof Error) {
+                        this.setState({
+                            dialogBusy: false,
+                            dialogStatus: `Failed to delete peer: ${error.message}`
+                        });
+                    }
                 }
             }
         });

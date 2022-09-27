@@ -8,4 +8,14 @@ export interface OutputState {
      * Is genesis output.
      */
     isGenesis: boolean;
+
+    /**
+     * Shows details of the specified output
+     */
+    showDetails: boolean;
+
+    /**
+     * Shows tokens of the specified output
+     */
+    showTokens: boolean;
 }

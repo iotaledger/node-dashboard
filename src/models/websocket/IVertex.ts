@@ -2,10 +2,13 @@
 export interface IVertex {
     id: string;
     parents: string;
-    is_solid: boolean;
-    is_referenced: boolean;
-    is_conflicting: boolean;
-    is_milestone: boolean;
-    is_tip: boolean;
-    is_selected: boolean;
+    isSolid: boolean;
+    isReferenced: boolean;
+    isTransaction: boolean;
+    isConflicting: boolean;
+    isMilestone: boolean;
+    isTip: boolean;
+
+    // info set by the visualizer itself
+    isSelected: boolean;
 }

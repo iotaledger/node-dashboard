@@ -73,6 +73,7 @@ export class VisualizerService {
             total: 0,
             solid: 0,
             referenced: 0,
+            transactions: 0,
             conflicting: 0,
             tips: 0
         };
@@ -131,6 +132,14 @@ export class VisualizerService {
         this._subscriptions = [];
         this._vertices = {};
         this._verticesOrder = [];
+
+        // reset counts
+        this._counts.total = 0;
+        this._counts.solid = 0;
+        this._counts.referenced = 0;
+        this._counts.transactions = 0;
+        this._counts.conflicting = 0;
+        this._counts.tips = 0;
     }
 
     /**
@@ -139,7 +148,7 @@ export class VisualizerService {
      */
     private updateVertices(vert?: IVertex): void {
         if (vert) {
-            const shortVertId = vert.id.slice(0, 7);
+            const shortVertId = vert.id.slice(0, 10);
 
             let vertex = this._vertices[shortVertId];
 
@@ -148,29 +157,32 @@ export class VisualizerService {
             if (vertex) {
                 op = "update";
                 // can only go from unsolid to solid
-                if (!vertex.isSolid && vert.is_solid) {
+                if (!vertex.isSolid && vert.isSolid) {
                     this._counts.solid++;
                 }
-                if (!vertex.isReferenced && vert.is_referenced) {
+                if (!vertex.isReferenced && vert.isReferenced) {
                     this._counts.referenced++;
                 }
-                if (!vertex.isConflicting && vert.is_conflicting) {
+                if (!vertex.isConflicting && vert.isConflicting) {
                     this._counts.conflicting++;
                 }
-                if (!vertex.isTip && vert.is_tip) {
+                if (!vertex.isTip && vert.isTip) {
                     this._counts.tips++;
                 }
             } else {
-                if (vert.is_solid) {
+                if (vert.isSolid) {
                     this._counts.solid++;
                 }
-                if (vert.is_referenced) {
+                if (vert.isReferenced) {
                     this._counts.referenced++;
                 }
-                if (vert.is_conflicting) {
+                if (vert.isTransaction) {
+                    this._counts.transactions++;
+                }
+                if (vert.isConflicting) {
                     this._counts.conflicting++;
                 }
-                if (vert.is_tip) {
+                if (vert.isTip) {
                     this._counts.tips++;
                 }
 
@@ -184,12 +196,13 @@ export class VisualizerService {
             }
 
             vertex.parents = vert.parents;
-            vertex.isSolid = vert.is_solid;
-            vertex.isReferenced = vert.is_referenced;
-            vertex.isConflicting = vert.is_conflicting;
-            vertex.isMilestone = vert.is_milestone;
-            vertex.isTip = vert.is_tip;
-            vertex.isSelected = vert.is_selected;
+            vertex.isSolid = vert.isSolid;
+            vertex.isReferenced = vert.isReferenced;
+            vertex.isTransaction = vert.isTransaction;
+            vertex.isConflicting = vert.isConflicting;
+            vertex.isMilestone = vert.isMilestone;
+            vertex.isTip = vert.isTip;
+            vertex.isSelected = vert.isSelected;
 
             this._vertices[shortVertId] = vertex;
 
@@ -244,6 +257,9 @@ export class VisualizerService {
             if (vertex.isReferenced) {
                 this._counts.referenced--;
             }
+            if (vertex.isTransaction) {
+                this._counts.transactions--;
+            }
             if (vertex.isConflicting) {
                 this._counts.conflicting--;
             }
@@ -270,8 +286,8 @@ export class VisualizerService {
         if (data) {
             const vertex = this._vertices[data.id];
             if (vertex) {
-                this._counts.tips += data.is_tip ? 1 : (vertex.isTip ? -1 : 0);
-                vertex.isTip = data.is_tip;
+                this._counts.tips += data.isTip ? 1 : (vertex.isTip ? -1 : 0);
+                vertex.isTip = data.isTip;
                 if (this._vertexCallback) {
                     this._vertexCallback(vertex, "update");
                 }
@@ -304,14 +320,16 @@ export class VisualizerService {
      */
     private updateConfirmedInfo(data?: IConfirmedInfo) {
         if (data) {
-            const vertex = this._vertices[data.id];
-            if (vertex && !vertex.isReferenced) {
-                if (this._referencedCallback) {
-                    this._referencedCallback(data.id, data.excluded_ids ?? [], this._counts);
-                }
+            for (const id of data.ids) {
+                const vertex = this._vertices[id];
+                if (vertex && !vertex.isReferenced) {
+                    if (this._referencedCallback) {
+                        this._referencedCallback(id, data.excludedIds ?? [], this._counts);
+                    }
 
-                if (this._countsCallback) {
-                    this._countsCallback(this._counts);
+                    if (this._countsCallback) {
+                        this._countsCallback(this._counts);
+                    }
                 }
             }
         }

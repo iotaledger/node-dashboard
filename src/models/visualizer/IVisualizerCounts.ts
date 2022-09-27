@@ -12,6 +12,10 @@ export interface IVisualizerCounts {
      */
     referenced: number;
     /**
+     * How many transaction vertices.
+     */
+    transactions: number;
+    /**
      * How many conflicting vertices.
      */
     conflicting: number;

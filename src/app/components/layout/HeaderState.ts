@@ -10,24 +10,34 @@ export interface HeaderState {
     nodeHealth: boolean;
 
     /**
-     * Mps for micro graph.
+     * Bps for micro graph.
      */
-    mps: string;
+    bps: string;
 
     /**
-     * Mps values for micro graph.
+     * Bps values for micro graph.
      */
-    mpsValues: number[];
+    bpsValues: number[];
 
     /**
-     * Database size for micro graph.
+     * Ledger database size for micro graph.
      */
-    databaseSizeFormatted: string;
+    dbLedgerSizeFormatted: string;
 
     /**
-     * Database size values for micro graph.
+     * Ledger database size values for micro graph.
      */
-    databaseSize: number[];
+    dbLedgerSize: number[];
+
+    /**
+     * Tangle db size for micro graph.
+     */
+    dbTangleSizeFormatted: string;
+
+    /**
+     * Tangle db size values for micro graph.
+     */
+    dbTangleSize: number[];
 
     /**
      * Memory size for micro graph.

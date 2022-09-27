@@ -55,7 +55,11 @@ export class FetchHelper {
 
                 return json as U;
         } catch (err) {
-            throw err.name === "AbortError" ? new Error("Timeout") : err;
+            if (err instanceof Error) {
+                throw err.name === "AbortError" ? new Error("Timeout") : err;
+            } else {
+                throw err;
+            }
         } finally {
             if (timerId) {
                 clearTimeout(timerId);
@@ -115,7 +119,11 @@ export class FetchHelper {
 
                 return json as U;
         } catch (err) {
-            throw err.name === "AbortError" ? new Error("Timeout") : err;
+            if (err instanceof Error) {
+                throw err.name === "AbortError" ? new Error("Timeout") : err;
+            } else {
+                throw err;
+            }
         } finally {
             if (timerId) {
                 clearTimeout(timerId);
@@ -133,7 +141,7 @@ export class FetchHelper {
         const urlParams = [];
         for (const key in params) {
             if (params[key] !== null && params[key] !== undefined) {
-                urlParams.push(`${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`);
+                urlParams.push(`${encodeURIComponent(key)}=${encodeURIComponent(params[key] as string)}`);
             }
         }
         return urlParams.length > 0 ? `?${urlParams.join("&")}` : "";

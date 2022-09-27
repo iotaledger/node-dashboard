@@ -11,8 +11,8 @@ export interface PeerState {
     pruningIndex: string;
     syncedPeers: string;
     connectedPeers: string;
-    newMessagesDiff: number[];
-    sentMessagesDiff: number[];
+    newBlocksDiff: number[];
+    sentBlocksDiff: number[];
     gossipMetrics?: IGossipMetrics;
     relation: string;
     lastUpdateTime: number;

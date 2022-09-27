@@ -1,3 +1,4 @@
+import { AddressTypes } from "@iota/iota.js";
 import { IBech32AddressDetails } from "../../../models/IBech32AddressDetails";
 
 export interface Bech32AddressProps {
@@ -7,7 +8,17 @@ export interface Bech32AddressProps {
     activeLinks: boolean;
 
     /**
-     * The address details.
+     * Show Hexadecimal address representation.
+     */
+    showHexAddress: boolean;
+
+    /**
+     * The address.
+     */
+    address?: AddressTypes;
+
+    /**
+     * The address.
      */
     addressDetails?: IBech32AddressDetails;
 }

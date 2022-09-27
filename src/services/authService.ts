@@ -41,7 +41,7 @@ export class AuthService {
      * Initialise service.
      */
     public async initialize(): Promise<void> {
-        const storageService = ServiceFactory.get<LocalStorageService>("storage");
+        const storageService = ServiceFactory.get<LocalStorageService>("local-storage");
 
         const jwt = storageService.load<string>("dashboard-jwt");
 
@@ -77,7 +77,7 @@ export class AuthService {
                 jwt?: string;
             }>(
                 `${window.location.protocol}//${window.location.host}`,
-                "/auth",
+                "/dashboard/auth",
                 "post",
                 {
                     user,
@@ -87,7 +87,7 @@ export class AuthService {
                 headers);
 
             if (response.jwt) {
-                const storageService = ServiceFactory.get<LocalStorageService>("storage");
+                const storageService = ServiceFactory.get<LocalStorageService>("local-storage");
                 this._jwt = response.jwt;
                 storageService.save<string>("dashboard-jwt", this._jwt);
                 EventAggregator.publish("auth-state", true);
@@ -104,7 +104,7 @@ export class AuthService {
      */
     public logout(): void {
         if (this._jwt) {
-            const storageService = ServiceFactory.get<LocalStorageService>("storage");
+            const storageService = ServiceFactory.get<LocalStorageService>("local-storage");
             storageService.remove("dashboard-jwt");
             this._jwt = undefined;
             EventAggregator.publish("auth-state", false);

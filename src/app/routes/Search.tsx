@@ -1,4 +1,6 @@
-import { Blake2b, Converter, serializeMessage, WriteStream } from "@iota/iota.js";
+import { Blake2b } from "@iota/crypto.js";
+import { serializeBlock } from "@iota/iota.js";
+import { Converter, WriteStream } from "@iota/util.js";
 import React, { ReactNode } from "react";
 import { Link, Redirect, RouteComponentProps } from "react-router-dom";
 import { ReactComponent as ChevronLeftIcon } from "../../assets/chevron-left.svg";
@@ -80,11 +82,11 @@ class Search extends AsyncComponent<RouteComponentProps<SearchRouteProps>, Searc
                                     <br />
                                     <ul>
                                         <li>
-                                            <span>Messages</span>
+                                            <span>Blocks</span>
                                             <span>64 Hex characters</span>
                                         </li>
                                         <li>
-                                            <span>Message using Transaction Id</span>
+                                            <span>Block using Transaction Id</span>
                                             <span>64 Hex characters</span>
                                         </li>
                                         <li>
@@ -92,16 +94,24 @@ class Search extends AsyncComponent<RouteComponentProps<SearchRouteProps>, Searc
                                             <span>64 Hex characters or Bech32 Format</span>
                                         </li>
                                         <li>
+                                            <span>Nft/Alias Addresses</span>
+                                            <span>40 Hex characters or Bech32 Format</span>
+                                        </li>
+                                        <li>
                                             <span>Outputs</span>
-                                            <span>68 Hex characters</span>
+                                            <span>68 Hex characters or tag</span>
+                                        </li>
+                                        <li>
+                                            <span>Foundry Id</span>
+                                            <span>52 Hex characters</span>
+                                        </li>
+                                        <li>
+                                            <span>Token Id</span>
+                                            <span>76 Hex characters</span>
                                         </li>
                                         <li>
                                             <span>Milestone Index</span>
                                             <span>Numeric</span>
-                                        </li>
-                                        <li>
-                                            <span>Indexes</span>
-                                            <span>Maximum 64 UTF-8 chars or maximum 128 hex chars</span>
                                         </li>
                                     </ul>
                                 </React.Fragment>
@@ -121,7 +131,7 @@ class Search extends AsyncComponent<RouteComponentProps<SearchRouteProps>, Searc
         if (query.length > 0) {
             this.setState({ statusBusy: true }, async () => {
                 const tangleService = ServiceFactory.get<TangleService>("tangle");
-                const response = await tangleService.search(query);
+                const response = await tangleService.search({ query });
 
                 let redirect = "";
 
@@ -131,22 +141,33 @@ class Search extends AsyncComponent<RouteComponentProps<SearchRouteProps>, Searc
                     } else {
                         let objType;
                         let objParam = query;
-                        if (response.message) {
-                            objType = "message";
-                            // Recalculate the message id from the content, in case
+
+                        if (response.block) {
+                            objType = "block";
+                            // Recalculate the block id from the content, in case
                             // the lookup was a response to a transaction id lookup
                             const writeStream = new WriteStream();
-                            serializeMessage(writeStream, response.message);
-                            objParam = Converter.bytesToHex(Blake2b.sum256(writeStream.finalBytes()));
-                        } else if (response.address) {
+
+                            try {
+                                serializeBlock(writeStream, response.block);
+                            } catch (error) {
+                                if (error instanceof Error) {
+                                    console.log(error.message);
+                                }
+                            }
+                            objParam = Converter.bytesToHex(Blake2b.sum256(writeStream.finalBytes()), true);
+                        } else if (response?.address) {
                             objType = "address";
-                        } else if (response.indexMessageIds) {
-                            objType = "indexed";
-                        } else if (response.output) {
-                            objType = "message";
-                            objParam = response.output.messageId;
+                            objParam = response.address.bech32 ?? objParam;
+                        } else if (response.outputId) {
+                            objType = "output";
+                            objParam = response.outputId;
+                        } else if (response.outputs) {
+                            objType = "outputs";
+                            objParam = Converter.isHex(objParam, true) ? objParam : Converter.utf8ToHex(objParam, true);
                         } else if (response.milestone) {
                             objType = "milestone";
+                            objParam = response.milestone.index.toString();
                         }
                         if (objType) {
                             redirect = `/explorer/${objType}/${objParam}`;

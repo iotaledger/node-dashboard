@@ -22,7 +22,7 @@ export class ThemeService {
      * Initialize the theme.
      */
     public initialize(): void {
-        const storageService = ServiceFactory.get<LocalStorageService>("storage");
+        const storageService = ServiceFactory.get<LocalStorageService>("local-storage");
 
         const theme = storageService.load<string>("theme");
 
@@ -60,7 +60,7 @@ export class ThemeService {
      * Save theme.
      */
     public save(): void {
-        const storageService = ServiceFactory.get<LocalStorageService>("storage");
+        const storageService = ServiceFactory.get<LocalStorageService>("local-storage");
         storageService.save("theme", this._theme);
     }
 }

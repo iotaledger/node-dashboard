@@ -56,19 +56,29 @@ export interface HomeState {
     memory?: string;
 
     /**
-     * Last received mps time.
+     * Ledger database size.
      */
-    lastReceivedMpsTime: number;
+    dbLedgerSizeFormatted: string;
 
     /**
-     * The messages per second incoming.
+     * Tangle database size.
      */
-    mpsIncoming: number[];
+    dbTangleSizeFormatted: string;
 
     /**
-     * The messages per second outgoing.
+     * Last received bps time.
      */
-    mpsOutgoing: number[];
+    lastReceivedBpsTime: number;
+
+    /**
+     * The blocks per second incoming.
+     */
+    bpsIncoming: number[];
+
+    /**
+     * The blocks per second outgoing.
+     */
+    bpsOutgoing: number[];
 
     /**
      * The banner logo source.

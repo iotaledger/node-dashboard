@@ -2,6 +2,7 @@ import React, { ReactNode } from "react";
 import { ServiceFactory } from "../../../factories/serviceFactory";
 import { ISpammerSettings } from "../../../models/plugins/ISpammerSettings";
 import { AuthService } from "../../../services/authService";
+import { TangleService } from "../../../services/tangleService";
 import { FetchHelper } from "../../../utils/fetchHelper";
 import AsyncComponent from "../../components/layout/AsyncComponent";
 import ToggleButton from "../layout/ToggleButton";
@@ -20,7 +21,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
     /**
      * The description of the plugin.
      */
-    private static readonly PLUGIN_DESCRIPTION = "Spam the IOTA network with data messages.";
+    private static readonly PLUGIN_DESCRIPTION = "Spam the network with tagged data or transaction payloads.";
 
     /**
      * Is the spammer plugin available.
@@ -36,10 +37,11 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
 
         this.state = {
             isRunning: false,
-            mps: "1",
+            bps: "1",
             cpu: "80",
             workers: "0",
-            workersMax: 0
+            workersMax: 0,
+            valueSpamEnabled: false
         };
     }
 
@@ -48,27 +50,12 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
      */
     public static async initPlugin(): Promise<void> {
         Spammer._isAvailable = false;
+        const tangleService = ServiceFactory.get<TangleService>("tangle");
 
         try {
-            const authHeaders = Spammer.buildAuthHeaders();
-
-            if (authHeaders.Authorization) {
-                const res = await FetchHelper.json<unknown, {
-                    data?: ISpammerSettings;
-                    error?: {
-                        message: string;
-                    };
-                }>(
-                    `${window.location.protocol}//${window.location.host}`,
-                    "/api/plugins/spammer/status",
-                    "get",
-                    undefined,
-                    authHeaders);
-
-
-                if (res.data) {
-                    Spammer._isAvailable = true;
-                }
+            const routes = await tangleService.routes();
+            if (routes.routes.includes("spammer/v1")) {
+                Spammer._isAvailable = true;
             }
         } catch (err) {
             console.log(err);
@@ -147,14 +134,23 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                     </div>
                     <h2 className="margin-t-s">Settings</h2>
                     <div className="card--label">
-                        Messages Per Second
+                        Enable value spam
+                    </div>
+                    <div className="card--value row">
+                        <ToggleButton
+                            value={this.state.valueSpamEnabled}
+                            onChanged={value => this.setState({ valueSpamEnabled: value })}
+                        />
+                    </div>
+                    <div className="card--label">
+                        Blocks Per Second
                     </div>
                     <div className="card--value row">
                         <input
                             type="text"
-                            value={this.state.mps}
+                            value={this.state.bps}
                             disabled={!this.state.isRunning}
-                            onChange={e => this.setState({ mps: e.target.value })}
+                            onChange={e => this.setState({ bps: e.target.value })}
                             onBlur={e => this.validateSettings()}
                         />
                     </div>
@@ -205,28 +201,25 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
      */
     private async pluginStatus(): Promise<void> {
         try {
-            const response = await FetchHelper.json<unknown, {
-                data?: ISpammerSettings;
-                error?: {
-                    message: string;
-                };
-            }>(
-                `${window.location.protocol}//${window.location.host}`,
-                "/api/plugins/spammer/status",
-                "get",
-                undefined,
-                Spammer.buildAuthHeaders());
+            const response = await FetchHelper.json<unknown, ISpammerSettings>(
+                    `${window.location.protocol}//${window.location.host}`,
+                    "/dashboard/api/spammer/v1/status",
+                    "get",
+                    undefined,
+                    Spammer.buildAuthHeaders()
+                );
 
-            if (response.data) {
+            if (!response?.error) {
                 this.setState({
-                    isRunning: response.data.running,
-                    mps: response.data.mpsRateLimit.toString(),
-                    cpu: (response.data.cpuMaxUsage * 100).toString(),
-                    workers: response.data.spammerWorkers.toString(),
-                    workersMax: response.data.spammerWorkersMax
+                    isRunning: response.running,
+                    bps: response.bpsRateLimit.toString(),
+                    cpu: (response.cpuMaxUsage * 100).toString(),
+                    workers: response.spammerWorkers.toString(),
+                    workersMax: response.spammerWorkersMax,
+                    valueSpamEnabled: response.valueSpamEnabled
                 });
             } else {
-                console.log(response.error);
+                console.log("loging eror", response.error);
             }
         } catch (err) {
             console.log(err);
@@ -237,9 +230,9 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
      * Validate the settings for the plugin.
      */
     private validateSettings(): void {
-        const mps = Number.parseFloat(this.state.mps);
-        if (Number.isNaN(mps)) {
-            this.setState({ mps: "1" });
+        const bps = Number.parseFloat(this.state.bps);
+        if (Number.isNaN(bps)) {
+            this.setState({ bps: "1" });
         }
 
         const cpu = Number.parseFloat(this.state.cpu);
@@ -262,19 +255,15 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
      */
     private async pluginStart(): Promise<void> {
         try {
-            await FetchHelper.json<unknown, {
-                data?: ISpammerSettings;
-                error?: {
-                    message: string;
-                };
-            }>(
+            await FetchHelper.json<unknown, ISpammerSettings>(
                 `${window.location.protocol}//${window.location.host}`,
-                "/api/plugins/spammer/start",
+                "/dashboard/api/spammer/v1/start",
                 "post",
                 {
-                    mpsRateLimit: Number.parseFloat(this.state.mps),
+                    bpsRateLimit: Number.parseFloat(this.state.bps),
                     cpuMaxUsage: Number.parseFloat(this.state.cpu) / 100,
-                    spammerWorkers: Number.parseInt(this.state.workers, 10)
+                    spammerWorkers: Number.parseInt(this.state.workers, 10),
+                    valueSpamEnabled: this.state.valueSpamEnabled
                 },
                 Spammer.buildAuthHeaders());
 
@@ -289,14 +278,9 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
      */
     private async pluginStop(): Promise<void> {
         try {
-            await FetchHelper.json<unknown, {
-                data?: ISpammerSettings;
-                error?: {
-                    message: string;
-                };
-            }>(
+            await FetchHelper.json<unknown, ISpammerSettings>(
                 `${window.location.protocol}//${window.location.host}`,
-                "/api/plugins/spammer/stop",
+                "/dashboard/api/spammer/v1/stop",
                 "post",
                 undefined,
                 Spammer.buildAuthHeaders());
