@@ -148,7 +148,7 @@ export class WebSocketService {
         if (window.location.protocol === "https:") {
             uri = "wss:";
         }
-        uri += `//${window.location.hostname}:${process.env.REACT_APP_SOCKET ?? window.location.port}/dashboard/ws`;
+        uri += `//${window.location.hostname}:${window.location.port}/dashboard/ws`;
 
         this._webSocket = new WebSocket(uri);
 
