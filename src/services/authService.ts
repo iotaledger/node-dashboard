@@ -126,4 +126,22 @@ export class AuthService {
     public csrf(): string | undefined {
         return this._csrf;
     }
+
+    /**
+     * Build authentication headers.
+     * @returns The authentication headers.
+     */
+    public buildAuthHeaders(): Record<string, string> {
+        const headers: Record<string, string> = {};
+        const jwt = this.isLoggedIn();
+        if (jwt) {
+            headers.Authorization = `Bearer ${jwt}`;
+        }
+        const csrf = this.csrf();
+        if (csrf) {
+            headers["X-CSRF-Token"] = csrf;
+        }
+
+        return headers;
+    }
 }

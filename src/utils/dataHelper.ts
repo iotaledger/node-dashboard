@@ -1,4 +1,4 @@
-import { IPeer } from "@iota/iota.js";
+import { Converter, WriteStream, Blake2b, IMessage, IPeer, serializeMessage } from "@iota/iota.js";
 import { INodeStatus } from "../models/websocket/INodeStatus";
 
 /**
@@ -120,8 +120,8 @@ export class DataHelper {
 
         if (peer.connected) {
             health = (DataHelper.calculateIsSynced(peer, latestMilestoneIndex) &&
-                    peer.gossip?.heartbeat &&
-                    peer.gossip?.heartbeat?.prunedMilestoneIndex < confirmedMilestoneIndex) ? 2 : 1;
+                peer.gossip?.heartbeat &&
+                peer.gossip?.heartbeat?.prunedMilestoneIndex < confirmedMilestoneIndex) ? 2 : 1;
         }
 
         return health;
@@ -138,7 +138,7 @@ export class DataHelper {
 
         if (peer.gossip?.heartbeat) {
             const latestKnownMilestoneIndex = (latestMilestoneIndex < peer.gossip.heartbeat.latestMilestoneIndex)
-            ? peer.gossip.heartbeat.latestMilestoneIndex : latestMilestoneIndex;
+                ? peer.gossip.heartbeat.latestMilestoneIndex : latestMilestoneIndex;
 
             if (peer.gossip.heartbeat.solidMilestoneIndex >= (latestKnownMilestoneIndex - 2)) {
                 isSynced = true;
@@ -146,5 +146,18 @@ export class DataHelper {
         }
 
         return isSynced;
+    }
+
+    /**
+     * Calculate messageId from a message.
+     * @param message The message.
+     * @returns The message.
+     */
+    public static calculateMessageId(message: IMessage): string {
+        const writeStream = new WriteStream();
+        serializeMessage(writeStream, message);
+        const messageBytes = writeStream.finalBytes();
+
+        return Converter.bytesToHex(Blake2b.sum256(messageBytes));
     }
 }

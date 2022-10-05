@@ -6,6 +6,7 @@ import { ReactComponent as ChevronLeftIcon } from "../../../assets/chevron-left.
 import { ReactComponent as DownloadIcon } from "../../../assets/download.svg";
 import { ServiceFactory } from "../../../factories/serviceFactory";
 import { MessageTangleStatus } from "../../../models/messageTangleStatus";
+import { PluginService } from "../../../services/pluginService";
 import { TangleService } from "../../../services/tangleService";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
 import { DownloadHelper } from "../../../utils/downloadHelper";
@@ -32,6 +33,11 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
     private readonly _tangleService: TangleService;
 
     /**
+     * Service for tangle requests.
+     */
+    private readonly _pluginService: PluginService;
+
+    /**
      * Timer to check to state update.
      */
     private _timerId?: NodeJS.Timer;
@@ -44,6 +50,7 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
         super(props);
 
         this._tangleService = ServiceFactory.get<TangleService>("tangle");
+        this._pluginService = ServiceFactory.get<PluginService>("plugin");
 
         this.state = {
             childrenBusy: true,
@@ -282,6 +289,18 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
                                 <DownloadIcon />
                             </a>
                         </div>
+                        <div className="card--label">
+                            Export Poi
+                        </div>
+                        <div className="card--value row">
+                            <button
+                                type="button"
+                                className="card--action card--action-plain"
+                                onClick={async () => this.dowloadPoi()}
+                            >
+                                <DownloadIcon />
+                            </button>
+                        </div>
                     </div>
                     <div className="card margin-t-s padding-l">
                         <div className="row margin-b-s">
@@ -375,6 +394,24 @@ class Message extends AsyncComponent<RouteComponentProps<MessageRouteProps>, Mes
         }
 
         return conflictReason;
+    }
+
+    /**
+     * Download poi for the message.
+     */
+    private async dowloadPoi(): Promise<void> {
+        try {
+            const response = await this._pluginService.fetchPoi(this.props.match.params.messageId);
+            if (response) {
+                const url = DownloadHelper.createJsonDataUrl(response);
+                const filename = DownloadHelper.filename(
+                    this.props.match.params.messageId, "json");
+
+                DownloadHelper.downloadFile(url, filename);
+            }
+        } catch (err) {
+            console.log(err);
+        }
     }
 }
 
