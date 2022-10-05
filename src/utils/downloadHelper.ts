@@ -53,4 +53,25 @@ export class DownloadHelper {
         const b64 = Converter.bytesToBase64(Converter.utf8ToBytes(Converter.bytesToBase64(data)));
         return `data:plain/text;base64,${b64}`;
     }
+
+    /**
+     * Create a data url for base64 data.
+     * @param dataUrl The data url to download.
+     * @param filename The filename.
+     * @returns true if downloaded.
+     */
+    public static downloadFile(dataUrl: string, filename: string): boolean {
+        try {
+            const link = document.createElement("a");
+            link.href = dataUrl;
+            link.download = filename;
+
+            link.click();
+            link.remove();
+
+            return true;
+        } catch {
+            return false;
+        }
+    }
 }
