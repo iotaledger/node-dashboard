@@ -35,6 +35,11 @@
         flex-direction: column;
         justify-content: space-between;
         padding: $spacing-small;
+
+        .block-button .block-button-btn svg {
+            width: 16px;
+            height: 16px;
+        }
       }
 
       .health-indicators {
