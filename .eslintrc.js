@@ -1030,7 +1030,7 @@ module.exports = {
             "error"
         ],
         "operator-linebreak": [
-            "error"
+            "error", "after", { "overrides": { "?": "ignore", ":": "ignore" } }
         ],
         "padded-blocks": [
             "error",
