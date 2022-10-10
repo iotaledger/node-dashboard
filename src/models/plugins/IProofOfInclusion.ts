@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { IBlock, IMilestonePayload } from "@iota/iota.js";
 
 export interface IProofOfInclusion {
@@ -15,5 +14,5 @@ export interface IProofOfInclusion {
     /**
      * The proof
      */
-    proof: any;
+    proof: Record<string, unknown>;
 }
