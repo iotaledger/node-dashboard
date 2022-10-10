@@ -1,13 +1,13 @@
-import { IPoi } from "../../../models/plugins/IPoi";
+import { IProofOfInclusion } from "../../../models/plugins/IProofOfInclusion";
 
-export interface PoiState {
+export interface ProofOfInclusionState {
     /**
-     * Is the dialog busy.
+     * The poi data.
      */
-    jsonData?: IPoi;
+    poi?: IProofOfInclusion;
 
     /**
-     * Is the dialog busy.
+     * The id of the poi block.
      */
     blockId?: string;
 

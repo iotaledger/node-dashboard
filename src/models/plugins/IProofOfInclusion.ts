@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { IBlock, IMilestonePayload } from "@iota/iota.js";
 
-export interface IPoi {
+export interface IProofOfInclusion {
     /**
      * The block
      */

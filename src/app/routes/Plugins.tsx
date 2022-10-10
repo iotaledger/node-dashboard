@@ -4,7 +4,7 @@ import { AuthService } from "../../services/authService";
 import AsyncComponent from "../components/layout/AsyncComponent";
 import TabPanel from "../components/layout/TabPanel";
 import Participation from "../components/plugins/Participation";
-import Poi from "../components/plugins/Poi";
+import Poi from "../components/plugins/ProofOfInclusion";
 import Spammer from "../components/plugins/Spammer";
 import "./Plugins.scss";
 import { PluginsState } from "./PluginsState";

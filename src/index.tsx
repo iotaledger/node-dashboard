@@ -4,7 +4,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./app/App";
 import Participation from "./app/components/plugins/Participation";
-import Poi from "./app/components/plugins/Poi";
+import Poi from "./app/components/plugins/ProofOfInclusion";
 import Spammer from "./app/components/plugins/Spammer";
 import { ServiceFactory } from "./factories/serviceFactory";
 import "./index.scss";

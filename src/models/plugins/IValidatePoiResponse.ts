@@ -1,4 +1,4 @@
-export interface IValidateProofResponse {
+export interface IValidatePoiResponse {
     /**
      * Is the proof of inclusion valid.
      */

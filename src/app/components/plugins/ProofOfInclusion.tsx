@@ -4,22 +4,22 @@ import React, { ChangeEvent, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ReactComponent as UploadIcon } from "../../../assets/upload.svg";
 import { ServiceFactory } from "../../../factories/serviceFactory";
-import { IPoi } from "../../../models/plugins/IPoi";
+import { IProofOfInclusion } from "../../../models/plugins/IProofOfInclusion";
 import { PluginService } from "../../../services/pluginService";
 import { TangleService } from "../../../services/tangleService";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
-import AsyncComponent from "../../components/layout/AsyncComponent";
-import Spinner from "../../components/layout/Spinner";
+import AsyncComponent from "../layout/AsyncComponent";
 import BlockButton from "../layout/BlockButton";
+import Spinner from "../layout/Spinner";
 import MilestonePayload from "../tangle/MilestonePayload";
 import TaggedDataPayload from "../tangle/TaggedDataPayload";
 import TransactionPayload from "../tangle/TransactionPayload";
-import { PoiState } from "./PoiState";
+import { ProofOfInclusionState } from "./ProofOfInclusionState";
 
 /**
- * Poi panel.
+ * ProofOfInclusion panel.
  */
-class Poi extends AsyncComponent<unknown, PoiState> {
+class ProofOfInclusion extends AsyncComponent<unknown, ProofOfInclusionState> {
     /**
      * The title of the plugin.
      */
@@ -68,13 +68,13 @@ class Poi extends AsyncComponent<unknown, PoiState> {
      * Is the plugin available.
      */
     public static async initPlugin(): Promise<void> {
-        Poi._isAvailable = false;
+        ProofOfInclusion._isAvailable = false;
         const tangleService = ServiceFactory.get<TangleService>("tangle");
 
         try {
             const routes = await tangleService.routes();
             if (routes.routes.includes("poi/v1")) {
-                Poi._isAvailable = true;
+                ProofOfInclusion._isAvailable = true;
             }
         } catch (err) {
             console.log(err);
@@ -90,11 +90,11 @@ class Poi extends AsyncComponent<unknown, PoiState> {
         description: string;
         settings: ReactNode;
     } | undefined {
-        if (Poi._isAvailable) {
+        if (ProofOfInclusion._isAvailable) {
             return {
-                title: Poi.PLUGIN_TITLE,
-                description: Poi.PLUGIN_DESCRIPTION,
-                settings: <Poi />
+                title: ProofOfInclusion.PLUGIN_TITLE,
+                description: ProofOfInclusion.PLUGIN_DESCRIPTION,
+                settings: <ProofOfInclusion />
             };
         }
     }
@@ -107,9 +107,9 @@ class Poi extends AsyncComponent<unknown, PoiState> {
         return (
             <div className="poi">
                 <div className="card padding-l">
-                    <h2>{Poi.PLUGIN_TITLE}</h2>
+                    <h2>{ProofOfInclusion.PLUGIN_TITLE}</h2>
                     <p className="margin-t-s">
-                        {Poi.PLUGIN_DESCRIPTION}
+                        {ProofOfInclusion.PLUGIN_DESCRIPTION}
                     </p>
                     <div className="card--label">
                         Upload poi json file
@@ -150,7 +150,7 @@ class Poi extends AsyncComponent<unknown, PoiState> {
                     )}
 
                 </div>
-                {this.state.jsonData && (
+                {this.state.poi && (
                     <div className="content">
                         <div className="card margin-t-m padding-l">
                             <div className="row phone-down-column start">
@@ -178,7 +178,7 @@ class Poi extends AsyncComponent<unknown, PoiState> {
                                     labelPosition="top"
                                 />
                             </div>
-                            {this.state.jsonData.block.parents.map((parent, idx) => (
+                            {this.state.poi.block.parents.map((parent, idx) => (
                                 <React.Fragment key={idx}>
                                     <div className="card--label">
                                         Parent Block {idx + 1}
@@ -213,31 +213,31 @@ class Poi extends AsyncComponent<unknown, PoiState> {
                                 Nonce
                             </div>
                             <div className="card--value row">
-                                <span className="margin-r-t">{this.state.jsonData.block?.nonce}</span>
+                                <span className="margin-r-t">{this.state.poi.block?.nonce}</span>
                             </div>
                         </div>
-                        {this.state.jsonData.block?.payload && (
+                        {this.state.poi.block?.payload && (
                             <React.Fragment>
-                                {this.state.jsonData.block.payload.type === TRANSACTION_PAYLOAD_TYPE && (
+                                {this.state.poi.block.payload.type === TRANSACTION_PAYLOAD_TYPE && (
                                     <React.Fragment>
-                                        <TransactionPayload payload={this.state.jsonData.block.payload} />
-                                        {this.state.jsonData.block.payload.essence.payload && (
+                                        <TransactionPayload payload={this.state.poi.block.payload} />
+                                        {this.state.poi.block.payload.essence.payload && (
                                             <div className="card margin-t-m padding-l">
                                                 <TaggedDataPayload
-                                                    payload={this.state.jsonData.block.payload.essence.payload}
+                                                    payload={this.state.poi.block.payload.essence.payload}
                                                 />
                                             </div>
                                         )}
                                     </React.Fragment>
                                 )}
-                                {this.state.jsonData.block.payload.type === MILESTONE_PAYLOAD_TYPE && (
+                                {this.state.poi.block.payload.type === MILESTONE_PAYLOAD_TYPE && (
                                     <div className="card margin-t-m padding-l">
-                                        <MilestonePayload payload={this.state.jsonData.block.payload} />
+                                        <MilestonePayload payload={this.state.poi.block.payload} />
                                     </div>
                                 )}
-                                {this.state.jsonData.block.payload.type === TAGGED_DATA_PAYLOAD_TYPE && (
+                                {this.state.poi.block.payload.type === TAGGED_DATA_PAYLOAD_TYPE && (
                                     <div className="card margin-t-m padding-l">
-                                        <TaggedDataPayload payload={this.state.jsonData.block.payload} />
+                                        <TaggedDataPayload payload={this.state.poi.block.payload} />
                                     </div>
                                 )}
                             </React.Fragment>
@@ -255,7 +255,7 @@ class Poi extends AsyncComponent<unknown, PoiState> {
     private async validate(e: ChangeEvent<HTMLInputElement>): Promise<void> {
         if (e.currentTarget.files?.[0]) {
             this.setState({
-                jsonData: undefined,
+                poi: undefined,
                 blockId: undefined,
                 dialogBusy: true,
                 dialogStatus: undefined,
@@ -269,10 +269,10 @@ class Poi extends AsyncComponent<unknown, PoiState> {
                     const poi = event.target.result as string;
 
                     try {
-                        const payload: IPoi = JSON.parse(poi);
+                        const payload: IProofOfInclusion = JSON.parse(poi);
 
                         this.setState({
-                            jsonData: payload,
+                            poi: payload,
                             blockId: TransactionHelper.calculateBlockId(payload.block)
                         });
                         this.setState({
@@ -283,13 +283,13 @@ class Poi extends AsyncComponent<unknown, PoiState> {
                                     if (response) {
                                         this.setState({
                                             dialogBusy: false,
-                                            dialogStatus: Poi.VALIDATION_SUCCESS_MESSAGE,
+                                            dialogStatus: ProofOfInclusion.VALIDATION_SUCCESS_MESSAGE,
                                             isPoiValid: true
                                         });
                                     } else {
                                         this.setState({
                                             dialogBusy: false,
-                                            dialogStatus: Poi.VALIDATION_FAILED_MESSAGE,
+                                            dialogStatus: ProofOfInclusion.VALIDATION_FAILED_MESSAGE,
                                             isPoiValid: false
                                         });
                                     }
@@ -316,4 +316,4 @@ class Poi extends AsyncComponent<unknown, PoiState> {
     }
 }
 
-export default Poi;
+export default ProofOfInclusion;

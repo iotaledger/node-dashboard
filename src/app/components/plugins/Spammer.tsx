@@ -198,7 +198,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                     valueSpamEnabled: response.valueSpamEnabled ?? false
                 });
             } else {
-                console.log("loging eror", response?.error);
+                console.log("Error fetching spammer status", response?.error);
             }
         } catch (err) {
             console.log(err);

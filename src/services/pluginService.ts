@@ -1,8 +1,8 @@
 import { IClient, SingleNodeClient } from "@iota/iota.js";
 import { ServiceFactory } from "../factories/serviceFactory";
-import { IPoi } from "../models/plugins/IPoi";
+import { IProofOfInclusion } from "../models/plugins/IProofOfInclusion";
 import { ISpammerSettings } from "../models/plugins/ISpammerSettings";
-import { IValidateProofResponse } from "../models/plugins/IValidateProofResponse";
+import { IValidatePoiResponse } from "../models/plugins/IValidatePoiResponse";
 import { IParticipationEvent } from "../models/plugins/participation/IParticipationEvent";
 import { IParticipationEventInfo } from "../models/plugins/participation/IParticipationEventInfo";
 import { IParticipationEvents } from "../models/plugins/participation/IParticipationEvents";
@@ -179,11 +179,11 @@ export class PluginService {
      * @param blockId The id of the block.
      * @returns The poi for the block.
      */
-    public async fetchPoi(blockId: string): Promise<IPoi | undefined> {
+    public async fetchPoi(blockId: string): Promise<IProofOfInclusion | undefined> {
         const client = this.buildClient();
 
         try {
-            return await client.pluginFetch<unknown, IPoi>(
+            return await client.pluginFetch<unknown, IProofOfInclusion>(
                 "poi/v1/",
                 "get",
                 `create/${blockId}`
@@ -198,11 +198,11 @@ export class PluginService {
      * @param poi The poi of the block.
      * @returns Is poi valid.
      */
-    public async validatePoi(poi: IPoi): Promise<boolean> {
+    public async validatePoi(poi: IProofOfInclusion): Promise<boolean> {
         const client = this.buildClient();
 
         try {
-            const response = await client.pluginFetch<IPoi, IValidateProofResponse>(
+            const response = await client.pluginFetch<IProofOfInclusion, IValidatePoiResponse>(
                 "poi/v1/",
                 "post",
                 "validate",
@@ -229,6 +229,7 @@ export class PluginService {
             {
                 basePath: "/dashboard/api/",
                 headers
-            });
+            }
+        );
     }
 }

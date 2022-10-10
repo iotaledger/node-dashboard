@@ -55,7 +55,7 @@ export class DownloadHelper {
     }
 
     /**
-     * Create a data url for base64 data.
+     * Trigger a file download.
      * @param dataUrl The data url to download.
      * @param filename The filename.
      * @returns true if downloaded.
