@@ -4,6 +4,7 @@ import { AuthService } from "../../services/authService";
 import AsyncComponent from "../components/layout/AsyncComponent";
 import TabPanel from "../components/layout/TabPanel";
 import Participation from "../components/plugins/Participation";
+import Poi from "../components/plugins/ProofOfInclusion";
 import Spammer from "../components/plugins/Spammer";
 import "./Plugins.scss";
 import { PluginsState } from "./PluginsState";
@@ -47,6 +48,10 @@ class Plugins extends AsyncComponent<unknown, PluginsState> {
             const pluginDetailsParticipation = Participation.pluginDetails();
             if (pluginDetailsParticipation) {
                 plugins.push(pluginDetailsParticipation);
+            }
+            const pluginDetailsPoi = Poi.pluginDetails();
+            if (pluginDetailsPoi) {
+                plugins.push(pluginDetailsPoi);
             }
         }
 

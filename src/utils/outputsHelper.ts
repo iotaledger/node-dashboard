@@ -129,6 +129,13 @@ export class OutputsHelper {
                 async query => indexerPlugin.nfts(query),
                 { senderBech32: this.query },
                 AssociationType.NFT_SENDER
+            ),
+
+            // Nft output -> issuer address
+            this.tryFetchOutputs(
+                async query => indexerPlugin.nfts(query),
+                { issuerBech32: this.query },
+                AssociationType.NFT_ISSUER
             )
         ];
 

@@ -75,3 +75,22 @@ input {
     width: 100%;
   }
 }
+
+input[type="file"]::file-selector-button {
+  display: none;
+}
+
+.file-wrapper {
+  display: inline-block;
+  position: relative;
+
+  input {
+    padding-left: 30px;
+  }
+
+  svg {
+    position: absolute;
+    top: 5px;
+    left: 0;
+  }
+}

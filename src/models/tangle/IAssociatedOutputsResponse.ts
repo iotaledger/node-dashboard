@@ -14,6 +14,7 @@ export enum AssociationType {
     NFT_STORAGE_RETURN,
     NFT_EXPIRATION_RETURN,
     NFT_SENDER,
+    NFT_ISSUER,
     TAG
 }
 

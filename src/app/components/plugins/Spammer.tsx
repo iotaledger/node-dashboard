@@ -1,9 +1,7 @@
 import React, { ReactNode } from "react";
 import { ServiceFactory } from "../../../factories/serviceFactory";
-import { ISpammerSettings } from "../../../models/plugins/ISpammerSettings";
-import { AuthService } from "../../../services/authService";
+import { PluginService } from "../../../services/pluginService";
 import { TangleService } from "../../../services/tangleService";
-import { FetchHelper } from "../../../utils/fetchHelper";
 import AsyncComponent from "../../components/layout/AsyncComponent";
 import ToggleButton from "../layout/ToggleButton";
 import "./Spammer.scss";
@@ -29,11 +27,18 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
     private static _isAvailable: boolean = false;
 
     /**
+     * Service for plugin requests.
+     */
+    private readonly _pluginService: PluginService;
+
+    /**
      * Create a new instance of Spammer.
      * @param props The props.
      */
     constructor(props: unknown) {
         super(props);
+
+        this._pluginService = ServiceFactory.get<PluginService>("plugin");
 
         this.state = {
             isRunning: false,
@@ -78,26 +83,6 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                 settings: <Spammer />
             };
         }
-    }
-
-    /**
-     * Build authentication headers.
-     * @returns The authentication headers.
-     */
-    private static buildAuthHeaders(): Record<string, string> {
-        const authService = ServiceFactory.get<AuthService>("auth");
-
-        const headers: Record<string, string> = {};
-        const jwt = authService.isLoggedIn();
-        if (jwt) {
-            headers.Authorization = `Bearer ${jwt}`;
-        }
-        const csrf = authService.csrf();
-        if (csrf) {
-            headers["X-CSRF-Token"] = csrf;
-        }
-
-        return headers;
     }
 
     /**
@@ -201,26 +186,51 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
      */
     private async pluginStatus(): Promise<void> {
         try {
-            const response = await FetchHelper.json<unknown, ISpammerSettings>(
-                    `${window.location.protocol}//${window.location.host}`,
-                    "/dashboard/api/spammer/v1/status",
-                    "get",
-                    undefined,
-                    Spammer.buildAuthHeaders()
-                );
+            const response = await this._pluginService.spammerStatus();
 
-            if (!response?.error) {
+            if (response && !response.error) {
                 this.setState({
-                    isRunning: response.running,
-                    bps: response.bpsRateLimit.toString(),
-                    cpu: (response.cpuMaxUsage * 100).toString(),
-                    workers: response.spammerWorkers.toString(),
-                    workersMax: response.spammerWorkersMax,
-                    valueSpamEnabled: response.valueSpamEnabled
+                    isRunning: response.running ?? false,
+                    bps: response.bpsRateLimit?.toString() ?? "",
+                    cpu: (response.cpuMaxUsage ?? 0 * 100).toString(),
+                    workers: response.spammerWorkers?.toString() ?? "",
+                    workersMax: response.spammerWorkersMax ?? 0,
+                    valueSpamEnabled: response.valueSpamEnabled ?? false
                 });
             } else {
-                console.log("loging eror", response.error);
+                console.log("Error fetching spammer status", response?.error);
             }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    /**
+     * Start the plugin.
+     */
+    private async pluginStart(): Promise<void> {
+        try {
+            await this._pluginService.spammerStart({
+                bpsRateLimit: Number.parseFloat(this.state.bps),
+                cpuMaxUsage: Number.parseFloat(this.state.cpu) / 100,
+                spammerWorkers: Number.parseInt(this.state.workers, 10),
+                valueSpamEnabled: this.state.valueSpamEnabled
+            });
+
+            await this.pluginStatus();
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    /**
+     * Stop the plugin.
+     */
+    private async pluginStop(): Promise<void> {
+        try {
+            await this._pluginService.spammerStop();
+
+            await this.pluginStatus();
         } catch (err) {
             console.log(err);
         }
@@ -229,7 +239,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
     /**
      * Validate the settings for the plugin.
      */
-    private validateSettings(): void {
+     private validateSettings(): void {
         const bps = Number.parseFloat(this.state.bps);
         if (Number.isNaN(bps)) {
             this.setState({ bps: "1" });
@@ -247,47 +257,6 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
             this.setState({ workers: this.state.workersMax.toString() });
         } else if (numWorkers <= 0 || numWorkers > this.state.workersMax) {
             this.setState({ workers: this.state.workersMax.toString() });
-        }
-    }
-
-    /**
-     * Start the plugin.
-     */
-    private async pluginStart(): Promise<void> {
-        try {
-            await FetchHelper.json<unknown, ISpammerSettings>(
-                `${window.location.protocol}//${window.location.host}`,
-                "/dashboard/api/spammer/v1/start",
-                "post",
-                {
-                    bpsRateLimit: Number.parseFloat(this.state.bps),
-                    cpuMaxUsage: Number.parseFloat(this.state.cpu) / 100,
-                    spammerWorkers: Number.parseInt(this.state.workers, 10),
-                    valueSpamEnabled: this.state.valueSpamEnabled
-                },
-                Spammer.buildAuthHeaders());
-
-            await this.pluginStatus();
-        } catch (err) {
-            console.log(err);
-        }
-    }
-
-    /**
-     * Stop the plugin.
-     */
-    private async pluginStop(): Promise<void> {
-        try {
-            await FetchHelper.json<unknown, ISpammerSettings>(
-                `${window.location.protocol}//${window.location.host}`,
-                "/dashboard/api/spammer/v1/stop",
-                "post",
-                undefined,
-                Spammer.buildAuthHeaders());
-
-            await this.pluginStatus();
-        } catch (err) {
-            console.log(err);
         }
     }
 }

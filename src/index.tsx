@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./app/App";
 import Participation from "./app/components/plugins/Participation";
+import Poi from "./app/components/plugins/ProofOfInclusion";
 import Spammer from "./app/components/plugins/Spammer";
 import { ServiceFactory } from "./factories/serviceFactory";
 import "./index.scss";
@@ -13,6 +14,7 @@ import { EventAggregator } from "./services/eventAggregator";
 import { LocalStorageService } from "./services/localStorageService";
 import { MetricsService } from "./services/metricsService";
 import { NodeConfigService } from "./services/nodeConfigService";
+import { PluginService } from "./services/pluginService";
 import { SessionStorageService } from "./services/sessionStorageService";
 import { SettingsService } from "./services/settingsService";
 import { TangleService } from "./services/tangleService";
@@ -55,6 +57,7 @@ async function initServices(): Promise<IBrandConfiguration | undefined> {
     const webSocketService = new WebSocketService();
     ServiceFactory.register("web-socket", () => webSocketService);
     ServiceFactory.register("tangle", () => new TangleService());
+    ServiceFactory.register("plugin", () => new PluginService());
 
     const themeService = new ThemeService();
     themeService.initialize();
@@ -85,6 +88,7 @@ async function initServices(): Promise<IBrandConfiguration | undefined> {
 
     await Spammer.initPlugin();
     await Participation.initPlugin();
+    await Poi.initPlugin();
 
     settingsService.initialize();
 

@@ -1,11 +1,8 @@
 import classNames from "classnames";
 import React, { ReactNode } from "react";
 import { ServiceFactory } from "../../../factories/serviceFactory";
-import { IParticipationEvent } from "../../../models/plugins/participation/IParticipationEvent";
 import { IParticipationEventInfo } from "../../../models/plugins/participation/IParticipationEventInfo";
-import { IParticipationEvents } from "../../../models/plugins/participation/IParticipationEvents";
-import { IParticipationEventStatus } from "../../../models/plugins/participation/IParticipationEventStatus";
-import { AuthService } from "../../../services/authService";
+import { PluginService } from "../../../services/pluginService";
 import { TangleService } from "../../../services/tangleService";
 import { FetchHelper } from "../../../utils/fetchHelper";
 import AsyncComponent from "../../components/layout/AsyncComponent";
@@ -36,11 +33,18 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
     private static _isAvailable: boolean = false;
 
     /**
+     * Service for plugin requests.
+     */
+    private readonly _pluginService: PluginService;
+
+    /**
      * Create a new instance of Participation.
      * @param props The props.
      */
     constructor(props: unknown) {
         super(props);
+
+        this._pluginService = ServiceFactory.get<PluginService>("plugin");
 
         this.state = {
             events: {},
@@ -82,26 +86,6 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                 settings: <Participation />
             };
         }
-    }
-
-    /**
-     * Build authentication headers.
-     * @returns The authentication headers.
-     */
-    private static buildAuthHeaders(): Record<string, string> {
-        const authService = ServiceFactory.get<AuthService>("auth");
-
-        const headers: Record<string, string> = {};
-        const jwt = authService.isLoggedIn();
-        if (jwt) {
-            headers.Authorization = `Bearer ${jwt}`;
-        }
-        const csrf = authService.csrf();
-        if (csrf) {
-            headers["X-CSRF-Token"] = csrf;
-        }
-
-        return headers;
     }
 
     /**
@@ -414,19 +398,14 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
      */
     private async fetchEvents(): Promise<void> {
         try {
-            const response = await FetchHelper.json<unknown, IParticipationEvents>(
-                `${window.location.protocol}//${window.location.host}`,
-                "/dashboard/api/participation/v1/events",
-                "get",
-                undefined,
-                Participation.buildAuthHeaders());
+            const response = await this._pluginService.fetchParticipationEvents();
 
             if (response?.eventIds) {
                 this.setState({
                     eventIds: response.eventIds
                 });
             } else {
-                console.log(response.error);
+                console.log(response?.error);
             }
         } catch (err) {
             console.log(err);
@@ -439,14 +418,9 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
      */
     private async fetchEventInfo(id: string): Promise<void> {
         try {
-            const response = await FetchHelper.json<unknown, IParticipationEventInfo>(
-                `${window.location.protocol}//${window.location.host}`,
-                `/dashboard/api/participation/v1/events/${id}`,
-                "get",
-                undefined,
-                Participation.buildAuthHeaders());
+            const response = await this._pluginService.fetchParticipationEventInfo(id);
 
-            if (!response?.error) {
+            if (response && !response?.error) {
                 this.setState(prevState => ({
                     events: {
                         ...prevState.events,
@@ -454,7 +428,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                     }
                 }));
             } else {
-                console.log(response.error);
+                console.log(response?.error);
             }
         } catch (err) {
             console.log(err);
@@ -462,17 +436,12 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
     }
 
     /**
-     *  Get the event status info as a JSON payload.
+     * Get the event status info as a JSON payload.
      * @param id Event id
      */
     private async fetchEventStatus(id: string): Promise<void> {
         try {
-            const response = await FetchHelper.json<unknown, IParticipationEventStatus>(
-                `${window.location.protocol}//${window.location.host}`,
-                `/dashboard/api/participation/v1/events/${id}/status`,
-                "get",
-                undefined,
-                Participation.buildAuthHeaders());
+            const response = await this._pluginService.fetchParticipationEventStatus(id);
 
             if (!response?.error) {
                 if (this.state.events[id]) {
@@ -523,7 +492,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
     }
 
     /**
-     *  Add new Event.
+     * Add new Event.
      * @param eventInfo JSON string that contains the event info that is to be added.
      */
     private async eventAdd(eventInfo: IParticipationEventInfo): Promise<void> {
@@ -532,14 +501,9 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
             dialogStatus: "Adding event, please wait..."
         }, async () => {
             try {
-                const response = await FetchHelper.json<unknown, IParticipationEvent>(
-                    `${window.location.protocol}//${window.location.host}`,
-                    "/dashboard/api/participation/v1/admin/events",
-                    "post",
-                    eventInfo,
-                    Participation.buildAuthHeaders());
+                const response = await this._pluginService.addParticipationEvent(eventInfo);
 
-                if (response.eventId) {
+                if (response?.eventId) {
                     const id = response.eventId;
                     this.setState(prevState => ({
                         eventIds: [
@@ -554,7 +518,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                 } else {
                     this.setState({
                         dialogBusy: false,
-                        dialogStatus: `Failed to add event: ${response.error?.message}`
+                        dialogStatus: `Failed to add event: ${response?.error?.message}`
                     });
                 }
             } catch (error) {
@@ -578,18 +542,9 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
             dialogStatus: "Deleting event, please wait..."
         }, async () => {
             try {
-                const response = await FetchHelper.json<unknown, {
-                    error?: {
-                        message: string;
-                    };
-                }>(
-                    `${window.location.protocol}//${window.location.host}`,
-                    `/dashboard/api/participation/v1/admin/events/${eventId}`,
-                    "delete",
-                    undefined,
-                    Participation.buildAuthHeaders());
+                const response = await this._pluginService.deleteParticipationEvent(eventId);
 
-                if (Object.keys(response).length === 0) {
+                if (response && Object.keys(response).length === 0) {
                     this.setState({
                         eventIds: this.state.eventIds.filter(id => id !== eventId),
                         dialogBusy: false,
@@ -599,9 +554,8 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                 } else {
                     this.setState({
                         dialogBusy: false,
-                        dialogStatus: `Failed to delete event: ${response.error?.message}`
+                        dialogStatus: "Failed to delete event."
                     });
-                    console.log(response.error);
                 }
             } catch (error) {
                 if (error instanceof Error) {

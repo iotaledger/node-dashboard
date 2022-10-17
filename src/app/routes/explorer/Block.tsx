@@ -7,6 +7,7 @@ import { ReactComponent as ChevronLeftIcon } from "../../../assets/chevron-left.
 import { ReactComponent as DownloadIcon } from "../../../assets/download.svg";
 import { ServiceFactory } from "../../../factories/serviceFactory";
 import { BlockTangleStatus } from "../../../models/blockTangleStatus";
+import { PluginService } from "../../../services/pluginService";
 import { TangleService } from "../../../services/tangleService";
 import { ClipboardHelper } from "../../../utils/clipboardHelper";
 import { DownloadHelper } from "../../../utils/downloadHelper";
@@ -32,6 +33,11 @@ class Block extends AsyncComponent<RouteComponentProps<BlockProps>, BlockState> 
     private readonly _tangleService: TangleService;
 
     /**
+     * Service for tangle requests.
+     */
+    private readonly _pluginService: PluginService;
+
+    /**
      * Timer to check to state update.
      */
     private _timerId?: NodeJS.Timer;
@@ -44,6 +50,7 @@ class Block extends AsyncComponent<RouteComponentProps<BlockProps>, BlockState> 
         super(props);
 
         this._tangleService = ServiceFactory.get<TangleService>("tangle");
+        this._pluginService = ServiceFactory.get<PluginService>("plugin");
 
         this.state = {
             dataUrls: {},
@@ -273,6 +280,18 @@ class Block extends AsyncComponent<RouteComponentProps<BlockProps>, BlockState> 
                                 <DownloadIcon />
                             </a>
                         </div>
+                        <div className="card--label">
+                            Export Poi
+                        </div>
+                        <div className="card--value row">
+                            <button
+                                type="button"
+                                className="card--action card--action-plain"
+                                onClick={async () => this.dowloadPoi()}
+                            >
+                                <DownloadIcon />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -336,6 +355,24 @@ class Block extends AsyncComponent<RouteComponentProps<BlockProps>, BlockState> 
         }
 
         return conflictReason;
+    }
+
+    /**
+     * Download poi for the block.
+     */
+    private async dowloadPoi(): Promise<void> {
+        try {
+            const response = await this._pluginService.fetchPoi(this.props.match.params.blockId);
+            if (response) {
+                const url = DownloadHelper.createJsonDataUrl(response);
+                const filename = DownloadHelper.filename(
+                    this.props.match.params.blockId, "json");
+
+                DownloadHelper.downloadFile(url, filename);
+            }
+        } catch (err) {
+            console.log(err);
+        }
     }
 }
 
