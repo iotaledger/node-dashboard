@@ -7,6 +7,7 @@
   flex: 1;
   flex-direction: row;
   height: 100px;
+  width: 345px;
 
   @include phone-down {
     height: 80px;
@@ -15,7 +16,6 @@
   .info--labels {
     flex: 1;
     justify-content: center;
-    overflow: hidden;
   }
 
   .value {
@@ -31,6 +31,10 @@
 
     .value--small {
       @include font-size(14px);
+    }
+
+    .lmi {
+      font-size: 14px;
     }
 
     @include desktop-down {
