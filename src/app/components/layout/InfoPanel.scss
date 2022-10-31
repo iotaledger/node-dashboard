@@ -39,6 +39,14 @@
       @include desktop-down {
         @include font-size(18px);
       }
+
+      @include tablet-down {
+        @include font-size(17px);
+      }
+  
+      @include phone-down {
+        @include font-size(16px);
+      }
     }
 
     @include desktop-down {
