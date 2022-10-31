@@ -35,6 +35,10 @@
 
     .lmi {
       font-size: 14px;
+
+      @include desktop-down {
+        @include font-size(18px);
+      }
     }
 
     @include desktop-down {
