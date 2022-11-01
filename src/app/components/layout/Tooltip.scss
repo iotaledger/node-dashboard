@@ -1,0 +1,69 @@
+@import '../../../scss/fonts';
+@import '../../../scss/media-queries';
+
+.tooltip {
+    position: relative;
+    display: flex;
+
+    .tooltip__wrapper {
+        visibility: hidden;
+        position: absolute;
+        top: 100%;
+        margin-top: 10px;
+        margin-left: 20px;
+        padding: 12px;
+        border-radius: 0.25rem;
+        background: var(--tooltip-background);
+        white-space: nowrap;
+        color: var(--tooltip-text);
+        z-index: 1;
+        opacity: 0;
+        transition: all 250ms;
+        right: 0;
+        width: 300px;
+        text-align: center;
+        white-space: break-spaces;
+        font-family: $font-sans;
+        word-break: keep-all;
+
+        .tooltip__arrow {
+            background: var(--tooltip-background);
+            width: 12px;
+            height: 12px;
+            position: absolute;
+            top: -6px;
+            right: 150px;
+            transform: rotate(45deg);
+        }
+
+        @include desktop-down {
+            display: none;
+        }
+
+        @include tablet-down {
+            display: none;
+        }
+      
+        @include phone-down {
+            display: none;
+        }
+    }
+
+    .tooltip__children {
+        white-space: nowrap;
+        font-weight: 600;
+        cursor: pointer;
+
+        @include desktop-down {
+            cursor: text;
+        }
+
+        @include tablet-down {
+            cursor: text;
+        }
+      
+        @include phone-down {
+            cursor: text;
+        }
+    }
+}

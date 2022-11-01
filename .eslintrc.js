@@ -118,7 +118,8 @@ module.exports = {
                 "selector": "variable",
                 "format": [
                     "camelCase",
-                    "UPPER_CASE"
+                    "UPPER_CASE",
+                    "PascalCase"
                 ]
             }
         ],
@@ -1115,7 +1116,8 @@ module.exports = {
             2
         ],
         "react/function-component-definition": [
-            2
+            2,
+            { "namedComponents": ["function-declaration", "arrow-function"] }
         ],
         "react/jsx-boolean-value": [
             "off"
