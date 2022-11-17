@@ -1,3 +1,4 @@
+import moment from "moment";
 import React, { ReactNode } from "react";
 import { Redirect, Route, RouteComponentProps, Switch, withRouter } from "react-router-dom";
 import { ReactComponent as ExplorerIcon } from "../assets/explorer.svg";
@@ -16,6 +17,7 @@ import { ISyncStatus } from "../models/websocket/ISyncStatus";
 import { WebSocketTopic } from "../models/websocket/webSocketTopic";
 import { AuthService } from "../services/authService";
 import { EventAggregator } from "../services/eventAggregator";
+import { LocalStorageService } from "../services/localStorageService";
 import { MetricsService } from "../services/metricsService";
 import { ThemeService } from "../services/themeService";
 import { BrandHelper } from "../utils/brandHelper";
@@ -50,6 +52,11 @@ import Unavailable from "./routes/Unavailable";
 import Visualizer from "./routes/Visualizer";
 
 /**
+ * Milliseconds in a minute
+ */
+const MilliSecondsInOneMinute = 60000;
+
+/**
  * Main application class.
  */
 class App extends AsyncComponent<RouteComponentProps, AppState> {
@@ -62,6 +69,11 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
      * The auth service.
      */
     private readonly _authService: AuthService;
+
+    /**
+     * The storage service.
+     */
+    private readonly _storageService: LocalStorageService;
 
     /**
      * The metrics service.
@@ -109,6 +121,11 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
     private _statusTimer?: NodeJS.Timer;
 
     /**
+     * The token expiry timer.
+     */
+    private _tokenExpiryTimer?: NodeJS.Timer;
+
+    /**
      * Create a new instance of App.
      * @param props The props.
      */
@@ -117,6 +134,8 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
         this._themeService = ServiceFactory.get<ThemeService>("theme");
         this._authService = ServiceFactory.get<AuthService>("auth");
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
+        this._storageService = ServiceFactory.get<LocalStorageService>("local-storage");
+
         this._lastStatus = 0;
 
         this.state = {
@@ -139,6 +158,10 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
         EventAggregator.subscribe("auth-state", "app", isLoggedIn => {
             this.setState({
                 isLoggedIn
+            }, () => {
+                if (this.state.isLoggedIn) {
+                    this.validateTokenPeriodically();
+                }
             });
         });
 
@@ -228,6 +251,11 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
         if (this._statusTimer !== undefined) {
             clearInterval(this._statusTimer);
             this._statusTimer = undefined;
+        }
+
+        if (this._tokenExpiryTimer !== undefined) {
+            clearInterval(this._tokenExpiryTimer);
+            this._tokenExpiryTimer = undefined;
         }
     }
 
@@ -442,6 +470,41 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
         }
 
         document.title = title;
+    }
+
+    /**
+     * Refresh the token one minute before it expires.
+     */
+    private validateTokenPeriodically() {
+        if (this._tokenExpiryTimer !== undefined) {
+            clearInterval(this._tokenExpiryTimer);
+            this._tokenExpiryTimer = undefined;
+        }
+        const jwt = this._storageService.load<string>("dashboard-jwt");
+        const decodedJwt = this.decodeToken(jwt);
+        const expiryTime = decodedJwt.exp * 1000;
+
+        this._tokenExpiryTimer = setInterval(async () => {
+            if (expiryTime < moment().valueOf()) {
+                this._authService.logout();
+                clearInterval(this._tokenExpiryTimer);
+                this._tokenExpiryTimer = undefined;
+            } else if (expiryTime < (moment().valueOf() + MilliSecondsInOneMinute)) {
+                await this._authService.initialize();
+            }
+        }, 5000);
+    }
+
+    /**
+     * Decode jwt to get expiry time.
+     * @param token The jwt.
+     * @returns The decoded jwt.
+     */
+    private decodeToken(token: string) {
+        const payload = token.split(".")[1];
+        const decodedJwt = window.atob(payload);
+
+        return JSON.parse(decodedJwt);
     }
 }
 
