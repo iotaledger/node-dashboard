@@ -481,8 +481,7 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
             this._tokenExpiryTimer = undefined;
         }
         const jwt = this._storageService.load<string>("dashboard-jwt");
-        const decodedJwt = this.decodeToken(jwt);
-        const expiryTime = decodedJwt.exp * 1000;
+        const expiryTime = this.getTokenExpiry(jwt);
 
         this._tokenExpiryTimer = setInterval(async () => {
             if (expiryTime < moment().valueOf()) {
@@ -498,13 +497,15 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
     /**
      * Decode jwt to get expiry time.
      * @param token The jwt.
-     * @returns The decoded jwt.
+     * @returns The expiry time.
      */
-    private decodeToken(token: string) {
+    private getTokenExpiry(token: string) {
         const payload = token.split(".")[1];
-        const decodedJwt = window.atob(payload);
+        const decodedToken = window.atob(payload);
+        const parsedToken = JSON.parse(decodedToken);
+        const expiryTime = parsedToken.exp * 1000;
 
-        return JSON.parse(decodedJwt);
+        return expiryTime;
     }
 }
 
