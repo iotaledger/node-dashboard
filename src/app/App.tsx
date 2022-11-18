@@ -52,11 +52,6 @@ import Unavailable from "./routes/Unavailable";
 import Visualizer from "./routes/Visualizer";
 
 /**
- * Milliseconds in a minute
- */
-const MILLI_SECONDS_IN_ONE_MINUTE = 60000;
-
-/**
  * Main application class.
  */
 class App extends AsyncComponent<RouteComponentProps, AppState> {
@@ -476,12 +471,15 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
         this.clearTokenExpiryInterval();
         const jwt = this._storageService.load<string>("dashboard-jwt");
         const expiryTimestamp = this.getTokenExpiry(jwt);
+        const expiryDate = moment(expiryTimestamp);
+        const refreshTokenDate = moment(expiryDate).subtract(1, "minutes");
 
         this._tokenExpiryTimer = setInterval(async () => {
-            if (moment(expiryTimestamp).isBefore(moment())) {
+            const now = moment();
+            if (now.isAfter(expiryDate)) {
                 this._authService.logout();
                 this.clearTokenExpiryInterval();
-            } else if (moment(expiryTimestamp).isBefore(moment().valueOf() + MILLI_SECONDS_IN_ONE_MINUTE)) {
+            } else if (now.isBetween(refreshTokenDate, expiryDate)) {
                 await this._authService.initialize();
             }
         }, 5000);
