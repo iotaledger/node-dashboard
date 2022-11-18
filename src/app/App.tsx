@@ -54,7 +54,7 @@ import Visualizer from "./routes/Visualizer";
 /**
  * Milliseconds in a minute
  */
-const MilliSecondsInOneMinute = 60000;
+const MILLI_SECONDS_IN_ONE_MINUTE = 60000;
 
 /**
  * Main application class.
@@ -253,10 +253,7 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
             this._statusTimer = undefined;
         }
 
-        if (this._tokenExpiryTimer !== undefined) {
-            clearInterval(this._tokenExpiryTimer);
-            this._tokenExpiryTimer = undefined;
-        }
+        this.clearTokenExpiryInterval();
     }
 
     /**
@@ -476,19 +473,15 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
      * Refresh the token one minute before it expires.
      */
     private validateTokenPeriodically() {
-        if (this._tokenExpiryTimer !== undefined) {
-            clearInterval(this._tokenExpiryTimer);
-            this._tokenExpiryTimer = undefined;
-        }
+        this.clearTokenExpiryInterval();
         const jwt = this._storageService.load<string>("dashboard-jwt");
-        const expiryTime = this.getTokenExpiry(jwt);
+        const expiryTimestamp = this.getTokenExpiry(jwt);
 
         this._tokenExpiryTimer = setInterval(async () => {
-            if (expiryTime < moment().valueOf()) {
+            if (moment(expiryTimestamp).isBefore(moment())) {
                 this._authService.logout();
-                clearInterval(this._tokenExpiryTimer);
-                this._tokenExpiryTimer = undefined;
-            } else if (expiryTime < (moment().valueOf() + MilliSecondsInOneMinute)) {
+                this.clearTokenExpiryInterval();
+            } else if (moment(expiryTimestamp).isBefore(moment().valueOf() + MILLI_SECONDS_IN_ONE_MINUTE)) {
                 await this._authService.initialize();
             }
         }, 5000);
@@ -503,9 +496,19 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
         const payload = token.split(".")[1];
         const decodedToken = window.atob(payload);
         const parsedToken = JSON.parse(decodedToken);
-        const expiryTime = parsedToken.exp * 1000;
+        const expiryTimestamp = parsedToken.exp * 1000;
 
-        return expiryTime;
+        return expiryTimestamp;
+    }
+
+    /**
+     * Clear token expiry interval.
+     */
+    private clearTokenExpiryInterval() {
+        if (this._tokenExpiryTimer !== undefined) {
+            clearInterval(this._tokenExpiryTimer);
+            this._tokenExpiryTimer = undefined;
+        }
     }
 }
 
