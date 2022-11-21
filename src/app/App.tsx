@@ -1,3 +1,4 @@
+import moment from "moment";
 import React, { ReactNode } from "react";
 import { Redirect, Route, RouteComponentProps, Switch, withRouter } from "react-router-dom";
 import { ReactComponent as ExplorerIcon } from "../assets/explorer.svg";
@@ -16,6 +17,7 @@ import { ISyncStatus } from "../models/websocket/ISyncStatus";
 import { WebSocketTopic } from "../models/websocket/webSocketTopic";
 import { AuthService } from "../services/authService";
 import { EventAggregator } from "../services/eventAggregator";
+import { LocalStorageService } from "../services/localStorageService";
 import { MetricsService } from "../services/metricsService";
 import { ThemeService } from "../services/themeService";
 import { BrandHelper } from "../utils/brandHelper";
@@ -64,6 +66,11 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
     private readonly _authService: AuthService;
 
     /**
+     * The storage service.
+     */
+    private readonly _storageService: LocalStorageService;
+
+    /**
      * The metrics service.
      */
     private readonly _metricsService: MetricsService;
@@ -109,6 +116,11 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
     private _statusTimer?: NodeJS.Timer;
 
     /**
+     * The token expiry timer.
+     */
+    private _tokenExpiryTimer?: NodeJS.Timer;
+
+    /**
      * Create a new instance of App.
      * @param props The props.
      */
@@ -117,6 +129,8 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
         this._themeService = ServiceFactory.get<ThemeService>("theme");
         this._authService = ServiceFactory.get<AuthService>("auth");
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
+        this._storageService = ServiceFactory.get<LocalStorageService>("local-storage");
+
         this._lastStatus = 0;
 
         this.state = {
@@ -139,6 +153,10 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
         EventAggregator.subscribe("auth-state", "app", isLoggedIn => {
             this.setState({
                 isLoggedIn
+            }, () => {
+                if (this.state.isLoggedIn) {
+                    this.validateTokenPeriodically();
+                }
             });
         });
 
@@ -229,6 +247,8 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
             clearInterval(this._statusTimer);
             this._statusTimer = undefined;
         }
+
+        this.clearTokenExpiryInterval();
     }
 
     /**
@@ -442,6 +462,51 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
         }
 
         document.title = title;
+    }
+
+    /**
+     * Refresh the token one minute before it expires.
+     */
+    private validateTokenPeriodically() {
+        this.clearTokenExpiryInterval();
+        const jwt = this._storageService.load<string>("dashboard-jwt");
+        const expiryTimestamp = this.getTokenExpiry(jwt);
+        const expiryDate = moment(expiryTimestamp);
+        const refreshTokenDate = moment(expiryDate).subtract(1, "minutes");
+
+        this._tokenExpiryTimer = setInterval(async () => {
+            const now = moment();
+            if (now.isAfter(expiryDate)) {
+                this._authService.logout();
+                this.clearTokenExpiryInterval();
+            } else if (now.isBetween(refreshTokenDate, expiryDate)) {
+                await this._authService.initialize();
+            }
+        }, 5000);
+    }
+
+    /**
+     * Decode jwt to get expiry time.
+     * @param token The jwt.
+     * @returns The expiry time.
+     */
+    private getTokenExpiry(token: string) {
+        const payload = token.split(".")[1];
+        const decodedToken = window.atob(payload);
+        const parsedToken = JSON.parse(decodedToken);
+        const expiryTimestamp = parsedToken.exp * 1000;
+
+        return expiryTimestamp;
+    }
+
+    /**
+     * Clear token expiry interval.
+     */
+    private clearTokenExpiryInterval() {
+        if (this._tokenExpiryTimer !== undefined) {
+            clearInterval(this._tokenExpiryTimer);
+            this._tokenExpiryTimer = undefined;
+        }
     }
 }
 
