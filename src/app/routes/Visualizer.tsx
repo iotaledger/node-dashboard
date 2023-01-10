@@ -522,7 +522,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                 for (let i = 0; i < vertex.parents.length; i++) {
                     const parent = vertex.parents[i];
                     if (!added.includes(parent) &&
-                        (!node.links || !node.links.some(link => link.toId === parent))) {
+                        (!node.links?.some(link => link.toId === parent))) {
                         added.push(parent);
                         this._graph.addLink(vertex.shortId, parent);
                     }
@@ -558,7 +558,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      * @returns The state.
      */
     private calculateState(vertex?: IVisualizerVertex): string {
-        if (!vertex || !vertex.parents) {
+        if (!vertex?.parents) {
             return "Unknown";
         }
         if (vertex.isMilestone) {
@@ -588,7 +588,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      * @returns The size.
      */
     private calculateSize(vertex?: IVisualizerVertex): number {
-        if (!vertex || !vertex.parents) {
+        if (!vertex?.parents) {
             return 10;
         }
         if (vertex.isSelected || vertex.isMilestone) {
@@ -636,7 +636,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                     nodeId => {
                         if (this._graph) {
                             const parent = this._graph.getNode(nodeId);
-                            if (!parent || !parent.data) {
+                            if (!parent?.data) {
                                 return true;
                             }
 
