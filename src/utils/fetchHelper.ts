@@ -20,7 +20,7 @@ export class FetchHelper {
         headers?: { [id: string]: string },
         timeout?: number
     ): Promise<U> {
-        headers = headers ?? {};
+        headers ??= {};
         headers["Content-Type"] = "application/json";
 
         let controller: AbortController | undefined;
@@ -85,7 +85,7 @@ export class FetchHelper {
         headers?: { [id: string]: string },
         timeout?: number
     ): Promise<U> {
-        headers = headers ?? {};
+        headers ??= {};
         headers["Content-Type"] = "text/plain";
 
         let controller: AbortController | undefined;
