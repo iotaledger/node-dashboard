@@ -790,7 +790,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      */
     private calculateMessageLink(vertex?: IVisualizerVertex): string {
         return vertex?.fullId
-            ? `${window.location.protocol}//${window.location.host}/explorer/message/${vertex.fullId}`
+            ? `${window.location.protocol}//${window.location.host}/dashboard/explorer/message/${vertex.fullId}`
             : "";
     }
 
@@ -800,7 +800,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      * @returns The url for the index.
      */
     private calculateIndexedLink(index: string): string {
-        return `${window.location.protocol}//${window.location.host}/explorer/indexed/${index}`;
+        return `${window.location.protocol}//${window.location.host}/dashboard/explorer/indexed/${index}`;
     }
 
     /**

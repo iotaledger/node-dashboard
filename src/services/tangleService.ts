@@ -307,7 +307,7 @@ export class TangleService {
         return new SingleNodeClient(
             `${window.location.protocol}//${window.location.host}`,
             {
-                basePath: "/api/v1/",
+                basePath: "/dashboard/api/v1/",
                 headers
             });
     }

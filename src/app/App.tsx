@@ -192,7 +192,7 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
             });
 
         this._statusTimer = setInterval(() => {
-            if (Date.now() - this._lastStatus > 10000 && this.state.online) {
+            if (Date.now() - this._lastStatus > 30000 && this.state.online) {
                 this.setState({
                     online: false
                 });

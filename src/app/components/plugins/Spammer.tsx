@@ -60,7 +60,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                     };
                 }>(
                     `${window.location.protocol}//${window.location.host}`,
-                    "/api/plugins/spammer/status",
+                    "/dashboard/api/plugins/spammer/status",
                     "get",
                     undefined,
                     authHeaders);
@@ -212,7 +212,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                 };
             }>(
                 `${window.location.protocol}//${window.location.host}`,
-                "/api/plugins/spammer/status",
+                "/dashboard/api/plugins/spammer/status",
                 "get",
                 undefined,
                 Spammer.buildAuthHeaders());
@@ -269,7 +269,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                 };
             }>(
                 `${window.location.protocol}//${window.location.host}`,
-                "/api/plugins/spammer/start",
+                "/dashboard/api/plugins/spammer/start",
                 "post",
                 {
                     mpsRateLimit: Number.parseFloat(this.state.mps),
@@ -296,7 +296,7 @@ class Spammer extends AsyncComponent<unknown, SpammerState> {
                 };
             }>(
                 `${window.location.protocol}//${window.location.host}`,
-                "/api/plugins/spammer/stop",
+                "/dashboard/api/plugins/spammer/stop",
                 "post",
                 undefined,
                 Spammer.buildAuthHeaders());

@@ -420,7 +420,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                 };
             }>(
                 `${window.location.protocol}//${window.location.host}`,
-                "/api/plugins/participation/events",
+                "/dashboard/api/plugins/participation/events",
                 "get",
                 undefined,
                 Participation.buildAuthHeaders());
@@ -450,7 +450,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                 };
             }>(
                 `${window.location.protocol}//${window.location.host}`,
-                `/api/plugins/participation/events/${id}`,
+                `/dashboard/api/plugins/participation/events/${id}`,
                 "get",
                 undefined,
                 Participation.buildAuthHeaders());
@@ -483,7 +483,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                 };
             }>(
                 `${window.location.protocol}//${window.location.host}`,
-                `/api/plugins/participation/events/${id}/status`,
+                `/dashboard/api/plugins/participation/events/${id}/status`,
                 "get",
                 undefined,
                 Participation.buildAuthHeaders());
@@ -551,7 +551,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                     };
                 }>(
                     `${window.location.protocol}//${window.location.host}`,
-                    "/api/plugins/participation/admin/events",
+                    "/dashboard/api/plugins/participation/admin/events",
                     "post",
                     eventInfo,
                     Participation.buildAuthHeaders());
@@ -599,7 +599,7 @@ class Participation extends AsyncComponent<unknown, ParticipationState> {
                     };
                 }>(
                     `${window.location.protocol}//${window.location.host}`,
-                    `/api/plugins/participation/admin/events/${eventId}`,
+                    `/dashboard/api/plugins/participation/admin/events/${eventId}`,
                     "delete",
                     undefined,
                     Participation.buildAuthHeaders());

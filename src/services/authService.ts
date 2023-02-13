@@ -77,7 +77,7 @@ export class AuthService {
                 jwt?: string;
             }>(
                 `${window.location.protocol}//${window.location.host}`,
-                "/auth",
+                "/dashboard/auth",
                 "post",
                 {
                     user,
