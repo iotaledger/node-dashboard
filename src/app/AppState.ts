@@ -16,12 +16,12 @@ export interface AppState {
     online: boolean;
 
     /**
-     * The sync health.
-     */
-    syncHealth: boolean;
-
-    /**
      * The node health.
      */
-    nodeHealth: boolean;
+    isNodeHealthy: boolean;
+
+    /**
+     * The network health.
+     */
+    isNetworkHealthy: boolean;
 }

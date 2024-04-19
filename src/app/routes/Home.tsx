@@ -1,14 +1,16 @@
 import React, { ReactNode } from "react";
 import { ReactComponent as BannerCurve } from "../../assets/banner-curve.svg";
+import { ReactComponent as ConfirmationIcon } from "../../assets/confirmation.svg";
 import { ReactComponent as DbIcon } from "../../assets/db-icon.svg";
 import { ReactComponent as MemoryIcon } from "../../assets/memory.svg";
 import { ReactComponent as MilestoneIcon } from "../../assets/milestone.svg";
 import { ReactComponent as PruningIcon } from "../../assets/pruning.svg";
 import { ReactComponent as UptimeIcon } from "../../assets/uptime.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
-import { IBpsMetrics } from "../../models/websocket/IBpsMetrics";
-import { IDBSizeMetric } from "../../models/websocket/IDBSizeMetric";
-import { INodeStatus } from "../../models/websocket/INodeStatus";
+import { INetworkMetrics } from "../../models/info/INetworkMetrics";
+import { IDatabaseSizesMetrics } from "../../models/websocket/IDatabaseSizesMetrics";
+import { IGossipMetrics } from "../../models/websocket/IGossipMetrics";
+import { INodeInfoExtended } from "../../models/websocket/INodeInfoExtended";
 import { IPublicNodeStatus } from "../../models/websocket/IPublicNodeStatus";
 import { ISyncStatus } from "../../models/websocket/ISyncStatus";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
@@ -46,9 +48,9 @@ class Home extends AsyncComponent<unknown, HomeState> {
     private readonly _settingsService: SettingsService;
 
     /**
-     * The status subscription id.
+     * The node info extended subscription id.
      */
-    private _nodeStatusSubscription?: string;
+    private _nodeInfoExtendedSubscription?: string;
 
     /**
      * The public node status subscription id.
@@ -61,9 +63,14 @@ class Home extends AsyncComponent<unknown, HomeState> {
     private _syncStatusSubscription?: string;
 
     /**
-     * The bps metrics subscription id.
+     * The network metrics subscription id.
      */
-    private _bpsMetricsSubscription?: string;
+    private _networkMetricsSubscription?: string;
+
+    /**
+     * The gossip metrics subscription id.
+     */
+    private _gossipMetricsSubscription?: string;
 
     /**
      * The database size metrics subscription id.
@@ -94,12 +101,17 @@ class Home extends AsyncComponent<unknown, HomeState> {
             nodeId: "",
             displayVersion: "",
             displayLatestVersion: "",
-            lmi: "-",
-            cmi: "-",
-            pruningIndex: "-",
+            latestCommitmentSlot: "-",
+            latestFinalizedSlot: "-",
+            pruningEpoch: "-",
+            bps: "-",
+            rbps: "-",
+            referencedRate: "-",
             memory: "-",
-            dbLedgerSizeFormatted: "-",
-            dbTangleSizeFormatted: "-",
+            dbSizePermanentFormatted: "-",
+            dbSizePrunableFormatted: "-",
+            dbSizeTxRetainerFormatted: "-",
+            dbSizeTotalFormatted: "-",
             uptime: "-",
             lastReceivedBpsTime: 0,
             bpsIncoming: [],
@@ -129,22 +141,22 @@ class Home extends AsyncComponent<unknown, HomeState> {
             WebSocketTopic.PublicNodeStatus,
             data => {
                 if (data) {
-                    const pruningIndex = data.pruningIndex.toString();
+                    const pruningEpoch = data.pruningEpoch.toString();
 
-                    if (pruningIndex !== this.state.pruningIndex) {
-                        this.setState({ pruningIndex });
+                    if (pruningEpoch !== this.state.pruningEpoch) {
+                        this.setState({ pruningEpoch });
                     }
                 }
             });
 
-        this._nodeStatusSubscription = this._metricsService.subscribe<INodeStatus>(
-            WebSocketTopic.NodeStatus,
+        this._nodeInfoExtendedSubscription = this._metricsService.subscribe<INodeInfoExtended>(
+            WebSocketTopic.NodeInfoExtended,
             data => {
                 if (data) {
                     const nodeName = data.nodeAlias ?? BrandHelper.getConfiguration().name;
                     const nodeId = data.nodeId || "No node Id.";
                     const uptime = FormatHelper.duration(data.uptime);
-                    const memory = FormatHelper.iSize(data.memUsage);
+                    const memory = FormatHelper.iSize(data.memoryUsage);
 
                     if (nodeName !== this.state.nodeName) {
                         this.setState({ nodeName });
@@ -170,21 +182,51 @@ class Home extends AsyncComponent<unknown, HomeState> {
             WebSocketTopic.SyncStatus,
             data => {
                 if (data) {
-                    const lmi = data.lmi ? data.lmi.toString() : "";
-                    const cmi = data.cmi ? data.cmi.toString() : "";
+                    const latestFinalizedSlot = data.latestFinalizedSlot ? data.latestFinalizedSlot.toString() : "";
+                    const latestCommitmentSlot = data.latestCommitmentSlot ? data.latestCommitmentSlot.toString() : "";
 
-                    if (lmi !== this.state.lmi) {
-                        this.setState({ lmi });
+                    if (latestFinalizedSlot !== this.state.latestFinalizedSlot) {
+                        this.setState({ latestFinalizedSlot });
                     }
 
-                    if (cmi !== this.state.cmi) {
-                        this.setState({ cmi });
+                    if (latestCommitmentSlot !== this.state.latestCommitmentSlot) {
+                        this.setState({ latestCommitmentSlot });
                     }
                 }
             });
 
-        this._bpsMetricsSubscription = this._metricsService.subscribe<IBpsMetrics>(
-            WebSocketTopic.BPSMetrics,
+        this._networkMetricsSubscription = this._metricsService.subscribe<INetworkMetrics>(
+            WebSocketTopic.NetworkMetrics,
+            data => {
+                if (data) {
+                    let bps = "-";
+                    let rbps = "-";
+                    let referencedRate = "-";
+
+                    if (data.blocksPerSecond) {
+                        bps = Number.parseFloat(data.blocksPerSecond).toFixed(1)
+.toString();
+                    }
+                    if (data.confirmedBlocksPerSecond) {
+                        rbps = Number.parseFloat(data.confirmedBlocksPerSecond).toFixed(1)
+.toString();
+                    }
+                    if (data.confirmationRate) {
+                        referencedRate = `${Number.parseFloat(data.confirmationRate).toFixed(1)
+.toString()}%`;
+                    }
+
+                    this.setState({
+                        bps,
+                        rbps,
+                        referencedRate
+                    });
+                }
+            }
+        );
+
+        this._gossipMetricsSubscription = this._metricsService.subscribe<IGossipMetrics>(
+            WebSocketTopic.GossipMetrics,
             undefined,
             allData => {
                 const nonNull = allData.filter(d => d !== undefined && d !== null);
@@ -196,20 +238,34 @@ class Home extends AsyncComponent<unknown, HomeState> {
             }
         );
 
-        this._databaseSizeSubscription = this._metricsService.subscribe<IDBSizeMetric>(
-            WebSocketTopic.DBSizeMetric,
+        this._databaseSizeSubscription = this._metricsService.subscribe<IDatabaseSizesMetrics>(
+            WebSocketTopic.DatabaseSizeMetric,
             data => {
                 if (data) {
-                    const dbLedgerSizeFormatted = FormatHelper.size(data.utxo);
-
-                    if (dbLedgerSizeFormatted !== this.state.dbLedgerSizeFormatted) {
-                        this.setState({ dbLedgerSizeFormatted });
+                    if (data.databaseSizes.length === 0) {
+                        return;
                     }
 
-                    const dbTangleSizeFormatted = FormatHelper.size(data.tangle);
+                    const dbSizeMetric = data.databaseSizes[0];
 
-                    if (dbTangleSizeFormatted !== this.state.dbTangleSizeFormatted) {
-                        this.setState({ dbTangleSizeFormatted });
+                    const dbSizePermanentFormatted = FormatHelper.size(dbSizeMetric.permanent);
+                    if (dbSizePermanentFormatted !== this.state.dbSizePermanentFormatted) {
+                        this.setState({ dbSizePermanentFormatted });
+                    }
+
+                    const dbSizePrunableFormatted = FormatHelper.size(dbSizeMetric.prunable);
+                    if (dbSizePrunableFormatted !== this.state.dbSizePrunableFormatted) {
+                        this.setState({ dbSizePrunableFormatted });
+                    }
+
+                    const dbSizeTxRetainerFormatted = FormatHelper.size(dbSizeMetric.txRetainer);
+                    if (dbSizeTxRetainerFormatted !== this.state.dbSizeTxRetainerFormatted) {
+                        this.setState({ dbSizeTxRetainerFormatted });
+                    }
+
+                    const dbSizeTotalFormatted = FormatHelper.size(dbSizeMetric.total);
+                    if (dbSizeTotalFormatted !== this.state.dbSizeTotalFormatted) {
+                        this.setState({ dbSizeTotalFormatted });
                     }
                 }
             });
@@ -227,9 +283,9 @@ class Home extends AsyncComponent<unknown, HomeState> {
 
         EventAggregator.unsubscribe("theme", "home");
 
-        if (this._nodeStatusSubscription) {
-            this._metricsService.unsubscribe(this._nodeStatusSubscription);
-            this._nodeStatusSubscription = undefined;
+        if (this._nodeInfoExtendedSubscription) {
+            this._metricsService.unsubscribe(this._nodeInfoExtendedSubscription);
+            this._nodeInfoExtendedSubscription = undefined;
         }
 
         if (this._publicNodeStatusSubscription) {
@@ -242,9 +298,14 @@ class Home extends AsyncComponent<unknown, HomeState> {
             this._syncStatusSubscription = undefined;
         }
 
-        if (this._bpsMetricsSubscription) {
-            this._metricsService.unsubscribe(this._bpsMetricsSubscription);
-            this._bpsMetricsSubscription = undefined;
+        if (this._networkMetricsSubscription) {
+            this._metricsService.unsubscribe(this._networkMetricsSubscription);
+            this._networkMetricsSubscription = undefined;
+        }
+
+        if (this._gossipMetricsSubscription) {
+            this._metricsService.unsubscribe(this._gossipMetricsSubscription);
+            this._gossipMetricsSubscription = undefined;
         }
 
         if (this._databaseSizeSubscription) {
@@ -291,14 +352,14 @@ class Home extends AsyncComponent<unknown, HomeState> {
                         <div className="col info-col fill">
                             <div className="row tablet-down-column">
                                 <InfoPanel
-                                    caption="CMI / LMI"
-                                    value={`${this.state.cmi} / ${this.state.lmi}`}
+                                    caption="Finalized Slot / Committed Slot"
+                                    value={`${this.state.latestFinalizedSlot} / ${this.state.latestCommitmentSlot}`}
                                     icon={<MilestoneIcon />}
                                     backgroundStyle="green"
                                 />
                                 <InfoPanel
-                                    caption="Pruning Index"
-                                    value={this.state.pruningIndex?.toString()}
+                                    caption="Pruning Epoch"
+                                    value={this.state.pruningEpoch?.toString()}
                                     icon={<PruningIcon />}
                                     backgroundStyle="orange"
                                 />
@@ -319,19 +380,33 @@ class Home extends AsyncComponent<unknown, HomeState> {
                             </div>
                             <div className="row margin-t-s tablet-down-column">
                                 <InfoPanel
-                                    caption="Ledger DB"
-                                    value={this.state.dbLedgerSizeFormatted}
+                                    caption="Permanent DB Size"
+                                    value={this.state.dbSizePermanentFormatted}
                                     icon={<DbIcon />}
                                     backgroundStyle="green"
                                 />
                                 <InfoPanel
-                                    caption="Tangle DB"
-                                    value={this.state.dbTangleSizeFormatted}
+                                    caption="Prunable DB Size"
+                                    value={this.state.dbSizePrunableFormatted}
                                     icon={<DbIcon />}
                                     backgroundStyle="green"
                                 />
                             </div>
-                            <div className="row margin-t-s">
+                            <div className="row margin-t-s tablet-down-column">
+                                <InfoPanel
+                                    caption="TxRetainer DB Size"
+                                    value={this.state.dbSizeTxRetainerFormatted}
+                                    icon={<DbIcon />}
+                                    backgroundStyle="green"
+                                />
+                                <InfoPanel
+                                    caption="Total DB Size"
+                                    value={this.state.dbSizeTotalFormatted}
+                                    icon={<DbIcon />}
+                                    backgroundStyle="green"
+                                />
+                            </div>
+                            <div className="row margin-t-s tablet-down-column">
                                 <div className="card fill blocks-graph-panel">
                                     <Graph
                                         caption="Blocks Per Second"
@@ -352,6 +427,26 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                         ]}
                                     />
                                 </div>
+                            </div>
+                            <div className="row margin-t-s tablet-down-column">
+                                <InfoPanel
+                                    caption="Blocks per Second"
+                                    value={this.state.bps}
+                                    icon={<MilestoneIcon />}
+                                    backgroundStyle="green"
+                                />
+                                <InfoPanel
+                                    caption="Referenced Blocks per Second"
+                                    value={this.state.rbps}
+                                    icon={<UptimeIcon />}
+                                    backgroundStyle="blue"
+                                />
+                                <InfoPanel
+                                    caption="Referenced Rate"
+                                    value={this.state.referencedRate}
+                                    icon={<ConfirmationIcon />}
+                                    backgroundStyle="purple"
+                                />
                             </div>
                         </div>
                         <div className="card col peers-summary-col peers-summary-panel">

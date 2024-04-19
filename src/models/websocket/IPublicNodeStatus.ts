@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 export interface IPublicNodeStatus {
-    pruningIndex: number;
-    isHealthy: boolean;
-    isSynced: boolean;
+    isNodeHealthy: boolean;
+    isNetworkHealthy: boolean;
+    pruningEpoch: number;
 }

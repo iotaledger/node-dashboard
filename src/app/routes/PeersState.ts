@@ -7,12 +7,12 @@ export interface PeersState {
         alias?: string;
         address?: string;
         originalAddress?: string;
-        health: number;
+        connected: boolean;
         relation: string;
-        newBlocksTotal: number[];
-        sentBlocksTotal: number[];
-        newBlocksDiff: number[];
-        sentBlocksDiff: number[];
+        receivedPacketsTotal: number[];
+        sentPacketsTotal: number[];
+        receivedPacketsDiff: number[];
+        sentPacketsDiff: number[];
         lastUpdateTime: number;
     }[];
 
@@ -60,14 +60,4 @@ export interface PeersState {
      * Hide any secure details.
      */
     blindMode: boolean;
-
-    /**
-     * Confirmed milestone index.
-     */
-    cmi?: number;
-
-    /**
-     * Latest milestone index.
-     */
-    lmi?: number;
 }

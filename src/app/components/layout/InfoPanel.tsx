@@ -4,7 +4,7 @@ import "./InfoPanel.scss";
 import { InfoPanelProps } from "./InfoPanelProps";
 import Tooltip from "./Tooltip";
 
-const MILESTONE_CAPTION = "CMI / LMI";
+const SYNC_STATUS_CAPTION = "Finalized Slot / Committed Slot";
 
 /**
  * Info panel.
@@ -17,7 +17,7 @@ class InfoPanel extends Component<InfoPanelProps> {
     public render(): ReactNode {
         let cmi = "";
         let lmi = "";
-        if (this.props.caption === MILESTONE_CAPTION && this.props.value) {
+        if (this.props.caption === SYNC_STATUS_CAPTION && this.props.value) {
             const milestone = this.props.value.split("/");
             cmi = milestone[0];
             lmi = milestone[1];
@@ -31,7 +31,7 @@ class InfoPanel extends Component<InfoPanelProps> {
                 <div className="col info--labels">
                     <h4>{this.props.caption}</h4>
                     {
-                        this.props.caption === MILESTONE_CAPTION ?
+                        this.props.caption === SYNC_STATUS_CAPTION ?
                             <Tooltip
                                 tooltipContent={this.props.value ?? "-"}
                             >

@@ -1,4 +1,4 @@
-import { IPeer } from "@iota/iota.js";
+import { IPeer } from "../models/peers/IPeer";
 
 /**
  * Class to help with processing of data.
@@ -84,53 +84,13 @@ export class DataHelper {
      * @param peers The peers to sort.
      * @returns The sorted peers.
      */
-    public static sortPeers<T extends { health: number; id: string; alias?: string }>(peers: T[]): T[] {
+    public static sortPeers<T extends { connected: boolean; id: string; alias?: string }>(peers: T[]): T[] {
         return peers.sort((a, b) => {
-            if (a.health !== b.health) {
-                return b.health - a.health;
+            if (a.connected !== b.connected) {
+                return a.connected ? -1 : 1;
             }
 
             return (a.alias ?? a.id).localeCompare(b.alias ?? b.id);
         });
-    }
-
-    /**
-     * Calculate the health of the peer.
-     * @param peer The peer to calculate the health of.
-     * @param confirmedMilestoneIndex Confirmed milestone index of the node.
-     * @param latestMilestoneIndex Latest milestone index of the node.
-     * @returns The health.
-     */
-    public static calculateHealth(peer: IPeer, confirmedMilestoneIndex: number, latestMilestoneIndex: number): number {
-        let health = 0;
-
-        if (peer.connected) {
-            health = (DataHelper.calculateIsSynced(peer, latestMilestoneIndex) &&
-                    peer.gossip?.heartbeat &&
-                    peer.gossip?.heartbeat?.prunedMilestoneIndex < confirmedMilestoneIndex) ? 2 : 1;
-        }
-
-        return health;
-    }
-
-    /**
-     * Calculate the sync status of the peer.
-     * @param peer The peer to calculate the sync status of.
-     * @param latestMilestoneIndex Latest milestone index of the node.
-     * @returns The sync status.
-     */
-    public static calculateIsSynced(peer: IPeer, latestMilestoneIndex: number): boolean {
-        let isSynced = false;
-
-        if (peer.gossip?.heartbeat) {
-            const latestKnownMilestoneIndex = (latestMilestoneIndex < peer.gossip.heartbeat.latestMilestoneIndex)
-            ? peer.gossip.heartbeat.latestMilestoneIndex : latestMilestoneIndex;
-
-            if (peer.gossip.heartbeat.solidMilestoneIndex >= (latestKnownMilestoneIndex - 2)) {
-                isSynced = true;
-            }
-        }
-
-        return isSynced;
     }
 }

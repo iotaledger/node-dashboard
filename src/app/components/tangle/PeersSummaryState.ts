@@ -5,7 +5,7 @@ export interface PeersSummaryState {
     peers?: {
         id: string;
         alias?: string;
-        health: number;
+        connected: boolean;
         address?: string;
     }[];
 
@@ -13,14 +13,4 @@ export interface PeersSummaryState {
      * Hide any secure details.
      */
     blindMode: boolean;
-
-    /**
-     * Confirmed milestone index.
-     */
-    cmi?: number;
-
-    /**
-     * Latest milestone index.
-     */
-    lmi?: number;
 }

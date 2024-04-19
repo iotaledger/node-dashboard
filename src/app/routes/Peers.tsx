@@ -1,4 +1,3 @@
-import { IPeer } from "@iota/iota.js";
 import classNames from "classnames";
 import React, { ReactNode } from "react";
 import { Link, RouteComponentProps, withRouter } from "react-router-dom";
@@ -7,9 +6,8 @@ import { ReactComponent as EyeClosedIcon } from "../../assets/eye-closed.svg";
 import { ReactComponent as EyeIcon } from "../../assets/eye.svg";
 import { ReactComponent as HealthBadIcon } from "../../assets/health-bad.svg";
 import { ReactComponent as HealthGoodIcon } from "../../assets/health-good.svg";
-import { ReactComponent as HealthWarningIcon } from "../../assets/health-warning.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
-import { ISyncStatus } from "../../models/websocket/ISyncStatus";
+import { IPeersResponse } from "../../models/peers/IPeersResponse";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
 import { MetricsService } from "../../services/metricsService";
 import { SettingsService } from "../../services/settingsService";
@@ -37,9 +35,9 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
     private readonly _settingsService: SettingsService;
 
     /**
-     * The peers subscription id.
+     * The peer metrics subscription id.
      */
-    private _peersSubscription?: string;
+    private _peerMetricsSubscription?: string;
 
     /**
      * The sync status subscription id.
@@ -70,88 +68,81 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
     public componentDidMount(): void {
         super.componentDidMount();
 
-        this._peersSubscription = this._metricsService.subscribe<IPeer[]>(
-            WebSocketTopic.PeerMetric,
-            undefined,
-            allData => {
+        this._peerMetricsSubscription = this._metricsService.subscribe<IPeersResponse>(
+            WebSocketTopic.PeerMetrics,
+            data => {
                 const peers: {
                     [id: string]: {
                         id: string;
                         alias?: string;
                         address?: string;
                         originalAddress?: string;
-                        health: number;
+                        connected: boolean;
                         relation: string;
-                        newBlocksTotal: number[];
-                        sentBlocksTotal: number[];
-                        newBlocksDiff: number[];
-                        sentBlocksDiff: number[];
+                        receivedPacketsTotal: number[];
+                        sentPacketsTotal: number[];
+                        receivedPacketsDiff: number[];
+                        sentPacketsDiff: number[];
                         lastUpdateTime: number;
                     };
                 } = {};
 
-                if (allData.length > 0) {
+                const dataPeers = data.peers;
+
+                if (dataPeers.length > 0) {
                     // Only track data for the peers that appear in the most recent list.
-                    const finalPeerIds = new Set(allData[allData.length - 1].map(p => p.id));
+                    const finalPeerIds = new Set(dataPeers.map(p => p.id));
 
-                    for (const allDataPeers of allData) {
-                        if (allDataPeers) {
-                            for (const peer of allDataPeers) {
-                                if (finalPeerIds.has(peer.id)) {
-                                    const address = DataHelper.formatPeerAddress(peer);
-                                    const cmi = this.state.cmi ?? 0;
-                                    const lmi = this.state.lmi ?? 0;
-                                    const health = DataHelper.calculateHealth(peer, cmi, lmi);
+                    for (const peer of dataPeers) {
+                        if (peer && finalPeerIds.has(peer.id)) {
+                                const address = DataHelper.formatPeerAddress(peer);
+                            if (!peers[peer.id]) {
+                                    peers[peer.id] = {
+                                        id: peer.id,
+                                        address: "",
+                                        connected: peer.connected,
+                                        relation: peer.relation,
+                                        receivedPacketsTotal: [],
+                                        sentPacketsTotal: [],
+                                        receivedPacketsDiff: [],
+                                        sentPacketsDiff: [],
+                                        lastUpdateTime: 0
+                                    };
+                                }
+                                peers[peer.id].id = peer.id;
+                                peers[peer.id].alias = peer.alias;
+                                peers[peer.id].address = address;
+                                peers[peer.id].connected = peer.connected;
+                                peers[peer.id].relation = peer.relation;
+                                peers[peer.id].lastUpdateTime = Date.now();
+                                if (peer.multiAddresses?.length) {
+                                    peers[peer.id].originalAddress = peer.multiAddresses[0];
+                                }
 
-                                    if (!peers[peer.id]) {
-                                        peers[peer.id] = {
-                                            id: peer.id,
-                                            address: "",
-                                            health: 0,
-                                            relation: peer.relation,
-                                            newBlocksTotal: [],
-                                            sentBlocksTotal: [],
-                                            newBlocksDiff: [],
-                                            sentBlocksDiff: [],
-                                            lastUpdateTime: 0
-                                        };
-                                    }
-                                    peers[peer.id].id = peer.id;
-                                    peers[peer.id].alias = peer.alias;
-                                    peers[peer.id].address = address;
-                                    peers[peer.id].health = health;
-                                    peers[peer.id].relation = peer.relation;
-                                    peers[peer.id].lastUpdateTime = Date.now();
-                                    if (peer.multiAddresses?.length) {
-                                        peers[peer.id].originalAddress = peer.multiAddresses[0];
-                                    }
+                                if (peer.gossipMetrics) {
+                                    peers[peer.id].receivedPacketsTotal.push(peer.gossipMetrics.packetsReceived);
+                                    peers[peer.id].sentPacketsTotal.push(peer.gossipMetrics.packetsSent);
+                                }
 
-                                    if (peer.gossip) {
-                                        peers[peer.id].newBlocksTotal.push(peer.gossip.metrics.newBlocks);
-                                        peers[peer.id].sentBlocksTotal.push(peer.gossip.metrics.sentBlocks);
-                                    }
-
-                                    peers[peer.id].newBlocksDiff = [];
-                                    for (let i = 1; i < peers[peer.id].newBlocksTotal.length; i++) {
-                                        peers[peer.id].newBlocksDiff.push(
-                                            Math.max(
-                                                peers[peer.id].newBlocksTotal[i] -
-                                                peers[peer.id].newBlocksTotal[i - 1]
-                                                , 0)
-                                        );
-                                    }
-                                    peers[peer.id].sentBlocksDiff = [];
-                                    for (let i = 1; i < peers[peer.id].sentBlocksTotal.length; i++) {
-                                        peers[peer.id].sentBlocksDiff.push(
-                                            Math.max(
-                                                peers[peer.id].sentBlocksTotal[i] -
-                                                peers[peer.id].sentBlocksTotal[i - 1]
-                                                , 0)
-                                        );
-                                    }
+                                peers[peer.id].receivedPacketsDiff = [];
+                                for (let i = 1; i < peers[peer.id].receivedPacketsTotal.length; i++) {
+                                    peers[peer.id].receivedPacketsDiff.push(
+                                        Math.max(
+                                            peers[peer.id].receivedPacketsTotal[i] -
+                                            peers[peer.id].receivedPacketsTotal[i - 1]
+                                            , 0)
+                                    );
+                                }
+                                peers[peer.id].sentPacketsDiff = [];
+                                for (let i = 1; i < peers[peer.id].sentPacketsTotal.length; i++) {
+                                    peers[peer.id].sentPacketsDiff.push(
+                                        Math.max(
+                                            peers[peer.id].sentPacketsTotal[i] -
+                                            peers[peer.id].sentPacketsTotal[i - 1]
+                                            , 0)
+                                    );
                                 }
                             }
-                        }
                     }
                 }
 
@@ -160,23 +151,6 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                 });
             }
         );
-
-        this._syncStatusSubscription = this._metricsService.subscribe<ISyncStatus>(
-            WebSocketTopic.SyncStatus,
-            data => {
-                if (data) {
-                    const cmi = data.cmi;
-                    const lmi = data.lmi;
-
-                    if (cmi && cmi !== this.state.cmi) {
-                        this.setState({ cmi });
-                    }
-
-                    if (lmi && lmi !== this.state.lmi) {
-                        this.setState({ lmi });
-                    }
-                }
-            });
     }
 
     /**
@@ -185,9 +159,9 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
     public componentWillUnmount(): void {
         super.componentWillUnmount();
 
-        if (this._peersSubscription) {
-            this._metricsService.unsubscribe(this._peersSubscription);
-            this._peersSubscription = undefined;
+        if (this._peerMetricsSubscription) {
+            this._metricsService.unsubscribe(this._peerMetricsSubscription);
+            this._peerMetricsSubscription = undefined;
         }
 
         if (this._syncStatusSubscription) {
@@ -241,9 +215,7 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                 <div className="card col padding-m">
                                     <div className="row middle">
                                         <span className="peer-health">
-                                            {p.health === 0 && <HealthBadIcon />}
-                                            {p.health === 1 && <HealthWarningIcon />}
-                                            {p.health === 2 && <HealthGoodIcon />}
+                                            {p.connected ? <HealthGoodIcon /> : <HealthBadIcon />}
                                         </span>
                                         <div className="peer-id word-break-all">
                                             <span>
@@ -265,12 +237,12 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                             {
                                                 className: "bar-color-1",
                                                 label: "Incoming",
-                                                values: p.newBlocksDiff
+                                                values: p.receivedPacketsDiff
                                             },
                                             {
                                                 className: "bar-color-2",
                                                 label: "Outgoing",
-                                                values: p.sentBlocksDiff
+                                                values: p.sentPacketsDiff
                                             }
                                         ]}
                                     />

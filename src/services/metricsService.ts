@@ -53,13 +53,12 @@ export class MetricsService {
     public initialize(): void {
         const topics: { topic: WebSocketTopic; isPublic: boolean }[] = [
             { topic: WebSocketTopic.SyncStatus, isPublic: true },
-            { topic: WebSocketTopic.NodeStatus, isPublic: false },
+            { topic: WebSocketTopic.NodeInfoExtended, isPublic: false },
             { topic: WebSocketTopic.PublicNodeStatus, isPublic: true },
-            { topic: WebSocketTopic.BPSMetrics, isPublic: true },
-            { topic: WebSocketTopic.DBSizeMetric, isPublic: false },
-            { topic: WebSocketTopic.PeerMetric, isPublic: false },
-            { topic: WebSocketTopic.Milestone, isPublic: true },
-            { topic: WebSocketTopic.ConfirmedMsMetrics, isPublic: true }
+            { topic: WebSocketTopic.GossipMetrics, isPublic: true },
+            { topic: WebSocketTopic.DatabaseSizeMetric, isPublic: false },
+            { topic: WebSocketTopic.PeerMetrics, isPublic: false },
+            { topic: WebSocketTopic.NetworkMetrics, isPublic: true }
         ];
 
         for (const t of topics) {
@@ -144,7 +143,7 @@ export class MetricsService {
         if (!this._cached[topic]) {
             this._cached[topic] = [];
         }
-        if (topic === WebSocketTopic.DBSizeMetric || topic === WebSocketTopic.ConfirmedMsMetrics) {
+        if (topic === WebSocketTopic.DatabaseSizeMetric || topic === WebSocketTopic.NetworkMetrics) {
             if (Array.isArray(data)) {
                 this._cached[topic].push(...data as unknown[]);
             } else {

@@ -31,19 +31,34 @@ export interface HomeState {
     displayLatestVersion?: string;
 
     /**
-     * Confirmed milestone index.
+     * Latest finalized slot.
      */
-    cmi?: string;
+    latestFinalizedSlot?: string;
 
     /**
-     * Latest milestone index.
+     * Latest committed slot.
      */
-    lmi?: string;
+    latestCommitmentSlot?: string;
 
     /**
-     * The pruning index.
+     * Blocks per second.
      */
-    pruningIndex?: string;
+    bps: string;
+
+    /**
+     * Referenced blocks per second.
+     */
+    rbps: string;
+
+    /**
+     * Referenced rate.
+     */
+    referencedRate: string;
+
+    /**
+     * The pruning epoch.
+     */
+    pruningEpoch?: string;
 
     /**
      * Uptime.
@@ -56,14 +71,24 @@ export interface HomeState {
     memory?: string;
 
     /**
-     * Ledger database size.
+     * Permanent database size.
      */
-    dbLedgerSizeFormatted: string;
+    dbSizePermanentFormatted: string;
 
     /**
-     * Tangle database size.
+     * Prunable database size.
      */
-    dbTangleSizeFormatted: string;
+    dbSizePrunableFormatted: string;
+
+    /**
+     * TxRetainer database size.
+     */
+    dbSizeTxRetainerFormatted: string;
+
+    /**
+     * Total database size.
+     */
+    dbSizeTotalFormatted: string;
 
     /**
      * Last received bps time.
