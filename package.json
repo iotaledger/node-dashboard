@@ -10,7 +10,8 @@
     "homepage": "/dashboard",
     "license": "MIT",
     "dependencies": {
-        "@iota/iota.js": "^2.0.0-rc.1",
+        "@iota/crypto.js": "^1.8.6",
+        "@iota/util.js": "^1.8.6",
         "classnames": "^2.3.1",
         "humanize-duration": "^3.27.3",
         "moment": "^2.29.1",
@@ -23,13 +24,11 @@
         "node": ">=14 <=16.16"
     },
     "scripts": {
-        "start": "cross-env PORT=9090 REACT_APP_BRAND_ID=hornet craco start",
-        "start-bee": "cross-env PORT=9090 REACT_APP_BRAND_ID=bee craco start",
-        "lint": "eslint src --ext .tsx,.ts",
+        "start": "cross-env PORT=9090 REACT_APP_BRAND_ID=iota-core craco start",
+        "lint": "eslint src --fix --ext .tsx,.ts",
         "sass-lint": "stylelint ./src/**/*.scss --custom-syntax postcss-scss",
         "build-internal": "craco build",
-        "build": "cross-env REACT_APP_BRAND_ID=hornet run-s lint sass-lint build-internal",
-        "build-bee": "cross-env REACT_APP_BRAND_ID=bee run-s lint sass-lint build-internal",
+        "build": "cross-env REACT_APP_BRAND_ID=iota-core run-s lint sass-lint build-internal",
         "test": "craco test",
         "eject": "react-scripts eject"
     },

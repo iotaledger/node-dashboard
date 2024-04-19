@@ -1,9 +1,9 @@
 import React, { ReactNode } from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { ServiceFactory } from "../../../factories/serviceFactory";
-import { IBpsMetrics } from "../../../models/websocket/IBpsMetrics";
-import { IDBSizeMetric } from "../../../models/websocket/IDBSizeMetric";
-import { INodeStatus } from "../../../models/websocket/INodeStatus";
+import { IDatabaseSizesMetrics } from "../../../models/websocket/IDatabaseSizesMetrics";
+import { IGossipMetrics } from "../../../models/websocket/IGossipMetrics";
+import { INodeInfoExtended } from "../../../models/websocket/INodeInfoExtended";
 import { IPublicNodeStatus } from "../../../models/websocket/IPublicNodeStatus";
 import { WebSocketTopic } from "../../../models/websocket/webSocketTopic";
 import { AuthService } from "../../../services/authService";
@@ -17,7 +17,6 @@ import { HeaderProps } from "./HeaderProps";
 import { HeaderState } from "./HeaderState";
 import HealthIndicator from "./HealthIndicator";
 import MicroGraph from "./MicroGraph";
-import SearchInput from "./SearchInput";
 
 /**
  * Header panel.
@@ -34,9 +33,9 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
     private readonly _metricsService: MetricsService;
 
     /**
-     * The node status subscription id.
+     * The node info extended subscription id.
      */
-    private _nodeStatusSubscription?: string;
+    private _nodeInfoExtendedSubscription?: string;
 
     /**
      * The public node status subscription id.
@@ -46,12 +45,12 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
     /**
      * The database size metrics subscription id.
      */
-    private _databaseSizeSubscription?: string;
+    private _databaseSizeMetricsSubscription?: string;
 
     /**
-     * The bps metrics subscription id.
+     * The gossip metrics subscription id.
      */
-    private _bpsMetricsSubscription?: string;
+    private _gossipMetricsSubscription?: string;
 
     /**
      * Create a new instance of Header.
@@ -64,16 +63,14 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
         this._authService = ServiceFactory.get<AuthService>("auth");
 
         this.state = {
-            syncHealth: false,
-            nodeHealth: false,
+            isNetworkHealthy: false,
+            isNodeHealthy: false,
             bps: "-",
             bpsValues: [],
             memorySizeFormatted: "-",
             memorySize: [],
-            dbLedgerSizeFormatted: "-",
-            dbLedgerSize: [],
-            dbTangleSizeFormatted: "-",
-            dbTangleSize: [],
+            dbSizeTotalFormatted: "-",
+            dbSizeTotal: [],
             isLoggedIn: Boolean(this._authService.isLoggedIn()),
             online: false
         };
@@ -108,20 +105,20 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
                             online: true
                         });
                     }
-                    if (data.isHealthy !== this.state.nodeHealth) {
-                        this.setState({ nodeHealth: data.isHealthy });
+                    if (data.isNodeHealthy !== this.state.isNodeHealthy) {
+                        this.setState({ isNodeHealthy: data.isNodeHealthy });
                     }
-                    if (data.isSynced !== this.state.syncHealth) {
-                        this.setState({ syncHealth: data.isSynced });
+                    if (data.isNetworkHealthy !== this.state.isNetworkHealthy) {
+                        this.setState({ isNetworkHealthy: data.isNetworkHealthy });
                     }
                 }
             });
 
-        this._nodeStatusSubscription = this._metricsService.subscribe<INodeStatus>(
-            WebSocketTopic.NodeStatus,
+        this._nodeInfoExtendedSubscription = this._metricsService.subscribe<INodeInfoExtended>(
+            WebSocketTopic.NodeInfoExtended,
             data => {
                 if (data) {
-                    const memorySizeFormatted = FormatHelper.iSize(data.memUsage, 1);
+                    const memorySizeFormatted = FormatHelper.iSize(data.memoryUsage, 1);
 
                     if (memorySizeFormatted !== this.state.memorySizeFormatted) {
                         this.setState({ memorySizeFormatted });
@@ -132,49 +129,43 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
                 const nonNull = allData.filter(d => d !== undefined && d !== null);
                 this.setState({
                     memorySize: nonNull
-                        .map(d => d.memUsage)
+                        .map(d => d.memoryUsage)
                 });
             });
 
-        this._databaseSizeSubscription = this._metricsService.subscribe<IDBSizeMetric>(
-            WebSocketTopic.DBSizeMetric,
+        this._databaseSizeMetricsSubscription = this._metricsService.subscribe<IDatabaseSizesMetrics>(
+            WebSocketTopic.DatabaseSizeMetric,
             data => {
                 if (data) {
-                    const dbLedgerSizeFormatted = FormatHelper.size(data.utxo);
+                    const nonNull = data.databaseSizes.filter(d => d !== undefined && d !== null);
 
-                    if (dbLedgerSizeFormatted !== this.state.dbLedgerSizeFormatted) {
-                        this.setState({ dbLedgerSizeFormatted });
+                    const dbSizeTotalValues = nonNull
+                    .map(d => d.total);
+
+                    this.setState({ dbSizeTotal: dbSizeTotalValues });
+
+                    let dbSizeTotalFormatted = "-";
+                    if (dbSizeTotalValues.length > 0) {
+                        dbSizeTotalFormatted = FormatHelper.size(dbSizeTotalValues[0]);
                     }
 
-                    const dbTangleSizeFormatted = FormatHelper.size(data.tangle);
-
-                    if (dbTangleSizeFormatted !== this.state.dbTangleSizeFormatted) {
-                        this.setState({ dbTangleSizeFormatted });
+                    if (dbSizeTotalFormatted !== this.state.dbSizeTotalFormatted) {
+                        this.setState({ dbSizeTotalFormatted });
                     }
                 }
-            },
-            allData => {
-                const nonNull = allData.filter(d => d !== undefined && d !== null);
-
-                const dbLedgerSizeValues = nonNull
-                    .map(d => d.utxo);
-
-                this.setState({ dbLedgerSize: dbLedgerSizeValues });
-
-                const dbTangleSizeValues = nonNull
-                    .map(d => d.tangle);
-
-                this.setState({ dbTangleSize: dbTangleSizeValues });
             });
 
-        this._bpsMetricsSubscription = this._metricsService.subscribe<IBpsMetrics>(
-            WebSocketTopic.BPSMetrics,
+        this._gossipMetricsSubscription = this._metricsService.subscribe<IGossipMetrics>(
+            WebSocketTopic.GossipMetrics,
             data => {
                 if (data) {
                     const bpsValues = this.state.bpsValues.slice(-40);
                     bpsValues.push(data.new);
 
-                    const bpsFormatted = bpsValues[bpsValues.length - 1].toString();
+                    let bpsFormatted = "-";
+                    if (bpsValues.length > 0) {
+                        bpsFormatted = bpsValues[bpsValues.length - 1].toString();
+                    }
 
                     if (bpsFormatted !== this.state.bps) {
                         this.setState({ bps: bpsFormatted });
@@ -198,19 +189,19 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
             this._publicNodeStatusSubscription = undefined;
         }
 
-        if (this._nodeStatusSubscription) {
-            this._metricsService.unsubscribe(this._nodeStatusSubscription);
-            this._nodeStatusSubscription = undefined;
+        if (this._nodeInfoExtendedSubscription) {
+            this._metricsService.unsubscribe(this._nodeInfoExtendedSubscription);
+            this._nodeInfoExtendedSubscription = undefined;
         }
 
-        if (this._databaseSizeSubscription) {
-            this._metricsService.unsubscribe(this._databaseSizeSubscription);
-            this._databaseSizeSubscription = undefined;
+        if (this._databaseSizeMetricsSubscription) {
+            this._metricsService.unsubscribe(this._databaseSizeMetricsSubscription);
+            this._databaseSizeMetricsSubscription = undefined;
         }
 
-        if (this._bpsMetricsSubscription) {
-            this._metricsService.unsubscribe(this._bpsMetricsSubscription);
-            this._bpsMetricsSubscription = undefined;
+        if (this._gossipMetricsSubscription) {
+            this._metricsService.unsubscribe(this._gossipMetricsSubscription);
+            this._gossipMetricsSubscription = undefined;
         }
     }
 
@@ -225,26 +216,21 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
                     {this.state.online && (
                         <React.Fragment>
                             {this.props.children}
-                            <SearchInput
-                                compact={true}
-                                onSearch={query => this.props.history.push(`/explorer/search/${query}`)}
-                                className="child child-fill"
-                            />
                             <Breakpoint size="tablet" aboveBelow="above">
                                 <HealthIndicator
-                                    label="Health"
-                                    healthy={this.state.nodeHealth}
+                                    label="Node Health"
+                                    healthy={this.state.isNodeHealthy}
                                     className="child"
                                 />
                                 <HealthIndicator
-                                    label="Sync"
-                                    healthy={this.state.syncHealth}
+                                    label="Network Health"
+                                    healthy={this.state.isNetworkHealthy}
                                     className="child"
                                 />
                             </Breakpoint>
                             <Breakpoint size="desktop" aboveBelow="above">
                                 <MicroGraph
-                                    label="BPS"
+                                    label="Blocks Per Second"
                                     value={this.state.bps}
                                     values={this.state.bpsValues}
                                     className="child"
@@ -252,19 +238,13 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
                                 {this.state.isLoggedIn && (
                                     <React.Fragment>
                                         <MicroGraph
-                                            label="Ledger db"
-                                            value={this.state.dbLedgerSizeFormatted}
-                                            values={this.state.dbLedgerSize}
+                                            label="Database Size"
+                                            value={this.state.dbSizeTotalFormatted}
+                                            values={this.state.dbSizeTotal}
                                             className="child"
                                         />
                                         <MicroGraph
-                                            label="Tangle db"
-                                            value={this.state.dbTangleSizeFormatted}
-                                            values={this.state.dbTangleSize}
-                                            className="child"
-                                        />
-                                        <MicroGraph
-                                            label="Memory"
+                                            label="Memory Usage"
                                             value={this.state.memorySizeFormatted}
                                             values={this.state.memorySize}
                                             className="child"

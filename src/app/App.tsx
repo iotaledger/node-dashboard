@@ -1,17 +1,15 @@
 import moment from "moment";
 import React, { ReactNode } from "react";
 import { Redirect, Route, RouteComponentProps, Switch, withRouter } from "react-router-dom";
-import { ReactComponent as ExplorerIcon } from "../assets/explorer.svg";
 import { ReactComponent as HomeIcon } from "../assets/home.svg";
 import { ReactComponent as MoonIcon } from "../assets/moon.svg";
 import { ReactComponent as PadlockUnlockedIcon } from "../assets/padlock-unlocked.svg";
 import { ReactComponent as PadlockIcon } from "../assets/padlock.svg";
 import { ReactComponent as PeersIcon } from "../assets/peers.svg";
-import { ReactComponent as PluginsIcon } from "../assets/plugins.svg";
 import { ReactComponent as SunIcon } from "../assets/sun.svg";
 import { ReactComponent as VisualizerIcon } from "../assets/visualizer.svg";
 import { ServiceFactory } from "../factories/serviceFactory";
-import { INodeStatus } from "../models/websocket/INodeStatus";
+import { INodeInfoExtended } from "../models/websocket/INodeInfoExtended";
 import { IPublicNodeStatus } from "../models/websocket/IPublicNodeStatus";
 import { ISyncStatus } from "../models/websocket/ISyncStatus";
 import { WebSocketTopic } from "../models/websocket/webSocketTopic";
@@ -29,26 +27,11 @@ import Header from "./components/layout/Header";
 import HealthIndicator from "./components/layout/HealthIndicator";
 import NavMenu from "./components/layout/NavMenu";
 import NavPanel from "./components/layout/NavPanel";
-import Explorer from "./routes/Explorer";
-import Address from "./routes/explorer/Address";
-import { AddressProps } from "./routes/explorer/AddressProps";
-import Block from "./routes/explorer/Block";
-import { BlockProps } from "./routes/explorer/BlockProps";
-import Milestone from "./routes/explorer/Milestone";
-import { MilestoneProps } from "./routes/explorer/MilestoneProps";
-import OutputRoute from "./routes/explorer/OutputRoute";
-import { OutputRouteProps } from "./routes/explorer/OutputRouteProps";
-import OutputsRoute from "./routes/explorer/OutputsRoute";
-import { OutputsRouteProps } from "./routes/explorer/OutputsRouteProps";
 import Home from "./routes/Home";
 import Login from "./routes/Login";
 import Peer from "./routes/Peer";
 import { PeerRouteProps } from "./routes/PeerRouteProps";
 import Peers from "./routes/Peers";
-import Plugins from "./routes/Plugins";
-import Search from "./routes/Search";
-import { SearchRouteProps } from "./routes/SearchRouteProps";
-import Unavailable from "./routes/Unavailable";
 import Visualizer from "./routes/Visualizer";
 
 /**
@@ -81,9 +64,9 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
     private _publicNodeStatusSubscription?: string;
 
     /**
-     * The status subscription id.
+     * The node info extended subscription id.
      */
-    private _statusSubscription?: string;
+    private _nodeInfoExtendedSubscription?: string;
 
     /**
      * The sync status metrics subscription id.
@@ -137,8 +120,8 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
             isLoggedIn: Boolean(this._authService.isLoggedIn()),
             theme: this._themeService.get(),
             online: false,
-            syncHealth: false,
-            nodeHealth: false
+            isNetworkHealthy: false,
+            isNodeHealthy: false
         };
 
         this.updateTitle();
@@ -164,8 +147,8 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
             this.setState({ theme });
         });
 
-        this._statusSubscription = this._metricsService.subscribe<INodeStatus>(
-            WebSocketTopic.NodeStatus,
+        this._nodeInfoExtendedSubscription = this._metricsService.subscribe<INodeInfoExtended>(
+            WebSocketTopic.NodeInfoExtended,
             data => {
                 if (data && data.nodeAlias !== this._alias) {
                     this._alias = data.nodeAlias;
@@ -177,8 +160,8 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
             WebSocketTopic.SyncStatus,
             data => {
                 if (data) {
-                    const lmi = data.lmi ? data.lmi.toString() : "";
-                    const smi = data.cmi ? data.cmi.toString() : "";
+                    const lmi = data.latestCommitmentSlot ? data.latestCommitmentSlot.toString() : "";
+                    const smi = data.latestFinalizedSlot ? data.latestFinalizedSlot.toString() : "";
 
                     if (lmi !== this._lmi || smi !== this._cmi) {
                         this._cmi = smi;
@@ -199,11 +182,11 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                             online: true
                         });
                     }
-                    if (data.isHealthy !== this.state.nodeHealth) {
-                        this.setState({ nodeHealth: data.isHealthy });
+                    if (data.isNodeHealthy !== this.state.isNodeHealthy) {
+                        this.setState({ isNodeHealthy: data.isNodeHealthy });
                     }
-                    if (data.isSynced !== this.state.syncHealth) {
-                        this.setState({ syncHealth: data.isSynced });
+                    if (data.isNetworkHealthy !== this.state.isNetworkHealthy) {
+                        this.setState({ isNetworkHealthy: data.isNetworkHealthy });
                     }
                 }
             });
@@ -228,9 +211,9 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
         EventAggregator.unsubscribe("auth-state", "app");
         EventAggregator.unsubscribe("theme", "app");
 
-        if (this._statusSubscription) {
-            this._metricsService.unsubscribe(this._statusSubscription);
-            this._statusSubscription = undefined;
+        if (this._nodeInfoExtendedSubscription) {
+            this._metricsService.unsubscribe(this._nodeInfoExtendedSubscription);
+            this._nodeInfoExtendedSubscription = undefined;
         }
 
         if (this._syncStatusSubscription) {
@@ -270,20 +253,9 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                 hidden: !this.state.isLoggedIn
             },
             {
-                label: "Explorer",
-                icon: <ExplorerIcon />,
-                route: "/explorer"
-            },
-            {
                 label: "Visualizer",
                 icon: <VisualizerIcon />,
                 route: "/visualizer"
-            },
-            {
-                label: "Plugins",
-                icon: <PluginsIcon />,
-                route: "/plugins",
-                hidden: !this.state.isLoggedIn
             },
             {
                 label: "Login",
@@ -344,13 +316,13 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                                 <Breakpoint size="tablet" aboveBelow="below">
                                     <div className="card card__flat row middle health-indicators">
                                         <HealthIndicator
-                                            label="Health"
-                                            healthy={this.state.nodeHealth}
+                                            label="Node Health"
+                                            healthy={this.state.isNodeHealthy}
                                             className="child margin-r-l"
                                         />
                                         <HealthIndicator
-                                            label="Sync"
-                                            healthy={this.state.syncHealth}
+                                            label="Network Health"
+                                            healthy={this.state.isNetworkHealthy}
                                             className="child"
                                         />
                                     </div>
@@ -380,55 +352,12 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
                                         <Route
                                             path="/"
                                             exact={true}
-                                            component={() => (<Explorer />)}
+                                            component={(props: RouteComponentProps) => (<Visualizer {...props} />)}
                                         />
                                     )}
                                     <Route
-                                        path="/explorer"
-                                        exact={true}
-                                        component={() => (<Explorer />)}
-                                    />
-                                    <Route
-                                        path="/explorer/search/:query?"
-                                        component={(props: RouteComponentProps<SearchRouteProps>) =>
-                                            (<Search {...props} />)}
-                                    />
-                                    <Route
-                                        path="/explorer/unavailable"
-                                        component={(props: RouteComponentProps<never>) => (<Unavailable {...props} />)}
-                                    />
-                                    <Route
-                                        path="/explorer/block/:blockId"
-                                        component={(props: RouteComponentProps<BlockProps>) =>
-                                            (<Block {...props} />)}
-                                    />
-                                    <Route
-                                        path="/explorer/milestone/:milestoneIndex"
-                                        component={(props: RouteComponentProps<MilestoneProps>) =>
-                                            (<Milestone {...props} />)}
-                                    />
-                                    <Route
-                                        path="/explorer/address/:address"
-                                        component={(props: RouteComponentProps<AddressProps>) =>
-                                            (<Address {...props} />)}
-                                    />
-                                    <Route
-                                        path="/explorer/output/:outputId"
-                                        component={(props: RouteComponentProps<OutputRouteProps>) =>
-                                            (<OutputRoute {...props} />)}
-                                    />
-                                    <Route
-                                        path="/explorer/outputs/:tag"
-                                        component={(props: RouteComponentProps<OutputsRouteProps>) =>
-                                            (<OutputsRoute {...props} />)}
-                                    />
-                                    <Route
                                         path="/visualizer"
                                         component={(props: RouteComponentProps) => (<Visualizer {...props} />)}
-                                    />
-                                    <Route
-                                        path="/plugins"
-                                        component={() => (<Plugins />)}
                                     />
                                     <Route
                                         path="/login"

@@ -16,7 +16,7 @@
 
 # About
 
-Common dashboard used by IOTA node software Hornet and Bee.
+Dashboard used by the IOTA-Core node software.
 
 ## Prerequisites
 
@@ -32,9 +32,9 @@ If Node.js is installed, you should see the version that's installed.
 
 # Getting Started
 
-You need to run a local version of the Hornet node software from the main branch [https://github.com/iotaledger/hornet/](https://github.com/iotaledger/hornet/)
+You need to run a local version of the IOTA-Core node software from the develop branch [https://github.com/iotaledger/iota-core/](https://github.com/iotaledger/iota-core/)
 
-1. Make sure to set `dashboard.dev` to true in Hornet config, to enable the node to serve assets
+1. Make sure to set `dashboard.dev` to true in the config, to enable the node to serve assets
    from the dev instance.
 2. Install all needed npm modules via `npm install`.
 3. Run a dev-server instance by running `npm run start` within the repo root directory.

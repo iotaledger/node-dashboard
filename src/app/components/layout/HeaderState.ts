@@ -1,13 +1,13 @@
 export interface HeaderState {
     /**
-     * The sync health.
-     */
-    syncHealth: boolean;
-
-    /**
      * The node health.
      */
-    nodeHealth: boolean;
+    isNodeHealthy: boolean;
+
+    /**
+     * The network health.
+     */
+    isNetworkHealthy: boolean;
 
     /**
      * Bps for micro graph.
@@ -20,24 +20,14 @@ export interface HeaderState {
     bpsValues: number[];
 
     /**
-     * Ledger database size for micro graph.
+     * Total database size for micro graph.
      */
-    dbLedgerSizeFormatted: string;
+    dbSizeTotalFormatted: string;
 
     /**
-     * Ledger database size values for micro graph.
+     * Total database size values for micro graph.
      */
-    dbLedgerSize: number[];
-
-    /**
-     * Tangle db size for micro graph.
-     */
-    dbTangleSizeFormatted: string;
-
-    /**
-     * Tangle db size values for micro graph.
-     */
-    dbTangleSize: number[];
+    dbSizeTotal: number[];
 
     /**
      * Memory size for micro graph.

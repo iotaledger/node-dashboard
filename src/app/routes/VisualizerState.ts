@@ -1,5 +1,7 @@
-import { ITaggedDataPayload, IMilestonePayload, ITransactionPayload } from "@iota/iota.js";
-import { IVisualizerVertex } from "../../models/visualizer/IVisualizerVertex";
+import { IMilestonePayload } from "../../models/payloads/IMilestonePayload";
+import { ITaggedDataPayload } from "../../models/payloads/ITaggedDataPayload";
+import { ITransactionPayload } from "../../models/payloads/ITransactionPayload";
+import { IVertex } from "../../models/visualizer/IVertex";
 
 export interface VisualizerState {
     /**
@@ -49,7 +51,7 @@ export interface VisualizerState {
         /**
          * The vertex that is selected.
          */
-        vertex: IVisualizerVertex;
+        vertex: IVertex;
 
         /**
          * Select item state.

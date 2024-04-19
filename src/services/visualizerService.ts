@@ -1,12 +1,12 @@
 import { ServiceFactory } from "../factories/serviceFactory";
-import { IVisualizerCounts } from "../models/visualizer/IVisualizerCounts";
-import { IVisualizerVertex } from "../models/visualizer/IVisualizerVertex";
+import { IVertex } from "../models/visualizer/IVertex";
+import { IVerticesCounts } from "../models/visualizer/IVerticesCounts";
 import { VisualizerVertexOperation } from "../models/visualizer/visualizerVertexOperation";
-import { IConfirmedInfo } from "../models/websocket/IConfirmedInfo";
-import { IMilestoneInfo } from "../models/websocket/IMilestoneInfo";
-import { ISolidInfo } from "../models/websocket/ISolidInfo";
-import { ITipInfo } from "../models/websocket/ITipInfo";
-import { IVertex } from "../models/websocket/IVertex";
+import { IVisualizerCommitmentInfo } from "../models/websocket/ICommitment";
+import { IVisualizerConfirmationInfo } from "../models/websocket/IVisualizerConfirmationInfo";
+import { IVisualizerMetaInfo } from "../models/websocket/IVisualizerMetaInfo";
+import { IVisualizerTipInfo } from "../models/websocket/IVisualizerTipInfo";
+import { IVisualizerVertex } from "../models/websocket/IVisualizerVertex";
 import { WebSocketTopic } from "../models/websocket/webSocketTopic";
 import { WebSocketService } from "./webSocketService";
 
@@ -28,7 +28,7 @@ export class VisualizerService {
      * The known vertices.
      */
     private _vertices: {
-        [id: string]: IVisualizerVertex;
+        [id: string]: IVertex;
     };
 
     /**
@@ -39,7 +39,7 @@ export class VisualizerService {
     /**
      * The counts.
      */
-    private readonly _counts: IVisualizerCounts;
+    private readonly _counts: IVerticesCounts;
 
     /**
      * The maximum number of vertices.
@@ -49,17 +49,17 @@ export class VisualizerService {
     /**
      * The vertex update callback.
      */
-    private _vertexCallback?: (vertex: IVisualizerVertex, operation: VisualizerVertexOperation) => void;
+    private _vertexCallback?: (vertex: IVertex, operation: VisualizerVertexOperation) => void;
 
     /**
      * The counts were updated callback.
      */
-    private _countsCallback?: (counts: IVisualizerCounts) => void;
+    private _countsCallback?: (counts: IVerticesCounts) => void;
 
     /**
      * The referenced callback.
      */
-    private _referencedCallback?: (id: string, excluded: string[], count: IVisualizerCounts) => void;
+    private _referencedCallback?: (id: string, excluded: string[], count: IVerticesCounts) => void;
 
     /**
      * Create a new instance of VisualizerService.
@@ -87,32 +87,32 @@ export class VisualizerService {
      * @param referencedCallback The referenced callback.
      */
     public subscribe(
-        vertexCallback: (vertex: IVisualizerVertex, operation: VisualizerVertexOperation) => void,
-        countsCallback: (counts: IVisualizerCounts) => void,
-        referencedCallback: (id: string, excluded: string[], count: IVisualizerCounts) => void): void {
+        vertexCallback: (vertex: IVertex, operation: VisualizerVertexOperation) => void,
+        countsCallback: (counts: IVerticesCounts) => void,
+        referencedCallback: (id: string, excluded: string[], count: IVerticesCounts) => void): void {
         this._subscriptions.push(
-            this._webSocketService.subscribe<IVertex>(
-                WebSocketTopic.Vertex,
+            this._webSocketService.subscribe<IVisualizerVertex>(
+                WebSocketTopic.VisualizerVertex,
                 false,
                 data => this.updateVertices(data)
             ),
-            this._webSocketService.subscribe<IMilestoneInfo>(
-                WebSocketTopic.MilestoneInfo,
+            this._webSocketService.subscribe<IVisualizerCommitmentInfo>(
+                WebSocketTopic.VisualizerCommitmentInfo,
                 false,
-                data => this.updateMilestoneInfo(data)
+                data => this.updateCommitmentInfo(data)
             ),
-            this._webSocketService.subscribe<ITipInfo>(
-                WebSocketTopic.TipInfo,
+            this._webSocketService.subscribe<IVisualizerTipInfo>(
+                WebSocketTopic.VisualizerTipInfo,
                 false,
                 data => this.updateTipInfo(data)
             ),
-            this._webSocketService.subscribe<IConfirmedInfo>(
-                WebSocketTopic.ConfirmedInfo,
+            this._webSocketService.subscribe<IVisualizerConfirmationInfo>(
+                WebSocketTopic.VisualizerConfirmationInfo,
                 false,
-                data => this.updateConfirmedInfo(data)
+                data => this.updateConfirmationInfo(data)
             ),
-            this._webSocketService.subscribe<ISolidInfo>(
-                WebSocketTopic.SolidInfo,
+            this._webSocketService.subscribe<IVisualizerMetaInfo>(
+                WebSocketTopic.VisualizerSolidInfo,
                 false,
                 data => this.updateSolidInfo(data)
             ));
@@ -146,7 +146,7 @@ export class VisualizerService {
      * Add a new vertex.
      * @param vert The vertex to add.
      */
-    private updateVertices(vert?: IVertex): void {
+    private updateVertices(vert?: IVisualizerVertex): void {
         if (vert) {
             const shortVertId = vert.id.slice(0, 10);
 
@@ -245,7 +245,7 @@ export class VisualizerService {
      * @param vertexId The id of the vertex to delete.
      * @returns The deleted vertex.
      */
-    private removeVertex(vertexId: string | undefined): IVisualizerVertex | undefined {
+    private removeVertex(vertexId: string | undefined): IVertex | undefined {
         if (!vertexId) {
             return;
         }
@@ -282,7 +282,7 @@ export class VisualizerService {
      * Update the tip information.
      * @param data The tip info data.
      */
-    private updateTipInfo(data?: ITipInfo) {
+    private updateTipInfo(data?: IVisualizerTipInfo) {
         if (data) {
             const vertex = this._vertices[data.id];
             if (vertex) {
@@ -302,9 +302,9 @@ export class VisualizerService {
      * Update the milestone information.
      * @param data The milestone info data.
      */
-    private updateMilestoneInfo(data?: IMilestoneInfo) {
+    private updateCommitmentInfo(data?: IVisualizerCommitmentInfo) {
         if (data) {
-            const vertex = this._vertices[data.id];
+            const vertex = this._vertices[data.commitmentId];
             if (vertex) {
                 vertex.isMilestone = true;
                 if (this._vertexCallback) {
@@ -318,7 +318,7 @@ export class VisualizerService {
      * Update the confirmed information.
      * @param data The confirmed info data.
      */
-    private updateConfirmedInfo(data?: IConfirmedInfo) {
+    private updateConfirmationInfo(data?: IVisualizerConfirmationInfo) {
         if (data) {
             for (const id of data.ids) {
                 const vertex = this._vertices[id];
@@ -339,7 +339,7 @@ export class VisualizerService {
      * Update the solid information.
      * @param data The solid info data.
      */
-    private updateSolidInfo(data?: ISolidInfo) {
+    private updateSolidInfo(data?: IVisualizerMetaInfo) {
         if (data) {
             const vertex = this._vertices[data.id];
             if (vertex && !vertex.isSolid) {

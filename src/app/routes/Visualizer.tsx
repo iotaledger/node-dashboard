@@ -1,4 +1,3 @@
-import { TAGGED_DATA_PAYLOAD_TYPE, MILESTONE_PAYLOAD_TYPE, BASIC_OUTPUT_TYPE, TRANSACTION_PAYLOAD_TYPE } from "@iota/iota.js";
 import { Converter } from "@iota/util.js";
 import classNames from "classnames";
 import React, { ReactNode } from "react";
@@ -8,9 +7,9 @@ import { ReactComponent as CloseIcon } from "../../assets/close.svg";
 import { ReactComponent as PauseIcon } from "../../assets/pause.svg";
 import { ReactComponent as PlayIcon } from "../../assets/play.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
-import { IVisualizerCounts } from "../../models/visualizer/IVisualizerCounts";
-import { IVisualizerVertex } from "../../models/visualizer/IVisualizerVertex";
-import { IBpsMetrics } from "../../models/websocket/IBpsMetrics";
+import { IVertex } from "../../models/visualizer/IVertex";
+import { IVerticesCounts } from "../../models/visualizer/IVerticesCounts";
+import { IGossipMetrics } from "../../models/websocket/IGossipMetrics";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
 import { EventAggregator } from "../../services/eventAggregator";
 import { MetricsService } from "../../services/metricsService";
@@ -21,6 +20,13 @@ import { FormatHelper } from "../../utils/formatHelper";
 import AsyncComponent from "../components/layout/AsyncComponent";
 import "./Visualizer.scss";
 import { VisualizerState } from "./VisualizerState";
+
+/**
+ * The global type for the payload.
+ */
+const TAGGED_DATA_PAYLOAD_TYPE = 5;
+const TRANSACTION_PAYLOAD_TYPE = 6;
+const MILESTONE_PAYLOAD_TYPE = 7;
 
 /**
  * Visualizer panel.
@@ -66,7 +72,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
     /**
      * The graph instance.
      */
-    private _graph?: Viva.Graph.IGraph<IVisualizerVertex, unknown>;
+    private _graph?: Viva.Graph.IGraph<IVertex, unknown>;
 
     /**
      * The renderer instance.
@@ -76,7 +82,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
     /**
      * The graphics instance.
      */
-    private _graphics?: Viva.Graph.View.IWebGLGraphics<IVisualizerVertex, unknown>;
+    private _graphics?: Viva.Graph.View.IWebGLGraphics<IVertex, unknown>;
 
     /**
      * The visualizer service.
@@ -99,9 +105,9 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
     private readonly _themeService: ThemeService;
 
     /**
-     * The bps metrics subscription id.
+     * The gossip metrics subscription id.
      */
-    private _bpsMetricsSubscription?: string;
+    private _gossipMetricsSubscription?: string;
 
     /**
      * The resize method
@@ -177,8 +183,8 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
             (referencedId, excludedIds, counts) => this.referenceVertex(referencedId, excludedIds, counts)
         );
 
-        this._bpsMetricsSubscription = this._metricsService.subscribe<IBpsMetrics>(
-            WebSocketTopic.BPSMetrics, data => {
+        this._gossipMetricsSubscription = this._metricsService.subscribe<IGossipMetrics>(
+            WebSocketTopic.GossipMetrics, data => {
                 if (data && this.state.isActive) {
                     this.setState({ bps: data.new.toString() });
                 }
@@ -197,9 +203,9 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
     public componentWillUnmount(): void {
         super.componentWillUnmount();
 
-        if (this._bpsMetricsSubscription) {
-            this._metricsService.unsubscribe(this._bpsMetricsSubscription);
-            this._bpsMetricsSubscription = undefined;
+        if (this._gossipMetricsSubscription) {
+            this._metricsService.unsubscribe(this._gossipMetricsSubscription);
+            this._gossipMetricsSubscription = undefined;
         }
 
         this._vizualizerService.unsubscribe();
@@ -379,10 +385,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                                                 Total
                                             </div>
                                             <div className="card--value">
-                                                {FormatHelper.getInstance().amount(
-                                                    Number(this.calculateTotal()),
-                                                    false
-                                                )}
+                                                {this.state.selected.payload.amount}
                                             </div>
                                         </React.Fragment>
                                     )}
@@ -511,7 +514,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      * Draw a vertex.
      * @param vertex The vertex to draw.
      */
-    private updateVertex(vertex: IVisualizerVertex): void {
+    private updateVertex(vertex: IVertex): void {
         if (this._graph) {
             let node = this.updateNodeUI(vertex.shortId);
             if (!node) {
@@ -536,7 +539,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      * @param id The node id.
      * @returns The updated node.
      */
-    private updateNodeUI(id: string): Viva.Graph.INode<IVisualizerVertex, unknown> | undefined {
+    private updateNodeUI(id: string): Viva.Graph.INode<IVertex, unknown> | undefined {
         if (this._graphics && this._graph) {
             const node = this._graph?.getNode(id);
 
@@ -557,7 +560,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      * @param vertex The vertex to calculate the state for.
      * @returns The state.
      */
-    private calculateState(vertex?: IVisualizerVertex): string {
+    private calculateState(vertex?: IVertex): string {
         if (!vertex?.parents) {
             return "Unknown";
         }
@@ -587,7 +590,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      * @param vertex The vertex to calculate the size for.
      * @returns The size.
      */
-    private calculateSize(vertex?: IVisualizerVertex): number {
+    private calculateSize(vertex?: IVertex): number {
         if (!vertex?.parents) {
             return 10;
         }
@@ -601,7 +604,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      * Delete a vertex.
      * @param vertex The vertex to delete.
      */
-    private deleteVertex(vertex: IVisualizerVertex): void {
+    private deleteVertex(vertex: IVertex): void {
         if (this._graph) {
             this._graph.removeNode(vertex.shortId);
 
@@ -625,12 +628,12 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      * @param excludedIds Excluded ids.
      * @param counts The visualizer counts.
      */
-    private referenceVertex(referencedId: string, excludedIds: string[], counts: IVisualizerCounts): void {
+    private referenceVertex(referencedId: string, excludedIds: string[], counts: IVerticesCounts): void {
         if (this._graph) {
             const startNode = this._graph.getNode(referencedId);
 
             if (startNode) {
-                const seenBackwards: Viva.Graph.INode<IVisualizerVertex, unknown>[] = [];
+                const seenBackwards: Viva.Graph.INode<IVertex, unknown>[] = [];
                 this.dfsIterator(
                     startNode,
                     nodeId => {
@@ -674,11 +677,11 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      * @param seenNodes The nodes we have already seen.
      */
     private dfsIterator(
-        startNode: Viva.Graph.INode<IVisualizerVertex, unknown>,
+        startNode: Viva.Graph.INode<IVertex, unknown>,
         nodeCallback: ((nodeId: string) => boolean) | undefined,
         linkCallback: ((linkId: string) => void) | undefined,
         up: boolean,
-        seenNodes: Viva.Graph.INode<IVisualizerVertex, unknown>[]): void {
+        seenNodes: Viva.Graph.INode<IVertex, unknown>[]): void {
         if (this._graph) {
             seenNodes.push(startNode);
             let pointer = 0;
@@ -748,7 +751,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      * Select a node.
      * @param node The node to select
      */
-    private selectNode(node?: Viva.Graph.INode<IVisualizerVertex, unknown>): void {
+    private selectNode(node?: Viva.Graph.INode<IVertex, unknown>): void {
         if (this.state.selected) {
             this.state.selected.vertex.isSelected = false;
             this.updateNodeUI(this.state.selected.vertex.shortId);
@@ -778,7 +781,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
             },
                 async () => {
                     if (node.data?.fullId) {
-                        const payload = await this._tangleService.payload(node.data.fullId);
+                        const payload = node.data.payload;
                         let payloadTitle = "";
 
                         if (payload) {
@@ -813,7 +816,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      * @param vertex The vertex id.
      * @returns The url for the block.
      */
-    private calculateBlockLink(vertex?: IVisualizerVertex): string {
+    private calculateBlockLink(vertex?: IVertex): string {
         return vertex?.fullId
             ? `${window.location.protocol}//${window.location.host}` +
               `${process.env.PUBLIC_URL}/explorer/block/${vertex.fullId}`
@@ -830,8 +833,8 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
             const startNode = this._graph.getNode(vertexId);
 
             if (startNode) {
-                const seenForward: Viva.Graph.INode<IVisualizerVertex, unknown>[] = [];
-                const seenBackwards: Viva.Graph.INode<IVisualizerVertex, unknown>[] = [];
+                const seenForward: Viva.Graph.INode<IVertex, unknown>[] = [];
+                const seenBackwards: Viva.Graph.INode<IVertex, unknown>[] = [];
 
                 this.dfsIterator(
                     startNode,
@@ -881,24 +884,6 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                 }
             });
         }
-    }
-
-    /**
-     * Calculate the total of outputs for a transaction payload.
-     * @returns The total.
-     */
-    private calculateTotal(): number {
-        let total = 0;
-
-        if (this.state.selected?.payload?.type === TRANSACTION_PAYLOAD_TYPE) {
-            for (const output of this.state.selected.payload.essence.outputs) {
-                if (output.type === BASIC_OUTPUT_TYPE) {
-                    total += Number(output.amount);
-                }
-            }
-        }
-
-        return total;
     }
 }
 

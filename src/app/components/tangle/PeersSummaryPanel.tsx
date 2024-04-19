@@ -1,13 +1,12 @@
-import { IPeer } from "@iota/iota.js";
 import React, { Component, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ReactComponent as EyeClosedIcon } from "../../../assets/eye-closed.svg";
 import { ReactComponent as EyeIcon } from "../../../assets/eye.svg";
 import { ReactComponent as HealthBadIcon } from "../../../assets/health-bad.svg";
 import { ReactComponent as HealthGoodIcon } from "../../../assets/health-good.svg";
-import { ReactComponent as HealthWarningIcon } from "../../../assets/health-warning.svg";
 import { ServiceFactory } from "../../../factories/serviceFactory";
-import { ISyncStatus } from "../../../models/websocket/ISyncStatus";
+import { IPeer } from "../../../models/peers/IPeer";
+import { IPeersResponse } from "../../../models/peers/IPeersResponse";
 import { WebSocketTopic } from "../../../models/websocket/webSocketTopic";
 import { MetricsService } from "../../../services/metricsService";
 import { SettingsService } from "../../../services/settingsService";
@@ -30,9 +29,9 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
     private readonly _settingsService: SettingsService;
 
     /**
-     * The peer subscription id.
+     * The peer metrics subscription id.
      */
-    private _peerSubscription?: string;
+    private _peerMetricsSubscription?: string;
 
     /**
      * The sync status subscription id.
@@ -58,27 +57,10 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
      * The component mounted.
      */
     public componentDidMount(): void {
-        this._peerSubscription = this._metricsService.subscribe<IPeer[]>(
-            WebSocketTopic.PeerMetric,
+        this._peerMetricsSubscription = this._metricsService.subscribe<IPeersResponse>(
+            WebSocketTopic.PeerMetrics,
             data => {
-                this.handleData(data);
-            });
-
-        this._syncStatusSubscription = this._metricsService.subscribe<ISyncStatus>(
-            WebSocketTopic.SyncStatus,
-            data => {
-                if (data) {
-                    const cmi = data.cmi;
-                    const lmi = data.lmi;
-
-                    if (cmi && cmi !== this.state.cmi) {
-                        this.setState({ cmi });
-                    }
-
-                    if (lmi && lmi !== this.state.lmi) {
-                        this.setState({ lmi });
-                    }
-                }
+                this.handleData(data.peers);
             });
     }
 
@@ -86,9 +68,9 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
      * The component will unmount.
      */
     public componentWillUnmount(): void {
-        if (this._peerSubscription) {
-            this._metricsService.unsubscribe(this._peerSubscription);
-            this._peerSubscription = undefined;
+        if (this._peerMetricsSubscription) {
+            this._metricsService.unsubscribe(this._peerMetricsSubscription);
+            this._peerMetricsSubscription = undefined;
         }
 
         if (this._syncStatusSubscription) {
@@ -124,9 +106,7 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
                         className="peers-summary--item"
                     >
                         <div className="peer-health-icon">
-                            {p.health === 0 && <HealthBadIcon />}
-                            {p.health === 1 && <HealthWarningIcon />}
-                            {p.health === 2 && <HealthGoodIcon />}
+                            {p.connected ? <HealthGoodIcon /> : <HealthBadIcon />}
                         </div>
                         <div className="col">
                             <div className="peer-id">
@@ -153,17 +133,12 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
         let sortedPeers;
 
         if (data) {
-            sortedPeers = DataHelper.sortPeers(data.map(p => {
-                const cmi = this.state.cmi ?? 0;
-                const lmi = this.state.lmi ?? 0;
-
-                return {
+            sortedPeers = DataHelper.sortPeers(data.map(p => ({
                     id: p.id,
                     alias: p.alias,
-                    health: DataHelper.calculateHealth(p, cmi, lmi),
+                    connected: p.connected,
                     address: DataHelper.formatPeerAddress(p)
-                };
-            }));
+                })));
         }
 
         this.setState({

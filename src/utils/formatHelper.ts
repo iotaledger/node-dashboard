@@ -1,10 +1,5 @@
-import { INodeInfoBaseToken, TransactionHelper, UnitsHelper } from "@iota/iota.js";
-import { HexHelper } from "@iota/util.js";
-import bigInt from "big-integer";
 import humanize from "humanize-duration";
 import moment from "moment";
-import { ServiceFactory } from "../factories/serviceFactory";
-import { NodeConfigService } from "../services/nodeConfigService";
 
 /**
  * Class to help formatting values.
@@ -14,19 +9,6 @@ export class FormatHelper {
      * The singleton instance.
      */
     private static instance: FormatHelper;
-
-    /**
-     * The base token of the node.
-     */
-    private readonly _baseToken: INodeInfoBaseToken;
-
-    /**
-     * Create a new instance FormatHelper.
-     */
-    private constructor() {
-        const nodeConfigService = ServiceFactory.get<NodeConfigService>("node-config");
-        this._baseToken = nodeConfigService.getBaseToken();
-    }
 
     /**
      * Get the FormatHelper singleton instance.
@@ -152,36 +134,5 @@ export class FormatHelper {
             return valueInMs * 1000;
         }
         return valueInMs;
-    }
-
-    /**
-     * Check if id is all 0 because it hasn't moved and compute it as a hash of the outputId.
-     * @param id The id to resolve.
-     * @param outputId The output id to hash if nft/alias id is all 0.
-     * @returns The correct id.
-     */
-    public static resolveId(id: string, outputId: string): string {
-        return !HexHelper.toBigInt256(id).eq(bigInt.zero)
-            ? id
-            : TransactionHelper.resolveIdFromOutputId(outputId);
-    }
-
-    /**
-     * Format amount.
-     * @param value The value to format.
-     * @param formatFull Return full format.
-     * @param decimalPlaces The number of decimal places.
-     * @returns The formatted amount.
-     */
-    public amount(value: number, formatFull: boolean, decimalPlaces: number = 2): string {
-        if (formatFull) {
-            return `${value} ${this._baseToken.subunit ?? this._baseToken.unit}`;
-        }
-        const baseTokeValue = value / Math.pow(10, this._baseToken.decimals);
-        const amount = this._baseToken.useMetricPrefix
-                    ? UnitsHelper.formatBest(baseTokeValue)
-                    : `${Number.parseFloat(baseTokeValue.toFixed(decimalPlaces))} `;
-
-        return `${amount}${this._baseToken.unit}`;
     }
 }
