@@ -96,14 +96,6 @@ export class SingleNodeClient implements IClient {
     }
 
     /**
-     * Get the list of peers.
-     * @returns The list of peers.
-     */
-    public async peers(): Promise<IPeer[]> {
-        return this.fetchJson<never, IPeer[]>(this._managementApiPath, "get", "peers");
-    }
-
-    /**
      * Add a new peer.
      * @param multiAddress The address of the peer to add.
      * @param alias An optional alias for the peer.
@@ -130,15 +122,6 @@ export class SingleNodeClient implements IClient {
     public async peerDelete(peerId: string): Promise<void> {
         // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
         return this.fetchJson<never, void>(this._managementApiPath, "delete", `peers/${peerId}`);
-    }
-
-    /**
-     * Get a peer.
-     * @param peerId The peer to delete.
-     * @returns The details for the created peer.
-     */
-    public async peer(peerId: string): Promise<IPeer> {
-        return this.fetchJson<never, IPeer>(this._managementApiPath, "get", `peers/${peerId}`);
     }
 
     /**

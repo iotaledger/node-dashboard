@@ -10,11 +10,6 @@ export interface IClient {
      */
     info(): Promise<INodeInfo>;
     /**
-     * Get the list of peers.
-     * @returns The list of peers.
-     */
-    peers(): Promise<IPeer[]>;
-    /**
      * Add a new peer.
      * @param multiAddress The address of the peer to add.
      * @param alias An optional alias for the peer.
@@ -27,10 +22,4 @@ export interface IClient {
      * @returns Nothing.
      */
     peerDelete(peerId: string): Promise<void>;
-    /**
-     * Get a peer.
-     * @param peerId The peer to delete.
-     * @returns The details for the created peer.
-     */
-    peer(peerId: string): Promise<IPeer>;
 }
