@@ -98,7 +98,6 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                 if (peer && finalPeerIds.has(peer.id)) {
                                     const address = DataHelper.formatPeerAddress(peer);
                                     if (!peers[peer.id]) {
-                                        console.log("Adding peer", peer.id);
                                         peers[peer.id] = {
                                             id: peer.id,
                                             address: "",
@@ -128,10 +127,6 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
 
                                     peers[peer.id].receivedPacketsDiff = [];
                                     for (let i = 1; i < peers[peer.id].receivedPacketsTotal.length; i++) {
-                                        console.log("newblocks length peer", peer.id, peers[peer.id].receivedPacketsTotal.length, Math.max(
-                                            peers[peer.id].receivedPacketsTotal[i] -
-                                            peers[peer.id].receivedPacketsTotal[i - 1]
-                                            , 0));
                                         peers[peer.id].receivedPacketsDiff.push(
                                             Math.max(
                                                 peers[peer.id].receivedPacketsTotal[i] -
