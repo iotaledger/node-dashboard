@@ -66,7 +66,8 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
 
         this._peerMetricsSubscription = this._metricsService.subscribe<IPeersResponse>(
             WebSocketTopic.PeerMetrics,
-            data => {
+            undefined,
+            allData => {
                 let alias;
                 let address: string = "";
                 let isConnected = false;
@@ -77,16 +78,20 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                 let gossipMetrics;
                 let relation = "-";
 
-                for (const peer of data.peers) {
-                    if (peer && peer.id === this.props.match.params.id) {
-                        alias = peer.alias;
-                        address = DataHelper.formatPeerAddress(peer) ?? "";
-                        isConnected = peer.connected;
-                        gossipMetrics = peer.gossipMetrics;
-                        relation = peer.relation;
+                for (const allDataPeers of allData) {
+                    if (allDataPeers?.peers) {
+                        const peer = allDataPeers.peers.find(p => p.id === this.props.match.params.id);
 
-                        receivedPacketsTotal.push(gossipMetrics.packetsReceived);
-                        sentPacketsTotal.push(gossipMetrics.packetsSent);
+                        if (peer && peer.id === this.props.match.params.id) {
+                            alias = peer.alias;
+                            address = DataHelper.formatPeerAddress(peer) ?? "";
+                            isConnected = peer.connected;
+                            gossipMetrics = peer.gossipMetrics;
+                            relation = peer.relation;
+
+                            receivedPacketsTotal.push(gossipMetrics.packetsReceived);
+                            sentPacketsTotal.push(gossipMetrics.packetsSent);
+                        }
                     }
                 }
 

@@ -70,7 +70,8 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
 
         this._peerMetricsSubscription = this._metricsService.subscribe<IPeersResponse>(
             WebSocketTopic.PeerMetrics,
-            data => {
+            undefined,
+            allData => {
                 const peers: {
                     [id: string]: {
                         id: string;
@@ -87,62 +88,69 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                     };
                 } = {};
 
-                const dataPeers = data.peers;
-
-                if (dataPeers.length > 0) {
+                if (allData.length > 0) {
                     // Only track data for the peers that appear in the most recent list.
-                    const finalPeerIds = new Set(dataPeers.map(p => p.id));
+                    const finalPeerIds = new Set(allData[allData.length - 1].peers.map(p => p.id));
 
-                    for (const peer of dataPeers) {
-                        if (peer && finalPeerIds.has(peer.id)) {
-                                const address = DataHelper.formatPeerAddress(peer);
-                            if (!peers[peer.id]) {
-                                    peers[peer.id] = {
-                                        id: peer.id,
-                                        address: "",
-                                        connected: peer.connected,
-                                        relation: peer.relation,
-                                        receivedPacketsTotal: [],
-                                        sentPacketsTotal: [],
-                                        receivedPacketsDiff: [],
-                                        sentPacketsDiff: [],
-                                        lastUpdateTime: 0
-                                    };
-                                }
-                                peers[peer.id].id = peer.id;
-                                peers[peer.id].alias = peer.alias;
-                                peers[peer.id].address = address;
-                                peers[peer.id].connected = peer.connected;
-                                peers[peer.id].relation = peer.relation;
-                                peers[peer.id].lastUpdateTime = Date.now();
-                                if (peer.multiAddresses?.length) {
-                                    peers[peer.id].originalAddress = peer.multiAddresses[0];
-                                }
+                    for (const allDataPeers of allData) {
+                        if (allDataPeers?.peers) {
+                            for (const peer of allDataPeers.peers) {
+                                if (peer && finalPeerIds.has(peer.id)) {
+                                    const address = DataHelper.formatPeerAddress(peer);
+                                    if (!peers[peer.id]) {
+                                        console.log("Adding peer", peer.id);
+                                        peers[peer.id] = {
+                                            id: peer.id,
+                                            address: "",
+                                            connected: peer.connected,
+                                            relation: peer.relation,
+                                            receivedPacketsTotal: [],
+                                            sentPacketsTotal: [],
+                                            receivedPacketsDiff: [],
+                                            sentPacketsDiff: [],
+                                            lastUpdateTime: 0
+                                        };
+                                    }
+                                    peers[peer.id].id = peer.id;
+                                    peers[peer.id].alias = peer.alias;
+                                    peers[peer.id].address = address;
+                                    peers[peer.id].connected = peer.connected;
+                                    peers[peer.id].relation = peer.relation;
+                                    peers[peer.id].lastUpdateTime = Date.now();
+                                    if (peer.multiAddresses?.length) {
+                                        peers[peer.id].originalAddress = peer.multiAddresses[0];
+                                    }
 
-                                if (peer.gossipMetrics) {
-                                    peers[peer.id].receivedPacketsTotal.push(peer.gossipMetrics.packetsReceived);
-                                    peers[peer.id].sentPacketsTotal.push(peer.gossipMetrics.packetsSent);
-                                }
+                                    if (peer.gossipMetrics) {
+                                        peers[peer.id].receivedPacketsTotal.push(peer.gossipMetrics.packetsReceived);
+                                        peers[peer.id].sentPacketsTotal.push(peer.gossipMetrics.packetsSent);
+                                    }
 
-                                peers[peer.id].receivedPacketsDiff = [];
-                                for (let i = 1; i < peers[peer.id].receivedPacketsTotal.length; i++) {
-                                    peers[peer.id].receivedPacketsDiff.push(
-                                        Math.max(
+                                    peers[peer.id].receivedPacketsDiff = [];
+                                    for (let i = 1; i < peers[peer.id].receivedPacketsTotal.length; i++) {
+                                        console.log("newblocks length peer", peer.id, peers[peer.id].receivedPacketsTotal.length, Math.max(
                                             peers[peer.id].receivedPacketsTotal[i] -
                                             peers[peer.id].receivedPacketsTotal[i - 1]
-                                            , 0)
-                                    );
-                                }
-                                peers[peer.id].sentPacketsDiff = [];
-                                for (let i = 1; i < peers[peer.id].sentPacketsTotal.length; i++) {
-                                    peers[peer.id].sentPacketsDiff.push(
-                                        Math.max(
-                                            peers[peer.id].sentPacketsTotal[i] -
-                                            peers[peer.id].sentPacketsTotal[i - 1]
-                                            , 0)
-                                    );
+                                            , 0));
+                                        peers[peer.id].receivedPacketsDiff.push(
+                                            Math.max(
+                                                peers[peer.id].receivedPacketsTotal[i] -
+                                                peers[peer.id].receivedPacketsTotal[i - 1]
+                                                , 0)
+                                        );
+                                    }
+                                    peers[peer.id].sentPacketsDiff = [];
+                                    for (let i = 1; i < peers[peer.id].sentPacketsTotal.length; i++) {
+                                        peers[peer.id].sentPacketsDiff.push(
+                                            Math.max(
+                                                peers[peer.id].sentPacketsTotal[i] -
+                                                peers[peer.id].sentPacketsTotal[i - 1]
+                                                , 0)
+                                        );
+                                    }
                                 }
                             }
+                        }
                     }
                 }
 
