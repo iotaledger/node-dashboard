@@ -137,22 +137,25 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
             WebSocketTopic.DatabaseSizeMetric,
             data => {
                 if (data) {
-                    const nonNull = data.databaseSizes.filter(d => d !== undefined && d !== null);
-
-                    const dbSizeTotalValues = nonNull
-                    .map(d => d.total);
-
-                    this.setState({ dbSizeTotal: dbSizeTotalValues });
-
                     let dbSizeTotalFormatted = "-";
-                    if (dbSizeTotalValues.length > 0) {
-                        dbSizeTotalFormatted = FormatHelper.size(dbSizeTotalValues[0]);
+                    if (data.databaseSizes.length > 0) {
+                        dbSizeTotalFormatted = FormatHelper.size(data.databaseSizes[0].total);
                     }
 
                     if (dbSizeTotalFormatted !== this.state.dbSizeTotalFormatted) {
                         this.setState({ dbSizeTotalFormatted });
                     }
                 }
+            },
+            allData => {
+                const nonNull = allData.filter(d => d?.databaseSizes !== undefined && d?.databaseSizes !== null);
+
+                const dbSizeTotalValues = nonNull
+                    .map(d => d.databaseSizes.map(s => s.total));
+
+                const dbSizeTotalFlattened = dbSizeTotalValues.flat();
+
+                this.setState({ dbSizeTotal: dbSizeTotalFlattened });
             });
 
         this._gossipMetricsSubscription = this._metricsService.subscribe<IGossipMetrics>(
