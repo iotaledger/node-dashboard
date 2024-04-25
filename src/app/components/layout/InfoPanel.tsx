@@ -15,12 +15,12 @@ class InfoPanel extends Component<InfoPanelProps> {
      * @returns The node to render.
      */
     public render(): ReactNode {
-        let cmi = "";
-        let lmi = "";
+        let latestFinalizedSlot = "";
+        let latestCommitmentSlot = "";
         if (this.props.caption === SYNC_STATUS_CAPTION && this.props.value) {
-            const milestone = this.props.value.split("/");
-            cmi = milestone[0];
-            lmi = milestone[1];
+            const slots = this.props.value.split("/");
+            latestFinalizedSlot = slots[0];
+            latestCommitmentSlot = slots[1];
         }
         return (
             <div className={classNames("card", "info-panel", this.props.className)}>
@@ -38,7 +38,7 @@ class InfoPanel extends Component<InfoPanelProps> {
                                 {
                                     this.props.value ?
                                         <div className="value">
-                                            {cmi} / <span className="lmi">{lmi}</span>
+                                            {latestFinalizedSlot} / <span className="lmi">{latestCommitmentSlot}</span>
                                         </div> :
                                         "-"
                                 }

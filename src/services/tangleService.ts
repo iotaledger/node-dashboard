@@ -2,6 +2,7 @@ import { ServiceFactory } from "../factories/serviceFactory";
 import { SingleNodeClient } from "../models/clients/singleNodeClient";
 import { IClient } from "../models/IClient";
 import { INodeInfo } from "../models/info/INodeInfo";
+import { IBlock } from "../models/tangle/IBlock";
 import { AuthService } from "./authService";
 /**
  * Service to handle api requests.
@@ -32,6 +33,18 @@ export class TangleService {
         const client = this.buildClient();
         this._nodeInfo = await client.info();
         return this._nodeInfo;
+    }
+
+    /**
+     * Get the block payload.
+     * @param blockId The block to get.
+     * @returns The response data.
+     */
+    public async block(blockId: string): Promise<IBlock | undefined> {
+        try {
+            const client = this.buildClient();
+            return await client.block(blockId);
+        } catch {}
     }
 
     /**

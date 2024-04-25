@@ -1,9 +1,35 @@
+import { HexEncodedString } from "../models/hexEncodedTypes";
 import { IPeer } from "../models/peers/IPeer";
 
 /**
  * Class to help with processing of data.
  */
 export class DataHelper {
+    /**
+     * Computes a slotIndex from a block, transaction or slotCommitment Id.
+     * @param id The block, transaction or slotCommitment Id.
+     * @returns The slotIndex.
+     */
+    public static computeSlotIndex(
+        id: HexEncodedString
+    ): number {
+        const numberString = id.slice(-8);
+        const chunks = [];
+
+        for (
+            let charsLength = numberString.length, i = 0;
+            i < charsLength;
+            i += 2
+        ) {
+            chunks.push(numberString.slice(i, i + 2));
+        }
+        const separated = chunks.map(n => Number.parseInt(n, 16));
+        const buf = Uint8Array.from(separated).buffer;
+        const view = new DataView(buf);
+
+        return view.getUint32(0, true);
+    }
+
     /**
      * Format the address for the peer.
      * @param peer The peer.

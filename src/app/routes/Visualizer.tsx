@@ -7,26 +7,21 @@ import { ReactComponent as CloseIcon } from "../../assets/close.svg";
 import { ReactComponent as PauseIcon } from "../../assets/pause.svg";
 import { ReactComponent as PlayIcon } from "../../assets/play.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
+import { BLOCK_BODY_TYPE_BASIC, BLOCK_BODY_TYPE_VALIDATION } from "../../models/tangle/blockBodyTypes";
+import { PAYLOAD_TYPE_CANDIDACY_ANNOUNCEMENT, PAYLOAD_TYPE_SIGNED_TRANSACTION, PAYLOAD_TYPE_TAGGED_DATA } from "../../models/tangle/payloadTypes";
 import { IVertex } from "../../models/visualizer/IVertex";
-import { IVerticesCounts } from "../../models/visualizer/IVerticesCounts";
 import { IGossipMetrics } from "../../models/websocket/IGossipMetrics";
 import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
+import { DashboardConfigService } from "../../services/dashboardConfigService";
 import { EventAggregator } from "../../services/eventAggregator";
 import { MetricsService } from "../../services/metricsService";
 import { TangleService } from "../../services/tangleService";
 import { ThemeService } from "../../services/themeService";
 import { VisualizerService } from "../../services/visualizerService";
-import { FormatHelper } from "../../utils/formatHelper";
 import AsyncComponent from "../components/layout/AsyncComponent";
 import "./Visualizer.scss";
 import { VisualizerState } from "./VisualizerState";
 
-/**
- * The global type for the payload.
- */
-const TAGGED_DATA_PAYLOAD_TYPE = 5;
-const TRANSACTION_PAYLOAD_TYPE = 6;
-const MILESTONE_PAYLOAD_TYPE = 7;
 
 /**
  * Visualizer panel.
@@ -36,14 +31,22 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      * Map the vetex states to colors.
      */
     private static readonly STATE_COLOR_MAP: { [id: string]: number } = {
-        Solid: 0x4CAAFFFF,
-        Unsolid: 0x8FE6FAFF,
-        Referenced: 0x61E884FF,
-        Conflicting: 0xFF8B5CFF,
-        Transaction: 0xC061E8FF,
-        Milestone: 0xD92121FF,
-        Tip: 0xFFCA62FF,
-        Unknown: 0x9AADCEFF
+        unknown: 0x9AADCEFF,
+        pending: 0xECDF1EFF,
+        accepted: 0x8FE6FAFF,
+        confirmed: 0x2260E7FF,
+        finalized: 0x61E884FF,
+        transaction: 0xC061E8FF,
+        validation: 0xD92121FF,
+        tip: 0xFF8B5CFF
+    };
+
+    private static readonly BLOCK_STATE_TITLE_MAP: { [id: string]: string } = {
+        unknown: "Unknown",
+        pending: "Pending",
+        accepted: "Accepted",
+        confirmed: "Confirmed",
+        finalized: "Finalized"
     };
 
     /**
@@ -90,6 +93,11 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
     private readonly _vizualizerService: VisualizerService;
 
     /**
+     * The dashboard config service.
+     */
+    private readonly _dashboardConfigService: DashboardConfigService;
+
+    /**
      * The metrics service.
      */
     private readonly _metricsService: MetricsService;
@@ -129,6 +137,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
         this._graphElement = null;
         this._resize = () => this.resize();
         this._vizualizerService = ServiceFactory.get<VisualizerService>("visualizer");
+        this._dashboardConfigService = ServiceFactory.get<DashboardConfigService>("dashboard-config");
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
         this._tangleService = ServiceFactory.get<TangleService>("tangle");
         this._themeService = ServiceFactory.get<ThemeService>("theme");
@@ -137,10 +146,10 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
             bps: "-",
             total: "-",
             tips: "-",
-            referenced: "-",
+            accepted: "-",
+            confirmed: "-",
+            finalized: "-",
             transactions: "-",
-            conflicting: "-",
-            solid: "-",
             isActive: true,
             theme: this._themeService.get()
         };
@@ -167,20 +176,21 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                     this.setState({
                         total: counts.total.toString(),
                         tips: counts.tips.toString(),
-                        referenced: counts.total > 0
-                            ? `${(counts.referenced / counts.total * 100).toFixed(2)}%`
+                        accepted: counts.total > 0
+                            ? `${(counts.accepted / counts.total * 100).toFixed(2)}%`
+                            : "-",
+                        confirmed: counts.total > 0
+                            ? `${(counts.confirmed / counts.total * 100).toFixed(2)}%`
+                            : "-",
+                        finalized: counts.total > 0
+                            ? `${(counts.finalized / counts.total * 100).toFixed(2)}%`
                             : "-",
                         transactions: counts.total > 0
                             ? `${(counts.transactions / counts.total * 100).toFixed(2)}%`
-                            : "-",
-                        conflicting: counts.total > 0
-                            ? `${(counts.conflicting / counts.total * 100).toFixed(2)}%`
-                            : "-",
-                        solid: counts.total > 0 ? `${(counts.solid / counts.total * 100).toFixed(2)}%` : "-"
+                            : "-"
                     });
                 }
-            },
-            (referencedId, excludedIds, counts) => this.referenceVertex(referencedId, excludedIds, counts)
+            }
         );
 
         this._gossipMetricsSubscription = this._metricsService.subscribe<IGossipMetrics>(
@@ -276,10 +286,22 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                             {this.state.tips}
                         </div>
                         <div className="card--label">
-                            Referenced
+                            Accepted
                         </div>
                         <div className="card--value">
-                            {this.state.referenced}
+                            {this.state.accepted}
+                        </div>
+                        <div className="card--label">
+                            Confirmed
+                        </div>
+                        <div className="card--value">
+                            {this.state.confirmed}
+                        </div>
+                        <div className="card--label">
+                            Finalized
+                        </div>
+                        <div className="card--value">
+                            {this.state.finalized}
                         </div>
                         <div className="card--label">
                             Transactions
@@ -287,53 +309,41 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                         <div className="card--value">
                             {this.state.transactions}
                         </div>
-                        <div className="card--label">
-                            Conflicting
-                        </div>
-                        <div className="card--value">
-                            {this.state.conflicting}
-                        </div>
-                        <div className="card--label">
-                            Solid
-                        </div>
-                        <div className="card--value">
-                            {this.state.solid}
-                        </div>
                     </div>
                 </div>
                 <div className="key-panel-container">
                     <div className="card key-panel">
                         <div className="key-panel-item">
-                            <div className="key-marker vertex-state--solid" />
-                            <div className="key-label">Solid</div>
+                            <div className="key-marker vertex-state--pending" />
+                            <div className="key-label">Pending</div>
                         </div>
                         <div className="key-panel-item">
-                            <div className="key-marker vertex-state--unsolid" />
-                            <div className="key-label">Unsolid</div>
+                            <div className="key-marker vertex-state--accepted" />
+                            <div className="key-label">Accepted</div>
                         </div>
                         <div className="key-panel-item">
-                            <div className="key-marker vertex-state--referenced" />
-                            <div className="key-label">Referenced</div>
+                            <div className="key-marker vertex-state--confirmed" />
+                            <div className="key-label">Confirmed</div>
+                        </div>
+                        <div className="key-panel-item">
+                            <div className="key-marker vertex-state--finalized" />
+                            <div className="key-label">Finalized</div>
                         </div>
                         <div className="key-panel-item">
                             <div className="key-marker vertex-state--transaction" />
                             <div className="key-label">Transaction</div>
                         </div>
                         <div className="key-panel-item">
-                            <div className="key-marker vertex-state--conflicting" />
-                            <div className="key-label">Conflicting</div>
-                        </div>
-                        <div className="key-panel-item">
-                            <div className="key-marker vertex-state--milestone" />
-                            <div className="key-label">Milestone</div>
-                        </div>
-                        <div className="key-panel-item">
-                            <div className="key-marker vertex-state--unknown" />
-                            <div className="key-label">Unknown</div>
+                            <div className="key-marker vertex-state--validation" />
+                            <div className="key-label">Validation</div>
                         </div>
                         <div className="key-panel-item">
                             <div className="key-marker vertex-state--tip" />
                             <div className="key-label">Tip</div>
+                        </div>
+                        <div className="key-panel-item">
+                            <div className="key-marker vertex-state--unknown" />
+                            <div className="key-label">Unknown</div>
                         </div>
                     </div>
                 </div>
@@ -347,11 +357,11 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                                     <div className={
                                         classNames(
                                             "info-panel--key",
-                                            `vertex-state--${this.state.selected.state.toLowerCase()}`
+                                            `vertex-state--${this.state.selected.vertexState}`
                                         )
                                     }
                                     />
-                                    <h3>{this.state.selected.state}{this.state.selected.title}</h3>
+                                    <h3>{this.state.selected.blockStateTitle}{this.state.selected.payloadTitle}</h3>
                                 </div>
                                 <button
                                     type="button"
@@ -368,62 +378,75 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                                             Block Id
                                         </div>
                                         <div className="card--value">
-                                            <a
-                                                href={this.calculateBlockLink(this.state.selected.vertex)}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            >
-                                                {this.state.selected.vertex.fullId}
-                                            </a>
+                                            {
+                                                this.calculateBlockLink(this.state.selected.vertex) === ""
+                                                    ? <div>{this.state.selected.vertex.fullId}</div>
+                                                    :
+                                                    <a
+                                                        href={this.calculateBlockLink(this.state.selected.vertex)}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                    >
+                                                        {this.state.selected.vertex.fullId}
+                                                    </a>
+                                            }
                                         </div>
                                     </React.Fragment>
                                 )}
-                                {this.state.selected.payload &&
-                                    this.state.selected.payload.type === TRANSACTION_PAYLOAD_TYPE && (
-                                        <React.Fragment>
-                                            <div className="card--label">
-                                                Total
-                                            </div>
-                                            <div className="card--value">
-                                                {this.state.selected.payload.amount}
-                                            </div>
-                                        </React.Fragment>
-                                    )}
-                                {this.state.selected.payload &&
-                                    this.state.selected.payload.type === MILESTONE_PAYLOAD_TYPE && (
-                                        <React.Fragment>
-                                            <div className="card--label">
-                                                Index
-                                            </div>
-                                            <div className="card--value">
-                                                {this.state.selected.payload.index}
-                                            </div>
-                                            <div className="card--label">
-                                                Date
-                                            </div>
-                                            <div className="card--value">
-                                                {FormatHelper.date(this.state.selected.payload.timestamp, false)}
-                                            </div>
-                                        </React.Fragment>
-                                    )}
-                                {this.state.selected.payload &&
-                                    this.state.selected.payload.type === TAGGED_DATA_PAYLOAD_TYPE &&
-                                    this.state.selected.payload.tag && (
+                                {this.state.selected.block?.body?.type === BLOCK_BODY_TYPE_BASIC &&
+                                    this.state.selected.block.body.payload?.type === PAYLOAD_TYPE_TAGGED_DATA && (
                                         <React.Fragment>
                                             <div className="card--label">
                                                 Tag UTF8
                                             </div>
                                             <div className="card--value">
-                                                {Converter.hexToUtf8(this.state.selected.payload.tag)}
+                                                {Converter.hexToUtf8(this.state.selected.block?.body.payload.tag)}
                                             </div>
                                             <div className="card--label">
                                                 Tag Hex
                                             </div>
                                             <div className="card--value">
-                                                {this.state.selected.payload.tag}
+                                                {this.state.selected.block?.body.payload.tag}
                                             </div>
                                         </React.Fragment>
                                     )}
+                                {this.state.selected.block?.body?.type === BLOCK_BODY_TYPE_BASIC &&
+                                    this.state.selected.block.body.payload?.type === PAYLOAD_TYPE_SIGNED_TRANSACTION && (
+                                        <div />
+                                    )}
+                                {this.state.selected.block?.body?.type === BLOCK_BODY_TYPE_BASIC &&
+                                    this.state.selected.block.body.payload?.type === PAYLOAD_TYPE_CANDIDACY_ANNOUNCEMENT && (
+                                        <React.Fragment>
+                                            <div className="card--label">
+                                                Candidate
+                                            </div>
+                                            <div className="card--value">
+                                                {this.state.selected.block?.header.issuerId}
+                                            </div>
+                                        </React.Fragment>
+                                    )}
+
+                                {this.state.selected.block?.body?.type === BLOCK_BODY_TYPE_VALIDATION &&
+                                    <React.Fragment>
+                                        <div className="card--label">
+                                            Validator
+                                        </div>
+                                        <div className="card--value">
+                                            {this.state.selected.block?.header.issuerId}
+                                        </div>
+                                        <div className="card--label">
+                                            Highest Supported Version
+                                        </div>
+                                        <div className="card--value">
+                                            {this.state.selected.block?.body.highestSupportedVersion}
+                                        </div>
+                                        <div className="card--label">
+                                            Protocol Parameters Hash
+                                        </div>
+                                        <div className="card--value">
+                                            {this.state.selected.block?.body.protocolParametersHash}
+                                        </div>
+                                    </React.Fragment>}
                             </div>
                         </div>
                     </div>
@@ -456,7 +479,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
 
             this._graphics.node(node => Viva.Graph.View.webglSquare(
                 this.calculateSize(node.data),
-                `#${Visualizer.STATE_COLOR_MAP[this.calculateState(node.data)].toString(16)}`
+                `#${Visualizer.STATE_COLOR_MAP[this.calculateVertexState(node.data)].toString(16)}`
             ));
 
             this._graphics.link(() => Viva.Graph.View.webglLine(
@@ -546,7 +569,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
             if (node) {
                 const nodeUI = this._graphics.getNodeUI(id);
                 if (nodeUI) {
-                    nodeUI.color = Visualizer.STATE_COLOR_MAP[this.calculateState(node.data)];
+                    nodeUI.color = Visualizer.STATE_COLOR_MAP[this.calculateVertexState(node.data)];
                     nodeUI.size = this.calculateSize(node.data);
                 }
             }
@@ -560,29 +583,61 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      * @param vertex The vertex to calculate the state for.
      * @returns The state.
      */
-    private calculateState(vertex?: IVertex): string {
+    private calculateVertexState(vertex?: IVertex): string {
         if (!vertex?.parents) {
-            return "Unknown";
+            return "unknown";
         }
-        if (vertex.isMilestone) {
-            return "Milestone";
+
+        if (vertex.isValidationBlock) {
+            return "validation";
         }
+
         if (vertex.isTip) {
-            return "Tip";
+            return "tip";
         }
-        if (vertex.isConflicting) {
-            return "Conflicting";
-        }
-        if (vertex.isReferenced) {
-            if (vertex.isTransaction) {
-                return "Transaction";
+
+        if (vertex.isFinalized || vertex.isConfirmed) {
+            if (vertex.isBasicBlockSignedTransaction) {
+                return "transaction";
             }
-            return "Referenced";
+
+            if (vertex.isFinalized) {
+                return "finalized";
+            }
+
+            return "confirmed";
         }
-        if (vertex.isSolid) {
-            return "Solid";
+
+        if (vertex.isAccepted) {
+            return "accepted";
         }
-        return "Unsolid";
+
+        return "pending";
+    }
+
+    /**
+     * Calculate the state for the block.
+     * @param vertex The vertex to calculate the state for.
+     * @returns The block state.
+     */
+    private calculateBlockState(vertex?: IVertex): string {
+        if (!vertex?.parents) {
+            return "unknown";
+        }
+
+        if (vertex.isFinalized || vertex.isConfirmed) {
+            if (vertex.isFinalized) {
+                return "finalized";
+            }
+
+            return "confirmed";
+        }
+
+        if (vertex.isAccepted) {
+            return "accepted";
+        }
+
+        return "pending";
     }
 
     /**
@@ -594,7 +649,7 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
         if (!vertex?.parents) {
             return 10;
         }
-        if (vertex.isSelected || vertex.isMilestone) {
+        if (vertex.isSelected) {
             return 30;
         }
         return 20;
@@ -618,52 +673,6 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
                 this._enteredVertexId === vertex.shortId) {
                 this.connectedLinkStyle(this._enteredVertexId, false);
                 this._enteredVertexId = undefined;
-            }
-        }
-    }
-
-    /**
-     * Update the referenced information.
-     * @param referencedId The vertex that has been referenced.
-     * @param excludedIds Excluded ids.
-     * @param counts The visualizer counts.
-     */
-    private referenceVertex(referencedId: string, excludedIds: string[], counts: IVerticesCounts): void {
-        if (this._graph) {
-            const startNode = this._graph.getNode(referencedId);
-
-            if (startNode) {
-                const seenBackwards: Viva.Graph.INode<IVertex, unknown>[] = [];
-                this.dfsIterator(
-                    startNode,
-                    nodeId => {
-                        if (this._graph) {
-                            const parent = this._graph.getNode(nodeId);
-                            if (!parent?.data) {
-                                return true;
-                            }
-
-                            if (!parent.data.isReferenced && !parent.data.isConflicting) {
-                                if (excludedIds.includes(parent.data.shortId)) {
-                                    counts.conflicting++;
-                                    parent.data.isConflicting = true;
-                                    this.updateVertex(parent.data);
-                                    return false;
-                                }
-
-                                counts.referenced++;
-                                parent.data.isReferenced = true;
-                                this.updateVertex(parent.data);
-                                return false;
-                            }
-                        }
-
-                        return true;
-                    },
-                    undefined,
-                    false,
-                    seenBackwards
-                );
             }
         }
     }
@@ -776,32 +785,47 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
             this.setState({
                 selected: {
                     vertex: node?.data,
-                    state: this.calculateState(node.data)
+                    vertexState: this.calculateVertexState(node.data),
+                    blockStateTitle: Visualizer.BLOCK_STATE_TITLE_MAP[this.calculateBlockState(node.data)]
                 }
             },
                 async () => {
                     if (node.data?.fullId) {
-                        const payload = node.data.payload;
-                        let payloadTitle = "";
+                        const block = await this._tangleService.block(node.data.fullId);
+                        let payloadTitle = " - Unknown";
 
-                        if (payload) {
-                            if (payload.type === TRANSACTION_PAYLOAD_TYPE) {
-                                payloadTitle = " - Transaction";
-                            } else if (payload.type === MILESTONE_PAYLOAD_TYPE) {
-                                payloadTitle = "";
-                            } else if (payload.type === TAGGED_DATA_PAYLOAD_TYPE) {
-                                payloadTitle = " - Tagged data";
+                        if (block?.body) {
+                            switch (block?.body.type) {
+                                case BLOCK_BODY_TYPE_BASIC:
+                                    switch (block?.body.payload?.type) {
+                                        case PAYLOAD_TYPE_TAGGED_DATA:
+                                            payloadTitle = " - Tagged data";
+                                            break;
+                                        case PAYLOAD_TYPE_SIGNED_TRANSACTION:
+                                            payloadTitle = " - Signed transaction";
+                                            break;
+                                        case PAYLOAD_TYPE_CANDIDACY_ANNOUNCEMENT:
+                                            payloadTitle = " - Candidacy announcement";
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                    break;
+                                case BLOCK_BODY_TYPE_VALIDATION:
+                                    payloadTitle = " - Validation block";
+                                    break;
+                                default:
+                                    break;
                             }
-                        } else if (node.data.isMilestone) {
-                            payloadTitle = " - Checkpoint";
                         }
 
                         this.setState({
                             selected: {
                                 vertex: node?.data,
-                                state: this.calculateState(node.data),
-                                payload,
-                                title: payloadTitle
+                                vertexState: this.calculateVertexState(node.data),
+                                blockStateTitle: Visualizer.BLOCK_STATE_TITLE_MAP[this.calculateBlockState(node.data)],
+                                block,
+                                payloadTitle
                             }
                         });
                     }
@@ -817,10 +841,12 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      * @returns The url for the block.
      */
     private calculateBlockLink(vertex?: IVertex): string {
-        return vertex?.fullId
-            ? `${window.location.protocol}//${window.location.host}` +
-              `${process.env.PUBLIC_URL}/explorer/block/${vertex.fullId}`
-            : "";
+        const explorerURL = this._dashboardConfigService.getExplorerURL();
+        if (explorerURL === "" || !vertex?.fullId) {
+            return "";
+        }
+
+        return `${explorerURL}/block/${vertex.fullId}`;
     }
 
     /**

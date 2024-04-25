@@ -2,14 +2,10 @@
 export interface IVisualizerVertex {
     id: string;
     parents: string;
-    isSolid: boolean;
-    isAccepted: boolean;
-    isReferenced: boolean;
-    isConflicting: boolean;
-    isTransaction: boolean;
-    isMilestone: boolean;
+    blockState: string;
+    isBasicBlockTaggedData: boolean;
+    isBasicBlockSignedTransaction: boolean;
+    isBasicBlockCandidacyAnnouncement: boolean;
+    isValidationBlock: boolean;
     isTip: boolean;
-
-    // info set by the visualizer itself
-    isSelected: boolean;
 }

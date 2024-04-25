@@ -41,7 +41,7 @@ export class NodeConfigService {
     }
 
     /**
-     * Get the netwoork id.
+     * Get the network id.
      * @returns The network id.
      */
     public getNetworkId(): string {
@@ -50,7 +50,7 @@ export class NodeConfigService {
 
     /**
      * Set the network id.
-     * @param networkId The new blind mode.
+     * @param networkId The new network id.
      */
     public setNetworkId(networkId: string): void {
         this._networkId = networkId;

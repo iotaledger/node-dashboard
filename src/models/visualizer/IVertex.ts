@@ -1,7 +1,3 @@
-import { IMilestonePayload } from "../payloads/IMilestonePayload";
-import { ITaggedDataPayload } from "../payloads/ITaggedDataPayload";
-import { ITransactionPayload } from "../payloads/ITransactionPayload";
-
 export interface IVertex {
     /**
      * What is the id for the vertex.
@@ -14,41 +10,59 @@ export interface IVertex {
     shortId: string;
 
     /**
+     * Slot of the block.
+     */
+    slot?: number;
+
+    /**
      * Parent Ids.
      */
     parents?: string;
 
-    payload?: IMilestonePayload | ITaggedDataPayload | ITransactionPayload;
-
     /**
-     * Is the block solid.
+     * Block State.
      */
-    isSolid?: boolean;
+    blockState?: string;
 
     /**
-     * Is it a transaction.
+     * Is the block a basic block tagged data.
      */
-    isTransaction?: boolean;
+    isBasicBlockTaggedData?: boolean;
 
     /**
-     * Is the block conflicting.
+     * Is the block a basic block signed transaction.
      */
-    isConflicting?: boolean;
+    isBasicBlockSignedTransaction?: boolean;
 
     /**
-     * Is the block referenced.
+     * Is the block a basic block candidacy announcement.
      */
-    isReferenced?: boolean;
+    isBasicBlockCandidacyAnnouncement?: boolean;
 
     /**
-     * Is it a milestone.
+     * Is the block a validation block.
      */
-    isMilestone?: boolean;
+    isValidationBlock?: boolean;
 
     /**
-     * Is it a tip.
+     * Is the block a tip.
      */
     isTip?: boolean;
+
+    /**
+     * Is the block accepted.
+     */
+    isAccepted?: boolean;
+
+    /**
+     * Is the block confirmed.
+     */
+    isConfirmed?: boolean;
+
+    /**
+     * Is the block finalized.
+     */
+    isFinalized?: boolean;
 
     /**
      * Is it selected.

@@ -1,5 +1,7 @@
+import { HexEncodedString } from "./hexEncodedTypes";
 import type { INodeInfo } from "./info/INodeInfo";
 import { IPeer } from "./peers/IPeer";
+import { IBlock } from "./tangle/IBlock";
 /**
  * Client interface definition for API communication.
  */
@@ -9,6 +11,12 @@ export interface IClient {
      * @returns The node information.
      */
     info(): Promise<INodeInfo>;
+    /**
+     * Get the block data by id.
+     * @param blockId The block to get the data for.
+     * @returns The block data.
+     */
+    block(blockId: HexEncodedString): Promise<IBlock>;
     /**
      * Add a new peer.
      * @param multiAddress The address of the peer to add.

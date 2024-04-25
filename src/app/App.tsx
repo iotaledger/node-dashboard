@@ -14,6 +14,7 @@ import { IPublicNodeStatus } from "../models/websocket/IPublicNodeStatus";
 import { ISyncStatus } from "../models/websocket/ISyncStatus";
 import { WebSocketTopic } from "../models/websocket/webSocketTopic";
 import { AuthService } from "../services/authService";
+import { DashboardConfigService } from "../services/dashboardConfigService";
 import { EventAggregator } from "../services/eventAggregator";
 import { LocalStorageService } from "../services/localStorageService";
 import { MetricsService } from "../services/metricsService";
@@ -54,6 +55,11 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
     private readonly _storageService: LocalStorageService;
 
     /**
+     * The dashboard config service.
+     */
+    private readonly _dashboardConfigService: DashboardConfigService;
+
+    /**
      * The metrics service.
      */
     private readonly _metricsService: MetricsService;
@@ -79,14 +85,14 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
     private _alias?: string;
 
     /**
-     * The lastest milestone index.
+     * The lastest committed slot.
      */
-    private _lmi?: string;
+    private _latestCommitmentSlot?: string;
 
     /**
-     * The confirmed milestone index.
+     * The latest finalized slot.
      */
-    private _cmi?: string;
+    private _latestFinalizedSlot?: string;
 
     /**
      * The time of the last status update.
@@ -111,6 +117,7 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
         super(props);
         this._themeService = ServiceFactory.get<ThemeService>("theme");
         this._authService = ServiceFactory.get<AuthService>("auth");
+        this._dashboardConfigService = ServiceFactory.get<DashboardConfigService>("dashboard-config");
         this._metricsService = ServiceFactory.get<MetricsService>("metrics");
         this._storageService = ServiceFactory.get<LocalStorageService>("local-storage");
 
@@ -160,12 +167,12 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
             WebSocketTopic.SyncStatus,
             data => {
                 if (data) {
-                    const lmi = data.latestCommitmentSlot ? data.latestCommitmentSlot.toString() : "";
-                    const smi = data.latestFinalizedSlot ? data.latestFinalizedSlot.toString() : "";
+                    const latestCommitmentSlot = data.latestCommitmentSlot ? data.latestCommitmentSlot.toString() : "";
+                    const latestFinalizedSlot = data.latestFinalizedSlot ? data.latestFinalizedSlot.toString() : "";
 
-                    if (lmi !== this._lmi || smi !== this._cmi) {
-                        this._cmi = smi;
-                        this._lmi = lmi;
+                    if (latestCommitmentSlot !== this._latestCommitmentSlot || latestFinalizedSlot !== this._latestFinalizedSlot) {
+                        this._latestCommitmentSlot = latestCommitmentSlot;
+                        this._latestFinalizedSlot = latestFinalizedSlot;
                         this.updateTitle();
                     }
                 }
@@ -386,8 +393,8 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
         if (this._alias) {
             title += ` (${this._alias})`;
         }
-        if (this._lmi && this._cmi) {
-            title += ` ${this._cmi} / ${this._lmi}`;
+        if (this._latestCommitmentSlot && this._latestFinalizedSlot) {
+            title += ` ${this._latestFinalizedSlot} / ${this._latestCommitmentSlot}`;
         }
 
         document.title = title;

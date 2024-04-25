@@ -1,6 +1,4 @@
-import { IMilestonePayload } from "../../models/payloads/IMilestonePayload";
-import { ITaggedDataPayload } from "../../models/payloads/ITaggedDataPayload";
-import { ITransactionPayload } from "../../models/payloads/ITransactionPayload";
+import { IBlock } from "../../models/tangle/IBlock";
 import { IVertex } from "../../models/visualizer/IVertex";
 
 export interface VisualizerState {
@@ -20,24 +18,24 @@ export interface VisualizerState {
     tips: string;
 
     /**
-     * Referenced.
+     * Accepted.
      */
-    referenced: string;
+    accepted: string;
+
+    /**
+     * Confirmed.
+     */
+    confirmed: string;
+
+    /**
+     * Finalized.
+     */
+    finalized: string;
 
     /**
      * Transactions.
      */
     transactions: string;
-
-    /**
-     * Conflicting.
-     */
-    conflicting: string;
-
-    /**
-     * Solid.
-     */
-    solid: string;
 
     /**
      * Is the rendering active.
@@ -54,19 +52,24 @@ export interface VisualizerState {
         vertex: IVertex;
 
         /**
-         * Select item state.
+         * Select item vertex state.
          */
-        state: string;
+        vertexState: string;
 
         /**
-         * Select item title.
+         * Select item block state title.
          */
-        title?: string;
+        blockStateTitle?: string;
 
         /**
-         * Select item payload.
+         * Select item payload title.
          */
-        payload?: ITransactionPayload | ITaggedDataPayload | IMilestonePayload;
+        payloadTitle?: string;
+
+        /**
+         * Select item block.
+         */
+        block?: IBlock;
     };
 
     /**

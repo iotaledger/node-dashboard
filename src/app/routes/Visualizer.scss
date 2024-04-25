@@ -112,15 +112,23 @@
     }
   }
 
-  .vertex-state--solid {
-    background-color: #4caaff;
+  .vertex-state--unknown {
+    background-color: #9aadce;
   }
 
-  .vertex-state--unsolid {
+  .vertex-state--pending {
+    background-color: #ecdf1e;
+  }
+
+  .vertex-state--accepted {
     background-color: #8fe6fa;
   }
 
-  .vertex-state--referenced {
+  .vertex-state--confirmed {
+    background-color: #2260e7;
+  }
+
+  .vertex-state--finalized {
     background-color: #61e884;
   }
 
@@ -128,19 +136,11 @@
     background-color: #c061e8;
   }
 
-  .vertex-state--conflicting {
-    background-color: #ff8b5c;
-  }
-
-  .vertex-state--milestone {
+  .vertex-state--validation {
     background-color: #d92121;
   }
 
-  .vertex-state--unknown {
-    background-color: #9aadce;
-  }
-
   .vertex-state--tip {
-    background-color: #ffca62;
+    background-color: #ff8b5c;
   }
 }

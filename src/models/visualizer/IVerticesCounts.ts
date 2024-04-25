@@ -4,21 +4,21 @@ export interface IVerticesCounts {
      */
     total: number;
     /**
-     * How many solid vertices.
+     * How many accepted vertices.
      */
-    solid: number;
+    accepted: number;
     /**
-     * How many referenced vertices.
+     * How many confirmed vertices.
      */
-    referenced: number;
+    confirmed: number;
+    /**
+     * How many finalized vertices.
+     */
+    finalized: number;
     /**
      * How many transaction vertices.
      */
     transactions: number;
-    /**
-     * How many conflicting vertices.
-     */
-    conflicting: number;
     /**
      * How many tip vertices.
      */

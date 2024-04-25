@@ -1,10 +1,12 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 import { Converter } from "@iota/util.js";
+import { HexEncodedString } from "../hexEncodedTypes";
 import { IClient } from "../IClient";
 import { INodeInfo } from "../info/INodeInfo";
 import { IResponse } from "../IResponse";
 import { IPeer } from "../peers/IPeer";
+import { IBlock } from "../tangle/IBlock";
 import { ClientError } from "./clientError";
 import type { SingleNodeClientOptions } from "./singleNodeClientOptions";
 
@@ -93,6 +95,15 @@ export class SingleNodeClient implements IClient {
      */
     public async info(): Promise<INodeInfo> {
         return this.fetchJson<never, INodeInfo>(this._coreApiPath, "get", "info");
+    }
+
+    /**
+     * Get the block data by id.
+     * @param blockId The block to get the data for.
+     * @returns The block data.
+     */
+    public async block(blockId: HexEncodedString): Promise<IBlock> {
+        return this.fetchJson<never, IBlock>(this._coreApiPath, "get", `blocks/${blockId}`);
     }
 
     /**
