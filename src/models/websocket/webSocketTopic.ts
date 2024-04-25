@@ -7,8 +7,6 @@ export enum WebSocketTopic {
     NetworkMetrics = 5,
     DatabaseSizeMetric = 6,
     VisualizerVertex = 7,
-    VisualizerSolidInfo = 8,
-    VisualizerConfirmationInfo = 9,
-    VisualizerCommitmentInfo = 10,
-    VisualizerTipInfo = 11,
+    VisualizerBlockStateInfo = 8,
+    VisualizerTipInfo = 9,
 }

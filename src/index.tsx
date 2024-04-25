@@ -7,6 +7,7 @@ import { ServiceFactory } from "./factories/serviceFactory";
 import "./index.scss";
 import { IBrandConfiguration } from "./models/IBrandConfiguration";
 import { AuthService } from "./services/authService";
+import { DashboardConfigService } from "./services/dashboardConfigService";
 import { EventAggregator } from "./services/eventAggregator";
 import { LocalStorageService } from "./services/localStorageService";
 import { MetricsService } from "./services/metricsService";
@@ -57,6 +58,10 @@ async function initServices(): Promise<IBrandConfiguration | undefined> {
     const themeService = new ThemeService();
     themeService.initialize();
     ServiceFactory.register("theme", () => themeService);
+
+    const dashboardConfigService = new DashboardConfigService();
+    await dashboardConfigService.initialize();
+    ServiceFactory.register("dashboard-config", () => dashboardConfigService);
 
     const nodeConfigService = new NodeConfigService();
     await nodeConfigService.initialize();
