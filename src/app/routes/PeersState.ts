@@ -6,7 +6,6 @@ export interface PeersState {
         id: string;
         alias?: string;
         address?: string;
-        originalAddress?: string;
         connected: boolean;
         relation: string;
         receivedPacketsTotal: number[];
@@ -29,11 +28,6 @@ export interface PeersState {
     /**
      * The peer to operate on.
      */
-    dialogPeerId?: string;
-
-    /**
-     * The peer to operate on.
-     */
     dialogPeerIdOriginal?: string;
 
     /**
@@ -49,7 +43,7 @@ export interface PeersState {
     /**
      * Address for adding a peer.
      */
-    dialogPeerAddress: string;
+    dialogPeerMultiAddress: string;
 
     /**
      * Alias for adding a peer.

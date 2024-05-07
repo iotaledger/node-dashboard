@@ -110,8 +110,8 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
                         </div>
                         <div className="col">
                             <div className="peer-id">
-                                {this.state.blindMode && ("*".repeat((p.alias ?? p.id).length))}
-                                {!this.state.blindMode && (p.alias ?? p.id)}
+                                {this.state.blindMode && ("*".repeat((p.alias ?? "").length))}
+                                {!this.state.blindMode && (p.alias ?? "")}
                             </div>
                             {p.address && (
                                 <div className="peer-id">
@@ -137,7 +137,7 @@ class PeersSummaryPanel extends Component<unknown, PeersSummaryState> {
                     id: p.id,
                     alias: p.alias,
                     connected: p.connected,
-                    address: DataHelper.formatPeerAddress(p)
+                    address: `${p.multiAddresses[0]}/p2p/${p.id}`
                 })));
         }
 

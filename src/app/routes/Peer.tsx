@@ -9,7 +9,6 @@ import { WebSocketTopic } from "../../models/websocket/webSocketTopic";
 import { MetricsService } from "../../services/metricsService";
 import { SettingsService } from "../../services/settingsService";
 import { ClipboardHelper } from "../../utils/clipboardHelper";
-import { DataHelper } from "../../utils/dataHelper";
 import AsyncComponent from "../components/layout/AsyncComponent";
 import BlockButton from "../components/layout/BlockButton";
 import Graph from "../components/layout/Graph";
@@ -84,7 +83,7 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
 
                         if (peer && peer.id === this.props.match.params.id) {
                             alias = peer.alias;
-                            address = DataHelper.formatPeerAddress(peer) ?? "";
+                            address = `${peer.multiAddresses[0]}/p2p/${peer.id}`;
                             isConnected = peer.connected;
                             gossipMetrics = peer.gossipMetrics;
                             relation = peer.relation;
@@ -165,41 +164,9 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                         <div className="banner row tablet-down-column spread">
                             <div className="node-info">
                                 {this.state.alias && (
-                                    <React.Fragment>
-                                        <h2 className="word-break-all">{this.state.blindMode
+                                    <h2 className="word-break-all">{this.state.blindMode
                                             ? "*".repeat(this.state.alias.length) : this.state.alias}
-                                        </h2>
-                                        <span className="row bottom">
-                                            <p className="secondary margin-t-t">{this.state.blindMode
-                                                ? "*".repeat(this.props.match.params.id.length)
-                                                : this.props.match.params.id}
-                                            </p>
-                                            <div className="margin-l-t">
-                                                <BlockButton
-                                                    onClick={() => ClipboardHelper.copy(this.props.match.params.id)}
-                                                    buttonType="copy"
-                                                    labelPosition="right"
-                                                />
-                                            </div>
-                                        </span>
-                                    </React.Fragment>
-                                )}
-                                {!this.state.alias && (
-                                    <span className="row bottom">
-                                        <h2 className="word-break-all">{
-                                            this.state.blindMode ?
-                                                "*".repeat(this.props.match.params.id.length) :
-                                                this.props.match.params.id
-                                            }
-                                        </h2>
-                                        <div className="margin-l-t">
-                                            <BlockButton
-                                                onClick={() => ClipboardHelper.copy(this.props.match.params.id)}
-                                                buttonType="copy"
-                                                labelPosition="right"
-                                            />
-                                        </div>
-                                    </span>
+                                    </h2>
                                 )}
                                 <span className="row bottom">
                                     <p className="secondary margin-t-t">{this.state.blindMode
@@ -209,12 +176,7 @@ class Peer extends AsyncComponent<RouteComponentProps<PeerRouteProps>, PeerState
                                         <div className="margin-l-t">
                                             <BlockButton
                                                 onClick={() => {
-                                                    const parts = this.state.address.split(":");
-                                                    if (parts.length === 2) {
-                                                        ClipboardHelper.copy(`/ip4/${parts[0]}/tcp/${parts[1]}`);
-                                                    } else {
-                                                        ClipboardHelper.copy(this.state.address);
-                                                    }
+                                                    ClipboardHelper.copy(this.state.address);
                                                 }}
                                                 buttonType="copy"
                                                 labelPosition="right"
