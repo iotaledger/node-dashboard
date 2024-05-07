@@ -254,7 +254,7 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                             Relation: {`${p.relation
                                                 .slice(0, 1).toUpperCase()}${p.relation.slice(1)}`}
                                         </p>
-                                        {p.relation !== "known" && p.originalAddress && (
+                                        {p.relation !== "manual" && p.originalAddress && (
                                             <button
                                                 type="button"
                                                 className="card--action margin-t-s"
@@ -268,10 +268,10 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                                                     dialogBusy: false
                                                 })}
                                             >
-                                                Promote to Known
+                                                Promote to Manual
                                             </button>
                                         )}
-                                        {p.relation === "known" && (
+                                        {p.relation === "manual" && (
                                             <button
                                                 type="button"
                                                 className="card--action margin-t-s"
@@ -321,7 +321,7 @@ class Peers extends AsyncComponent<RouteComponentProps, PeersState> {
                             title={{
                                 "add": "Add Peer",
                                 "edit": "Edit Peer",
-                                "promote": "Promote to Known",
+                                "promote": "Promote to Manual",
                                 "delete": "Delete Confirmation"
                             }[this.state.dialogType]}
                             actions={[
