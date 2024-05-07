@@ -117,15 +117,15 @@
   }
 
   .vertex-state--pending {
-    background-color: #ecdf1e;
+    background-color: #ec9a1e;
   }
 
   .vertex-state--accepted {
-    background-color: #8fe6fa;
+    background-color: #f5f24f;
   }
 
   .vertex-state--confirmed {
-    background-color: #2260e7;
+    background-color: #5cfaff;
   }
 
   .vertex-state--finalized {
@@ -137,10 +137,10 @@
   }
 
   .vertex-state--validation {
-    background-color: #d92121;
+    background-color: #2260e7;
   }
 
   .vertex-state--tip {
-    background-color: #ff8b5c;
+    background-color: #d92121;
   }
 }

@@ -32,13 +32,13 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
      */
     private static readonly STATE_COLOR_MAP: { [id: string]: number } = {
         unknown: 0x9AADCEFF,
-        pending: 0xECDF1EFF,
-        accepted: 0x8FE6FAFF,
-        confirmed: 0x2260E7FF,
+        pending: 0xEC9A1EFF,
+        accepted: 0xF5F24FFF,
+        confirmed: 0x5CFAFFFF,
         finalized: 0x61E884FF,
         transaction: 0xC061E8FF,
-        validation: 0xD92121FF,
-        tip: 0xFF8B5CFF
+        validation: 0x2260E7FF,
+        tip: 0xD92121FF
     };
 
     private static readonly BLOCK_STATE_TITLE_MAP: { [id: string]: string } = {
@@ -588,23 +588,23 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
             return "unknown";
         }
 
-        if (vertex.isValidationBlock) {
-            return "validation";
-        }
-
         if (vertex.isTip) {
             return "tip";
         }
 
-        if (vertex.isFinalized || vertex.isConfirmed) {
+        if (vertex.isFinalized) {
+            if (vertex.isValidationBlock) {
+                return "validation";
+            }
+
             if (vertex.isBasicBlockSignedTransaction) {
                 return "transaction";
             }
 
-            if (vertex.isFinalized) {
-                return "finalized";
-            }
+            return "finalized";
+        }
 
+        if (vertex.isConfirmed) {
             return "confirmed";
         }
 
@@ -625,11 +625,11 @@ class Visualizer extends AsyncComponent<RouteComponentProps, VisualizerState> {
             return "unknown";
         }
 
-        if (vertex.isFinalized || vertex.isConfirmed) {
-            if (vertex.isFinalized) {
-                return "finalized";
-            }
+        if (vertex.isFinalized) {
+            return "finalized";
+        }
 
+        if (vertex.isConfirmed) {
             return "confirmed";
         }
 
