@@ -3,8 +3,8 @@ import { ReactComponent as BannerCurve } from "../../assets/banner-curve.svg";
 import { ReactComponent as ConfirmationIcon } from "../../assets/confirmation.svg";
 import { ReactComponent as DbIcon } from "../../assets/db-icon.svg";
 import { ReactComponent as MemoryIcon } from "../../assets/memory.svg";
-import { ReactComponent as MilestoneIcon } from "../../assets/milestone.svg";
 import { ReactComponent as PruningIcon } from "../../assets/pruning.svg";
+import { ReactComponent as SlotIcon } from "../../assets/slot.svg";
 import { ReactComponent as UptimeIcon } from "../../assets/uptime.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
 import { INetworkMetrics } from "../../models/info/INetworkMetrics";
@@ -354,14 +354,14 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                 <InfoPanel
                                     caption="Finalized Slot / Committed Slot"
                                     value={`${this.state.latestFinalizedSlot} / ${this.state.latestCommitmentSlot}`}
-                                    icon={<MilestoneIcon />}
-                                    backgroundStyle="green"
+                                    icon={<SlotIcon />}
+                                    iconStyle="green"
                                 />
                                 <InfoPanel
                                     caption="Pruning Epoch"
-                                    value={this.state.pruningEpoch?.toString()}
+                                    value={this.state.pruningEpoch}
                                     icon={<PruningIcon />}
-                                    backgroundStyle="orange"
+                                    iconStyle="orange"
                                 />
                             </div>
                             <div className="row margin-t-s tablet-down-column">
@@ -369,13 +369,13 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                     caption="Uptime"
                                     value={this.state.uptime}
                                     icon={<UptimeIcon />}
-                                    backgroundStyle="blue"
+                                    iconStyle="blue"
                                 />
                                 <InfoPanel
                                     caption="Memory Usage"
                                     value={this.state.memory}
                                     icon={<MemoryIcon />}
-                                    backgroundStyle="purple"
+                                    iconStyle="purple"
                                 />
                             </div>
                             <div className="row margin-t-s tablet-down-column">
@@ -383,13 +383,13 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                     caption="Permanent DB Size"
                                     value={this.state.dbSizePermanentFormatted}
                                     icon={<DbIcon />}
-                                    backgroundStyle="green"
+                                    iconStyle="purple"
                                 />
                                 <InfoPanel
                                     caption="Prunable DB Size"
                                     value={this.state.dbSizePrunableFormatted}
                                     icon={<DbIcon />}
-                                    backgroundStyle="green"
+                                    iconStyle="purple"
                                 />
                             </div>
                             <div className="row margin-t-s tablet-down-column">
@@ -397,13 +397,13 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                     caption="TxRetainer DB Size"
                                     value={this.state.dbSizeTxRetainerFormatted}
                                     icon={<DbIcon />}
-                                    backgroundStyle="green"
+                                    iconStyle="purple"
                                 />
                                 <InfoPanel
                                     caption="Total DB Size"
                                     value={this.state.dbSizeTotalFormatted}
                                     icon={<DbIcon />}
-                                    backgroundStyle="green"
+                                    iconStyle="purple"
                                 />
                             </div>
                             <div className="row margin-t-s tablet-down-column">
@@ -432,20 +432,20 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                 <InfoPanel
                                     caption="Blocks per Second"
                                     value={this.state.bps}
-                                    icon={<MilestoneIcon />}
-                                    backgroundStyle="green"
+                                    icon={<SlotIcon />}
+                                    iconStyle="blue"
                                 />
                                 <InfoPanel
                                     caption="Referenced Blocks per Second"
                                     value={this.state.rbps}
                                     icon={<UptimeIcon />}
-                                    backgroundStyle="blue"
+                                    iconStyle="blue"
                                 />
                                 <InfoPanel
                                     caption="Referenced Rate"
                                     value={this.state.referencedRate}
                                     icon={<ConfirmationIcon />}
-                                    backgroundStyle="purple"
+                                    iconStyle="blue"
                                 />
                             </div>
                         </div>

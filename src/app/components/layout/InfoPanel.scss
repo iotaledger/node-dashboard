@@ -43,7 +43,7 @@
       @include tablet-down {
         @include font-size(17px);
       }
-  
+
       @include phone-down {
         @include font-size(16px);
       }
@@ -77,6 +77,53 @@
       height: 60px;
     }
 
+    .icon-fill {
+      svg {
+        z-index: 1;
+        flex: 1;
+      }
+
+      &.icon-fill--green {
+        svg {
+          path {
+            fill: #16e1d5;
+          }
+        }
+      }
+
+      &.icon-fill--orange {
+        svg {
+          path {
+            fill: #ff8b5c;
+          }
+        }
+      }
+
+      &.icon-fill--blue {
+        svg {
+          path {
+            fill: #4baaff;
+          }
+        }
+      }
+
+      &.icon-fill--purple {
+        svg {
+          path {
+            fill: #666af6;
+          }
+        }
+      }
+
+      &.icon-fill--grey {
+        svg {
+          path {
+            fill: #d8d8d8;
+          }
+        }
+      }
+    }
+
     .icon-background {
       position: absolute;
       width: 80px;
@@ -104,11 +151,10 @@
       &.icon-background--purple {
         background-color: #666af6;
       }
-    }
 
-    svg {
-      z-index: 1;
-      flex: 1;
+      &.icon-background--grey {
+        background-color: #d8d8d8;
+      }
     }
   }
 }
