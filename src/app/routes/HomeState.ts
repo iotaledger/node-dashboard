@@ -31,6 +31,21 @@ export interface HomeState {
     displayLatestVersion?: string;
 
     /**
+     * Current slot.
+     */
+    currentSlot?: string;
+
+    /**
+     * Current epoch.
+     */
+    currentEpoch?: string;
+
+    /**
+     * Latest accepted block slot.
+     */
+    latestAcceptedBlockSlot?: string;
+
+    /**
      * Latest finalized slot.
      */
     latestFinalizedSlot?: string;

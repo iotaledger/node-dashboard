@@ -101,6 +101,9 @@ class Home extends AsyncComponent<unknown, HomeState> {
             nodeId: "",
             displayVersion: "",
             displayLatestVersion: "",
+            currentSlot: "-",
+            currentEpoch: "-",
+            latestAcceptedBlockSlot: "-",
             latestCommitmentSlot: "-",
             latestFinalizedSlot: "-",
             pruningEpoch: "-",
@@ -182,8 +185,23 @@ class Home extends AsyncComponent<unknown, HomeState> {
             WebSocketTopic.SyncStatus,
             data => {
                 if (data) {
-                    const latestFinalizedSlot = data.latestFinalizedSlot ? data.latestFinalizedSlot.toString() : "";
-                    const latestCommitmentSlot = data.latestCommitmentSlot ? data.latestCommitmentSlot.toString() : "";
+                    const currentSlot = data.currentSlot.toString();
+                    const currentEpoch = data.currentEpoch.toString();
+                    const latestAcceptedBlockSlot = data.latestAcceptedBlockSlot.toString();
+                    const latestFinalizedSlot = data.latestFinalizedSlot.toString();
+                    const latestCommitmentSlot = data.latestCommitmentSlot.toString();
+
+                    if (currentSlot !== this.state.currentSlot) {
+                        this.setState({ currentSlot });
+                    }
+
+                    if (currentEpoch !== this.state.currentEpoch) {
+                        this.setState({ currentEpoch });
+                    }
+
+                    if (latestAcceptedBlockSlot !== this.state.latestAcceptedBlockSlot) {
+                        this.setState({ latestAcceptedBlockSlot });
+                    }
 
                     if (latestFinalizedSlot !== this.state.latestFinalizedSlot) {
                         this.setState({ latestFinalizedSlot });
@@ -351,6 +369,20 @@ class Home extends AsyncComponent<unknown, HomeState> {
                     <div className="row fill margin-t-s desktop-down-column">
                         <div className="col info-col fill">
                             <div className="row tablet-down-column">
+                                <InfoPanel
+                                    caption="Accepted Slot / Current Slot"
+                                    value={`${this.state.latestAcceptedBlockSlot} / ${this.state.currentSlot}`}
+                                    icon={<SlotIcon />}
+                                    iconStyle="grey"
+                                />
+                                <InfoPanel
+                                    caption="Current Epoch"
+                                    value={this.state.currentEpoch}
+                                    icon={<SlotIcon />}
+                                    iconStyle="grey"
+                                />
+                            </div>
+                            <div className="row margin-t-s tablet-down-column">
                                 <InfoPanel
                                     caption="Finalized Slot / Committed Slot"
                                     value={`${this.state.latestFinalizedSlot} / ${this.state.latestCommitmentSlot}`}
