@@ -1,8 +1,8 @@
 /* eslint-disable camelcase */
 export interface IDatabaseSizesMetric {
-    permanent: number;
-    prunable: number;
-    txRetainer: number;
-    total: number;
-    ts: number;
+    permanent: string;
+    prunable: string;
+    txRetainer: string;
+    total: string;
+    ts: string;
 }

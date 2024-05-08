@@ -2,8 +2,8 @@
 export interface INodeInfoExtended {
     version: string;
     latestVersion: string;
-    uptime: number;
+    uptime: string;
     nodeId: string;
     nodeAlias: string;
-    memoryUsage: number;
+    memoryUsage: string;
 }

@@ -155,8 +155,8 @@ class Home extends AsyncComponent<unknown, HomeState> {
                 if (data) {
                     const nodeName = data.nodeAlias ?? BrandHelper.getConfiguration().name;
                     const nodeId = data.nodeId || "No node Id.";
-                    const uptime = FormatHelper.duration(data.uptime);
-                    const memory = FormatHelper.iSize(data.memoryUsage);
+                    const uptime = FormatHelper.duration(Number.parseInt(data.uptime, 10));
+                    const memory = FormatHelper.iSize(Number.parseInt(data.memoryUsage, 10));
 
                     if (nodeName !== this.state.nodeName) {
                         this.setState({ nodeName });
@@ -205,15 +205,15 @@ class Home extends AsyncComponent<unknown, HomeState> {
 
                     if (data.blocksPerSecond) {
                         bps = Number.parseFloat(data.blocksPerSecond).toFixed(1)
-.toString();
+                            .toString();
                     }
                     if (data.confirmedBlocksPerSecond) {
                         rbps = Number.parseFloat(data.confirmedBlocksPerSecond).toFixed(1)
-.toString();
+                            .toString();
                     }
                     if (data.confirmationRate) {
                         referencedRate = `${Number.parseFloat(data.confirmationRate).toFixed(1)
-.toString()}%`;
+                            .toString()}%`;
                     }
 
                     this.setState({
@@ -248,22 +248,22 @@ class Home extends AsyncComponent<unknown, HomeState> {
 
                     const dbSizeMetric = data.databaseSizes[0];
 
-                    const dbSizePermanentFormatted = FormatHelper.size(dbSizeMetric.permanent);
+                    const dbSizePermanentFormatted = FormatHelper.size(Number.parseInt(dbSizeMetric.permanent, 10));
                     if (dbSizePermanentFormatted !== this.state.dbSizePermanentFormatted) {
                         this.setState({ dbSizePermanentFormatted });
                     }
 
-                    const dbSizePrunableFormatted = FormatHelper.size(dbSizeMetric.prunable);
+                    const dbSizePrunableFormatted = FormatHelper.size(Number.parseInt(dbSizeMetric.prunable, 10));
                     if (dbSizePrunableFormatted !== this.state.dbSizePrunableFormatted) {
                         this.setState({ dbSizePrunableFormatted });
                     }
 
-                    const dbSizeTxRetainerFormatted = FormatHelper.size(dbSizeMetric.txRetainer);
+                    const dbSizeTxRetainerFormatted = FormatHelper.size(Number.parseInt(dbSizeMetric.txRetainer, 10));
                     if (dbSizeTxRetainerFormatted !== this.state.dbSizeTxRetainerFormatted) {
                         this.setState({ dbSizeTxRetainerFormatted });
                     }
 
-                    const dbSizeTotalFormatted = FormatHelper.size(dbSizeMetric.total);
+                    const dbSizeTotalFormatted = FormatHelper.size(Number.parseInt(dbSizeMetric.total, 10));
                     if (dbSizeTotalFormatted !== this.state.dbSizeTotalFormatted) {
                         this.setState({ dbSizeTotalFormatted });
                     }
