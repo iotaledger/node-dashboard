@@ -3,8 +3,8 @@ import { ReactComponent as BannerCurve } from "../../assets/banner-curve.svg";
 import { ReactComponent as ConfirmationIcon } from "../../assets/confirmation.svg";
 import { ReactComponent as DbIcon } from "../../assets/db-icon.svg";
 import { ReactComponent as MemoryIcon } from "../../assets/memory.svg";
-import { ReactComponent as MilestoneIcon } from "../../assets/milestone.svg";
 import { ReactComponent as PruningIcon } from "../../assets/pruning.svg";
+import { ReactComponent as SlotIcon } from "../../assets/slot.svg";
 import { ReactComponent as UptimeIcon } from "../../assets/uptime.svg";
 import { ServiceFactory } from "../../factories/serviceFactory";
 import { INetworkMetrics } from "../../models/info/INetworkMetrics";
@@ -101,6 +101,9 @@ class Home extends AsyncComponent<unknown, HomeState> {
             nodeId: "",
             displayVersion: "",
             displayLatestVersion: "",
+            currentSlot: "-",
+            currentEpoch: "-",
+            latestAcceptedBlockSlot: "-",
             latestCommitmentSlot: "-",
             latestFinalizedSlot: "-",
             pruningEpoch: "-",
@@ -155,8 +158,8 @@ class Home extends AsyncComponent<unknown, HomeState> {
                 if (data) {
                     const nodeName = data.nodeAlias ?? BrandHelper.getConfiguration().name;
                     const nodeId = data.nodeId || "No node Id.";
-                    const uptime = FormatHelper.duration(data.uptime);
-                    const memory = FormatHelper.iSize(data.memoryUsage);
+                    const uptime = FormatHelper.duration(Number.parseInt(data.uptime, 10));
+                    const memory = FormatHelper.iSize(Number.parseInt(data.memoryUsage, 10));
 
                     if (nodeName !== this.state.nodeName) {
                         this.setState({ nodeName });
@@ -182,8 +185,23 @@ class Home extends AsyncComponent<unknown, HomeState> {
             WebSocketTopic.SyncStatus,
             data => {
                 if (data) {
-                    const latestFinalizedSlot = data.latestFinalizedSlot ? data.latestFinalizedSlot.toString() : "";
-                    const latestCommitmentSlot = data.latestCommitmentSlot ? data.latestCommitmentSlot.toString() : "";
+                    const currentSlot = data.currentSlot.toString();
+                    const currentEpoch = data.currentEpoch.toString();
+                    const latestAcceptedBlockSlot = data.latestAcceptedBlockSlot.toString();
+                    const latestFinalizedSlot = data.latestFinalizedSlot.toString();
+                    const latestCommitmentSlot = data.latestCommitmentSlot.toString();
+
+                    if (currentSlot !== this.state.currentSlot) {
+                        this.setState({ currentSlot });
+                    }
+
+                    if (currentEpoch !== this.state.currentEpoch) {
+                        this.setState({ currentEpoch });
+                    }
+
+                    if (latestAcceptedBlockSlot !== this.state.latestAcceptedBlockSlot) {
+                        this.setState({ latestAcceptedBlockSlot });
+                    }
 
                     if (latestFinalizedSlot !== this.state.latestFinalizedSlot) {
                         this.setState({ latestFinalizedSlot });
@@ -205,15 +223,15 @@ class Home extends AsyncComponent<unknown, HomeState> {
 
                     if (data.blocksPerSecond) {
                         bps = Number.parseFloat(data.blocksPerSecond).toFixed(1)
-.toString();
+                            .toString();
                     }
                     if (data.confirmedBlocksPerSecond) {
                         rbps = Number.parseFloat(data.confirmedBlocksPerSecond).toFixed(1)
-.toString();
+                            .toString();
                     }
                     if (data.confirmationRate) {
                         referencedRate = `${Number.parseFloat(data.confirmationRate).toFixed(1)
-.toString()}%`;
+                            .toString()}%`;
                     }
 
                     this.setState({
@@ -248,22 +266,22 @@ class Home extends AsyncComponent<unknown, HomeState> {
 
                     const dbSizeMetric = data.databaseSizes[0];
 
-                    const dbSizePermanentFormatted = FormatHelper.size(dbSizeMetric.permanent);
+                    const dbSizePermanentFormatted = FormatHelper.size(Number.parseInt(dbSizeMetric.permanent, 10));
                     if (dbSizePermanentFormatted !== this.state.dbSizePermanentFormatted) {
                         this.setState({ dbSizePermanentFormatted });
                     }
 
-                    const dbSizePrunableFormatted = FormatHelper.size(dbSizeMetric.prunable);
+                    const dbSizePrunableFormatted = FormatHelper.size(Number.parseInt(dbSizeMetric.prunable, 10));
                     if (dbSizePrunableFormatted !== this.state.dbSizePrunableFormatted) {
                         this.setState({ dbSizePrunableFormatted });
                     }
 
-                    const dbSizeTxRetainerFormatted = FormatHelper.size(dbSizeMetric.txRetainer);
+                    const dbSizeTxRetainerFormatted = FormatHelper.size(Number.parseInt(dbSizeMetric.txRetainer, 10));
                     if (dbSizeTxRetainerFormatted !== this.state.dbSizeTxRetainerFormatted) {
                         this.setState({ dbSizeTxRetainerFormatted });
                     }
 
-                    const dbSizeTotalFormatted = FormatHelper.size(dbSizeMetric.total);
+                    const dbSizeTotalFormatted = FormatHelper.size(Number.parseInt(dbSizeMetric.total, 10));
                     if (dbSizeTotalFormatted !== this.state.dbSizeTotalFormatted) {
                         this.setState({ dbSizeTotalFormatted });
                     }
@@ -352,16 +370,30 @@ class Home extends AsyncComponent<unknown, HomeState> {
                         <div className="col info-col fill">
                             <div className="row tablet-down-column">
                                 <InfoPanel
+                                    caption="Accepted Slot / Current Slot"
+                                    value={`${this.state.latestAcceptedBlockSlot} / ${this.state.currentSlot}`}
+                                    icon={<SlotIcon />}
+                                    iconStyle="grey"
+                                />
+                                <InfoPanel
+                                    caption="Current Epoch"
+                                    value={this.state.currentEpoch}
+                                    icon={<SlotIcon />}
+                                    iconStyle="grey"
+                                />
+                            </div>
+                            <div className="row margin-t-s tablet-down-column">
+                                <InfoPanel
                                     caption="Finalized Slot / Committed Slot"
                                     value={`${this.state.latestFinalizedSlot} / ${this.state.latestCommitmentSlot}`}
-                                    icon={<MilestoneIcon />}
-                                    backgroundStyle="green"
+                                    icon={<SlotIcon />}
+                                    iconStyle="green"
                                 />
                                 <InfoPanel
                                     caption="Pruning Epoch"
-                                    value={this.state.pruningEpoch?.toString()}
+                                    value={this.state.pruningEpoch}
                                     icon={<PruningIcon />}
-                                    backgroundStyle="orange"
+                                    iconStyle="orange"
                                 />
                             </div>
                             <div className="row margin-t-s tablet-down-column">
@@ -369,13 +401,13 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                     caption="Uptime"
                                     value={this.state.uptime}
                                     icon={<UptimeIcon />}
-                                    backgroundStyle="blue"
+                                    iconStyle="blue"
                                 />
                                 <InfoPanel
                                     caption="Memory Usage"
                                     value={this.state.memory}
                                     icon={<MemoryIcon />}
-                                    backgroundStyle="purple"
+                                    iconStyle="purple"
                                 />
                             </div>
                             <div className="row margin-t-s tablet-down-column">
@@ -383,13 +415,13 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                     caption="Permanent DB Size"
                                     value={this.state.dbSizePermanentFormatted}
                                     icon={<DbIcon />}
-                                    backgroundStyle="green"
+                                    iconStyle="purple"
                                 />
                                 <InfoPanel
                                     caption="Prunable DB Size"
                                     value={this.state.dbSizePrunableFormatted}
                                     icon={<DbIcon />}
-                                    backgroundStyle="green"
+                                    iconStyle="purple"
                                 />
                             </div>
                             <div className="row margin-t-s tablet-down-column">
@@ -397,13 +429,13 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                     caption="TxRetainer DB Size"
                                     value={this.state.dbSizeTxRetainerFormatted}
                                     icon={<DbIcon />}
-                                    backgroundStyle="green"
+                                    iconStyle="purple"
                                 />
                                 <InfoPanel
                                     caption="Total DB Size"
                                     value={this.state.dbSizeTotalFormatted}
                                     icon={<DbIcon />}
-                                    backgroundStyle="green"
+                                    iconStyle="purple"
                                 />
                             </div>
                             <div className="row margin-t-s tablet-down-column">
@@ -432,20 +464,20 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                 <InfoPanel
                                     caption="Blocks per Second"
                                     value={this.state.bps}
-                                    icon={<MilestoneIcon />}
-                                    backgroundStyle="green"
+                                    icon={<SlotIcon />}
+                                    iconStyle="blue"
                                 />
                                 <InfoPanel
                                     caption="Referenced Blocks per Second"
                                     value={this.state.rbps}
                                     icon={<UptimeIcon />}
-                                    backgroundStyle="blue"
+                                    iconStyle="blue"
                                 />
                                 <InfoPanel
                                     caption="Referenced Rate"
                                     value={this.state.referencedRate}
                                     icon={<ConfirmationIcon />}
-                                    backgroundStyle="purple"
+                                    iconStyle="blue"
                                 />
                             </div>
                         </div>

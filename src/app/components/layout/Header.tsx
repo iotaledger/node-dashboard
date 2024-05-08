@@ -118,7 +118,7 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
             WebSocketTopic.NodeInfoExtended,
             data => {
                 if (data) {
-                    const memorySizeFormatted = FormatHelper.iSize(data.memoryUsage, 1);
+                    const memorySizeFormatted = FormatHelper.iSize(Number.parseInt(data.memoryUsage, 10), 1);
 
                     if (memorySizeFormatted !== this.state.memorySizeFormatted) {
                         this.setState({ memorySizeFormatted });
@@ -129,7 +129,7 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
                 const nonNull = allData.filter(d => d !== undefined && d !== null);
                 this.setState({
                     memorySize: nonNull
-                        .map(d => d.memoryUsage)
+                        .map(d => Number.parseInt(d.memoryUsage, 10))
                 });
             });
 
@@ -139,7 +139,7 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
                 if (data) {
                     let dbSizeTotalFormatted = "-";
                     if (data.databaseSizes.length > 0) {
-                        dbSizeTotalFormatted = FormatHelper.size(data.databaseSizes[0].total);
+                        dbSizeTotalFormatted = FormatHelper.size(Number.parseInt(data.databaseSizes[0].total, 10));
                     }
 
                     if (dbSizeTotalFormatted !== this.state.dbSizeTotalFormatted) {
@@ -155,7 +155,7 @@ class Header extends AsyncComponent<RouteComponentProps & HeaderProps, HeaderSta
 
                 const dbSizeTotalFlattened = dbSizeTotalValues.flat();
 
-                this.setState({ dbSizeTotal: dbSizeTotalFlattened });
+                this.setState({ dbSizeTotal: dbSizeTotalFlattened.map(s => Number.parseInt(s, 10)) });
             });
 
         this._gossipMetricsSubscription = this._metricsService.subscribe<IGossipMetrics>(

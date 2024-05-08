@@ -25,8 +25,10 @@ class InfoPanel extends Component<InfoPanelProps> {
         return (
             <div className={classNames("card", "info-panel", this.props.className)}>
                 <div className="icon-container">
-                    <div className={`icon-background icon-background--${this.props.backgroundStyle}`} />
-                    {this.props.icon}
+                    <div className={`icon-background icon-background--${this.props.iconStyle}`} />
+                    <div className={`icon-fill icon-fill--${this.props.iconStyle}`}>
+                        {this.props.icon}
+                    </div>
                 </div>
                 <div className="col info--labels">
                     <h4>{this.props.caption}</h4>

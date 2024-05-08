@@ -17,9 +17,9 @@ export interface InfoPanelProps {
     icon: ReactNode;
 
     /**
-     * The background style for the icon.
+     * The style for the icon.
      */
-    backgroundStyle: "green" | "orange" | "blue" | "purple";
+    iconStyle: "green" | "orange" | "blue" | "purple" | "grey";
 
     /**
      * Class names.
