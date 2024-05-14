@@ -82,7 +82,7 @@ export class WebSocketService {
         if (this._webSocket && this._webSocket.readyState === WebSocket.OPEN) {
             // If we are already connected just subscribe to the topic.
             this.subscribeTopic(topic);
-        } else if (!this._webSocket) {
+        } else if (!this._webSocket || this._webSocket.readyState === WebSocket.CLOSING || this._webSocket.readyState === WebSocket.CLOSED) {
             // Otherwise connect the socket which will in turn subscribe to
             // all the topics with callbacks.
             this.connectSocket();
@@ -210,8 +210,6 @@ export class WebSocketService {
             const jwt = this._authService.isLoggedIn();
 
             if (!requiresAuth || (requiresAuth && jwt)) {
-                this._subscriptions[topicId].isSubscribed = true;
-
                 const arrayBuf = new ArrayBuffer(2 + (jwt && requiresAuth ? jwt.length : 0));
                 const view = new Uint8Array(arrayBuf);
                 view[0] = 0; // register
@@ -221,8 +219,9 @@ export class WebSocketService {
                     view.set(Buffer.from(jwt), 2);
                 }
 
-                if (this._webSocket) {
+                if (this._webSocket && this._webSocket.readyState === WebSocket.OPEN) {
                     this._webSocket.send(arrayBuf);
+                    this._subscriptions[topicId].isSubscribed = true;
                 }
             }
         }
