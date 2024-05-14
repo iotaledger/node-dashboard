@@ -35,7 +35,7 @@ export class NodeConfigService {
 
             try {
                 const info = await tangleService.info();
-                this.setNetworkId(info.protocol.networkName);
+                this.setNetworkId(info.protocolParameters[0].parameters.networkName);
             } catch {}
         }
     }

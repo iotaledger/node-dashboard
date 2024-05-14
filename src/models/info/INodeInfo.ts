@@ -1,4 +1,4 @@
-import type { INodeInfoProtocol } from "./INodeInfoProtocol";
+import { INodeInfoProtocolParameter } from "./INodeInfoProtocolParameters";
 /**
  * Response from the /info endpoint.
  */
@@ -12,7 +12,7 @@ export interface INodeInfo {
      */
     version: string;
     /**
-     * The protocol info of the node.
+     * The protocol parameters of the node.
      */
-    protocol: INodeInfoProtocol;
+    protocolParameters: INodeInfoProtocolParameter[];
 }
