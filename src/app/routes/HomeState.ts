@@ -11,6 +11,11 @@ export interface HomeState {
     nodeId?: string;
 
     /**
+     * The multiaddress of the node.
+     */
+    multiAddress?: string;
+
+    /**
      * The version.
      */
     version?: string;

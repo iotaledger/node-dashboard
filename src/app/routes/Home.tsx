@@ -20,8 +20,10 @@ import { NodeConfigService } from "../../services/nodeConfigService";
 import { SettingsService } from "../../services/settingsService";
 import { ThemeService } from "../../services/themeService";
 import { BrandHelper } from "../../utils/brandHelper";
+import { ClipboardHelper } from "../../utils/clipboardHelper";
 import { FormatHelper } from "../../utils/formatHelper";
 import AsyncComponent from "../components/layout/AsyncComponent";
+import BlockButton from "../components/layout/BlockButton";
 import Graph from "../components/layout/Graph";
 import InfoPanel from "../components/layout/InfoPanel";
 import PeersSummaryPanel from "../components/tangle/PeersSummaryPanel";
@@ -99,6 +101,7 @@ class Home extends AsyncComponent<unknown, HomeState> {
         this.state = {
             nodeName: "",
             nodeId: "",
+            multiAddress: "",
             displayVersion: "",
             displayLatestVersion: "",
             currentSlot: "-",
@@ -156,8 +159,9 @@ class Home extends AsyncComponent<unknown, HomeState> {
             WebSocketTopic.NodeInfoExtended,
             data => {
                 if (data) {
-                    const nodeName = data.nodeAlias ?? BrandHelper.getConfiguration().name;
+                    const nodeName = data.alias ?? BrandHelper.getConfiguration().name;
                     const nodeId = data.nodeId || "No node Id.";
+                    const multiAddress = `${data.multiAddress}/p2p/${data.nodeId}`;
                     const uptime = FormatHelper.duration(Number.parseInt(data.uptime, 10));
                     const memory = FormatHelper.iSize(Number.parseInt(data.memoryUsage, 10));
 
@@ -167,6 +171,10 @@ class Home extends AsyncComponent<unknown, HomeState> {
 
                     if (nodeId !== this.state.nodeId) {
                         this.setState({ nodeId });
+                    }
+
+                    if (multiAddress !== this.state.multiAddress) {
+                        this.setState({ multiAddress });
                     }
 
                     if (uptime !== this.state.uptime) {
@@ -348,9 +356,20 @@ class Home extends AsyncComponent<unknown, HomeState> {
                                 <div>
                                     <h1>{this.state.blindMode ? "**********" : this.state.nodeName}</h1>
                                     {this.state.nodeId && (
-                                        <p className="secondary margin-t-t word-break-all">
-                                            {this.state.blindMode ? "*********" : this.state.nodeId}
-                                        </p>
+                                        <span className="row bottom">
+                                            <p className="secondary margin-t-t word-break-all">
+                                                {this.state.blindMode ? "*********" : this.state.nodeId}
+                                            </p>
+                                            <div className="margin-l-t">
+                                                <BlockButton
+                                                    onClick={() => {
+                                                        ClipboardHelper.copy(this.state.multiAddress);
+                                                    }}
+                                                    buttonType="copy"
+                                                    labelPosition="right"
+                                                />
+                                            </div>
+                                        </span>
                                     )}
                                 </div>
                                 <p className="secondary">

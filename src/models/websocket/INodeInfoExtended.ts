@@ -4,6 +4,7 @@ export interface INodeInfoExtended {
     latestVersion: string;
     uptime: string;
     nodeId: string;
-    nodeAlias: string;
+    multiAddress: string;
+    alias: string;
     memoryUsage: string;
 }

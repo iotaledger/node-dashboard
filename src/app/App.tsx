@@ -157,8 +157,8 @@ class App extends AsyncComponent<RouteComponentProps, AppState> {
         this._nodeInfoExtendedSubscription = this._metricsService.subscribe<INodeInfoExtended>(
             WebSocketTopic.NodeInfoExtended,
             data => {
-                if (data && data.nodeAlias !== this._alias) {
-                    this._alias = data.nodeAlias;
+                if (data && data.alias !== this._alias) {
+                    this._alias = data.alias;
                     this.updateTitle();
                 }
             });
